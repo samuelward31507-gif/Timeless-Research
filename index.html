@@ -7,365 +7,430 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #08090e; --surface: #0f1117; --surface2: #161820; --surface3: #1e2130;
-      --border: #2a2d3e; --accent: #4f8ef7; --accent2: #7eb3ff; --gold: #f0b429;
-      --green: #22c55e; --red: #ef4444; --text: #e8eaf2; --muted: #6b7280; --muted2: #9ca3af;
+      --bg: #ffffff; --surface: #f8f9fb; --surface2: #f0f2f5; --border: #e5e7eb;
+      --accent: #1a1a2e; --accent2: #16213e; --blue: #0f3460; --gold: #e94560;
+      --green: #10b981; --text: #111827; --muted: #6b7280; --muted2: #9ca3af; --white: #ffffff;
     }
     html { scroll-behavior: smooth; }
-    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; min-height: 100vh; overflow-x: hidden; }
-    nav { position: sticky; top: 0; z-index: 100; background: rgba(8,9,14,.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 64px; display: flex; align-items: center; justify-content: space-between; }
-    .nav-logo { font-size: 1.4rem; font-weight: 900; letter-spacing: -1px; color: var(--text); text-decoration: none; }
-    .nav-logo span { color: var(--accent); }
-    .nav-links { display: flex; gap: 2rem; list-style: none; }
-    .nav-links a { color: var(--muted2); text-decoration: none; font-size: .88rem; font-weight: 500; transition: color .2s; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; overflow-x: hidden; }
+    .announce { background: var(--accent); color: #fff; text-align: center; padding: .55rem 1rem; font-size: .78rem; font-weight: 600; }
+    .announce span { color: var(--gold); margin: 0 .75rem; }
+    nav { background: #fff; border-bottom: 1px solid var(--border); padding: 0 2rem; position: sticky; top: 0; z-index: 200; }
+    .nav-inner { max-width: 1280px; margin: 0 auto; height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
+    .nav-logo { font-size: 1.25rem; font-weight: 900; color: var(--accent); text-decoration: none; letter-spacing: -0.5px; white-space: nowrap; }
+    .nav-logo em { color: var(--gold); font-style: normal; }
+    .nav-links { display: flex; gap: 1.75rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .85rem; font-weight: 500; transition: color .2s; }
     .nav-links a:hover { color: var(--text); }
     .nav-right { display: flex; align-items: center; gap: 1rem; }
-    .nav-badge { background: var(--green); color: #fff; font-size: .7rem; font-weight: 700; padding: .2rem .6rem; border-radius: 999px; letter-spacing: .5px; }
-    .nav-cta { background: var(--accent); color: #fff; padding: .5rem 1.2rem; border-radius: 8px; font-size: .85rem; font-weight: 700; text-decoration: none; transition: opacity .2s; }
-    .nav-cta:hover { opacity: .85; }
-    @media (max-width: 768px) { .nav-links { display: none; } }
-    .hero { position: relative; text-align: center; padding: 100px 2rem 80px; overflow: hidden; }
-    .hero::before { content: ''; position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 800px; height: 500px; background: radial-gradient(ellipse, rgba(79,142,247,.12) 0%, transparent 70%); pointer-events: none; }
-    .hero-eyebrow { display: inline-flex; align-items: center; gap: .5rem; background: rgba(79,142,247,.1); border: 1px solid rgba(79,142,247,.25); color: var(--accent2); font-size: .78rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: .35rem 1rem; border-radius: 999px; margin-bottom: 1.5rem; }
-    .hero h1 { font-size: clamp(2.2rem, 5.5vw, 3.8rem); font-weight: 900; line-height: 1.1; margin-bottom: 1.25rem; letter-spacing: -1.5px; }
-    .hero h1 span { color: var(--accent); }
-    .hero p { font-size: 1.1rem; color: var(--muted2); max-width: 560px; margin: 0 auto 2.5rem; line-height: 1.7; }
-    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-    .btn-primary { background: var(--accent); color: #fff; padding: .9rem 2rem; border-radius: 10px; font-size: 1rem; font-weight: 700; text-decoration: none; transition: opacity .2s; }
-    .btn-primary:hover { opacity: .85; }
-    .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); padding: .9rem 2rem; border-radius: 10px; font-size: 1rem; font-weight: 600; text-decoration: none; transition: border-color .2s; }
-    .btn-ghost:hover { border-color: var(--accent); }
-    .trust-bar { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 1.25rem 2rem; }
-    .trust-inner { max-width: 1100px; margin: 0 auto; display: flex; justify-content: center; flex-wrap: wrap; gap: 2rem; }
-    .trust-item { display: flex; align-items: center; gap: .6rem; font-size: .85rem; font-weight: 600; color: var(--muted2); }
-    .section { padding: 80px 2rem; }
-    .section-inner { max-width: 1200px; margin: 0 auto; }
-    .section-header { text-align: center; margin-bottom: 3rem; }
-    .section-header .label { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: .75rem; }
-    .section-header h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800; letter-spacing: -.5px; margin-bottom: .75rem; }
-    .section-header p { color: var(--muted2); font-size: .95rem; max-width: 520px; margin: 0 auto; line-height: 1.6; }
-    .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
-    .cat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; text-align: center; cursor: pointer; transition: border-color .2s, transform .2s; text-decoration: none; color: var(--text); display: block; }
-    .cat-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-    .cat-icon { font-size: 2rem; margin-bottom: .75rem; }
-    .cat-name { font-size: .95rem; font-weight: 700; margin-bottom: .25rem; }
-    .cat-count { font-size: .78rem; color: var(--muted); }
-    .featured-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
-    .featured-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; position: relative; transition: border-color .2s, transform .15s; }
-    .featured-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-    .featured-card .hot-badge { position: absolute; top: -10px; right: 16px; background: var(--gold); color: #000; font-size: .68rem; font-weight: 800; padding: .2rem .6rem; border-radius: 999px; text-transform: uppercase; letter-spacing: .5px; }
-    .featured-tag { font-size: .7rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: .5rem; }
-    .featured-name { font-size: 1.1rem; font-weight: 800; margin-bottom: .35rem; }
-    .featured-desc { font-size: .82rem; color: var(--muted2); line-height: 1.5; margin-bottom: 1rem; }
-    .featured-meta { display: flex; align-items: center; justify-content: space-between; }
-    .featured-price { font-size: 1.3rem; font-weight: 900; }
-    .add-btn { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: .4rem .85rem; font-size: .8rem; font-weight: 700; cursor: pointer; transition: opacity .2s; }
-    .add-btn:hover { opacity: .8; }
-    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: 1200px; margin: 0 auto; }
-    @media (max-width: 768px) { .split { grid-template-columns: 1fr; } }
-    .split-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; position: relative; overflow: hidden; }
-    .split-card::before { content: ''; position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; border-radius: 50%; background: rgba(79,142,247,.06); }
-    .split-label { font-size: .72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: .75rem; }
-    .split-card h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: .75rem; }
-    .split-card p { font-size: .88rem; color: var(--muted2); line-height: 1.6; margin-bottom: 1.5rem; }
-    .split-list { list-style: none; display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.5rem; }
-    .split-list li { display: flex; align-items: center; gap: .5rem; font-size: .85rem; color: var(--muted2); }
-    .split-list li::before { content: '✓'; color: var(--green); font-weight: 700; }
-    .steps { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; max-width: 1000px; margin: 0 auto; }
-    .step { text-align: center; padding: 1.5rem 1rem; }
-    .step-num { width: 48px; height: 48px; background: rgba(79,142,247,.12); border: 1px solid rgba(79,142,247,.3); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 900; margin: 0 auto 1rem; }
-    .step h4 { font-size: .95rem; font-weight: 700; margin-bottom: .4rem; }
-    .step p { font-size: .82rem; color: var(--muted2); line-height: 1.5; }
-    .faq-list { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: .75rem; }
-    .faq-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-    .faq-q { padding: 1.1rem 1.5rem; font-size: .95rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }
-    .faq-q:hover { color: var(--accent2); }
-    .faq-a { padding: 0 1.5rem 1.1rem; font-size: .88rem; color: var(--muted2); line-height: 1.7; }
-    .disclaimer { background: rgba(239,68,68,.05); border: 1px solid rgba(239,68,68,.15); border-radius: 12px; padding: 1.25rem 1.5rem; max-width: 900px; margin: 0 auto 3rem; text-align: center; }
-    .disclaimer p { font-size: .78rem; color: var(--muted); line-height: 1.6; }
-    .disclaimer strong { color: var(--muted2); }
-    footer { background: var(--surface); border-top: 1px solid var(--border); padding: 3rem 2rem 2rem; }
-    .footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+    .nav-cart { background: var(--accent); color: #fff; padding: .5rem 1.1rem; border-radius: 8px; font-size: .83rem; font-weight: 700; cursor: pointer; border: none; }
+    .nav-search { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: .45rem 1rem; font-size: .83rem; outline: none; width: 180px; }
+    @media (max-width: 900px) { .nav-links { display: none; } .nav-search { display: none; } }
+    .hero { background: linear-gradient(135deg, var(--accent) 0%, var(--blue) 100%); color: #fff; padding: 70px 2rem; position: relative; overflow: hidden; }
+    .hero-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+    @media (max-width: 768px) { .hero-inner { grid-template-columns: 1fr; } }
+    .hero-badge { display: inline-flex; align-items: center; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.9); font-size: .72rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: .3rem .9rem; border-radius: 999px; margin-bottom: 1.25rem; }
+    .hero h1 { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 900; line-height: 1.1; margin-bottom: 1rem; letter-spacing: -1px; }
+    .hero h1 em { color: #e94560; font-style: normal; }
+    .hero p { font-size: 1rem; opacity: .85; line-height: 1.7; margin-bottom: 2rem; max-width: 480px; }
+    .hero-btns { display: flex; gap: .75rem; flex-wrap: wrap; }
+    .btn-white { background: #fff; color: var(--accent); padding: .85rem 1.75rem; border-radius: 10px; font-size: .92rem; font-weight: 800; text-decoration: none; }
+    .btn-outline-white { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,.4); padding: .85rem 1.75rem; border-radius: 10px; font-size: .92rem; font-weight: 700; text-decoration: none; }
+    .hero-card { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 20px; padding: 2rem; backdrop-filter: blur(10px); }
+    .hero-card-img { width: 100%; height: 140px; background: rgba(255,255,255,.06); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin-bottom: 1.25rem; }
+    .hero-card-tag { font-size: .7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: .5rem; }
+    .hero-card h3 { font-size: 1.4rem; font-weight: 900; margin-bottom: .5rem; }
+    .hero-card p { font-size: .83rem; opacity: .8; line-height: 1.6; margin-bottom: 1.25rem; }
+    .hero-price { font-size: 1.6rem; font-weight: 900; margin-bottom: 1rem; }
+    .hero-price span { font-size: .85rem; opacity: .7; font-weight: 400; }
+    .btn-gold { background: var(--gold); color: #fff; padding: .75rem 1.5rem; border-radius: 10px; font-size: .88rem; font-weight: 800; border: none; cursor: pointer; width: 100%; text-align: center; display: block; }
+    .trust-strip { background: var(--surface); border-bottom: 1px solid var(--border); padding: .9rem 2rem; }
+    .trust-strip-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: center; flex-wrap: wrap; gap: 2.5rem; }
+    .trust-pill { display: flex; align-items: center; gap: .5rem; font-size: .8rem; font-weight: 600; color: var(--muted); }
+    .trust-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .section { padding: 70px 2rem; }
+    .section.alt { background: var(--surface); }
+    .section-inner { max-width: 1280px; margin: 0 auto; }
+    .section-head { margin-bottom: 2.5rem; }
+    .section-head .eyebrow { font-size: .7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: .5rem; }
+    .section-head h2 { font-size: clamp(1.5rem, 2.5vw, 2.1rem); font-weight: 900; letter-spacing: -.5px; margin-bottom: .5rem; }
+    .section-head p { font-size: .9rem; color: var(--muted); max-width: 500px; line-height: 1.6; }
+    .section-head-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .view-all { font-size: .83rem; font-weight: 700; color: var(--accent); text-decoration: none; }
+    .cat-pills { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+    .cat-pill { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: .45rem 1.1rem; border-radius: 999px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: all .2s; text-decoration: none; }
+    .cat-pill:hover, .cat-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem; }
+    .product-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: box-shadow .2s, transform .15s; }
+    .product-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,.08); transform: translateY(-2px); }
+    .product-img { width: 100%; height: 160px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; position: relative; }
+    .product-img.peptide { background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%); }
+    .product-img.weight { background: linear-gradient(135deg, #e94560 0%, #c73652 100%); }
+    .product-img.brain { background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); }
+    .product-img.age { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
+    .product-img.hormone { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+    .product-badge { position: absolute; top: 10px; left: 10px; background: var(--gold); color: #fff; font-size: .65rem; font-weight: 800; padding: .2rem .55rem; border-radius: 999px; text-transform: uppercase; }
+    .product-badge.blue { background: var(--blue); }
+    .product-badge.green { background: var(--green); }
+    .product-body { padding: 1rem; }
+    .product-cat { font-size: .65rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted2); margin-bottom: .3rem; }
+    .product-name { font-size: .95rem; font-weight: 800; color: var(--text); margin-bottom: .2rem; line-height: 1.3; }
+    .product-sub { font-size: .75rem; color: var(--muted); margin-bottom: .75rem; }
+    .product-footer { display: flex; align-items: center; justify-content: space-between; }
+    .product-price { font-size: 1.05rem; font-weight: 900; }
+    .product-price .from { font-size: .7rem; font-weight: 400; color: var(--muted); }
+    .add-to-cart { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: .4rem .85rem; font-size: .75rem; font-weight: 700; cursor: pointer; transition: background .2s; }
+    .add-to-cart:hover { background: var(--gold); }
+    .vial-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem; }
+    .vial-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: box-shadow .2s, transform .15s; }
+    .vial-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,.08); transform: translateY(-2px); }
+    .vial-img { height: 140px; background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); display: flex; align-items: center; justify-content: center; font-size: 3rem; position: relative; color: #fff; }
+    .vial-conc { position: absolute; bottom: 8px; right: 8px; background: rgba(255,255,255,.15); color: #fff; font-size: .65rem; font-weight: 700; padding: .2rem .5rem; border-radius: 6px; }
+    .vial-body { padding: 1rem; }
+    .vial-name { font-size: .95rem; font-weight: 800; margin-bottom: .2rem; }
+    .vial-details { font-size: .75rem; color: var(--muted); margin-bottom: .75rem; }
+    .vial-footer { display: flex; align-items: center; justify-content: space-between; }
+    .vial-price { font-size: 1.1rem; font-weight: 900; }
+    .bundle-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+    .bundle-card { background: #fff; border: 2px solid var(--border); border-radius: 18px; padding: 1.75rem; position: relative; transition: border-color .2s; }
+    .bundle-card:hover { border-color: var(--accent); }
+    .bundle-card.featured { border-color: var(--gold); }
+    .bundle-save { position: absolute; top: -12px; right: 16px; background: var(--gold); color: #fff; font-size: .7rem; font-weight: 800; padding: .2rem .65rem; border-radius: 999px; }
+    .bundle-icon { font-size: 2rem; margin-bottom: .75rem; }
+    .bundle-name { font-size: 1.1rem; font-weight: 900; margin-bottom: .4rem; }
+    .bundle-desc { font-size: .82rem; color: var(--muted); margin-bottom: 1rem; line-height: 1.5; }
+    .bundle-items { list-style: none; display: flex; flex-direction: column; gap: .3rem; margin-bottom: 1.25rem; }
+    .bundle-items li { font-size: .8rem; color: var(--muted); display: flex; align-items: center; gap: .4rem; }
+    .bundle-items li::before { content: '✓'; color: var(--green); font-weight: 700; }
+    .bundle-footer { display: flex; align-items: center; justify-content: space-between; }
+    .bundle-price { font-size: 1.3rem; font-weight: 900; }
+    .bundle-orig { font-size: .75rem; color: var(--muted); text-decoration: line-through; margin-left: .4rem; }
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; }
+    .step-card { text-align: center; padding: 1.5rem 1rem; }
+    .step-icon { width: 56px; height: 56px; background: var(--accent); color: #fff; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin: 0 auto 1rem; }
+    .step-card h4 { font-size: .95rem; font-weight: 800; margin-bottom: .4rem; }
+    .step-card p { font-size: .82rem; color: var(--muted); line-height: 1.5; }
+    .coa-section { background: var(--accent); color: #fff; padding: 60px 2rem; }
+    .coa-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+    @media (max-width: 768px) { .coa-inner { grid-template-columns: 1fr; } }
+    .coa-inner h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 900; margin-bottom: 1rem; }
+    .coa-inner p { opacity: .85; line-height: 1.7; margin-bottom: 1.5rem; font-size: .92rem; }
+    .coa-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .coa-stat { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: 1.25rem; text-align: center; }
+    .coa-stat .num { font-size: 1.8rem; font-weight: 900; color: var(--gold); }
+    .coa-stat .label { font-size: .75rem; opacity: .7; margin-top: .25rem; }
+    .faq-wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: .75rem; }
+    .faq-item { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .faq-q { padding: 1.1rem 1.5rem; font-size: .92rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .faq-q:hover { color: var(--gold); }
+    .faq-a { padding: 0 1.5rem 1.1rem; font-size: .85rem; color: var(--muted); line-height: 1.7; }
+    .disclaimer { background: #fff8f8; border-top: 3px solid #fecdd3; padding: 1.5rem 2rem; text-align: center; }
+    .disclaimer p { font-size: .75rem; color: var(--muted); max-width: 900px; margin: 0 auto; line-height: 1.7; }
+    footer { background: var(--accent); color: rgba(255,255,255,.8); padding: 3.5rem 2rem 2rem; }
+    .footer-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2.5rem; margin-bottom: 2.5rem; }
     @media (max-width: 768px) { .footer-inner { grid-template-columns: 1fr 1fr; } }
-    .footer-brand p { font-size: .82rem; color: var(--muted); line-height: 1.6; margin-top: .75rem; }
-    .footer-col h4 { font-size: .82rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted2); margin-bottom: 1rem; }
-    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
-    .footer-col ul li a { font-size: .83rem; color: var(--muted); text-decoration: none; transition: color .2s; }
-    .footer-col ul li a:hover { color: var(--text); }
-    .footer-bottom { border-top: 1px solid var(--border); padding-top: 1.5rem; text-align: center; font-size: .78rem; color: var(--muted); }
-    .shipping-banner { background: linear-gradient(90deg, rgba(79,142,247,.15), rgba(126,179,255,.1), rgba(79,142,247,.15)); border-top: 1px solid rgba(79,142,247,.2); border-bottom: 1px solid rgba(79,142,247,.2); padding: .75rem 2rem; text-align: center; font-size: .85rem; font-weight: 600; color: var(--accent2); }
-    .catalog-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
-    .catalog-table th { text-align: left; padding: .75rem 1rem; background: var(--surface3); color: var(--muted2); font-size: .72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
-    .catalog-table td { padding: .75rem 1rem; border-bottom: 1px solid rgba(42,45,62,.5); color: var(--text); vertical-align: middle; }
-    .catalog-table tr:hover td { background: rgba(79,142,247,.04); }
-    .catalog-table .td-id { font-size: .72rem; color: var(--muted); font-weight: 700; letter-spacing: .5px; }
-    .catalog-table .td-price { font-weight: 700; }
-    .catalog-table .td-status span { font-size: .7rem; font-weight: 700; padding: .18rem .5rem; border-radius: 999px; }
-    .status-available { background: rgba(34,197,94,.12); color: var(--green); border: 1px solid rgba(34,197,94,.25); }
-    .status-unavailable { background: rgba(239,68,68,.1); color: var(--red); border: 1px solid rgba(239,68,68,.2); }
-    .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; overflow-x: auto; }
-    .product-section-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
-    .product-section-header h3 { font-size: 1.3rem; font-weight: 800; }
-    .product-section-header .count { background: var(--surface3); border: 1px solid var(--border); font-size: .75rem; font-weight: 700; padding: .2rem .6rem; border-radius: 999px; color: var(--muted2); }
+    .footer-brand .logo { font-size: 1.2rem; font-weight: 900; color: #fff; margin-bottom: .75rem; }
+    .footer-brand .logo em { color: var(--gold); font-style: normal; }
+    .footer-brand p { font-size: .8rem; line-height: 1.7; opacity: .7; }
+    .footer-col h5 { font-size: .75rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 1rem; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .55rem; }
+    .footer-col ul li a { font-size: .82rem; color: rgba(255,255,255,.65); text-decoration: none; transition: color .2s; }
+    .footer-col ul li a:hover { color: #fff; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-bottom p { font-size: .75rem; opacity: .5; }
   </style>
 </head>
 <body>
 
-  <div class="shipping-banner">
-    🚚 Free Shipping on Orders $300+ &nbsp;|&nbsp; ⏱ Delivery 4–14 Days &nbsp;|&nbsp; 👥 Split with a friend — each pay 50%
+  <div class="announce">
+    🚚 Free Shipping on Orders $300+ <span>◆</span> ⏱ 4–14 Day Delivery <span>◆</span> 👥 Split with a Friend — Each Pay 50% <span>◆</span> 🧪 Third-Party Lab Tested
   </div>
 
   <nav>
-    <a href="#" class="nav-logo">TIMELESS<span>.</span></a>
-    <ul class="nav-links">
-      <li><a href="#categories">Categories</a></li>
-      <li><a href="#featured">Bestsellers</a></li>
-      <li><a href="#catalog">Full Catalog</a></li>
-      <li><a href="#how">How to Order</a></li>
-      <li><a href="#faq">FAQ</a></li>
-    </ul>
-    <div class="nav-right">
-      <span class="nav-badge">Lab Tested</span>
-      <a href="#catalog" class="nav-cta">Shop Now</a>
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">TIMELESS <em>RESEARCH</em></a>
+      <ul class="nav-links">
+        <li><a href="#shop">Shop</a></li>
+        <li><a href="#vials">Vials</a></li>
+        <li><a href="#bundles">Bundles</a></li>
+        <li><a href="#how">How to Order</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+      <div class="nav-right">
+        <input class="nav-search" type="text" placeholder="🔍 Search compounds..." />
+        <button class="nav-cart">🛒 Cart (0)</button>
+      </div>
     </div>
   </nav>
 
-  <section class="hero">
-    <div class="hero-eyebrow">🔬 Premium Research Compounds</div>
-    <h1>Pharmaceutical-Grade<br /><span>Peptides & Compounds</span></h1>
-    <p>Third-party lab tested. Discreet shipping. 60+ compounds available — from GLP-1 weight loss to recovery, nootropics, and more.</p>
-    <div class="hero-btns">
-      <a href="#featured" class="btn-primary">Shop Bestsellers →</a>
-      <a href="#catalog" class="btn-ghost">View Full Catalog</a>
-    </div>
-  </section>
-
-  <div class="trust-bar">
-    <div class="trust-inner">
-      <div class="trust-item">🧪 Third-Party Lab Tested</div>
-      <div class="trust-item">📦 Discreet Packaging</div>
-      <div class="trust-item">🚚 Free Ship $300+</div>
-      <div class="trust-item">⚡ 4–14 Day Delivery</div>
-      <div class="trust-item">🔒 Secure Checkout</div>
-      <div class="trust-item">👥 Group Splits Available</div>
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-badge">🔬 Premium Research Compounds</div>
+        <h1>Research-Grade<br /><em>Peptides & Compounds</em><br />You Can Trust</h1>
+        <p>Every compound third-party lab tested. Discreet packaging. 60+ compounds across 9 categories — from GLP-1 weight loss to injectables, nootropics, and more.</p>
+        <div class="hero-btns">
+          <a href="#shop" class="btn-white">Shop the Catalog →</a>
+          <a href="#vials" class="btn-outline-white">View Injectables</a>
+        </div>
+      </div>
+      <div class="hero-card">
+        <div class="hero-card-img">💊</div>
+        <div class="hero-card-tag">⭐ #1 Best Seller</div>
+        <h3>Retatrutide 90mg</h3>
+        <p>Triple GIP/GLP-1/Glucagon receptor agonist. The most advanced weight management compound available. 30 capsules per pack.</p>
+        <div class="hero-price">$550 <span>/ 30 caps</span></div>
+        <button class="btn-gold">Add to Order →</button>
+      </div>
     </div>
   </div>
 
-  <section class="section" id="categories">
-    <div class="section-inner">
-      <div class="section-header">
-        <div class="label">Browse by Category</div>
-        <h2>Find What You Need</h2>
-        <p>60+ compounds organized by goal. Click a category to jump straight to those products.</p>
-      </div>
-      <div class="cat-grid">
-        <a href="#cat-weightloss" class="cat-card"><div class="cat-icon">⚖️</div><div class="cat-name">Weight Loss</div><div class="cat-count">Semaglutide, Tirzepatide, Retatrutide</div></a>
-        <a href="#cat-gh" class="cat-card"><div class="cat-icon">📈</div><div class="cat-name">Growth Hormone</div><div class="cat-count">HGH, CJC-1295, Ipamorelin, IGF-1</div></a>
-        <a href="#cat-recovery" class="cat-card"><div class="cat-icon">🔧</div><div class="cat-name">Recovery & Healing</div><div class="cat-count">BPC-157, TB-500, Blends</div></a>
-        <a href="#cat-nootropics" class="cat-card"><div class="cat-icon">🧠</div><div class="cat-name">Nootropics & Brain</div><div class="cat-count">Selank, Semax, Dihexa, NAD+</div></a>
-        <a href="#cat-antiaging" class="cat-card"><div class="cat-icon">✨</div><div class="cat-name">Anti-Aging</div><div class="cat-count">Epithalon, GHK-CU, FOXO4-DRI</div></a>
-        <a href="#cat-hormones" class="cat-card"><div class="cat-icon">⚗️</div><div class="cat-name">Hormones & Support</div><div class="cat-count">HCG, Oxytocin, PCT Support</div></a>
-        <a href="#cat-injectables" class="cat-card"><div class="cat-icon">💉</div><div class="cat-name">Injectables</div><div class="cat-count">Testosterone, Trenbolone, Mast</div></a>
-        <a href="#cat-orals" class="cat-card"><div class="cat-icon">💊</div><div class="cat-name">Oral Compounds</div><div class="cat-count">Anavar, Dianabol, Clen + more</div></a>
-        <a href="#cat-supplies" class="cat-card"><div class="cat-icon">🧴</div><div class="cat-name">Supplies</div><div class="cat-count">BAC Water, Sterile Water</div></a>
-      </div>
+  <div class="trust-strip">
+    <div class="trust-strip-inner">
+      <div class="trust-pill"><div class="dot"></div> Third-Party Lab Tested</div>
+      <div class="trust-pill"><div class="dot"></div> COA Available Every Lot</div>
+      <div class="trust-pill"><div class="dot"></div> Discreet Packaging</div>
+      <div class="trust-pill"><div class="dot"></div> Free Ship $300+</div>
+      <div class="trust-pill"><div class="dot"></div> 4–14 Day Delivery</div>
+      <div class="trust-pill"><div class="dot"></div> Group Splits Available</div>
     </div>
-  </section>
+  </div>
 
-  <section class="section" id="featured" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <section class="section" id="shop">
     <div class="section-inner">
-      <div class="section-header">
-        <div class="label">Most Popular</div>
-        <h2>Bestselling Compounds</h2>
-        <p>Our highest-rated and most reordered products — trusted by thousands of researchers.</p>
+      <div class="section-head-row">
+        <div class="section-head">
+          <div class="eyebrow">Full Catalog</div>
+          <h2>Shop by Category</h2>
+          <p>60+ compounds organized by research goal.</p>
+        </div>
+        <a href="#" class="view-all">View all products →</a>
       </div>
-      <div class="featured-grid">
-        <div class="featured-card"><div class="hot-badge">🔥 #1 Seller</div><div class="featured-tag">Weight Loss</div><div class="featured-name">Retatrutide 90mg</div><div class="featured-desc">Triple GIP/GLP-1/Glucagon receptor agonist. The most advanced weight management compound available. 30 capsules.</div><div class="featured-meta"><div class="featured-price">$550</div><button class="add-btn">Add to Order</button></div></div>
-        <div class="featured-card"><div class="featured-tag">Recovery</div><div class="featured-name">Wolverine Blend 60mg</div><div class="featured-desc">BPC-157 + TB-500 combined — the ultimate recovery stack for tissue repair, inflammation, and regeneration. 30 capsules.</div><div class="featured-meta"><div class="featured-price">$245</div><button class="add-btn">Add to Order</button></div></div>
-        <div class="featured-card"><div class="featured-tag">Growth Hormone</div><div class="featured-name">CJC-1295 + Ipamorelin Stack</div><div class="featured-desc">The classic GH peptide combo. Deep sleep, recovery, and lean mass. 30 caps each.</div><div class="featured-meta"><div class="featured-price">$260</div><button class="add-btn">Add to Order</button></div></div>
-        <div class="featured-card"><div class="hot-badge">⭐ Top Rated</div><div class="featured-tag">Anti-Aging</div><div class="featured-name">Epithalon 150mg</div><div class="featured-desc">Telomere-lengthening tetrapeptide. Studied for longevity, circadian regulation, and cellular rejuvenation. 30 capsules.</div><div class="featured-meta"><div class="featured-price">$165</div><button class="add-btn">Add to Order</button></div></div>
-        <div class="featured-card"><div class="featured-tag">Nootropic</div><div class="featured-name">NAD+ 3,000mg</div><div class="featured-desc">Cellular energy, DNA repair, and mitochondrial function. 3,000mg total. 30 capsules.</div><div class="featured-meta"><div class="featured-price">$155</div><button class="add-btn">Add to Order</button></div></div>
-        <div class="featured-card"><div class="featured-tag">Weight Loss</div><div class="featured-name">Tirzepatide 100mg</div><div class="featured-desc">Dual GIP/GLP-1 receptor agonist. Clinically studied for significant weight reduction and metabolic health. 30 capsules.</div><div class="featured-meta"><div class="featured-price">$375</div><button class="add-btn">Add to Order</button></div></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="split">
-      <div class="split-card"><div class="split-label">Group Discount</div><h3>Split With a Friend</h3><p>Buying with someone? Split the total and each pay 50% of the listed price — no codes needed.</p><ul class="split-list"><li>Works on any order size</li><li>Each person pays 50% of listed price</li><li>Shipped together or separately</li><li>No minimum order required</li></ul><a href="#catalog" class="btn-primary">Shop Together →</a></div>
-      <div class="split-card"><div class="split-label">Free Shipping</div><h3>Ship on Us at $300+</h3><p>Reach $300 and shipping is completely free. Stack your order or split with a friend to hit the threshold.</p><ul class="split-list"><li>No code required</li><li>Automatically applied at checkout</li><li>4–14 day estimated delivery</li><li>Discreet, unmarked packaging</li></ul><a href="#catalog" class="btn-ghost">View Catalog →</a></div>
-    </div>
-  </section>
-
-  <section class="section" id="catalog" style="background:var(--surface);border-top:1px solid var(--border);">
-    <div class="section-inner">
-      <div class="section-header">
-        <div class="label">Complete Inventory</div>
-        <h2>Full Product Catalog</h2>
-        <p>All available compounds organized by category. Capsule products contain 30 capsules — listed amount is per capsule.</p>
+      <div class="cat-pills">
+        <a href="#cat-glp1" class="cat-pill active">⚖️ Weight Loss</a>
+        <a href="#cat-peptides" class="cat-pill">📈 Peptides</a>
+        <a href="#cat-recovery" class="cat-pill">🔧 Recovery</a>
+        <a href="#cat-brain" class="cat-pill">🧠 Nootropics</a>
+        <a href="#cat-aging" class="cat-pill">✨ Anti-Aging</a>
+        <a href="#cat-hormones" class="cat-pill">⚗️ Hormones</a>
+        <a href="#cat-orals" class="cat-pill">💊 Orals</a>
+        <a href="#vials" class="cat-pill">💉 Injectables</a>
       </div>
 
-      <div id="cat-weightloss" style="margin-bottom:3rem;">
-        <div class="product-section-header"><span>⚖️</span><h3>Weight Loss / GLP-1</h3><span class="count">7 products</span></div>
-        <div class="table-wrap"><table class="catalog-table"><thead><tr><th>ID</th><th>Product</th><th>Total Amount</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody>
-          <tr><td class="td-id">RT30</td><td>Retatrutide</td><td>30mg</td><td class="td-price">$300</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">RT60</td><td>Retatrutide</td><td>60mg</td><td class="td-price">$450</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">RT90</td><td>Retatrutide</td><td>90mg</td><td class="td-price">$550</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">RT300</td><td>Retatrutide</td><td>300mg</td><td class="td-price">$800</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">TR100</td><td>Tirzepatide</td><td>100mg</td><td class="td-price">$375</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">SM30</td><td>Semaglutide</td><td>30mg</td><td class="td-price">$180</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">T3</td><td>T3 Thyroid (30 pills)</td><td>25mcg</td><td class="td-price">$45</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-        </tbody></table></div>
+      <div id="cat-glp1" style="margin-bottom:3rem;">
+        <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--border);">⚖️ Weight Loss / GLP-1</h3>
+        <div class="product-grid">
+          <div class="product-card"><div class="product-img weight"><div class="product-badge">🔥 #1</div>💊</div><div class="product-body"><div class="product-cat">GLP-1</div><div class="product-name">Retatrutide 30mg</div><div class="product-sub">30 capsules · 30mg per cap</div><div class="product-footer"><div class="product-price"><span class="from">from</span> $300</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img weight"><div class="product-badge">🔥 #1</div>💊</div><div class="product-body"><div class="product-cat">GLP-1</div><div class="product-name">Retatrutide 60mg</div><div class="product-sub">30 capsules · 60mg per cap</div><div class="product-footer"><div class="product-price">$450</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img weight"><div class="product-badge">⭐ Best</div>💊</div><div class="product-body"><div class="product-cat">GLP-1</div><div class="product-name">Retatrutide 90mg</div><div class="product-sub">30 capsules · 90mg per cap</div><div class="product-footer"><div class="product-price">$550</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img weight">💊</div><div class="product-body"><div class="product-cat">GLP-1</div><div class="product-name">Retatrutide 300mg</div><div class="product-sub">30 capsules · 300mg per cap</div><div class="product-footer"><div class="product-price">$800</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img weight"><div class="product-badge blue">Popular</div>💊</div><div class="product-body"><div class="product-cat">GLP-1</div><div class="product-name">Tirzepatide 100mg</div><div class="product-sub">30 capsules · 100mg per cap</div><div class="product-footer"><div class="product-price">$375</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img weight">💊</div><div class="product-body"><div class="product-cat">GLP-1</div><div class="product-name">Semaglutide 30mg</div><div class="product-sub">30 capsules · 30mg per cap</div><div class="product-footer"><div class="product-price">$180</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img weight">💊</div><div class="product-body"><div class="product-cat">Thyroid</div><div class="product-name">T3 Thyroid</div><div class="product-sub">30 pills · 25mcg per pill</div><div class="product-footer"><div class="product-price">$45</div><button class="add-to-cart">+ Add</button></div></div></div>
+        </div>
       </div>
 
-      <div id="cat-gh" style="margin-bottom:3rem;">
-        <div class="product-section-header"><span>📈</span><h3>Growth Hormone Peptides</h3><span class="count">7 products</span></div>
-        <div class="table-wrap"><table class="catalog-table"><thead><tr><th>ID</th><th>Product</th><th>Total Amount</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody>
-          <tr><td class="td-id">HGH360</td><td>HGH</td><td>360 IU</td><td class="td-price">$300</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">CJCDAC15</td><td>CJC-1295 With DAC</td><td>15mg</td><td class="td-price">$200</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">CJC30</td><td>CJC-1295 Without DAC</td><td>30mg</td><td class="td-price">$180</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">IP30</td><td>Ipamorelin</td><td>30mg</td><td class="td-price">$80</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">TESA60</td><td>Tesamorelin</td><td>60mg</td><td class="td-price">$385</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">MOTS120</td><td>MOTS-C</td><td>120mg</td><td class="td-price">$285</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">IGF3</td><td>IGF-1 LR3</td><td>3mg</td><td class="td-price">$220</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-        </tbody></table></div>
+      <div id="cat-peptides" style="margin-bottom:3rem;">
+        <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--border);">📈 Growth Hormone Peptides</h3>
+        <div class="product-grid">
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">Growth Hormone</div><div class="product-name">HGH 360 IU</div><div class="product-sub">360 IU total</div><div class="product-footer"><div class="product-price">$300</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide"><div class="product-badge blue">Popular</div>💊</div><div class="product-body"><div class="product-cat">GHRH</div><div class="product-name">CJC-1295 w/ DAC</div><div class="product-sub">30 caps · 15mg total</div><div class="product-footer"><div class="product-price">$200</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">GHRH</div><div class="product-name">CJC-1295 No DAC</div><div class="product-sub">30 caps · 30mg total</div><div class="product-footer"><div class="product-price">$180</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">GHRP</div><div class="product-name">Ipamorelin 30mg</div><div class="product-sub">30 caps · 30mg total</div><div class="product-footer"><div class="product-price">$80</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">GHRH</div><div class="product-name">Tesamorelin 60mg</div><div class="product-sub">30 caps · 60mg total</div><div class="product-footer"><div class="product-price">$385</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">Mitochondrial</div><div class="product-name">MOTS-C 120mg</div><div class="product-sub">30 caps · 120mg total</div><div class="product-footer"><div class="product-price">$285</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">IGF</div><div class="product-name">IGF-1 LR3 3mg</div><div class="product-sub">30 caps · 3mg total</div><div class="product-footer"><div class="product-price">$220</div><button class="add-to-cart">+ Add</button></div></div></div>
+        </div>
       </div>
 
       <div id="cat-recovery" style="margin-bottom:3rem;">
-        <div class="product-section-header"><span>🔧</span><h3>Recovery & Healing</h3><span class="count">6 products</span></div>
-        <div class="table-wrap"><table class="catalog-table"><thead><tr><th>ID</th><th>Product</th><th>Total Amount</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody>
-          <tr><td class="td-id">BPC60</td><td>BPC-157</td><td>60mg</td><td class="td-price">$80</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">TB30</td><td>TB-500</td><td>30mg</td><td class="td-price">$180</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">BPCTB60</td><td>Wolverine Blend (BPC+TB)</td><td>60mg</td><td class="td-price">$245</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">GLOW210</td><td>GLOW (TB+BPC+GHK-CU)</td><td>210mg</td><td class="td-price">$245</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">KLOW240</td><td>KLOW (GHK-CU+TB+BPC+KPV)</td><td>240mg</td><td class="td-price">$265</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">KPV30</td><td>KPV</td><td>30mg</td><td class="td-price">$80</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-        </tbody></table></div>
+        <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--border);">🔧 Recovery & Healing</h3>
+        <div class="product-grid">
+          <div class="product-card"><div class="product-img peptide"><div class="product-badge green">Top</div>💊</div><div class="product-body"><div class="product-cat">Recovery</div><div class="product-name">BPC-157 60mg</div><div class="product-sub">30 caps · 60mg total</div><div class="product-footer"><div class="product-price">$80</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">Recovery</div><div class="product-name">TB-500 30mg</div><div class="product-sub">30 caps · 30mg total</div><div class="product-footer"><div class="product-price">$180</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide"><div class="product-badge">⭐ Best</div>💊</div><div class="product-body"><div class="product-cat">Blend</div><div class="product-name">Wolverine Blend</div><div class="product-sub">BPC-157 + TB-500 · 60mg</div><div class="product-footer"><div class="product-price">$245</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">Blend</div><div class="product-name">GLOW Blend</div><div class="product-sub">TB+BPC+GHK-CU · 210mg</div><div class="product-footer"><div class="product-price">$245</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">Blend</div><div class="product-name">KLOW Blend</div><div class="product-sub">GHK-CU+TB+BPC+KPV · 240mg</div><div class="product-footer"><div class="product-price">$265</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">Anti-Inflammatory</div><div class="product-name">KPV 30mg</div><div class="product-sub">30 caps · 30mg total</div><div class="product-footer"><div class="product-price">$80</div><button class="add-to-cart">+ Add</button></div></div></div>
+        </div>
       </div>
 
-      <div id="cat-nootropics" style="margin-bottom:3rem;">
-        <div class="product-section-header"><span>🧠</span><h3>Nootropics & Brain Health</h3><span class="count">6 products</span></div>
-        <div class="table-wrap"><table class="catalog-table"><thead><tr><th>ID</th><th>Product</th><th>Total Amount</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody>
-          <tr><td class="td-id">SEL30</td><td>Selank</td><td>30mg</td><td class="td-price">$105</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">SEM30</td><td>Semax</td><td>30mg</td><td class="td-price">$105</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">DIHEX20</td><td>Dihexa</td><td>20mg</td><td class="td-price">$145</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">DSIP30</td><td>DSIP</td><td>30mg</td><td class="td-price">$100</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">NAD3K</td><td>NAD+</td><td>3,000mg</td><td class="td-price">$155</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">GLUTA</td><td>Glutathione</td><td>4,500mg</td><td class="td-price">$150</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-        </tbody></table></div>
+      <div id="cat-brain" style="margin-bottom:3rem;">
+        <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--border);">🧠 Nootropics & Brain Health</h3>
+        <div class="product-grid">
+          <div class="product-card"><div class="product-img brain">💊</div><div class="product-body"><div class="product-cat">Nootropic</div><div class="product-name">Selank 30mg</div><div class="product-sub">30 caps · 30mg total</div><div class="product-footer"><div class="product-price">$105</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img brain">💊</div><div class="product-body"><div class="product-cat">Nootropic</div><div class="product-name">Semax 30mg</div><div class="product-sub">30 caps · 30mg total</div><div class="product-footer"><div class="product-price">$105</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img brain"><div class="product-badge blue">Premium</div>💊</div><div class="product-body"><div class="product-cat">Nootropic</div><div class="product-name">Dihexa 20mg</div><div class="product-sub">30 caps · 20mg total</div><div class="product-footer"><div class="product-price">$145</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img brain">💊</div><div class="product-body"><div class="product-cat">Sleep</div><div class="product-name">DSIP 30mg</div><div class="product-sub">30 caps · 30mg total</div><div class="product-footer"><div class="product-price">$100</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img brain"><div class="product-badge green">Top</div>💊</div><div class="product-body"><div class="product-cat">Cellular Energy</div><div class="product-name">NAD+ 3,000mg</div><div class="product-sub">30 caps · 3,000mg total</div><div class="product-footer"><div class="product-price">$155</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img brain">💊</div><div class="product-body"><div class="product-cat">Antioxidant</div><div class="product-name">Glutathione</div><div class="product-sub">30 caps · 4,500mg total</div><div class="product-footer"><div class="product-price">$150</div><button class="add-to-cart">+ Add</button></div></div></div>
+        </div>
       </div>
 
-      <div id="cat-antiaging" style="margin-bottom:3rem;">
-        <div class="product-section-header"><span>✨</span><h3>Anti-Aging & Longevity</h3><span class="count">5 products</span></div>
-        <div class="table-wrap"><table class="catalog-table"><thead><tr><th>ID</th><th>Product</th><th>Total Amount</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody>
-          <tr><td class="td-id">GHK300</td><td>GHK-CU</td><td>300mg</td><td class="td-price">$70</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">EPIT150</td><td>Epithalon</td><td>150mg</td><td class="td-price">$165</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">FOX30</td><td>FOXO4-DRI</td><td>30mg</td><td class="td-price">$365</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">MT1</td><td>MT-1</td><td>20mg</td><td class="td-price">$65</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">MT2</td><td>MT-2 (Melanotan 2)</td><td>20mg</td><td class="td-price">$65</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-        </tbody></table></div>
+      <div id="cat-aging" style="margin-bottom:3rem;">
+        <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--border);">✨ Anti-Aging & Longevity</h3>
+        <div class="product-grid">
+          <div class="product-card"><div class="product-img age">💊</div><div class="product-body"><div class="product-cat">Copper Peptide</div><div class="product-name">GHK-CU 300mg</div><div class="product-sub">30 caps · 300mg total</div><div class="product-footer"><div class="product-price">$70</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img age"><div class="product-badge">⭐ Top</div>💊</div><div class="product-body"><div class="product-cat">Longevity</div><div class="product-name">Epithalon 150mg</div><div class="product-sub">30 caps · 150mg total</div><div class="product-footer"><div class="product-price">$165</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img age">💊</div><div class="product-body"><div class="product-cat">Senolytic</div><div class="product-name">FOXO4-DRI 30mg</div><div class="product-sub">30 caps · 30mg total</div><div class="product-footer"><div class="product-price">$365</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img age">💊</div><div class="product-body"><div class="product-cat">Tanning</div><div class="product-name">MT-1 20mg</div><div class="product-sub">30 caps · 20mg total</div><div class="product-footer"><div class="product-price">$65</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img age">💊</div><div class="product-body"><div class="product-cat">Tanning</div><div class="product-name">MT-2 (Melanotan 2)</div><div class="product-sub">30 caps · 20mg total</div><div class="product-footer"><div class="product-price">$65</div><button class="add-to-cart">+ Add</button></div></div></div>
+        </div>
       </div>
 
       <div id="cat-hormones" style="margin-bottom:3rem;">
-        <div class="product-section-header"><span>⚗️</span><h3>Hormones & PCT Support</h3><span class="count">9 products</span></div>
-        <div class="table-wrap"><table class="catalog-table"><thead><tr><th>ID</th><th>Product</th><th>Total Amount</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody>
-          <tr><td class="td-id">HCG30K</td><td>HCG</td><td>30,000 IU</td><td class="td-price">$180</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">KP30</td><td>Kisspeptin-10</td><td>30mg</td><td class="td-price">$125</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">OXY30</td><td>Oxytocin Acetate</td><td>30mg</td><td class="td-price">$100</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">ARIM3</td><td>Arimidex (30 pills)</td><td>1mg</td><td class="td-price">$40</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">LETRO</td><td>Letrozole (30 pills)</td><td>2.5mg</td><td class="td-price">$40</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">TAMOX</td><td>Tamoxifen/Nolvadex (30 pills)</td><td>20mg</td><td class="td-price">$30</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">PROV</td><td>Proviron (30 pills)</td><td>25mg</td><td class="td-price">$40</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">CIALIS</td><td>Cialis/Tadalafil (30 pills)</td><td>20mg</td><td class="td-price">$30</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">SILDEN</td><td>Sildenafil/Viagra (30 pills)</td><td>100mg</td><td class="td-price">$30</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-        </tbody></table></div>
-      </div>
-
-      <div id="cat-injectables" style="margin-bottom:3rem;">
-        <div class="product-section-header"><span>💉</span><h3>Injectable Compounds (10mL Vials)</h3><span class="count">11 products</span></div>
-        <div class="table-wrap"><table class="catalog-table"><thead><tr><th>ID</th><th>Product</th><th>Concentration</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody>
-          <tr><td class="td-id">TESTE</td><td>Testosterone Enanthate</td><td>250mg/mL — 10mL</td><td class="td-price">$75</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">TESTC</td><td>Testosterone Cypionate</td><td>250mg/mL — 10mL</td><td class="td-price">$75</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">TESTP</td><td>Testosterone Propionate</td><td>200mg/mL — 10mL</td><td class="td-price">$75</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">TRENA</td><td>Trenbolone Acetate</td><td>100mg/mL — 10mL</td><td class="td-price">$90</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">TRENE</td><td>Trenbolone Enanthate</td><td>200mg/mL — 10mL</td><td class="td-price">$140</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">NPP</td><td>NPP</td><td>200mg/mL — 10mL</td><td class="td-price">$75</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">EQ300</td><td>EQ (Boldenone)</td><td>300mg/mL — 10mL</td><td class="td-price">$90</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">EQ600</td><td>EQ (Boldenone)</td><td>600mg/mL — 10mL</td><td class="td-price">$120</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">MASTP</td><td>Masteron Propionate</td><td>100mg/mL — 10mL</td><td class="td-price">$120</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">MASTE</td><td>Masteron Enanthate</td><td>200mg/mL — 10mL</td><td class="td-price">$180</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">PRIMO</td><td>Primobolan</td><td>200mg/mL — 10mL</td><td class="td-price">$160</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-        </tbody></table></div>
+        <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--border);">⚗️ Hormones & PCT Support</h3>
+        <div class="product-grid">
+          <div class="product-card"><div class="product-img hormone">💊</div><div class="product-body"><div class="product-cat">Hormone</div><div class="product-name">HCG 30,000 IU</div><div class="product-sub">30,000 IU total</div><div class="product-footer"><div class="product-price">$180</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img hormone">💊</div><div class="product-body"><div class="product-cat">Hormone</div><div class="product-name">Kisspeptin-10</div><div class="product-sub">30 caps · 30mg total</div><div class="product-footer"><div class="product-price">$125</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img hormone">💊</div><div class="product-body"><div class="product-cat">Hormone</div><div class="product-name">Oxytocin Acetate</div><div class="product-sub">30 caps · 30mg total</div><div class="product-footer"><div class="product-price">$100</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img hormone">💊</div><div class="product-body"><div class="product-cat">AI / PCT</div><div class="product-name">Arimidex 1mg</div><div class="product-sub">30 pills · 1mg per pill</div><div class="product-footer"><div class="product-price">$40</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img hormone">💊</div><div class="product-body"><div class="product-cat">AI / PCT</div><div class="product-name">Letrozole 2.5mg</div><div class="product-sub">30 pills · 2.5mg per pill</div><div class="product-footer"><div class="product-price">$40</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img hormone">💊</div><div class="product-body"><div class="product-cat">SERM / PCT</div><div class="product-name">Tamoxifen / Nolvadex</div><div class="product-sub">30 pills · 20mg per pill</div><div class="product-footer"><div class="product-price">$30</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img hormone">💊</div><div class="product-body"><div class="product-cat">PCT</div><div class="product-name">Proviron 25mg</div><div class="product-sub">30 pills · 25mg per pill</div><div class="product-footer"><div class="product-price">$40</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img hormone">💊</div><div class="product-body"><div class="product-cat">ED / Support</div><div class="product-name">Cialis / Tadalafil</div><div class="product-sub">30 pills · 20mg per pill</div><div class="product-footer"><div class="product-price">$30</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img hormone">💊</div><div class="product-body"><div class="product-cat">ED / Support</div><div class="product-name">Sildenafil / Viagra</div><div class="product-sub">30 pills · 100mg per pill</div><div class="product-footer"><div class="product-price">$30</div><button class="add-to-cart">+ Add</button></div></div></div>
+        </div>
       </div>
 
       <div id="cat-orals" style="margin-bottom:3rem;">
-        <div class="product-section-header"><span>💊</span><h3>Oral Compounds (30 pills)</h3><span class="count">8 products</span></div>
-        <div class="table-wrap"><table class="catalog-table"><thead><tr><th>ID</th><th>Product</th><th>Per Pill</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody>
-          <tr><td class="td-id">SUPER</td><td>Superdrol</td><td>50mg</td><td class="td-price">$100</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">ANADR</td><td>Anadrol</td><td>50mg</td><td class="td-price">$40</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">CLEN</td><td>Clenbuterol</td><td>40mcg</td><td class="td-price">$40</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">DIANA</td><td>Dianabol</td><td>50mg</td><td class="td-price">$60</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">WIN</td><td>Winstrol</td><td>10mg</td><td class="td-price">$40</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">TURINA</td><td>Turinabol</td><td>50mg</td><td class="td-price">$70</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">HALO</td><td>Halotestin</td><td>10mg</td><td class="td-price">$40</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">VAR50</td><td>Anavar</td><td>50mg</td><td class="td-price">$70</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-        </tbody></table></div>
+        <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--border);">💊 Oral Compounds — 30 Pills Per Pack</h3>
+        <div class="product-grid">
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">Oral</div><div class="product-name">Superdrol 50mg</div><div class="product-sub">30 pills · 50mg per pill</div><div class="product-footer"><div class="product-price">$100</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">Oral</div><div class="product-name">Anadrol 50mg</div><div class="product-sub">30 pills · 50mg per pill</div><div class="product-footer"><div class="product-price">$40</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">Oral</div><div class="product-name">Clenbuterol 40mcg</div><div class="product-sub">30 pills · 40mcg per pill</div><div class="product-footer"><div class="product-price">$40</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">Oral</div><div class="product-name">Dianabol 50mg</div><div class="product-sub">30 pills · 50mg per pill</div><div class="product-footer"><div class="product-price">$60</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">Oral</div><div class="product-name">Winstrol 10mg</div><div class="product-sub">30 pills · 10mg per pill</div><div class="product-footer"><div class="product-price">$40</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">Oral</div><div class="product-name">Turinabol 50mg</div><div class="product-sub">30 pills · 50mg per pill</div><div class="product-footer"><div class="product-price">$70</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide">💊</div><div class="product-body"><div class="product-cat">Oral</div><div class="product-name">Halotestin 10mg</div><div class="product-sub">30 pills · 10mg per pill</div><div class="product-footer"><div class="product-price">$40</div><button class="add-to-cart">+ Add</button></div></div></div>
+          <div class="product-card"><div class="product-img peptide"><div class="product-badge blue">Popular</div>💊</div><div class="product-body"><div class="product-cat">Oral</div><div class="product-name">Anavar 50mg</div><div class="product-sub">30 pills · 50mg per pill</div><div class="product-footer"><div class="product-price">$70</div><button class="add-to-cart">+ Add</button></div></div></div>
+        </div>
       </div>
-
-      <div id="cat-supplies" style="margin-bottom:3rem;">
-        <div class="product-section-header"><span>🧴</span><h3>Supplies & Water</h3><span class="count">2 products</span></div>
-        <div class="table-wrap"><table class="catalog-table"><thead><tr><th>ID</th><th>Product</th><th>Size</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody>
-          <tr><td class="td-id">WA10</td><td>Sterile Water (no benzyl alcohol)</td><td>10mL</td><td class="td-price">$15</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-          <tr><td class="td-id">BAC10</td><td>Antibacterial Water (0.9% benzyl alcohol)</td><td>10mL</td><td class="td-price">$15</td><td class="td-status"><span class="status-available">Available</span></td><td><button class="add-btn">Add</button></td></tr>
-        </tbody></table></div>
-      </div>
-
     </div>
   </section>
+
+  <section class="section alt" id="vials">
+    <div class="section-inner">
+      <div class="section-head">
+        <div class="eyebrow">10mL Vials</div>
+        <h2>💉 Injectable Compounds</h2>
+        <p>Pharmaceutical-grade injectable solutions in 10mL multi-dose vials.</p>
+      </div>
+      <h4 style="font-size:.85rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem;">Testosterone</h4>
+      <div class="vial-grid" style="margin-bottom:2rem;">
+        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">250mg/mL</div></div><div class="vial-body"><div class="vial-name">Testosterone Enanthate</div><div class="vial-details">250mg/mL · 10mL vial · ID: TESTE</div><div class="vial-footer"><div class="vial-price">$75</div><button class="add-to-cart">+ Add</button></div></div></div>
+        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">250mg/mL</div></div><div class="vial-body"><div class="vial-name">Testosterone Cypionate</div><div class="vial-details">250mg/mL · 10mL vial · ID: TESTC</div><div class="vial-footer"><div class="vial-price">$75</div><button class="add-to-cart">+ Add</button></div></div></div>
+        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">200mg/mL</div></div><div class="vial-body"><div class="vial-name">Testosterone Propionate</div><div class="vial-details">200mg/mL · 10mL vial · ID: TESTP</div><div class="vial-footer"><div class="vial-price">$75</div><button class="add-to-cart">+ Add</button></div></div></div>
+      </div>
+      <h4 style="font-size:.85rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem;">Trenbolone</h4>
+      <div class="vial-grid" style="margin-bottom:2rem;">
+        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">100mg/mL</div></div><div class="vial-body"><div class="vial-name">Trenbolone Acetate</div><div class="vial-details">100mg/mL · 10mL vial · ID: TRENA</div><div class="vial-footer"><div class="vial-price">$90</div><button class="add-to-cart">+ Add</button></div></div></div>
+        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">200mg/mL</div></div><div class="vial-body"><div class="vial-name">Trenbolone Enanthate</div><div class="vial-details">200mg/mL · 10mL vial · ID: TRENE</div><div class="vial-footer"><div class="vial-price">$140</div><button class="add-to-cart">+ Add</button></div></div></div>
+      </div>
+      <h4 style="font-size:.85rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem;">Other Injectables</h4>
+      <div class="vial-grid" style="margin-bottom:2rem;">
+        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">200mg/mL</div></div><div class="vial-body"><div class="vial-name">NPP (Nandrolone)</div><div class="vial-details">200mg/mL · 10mL · ID: NPP</div><div class="vial-footer"><div class="vial-price">$75</div><button class="add-to-cart">+ Add</button></div></div></div>
+        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">300mg/mL</div></div><div class="vial-body"><div class="vial-name">EQ (Boldenone) 300</div><div class="vial-details">300mg/mL · 10mL · ID: EQ300</div><div class="vial-footer"><div class="vial-price">$90</div><button class="add-to-cart">+ Add</button></div></div></div>
+        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">600mg/mL</div></div><div class="vial-body"><div class="vial-name">EQ (Boldenone) 600</div><div class="vial-details">600mg/mL · 10mL · ID: EQ600</div><div class="vial-footer"><div class="vial-price">$120</div><button class="add-to-cart">+ Add</button></div></div></div>
+        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">100mg/mL</div></div><div class="vial-body"><div class="vial-name">Masteron Propionate</div><div class="vial-details">100mg/mL · 10mL · ID: MASTP</div><div class="vial-footer"><div class="vial-price">$120</div><button class="add-to-cart">+ Add</button></div></div></div>
+        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">200mg/mL</div></div><div class="vial-body"><div class="vial-name">Masteron Enanthate</div><div class="vial-details">200mg/mL · 10mL · ID: MASTE</div><div class="vial-footer"><div class="vial-price">$180</div><button class="add-to-cart">+ Add</button></div></div></div>
+        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">200mg/mL</div></div><div class="vial-body"><div class="vial-name">Primobolan</div><div class="vial-details">200mg/mL · 10mL · ID: PRIMO</div><div class="vial-footer"><div class="vial-price">$160</div><button class="add-to-cart">+ Add</button></div></div></div>
+      </div>
+      <h4 style="font-size:.85rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem;">Reconstitution Supplies</h4>
+      <div class="vial-grid">
+        <div class="vial-card"><div class="vial-img" style="background:linear-gradient(135deg,#e0f2fe,#bae6fd);color:#0c4a6e;">🧴<div class="vial-conc" style="color:#0c4a6e;">10mL</div></div><div class="vial-body"><div class="vial-name">Sterile Water</div><div class="vial-details">No benzyl alcohol · 10mL · ID: WA10</div><div class="vial-footer"><div class="vial-price">$15</div><button class="add-to-cart">+ Add</button></div></div></div>
+        <div class="vial-card"><div class="vial-img" style="background:linear-gradient(135deg,#e0f2fe,#bae6fd);color:#0c4a6e;">🧴<div class="vial-conc" style="color:#0c4a6e;">10mL</div></div><div class="vial-body"><div class="vial-name">Antibacterial Water</div><div class="vial-details">0.9% benzyl alcohol · 10mL · ID: BAC10</div><div class="vial-footer"><div class="vial-price">$15</div><button class="add-to-cart">+ Add</button></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="bundles">
+    <div class="section-inner">
+      <div class="section-head">
+        <div class="eyebrow">Save More</div>
+        <h2>Popular Bundles</h2>
+        <p>Pre-stacked combinations at a discount. Split with a friend and each pay 50%.</p>
+      </div>
+      <div class="bundle-grid">
+        <div class="bundle-card featured"><div class="bundle-save">Save 10%+</div><div class="bundle-icon">⚡</div><div class="bundle-name">Wolverine Stack</div><div class="bundle-desc">The ultimate recovery combo — BPC-157 + TB-500 together.</div><ul class="bundle-items"><li>BPC-157 60mg</li><li>TB-500 30mg</li><li>Free BAC Water</li></ul><div class="bundle-footer"><div class="bundle-price">$245 <span class="bundle-orig">$275</span></div><button class="add-to-cart">+ Add Bundle</button></div></div>
+        <div class="bundle-card"><div class="bundle-icon">🧠</div><div class="bundle-name">Brain Stack</div><div class="bundle-desc">Selank + Semax + NAD+ for peak mental performance.</div><ul class="bundle-items"><li>Selank 30mg</li><li>Semax 30mg</li><li>NAD+ 3,000mg</li></ul><div class="bundle-footer"><div class="bundle-price">$340 <span class="bundle-orig">$365</span></div><button class="add-to-cart">+ Add Bundle</button></div></div>
+        <div class="bundle-card"><div class="bundle-icon">⚖️</div><div class="bundle-name">GLP-1 Starter</div><div class="bundle-desc">Semaglutide + T3 for entry-level metabolic support.</div><ul class="bundle-items"><li>Semaglutide 30mg</li><li>T3 Thyroid 25mcg</li></ul><div class="bundle-footer"><div class="bundle-price">$210 <span class="bundle-orig">$225</span></div><button class="add-to-cart">+ Add Bundle</button></div></div>
+        <div class="bundle-card"><div class="bundle-icon">💪</div><div class="bundle-name">GH Peptide Stack</div><div class="bundle-desc">CJC-1295 + Ipamorelin — the classic GH combo.</div><ul class="bundle-items"><li>CJC-1295 No DAC 30mg</li><li>Ipamorelin 30mg</li></ul><div class="bundle-footer"><div class="bundle-price">$240 <span class="bundle-orig">$260</span></div><button class="add-to-cart">+ Add Bundle</button></div></div>
+        <div class="bundle-card"><div class="bundle-icon">✨</div><div class="bundle-name">Longevity Stack</div><div class="bundle-desc">Epithalon + GHK-CU + NAD+ for cellular rejuvenation.</div><ul class="bundle-items"><li>Epithalon 150mg</li><li>GHK-CU 300mg</li><li>NAD+ 3,000mg</li></ul><div class="bundle-footer"><div class="bundle-price">$360 <span class="bundle-orig">$390</span></div><button class="add-to-cart">+ Add Bundle</button></div></div>
+        <div class="bundle-card"><div class="bundle-icon">💉</div><div class="bundle-name">Test + PCT Bundle</div><div class="bundle-desc">Testosterone Enanthate vial + full PCT support.</div><ul class="bundle-items"><li>Testosterone Enanthate 10mL</li><li>Arimidex 1mg (30 pills)</li><li>Nolvadex 20mg (30 pills)</li></ul><div class="bundle-footer"><div class="bundle-price">$155 <span class="bundle-orig">$180</span></div><button class="add-to-cart">+ Add Bundle</button></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="coa-section">
+    <div class="coa-inner">
+      <div>
+        <div style="font-size:.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem;">Lab Verified</div>
+        <h2>Every Compound.<br />Every Batch.<br />Third-Party Tested.</h2>
+        <p>Every lot is sent to an independent third-party laboratory for HPLC purity analysis and mass spectrometry identity confirmation. Certificate of Analysis available for every product upon request.</p>
+        <a href="#" class="btn-white" style="display:inline-block;margin-top:.5rem;">View COAs →</a>
+      </div>
+      <div class="coa-stats">
+        <div class="coa-stat"><div class="num">99%+</div><div class="label">Average Purity</div></div>
+        <div class="coa-stat"><div class="num">100%</div><div class="label">Lots Tested</div></div>
+        <div class="coa-stat"><div class="num">60+</div><div class="label">Compounds Available</div></div>
+        <div class="coa-stat"><div class="num">$300+</div><div class="label">Free Shipping</div></div>
+      </div>
+    </div>
+  </div>
 
   <section class="section" id="how">
     <div class="section-inner">
-      <div class="section-header"><div class="label">Simple Process</div><h2>How to Place an Order</h2><p>Ordering is straightforward. Follow these 4 steps to get your compounds fast.</p></div>
-      <div class="steps">
-        <div class="step"><div class="step-num">1</div><h4>Browse the Catalog</h4><p>Find your compounds by category or use the product IDs to reference what you need.</p></div>
-        <div class="step"><div class="step-num">2</div><h4>Contact Us to Order</h4><p>Send your product IDs and quantities. We'll confirm availability and send a total.</p></div>
-        <div class="step"><div class="step-num">3</div><h4>Submit Payment</h4><p>Pay securely. Orders over $300 qualify for free shipping automatically.</p></div>
-        <div class="step"><div class="step-num">4</div><h4>Receive Your Order</h4><p>Discreet, unmarked packaging. Delivered in 4–14 days. Tracking provided once shipped.</p></div>
+      <div class="section-head" style="text-align:center;max-width:500px;margin:0 auto 2.5rem;">
+        <div class="eyebrow">Simple Process</div>
+        <h2>How to Place an Order</h2>
+        <p>4 easy steps from browsing to delivery.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card"><div class="step-icon">🔍</div><h4>Browse the Catalog</h4><p>Find compounds by category. Check the vials section for injectables.</p></div>
+        <div class="step-card"><div class="step-icon">📋</div><h4>Build Your Order</h4><p>Note the product IDs and quantities. Reach $300 for free shipping — or split with a friend.</p></div>
+        <div class="step-card"><div class="step-icon">💳</div><h4>Submit Payment</h4><p>Contact us with your order. We'll confirm and send a secure payment link.</p></div>
+        <div class="step-card"><div class="step-icon">📦</div><h4>Receive Discreetly</h4><p>Unmarked packaging. 4–14 day estimated delivery. Tracking sent once shipped.</p></div>
       </div>
     </div>
   </section>
 
-  <section class="section" id="faq" style="background:var(--surface);border-top:1px solid var(--border);">
+  <section class="section alt" id="faq">
     <div class="section-inner">
-      <div class="section-header"><div class="label">Questions</div><h2>Frequently Asked Questions</h2></div>
-      <div class="faq-list">
-        <div class="faq-item"><div class="faq-q">What is the capsule amount listed? <span>+</span></div><div class="faq-a">The listed amount is <strong>per capsule</strong>, not the total package. Each package contains 30 capsules. Total active ingredient = listed amount × 30.</div></div>
-        <div class="faq-item"><div class="faq-q">How does the group split work? <span>+</span></div><div class="faq-a">Buying with a friend? Each of you pays 50% of the listed price. Just let us know when ordering.</div></div>
-        <div class="faq-item"><div class="faq-q">How long does shipping take? <span>+</span></div><div class="faq-a">Estimated delivery is 4–14 business days. Tracking provided once shipped. All packages are discreet and unmarked.</div></div>
-        <div class="faq-item"><div class="faq-q">Are your products lab tested? <span>+</span></div><div class="faq-a">Yes. All products are third-party lab tested for purity and concentration. Certificates of Analysis (COA) available on request.</div></div>
-        <div class="faq-item"><div class="faq-q">When does free shipping apply? <span>+</span></div><div class="faq-a">Free shipping is automatically applied to any order totaling $300 or more. No code required.</div></div>
-        <div class="faq-item"><div class="faq-q">What products are coming soon? <span>+</span></div><div class="faq-a">20+ compounds coming including SS-31, AOD-9604, Thymosin Alpha-1, Cagrilintide, AICAR, Survodutide, and more.</div></div>
+      <div class="section-head" style="text-align:center;max-width:500px;margin:0 auto 2.5rem;">
+        <div class="eyebrow">Help</div>
+        <h2>Frequently Asked Questions</h2>
+      </div>
+      <div class="faq-wrap">
+        <div class="faq-item"><div class="faq-q">How are capsule amounts listed? <span>+</span></div><div class="faq-a">The listed amount is per capsule, not the total package. Every pack contains 30 capsules. Total = listed amount × 30.</div></div>
+        <div class="faq-item"><div class="faq-q">How does the group split work? <span>+</span></div><div class="faq-a">Each person pays 50% of the listed price. Just mention it when placing your order.</div></div>
+        <div class="faq-item"><div class="faq-q">How long does shipping take? <span>+</span></div><div class="faq-a">4–14 business days. Tracking provided once shipped. All orders sent in discreet, unmarked packaging.</div></div>
+        <div class="faq-item"><div class="faq-q">Are products lab tested? <span>+</span></div><div class="faq-a">Yes — every compound is third-party tested. COAs available on request for any product and lot number.</div></div>
+        <div class="faq-item"><div class="faq-q">How do I reconstitute peptide vials? <span>+</span></div><div class="faq-a">Use Sterile Water (WA10) or BAC Water (BAC10). BAC water extends shelf life after reconstitution.</div></div>
+        <div class="faq-item"><div class="faq-q">When is free shipping applied? <span>+</span></div><div class="faq-a">Automatically applied to any order $300 or more. No code needed.</div></div>
+        <div class="faq-item"><div class="faq-q">What compounds are coming soon? <span>+</span></div><div class="faq-a">20+ compounds coming including AOD-9604, SS-31, Thymosin Alpha-1, Cagrilintide, AICAR, Survodutide, and more.</div></div>
       </div>
     </div>
   </section>
 
-  <div class="section" style="padding-bottom:2rem;">
-    <div class="disclaimer">
-      <p><strong>⚠️ Research Purposes Only.</strong> All products listed on this website are intended for laboratory and research purposes only. These compounds are not approved by the FDA for human consumption. They are not intended to diagnose, treat, cure, or prevent any disease or condition. By purchasing from this site, you confirm that you are a qualified researcher and will use these compounds solely for lawful research purposes. Always consult a licensed medical professional before use.</p>
-    </div>
+  <div class="disclaimer">
+    <p><strong>⚠️ For Research Purposes Only.</strong> All products on this website are intended for laboratory and research use only. These compounds are NOT approved by the FDA for human consumption and are NOT intended to diagnose, treat, cure, or prevent any disease or medical condition. By accessing this site and purchasing products, you confirm you are a qualified researcher and agree to use all compounds solely for lawful in vitro research purposes. Not for human or veterinary use. Always consult a licensed medical professional. Must be 18+ to purchase.</p>
   </div>
 
   <footer>
     <div class="footer-inner">
       <div class="footer-brand">
-        <div class="nav-logo">TIMELESS<span style="color:var(--accent);">.</span></div>
-        <p>Premium research compounds — lab tested, discreetly shipped, and trusted by researchers worldwide. 60+ compounds available.</p>
+        <div class="logo">TIMELESS <em>RESEARCH</em></div>
+        <p>Premium research compounds — third-party lab tested, discreetly shipped. 60+ compounds across 9 categories.</p>
       </div>
-      <div class="footer-col"><h4>Products</h4><ul><li><a href="#cat-weightloss">Weight Loss</a></li><li><a href="#cat-gh">Growth Hormone</a></li><li><a href="#cat-recovery">Recovery</a></li><li><a href="#cat-nootropics">Nootropics</a></li><li><a href="#cat-antiaging">Anti-Aging</a></li></ul></div>
-      <div class="footer-col"><h4>More</h4><ul><li><a href="#cat-hormones">Hormones</a></li><li><a href="#cat-injectables">Injectables</a></li><li><a href="#cat-orals">Orals</a></li><li><a href="#cat-supplies">Supplies</a></li></ul></div>
-      <div class="footer-col"><h4>Info</h4><ul><li><a href="#how">How to Order</a></li><li><a href="#faq">FAQ</a></li><li><a href="#featured">Bestsellers</a></li><li><a href="#categories">All Categories</a></li></ul></div>
+      <div class="footer-col"><h5>Shop</h5><ul><li><a href="#cat-glp1">Weight Loss</a></li><li><a href="#cat-peptides">Growth Hormone</a></li><li><a href="#cat-recovery">Recovery</a></li><li><a href="#cat-brain">Nootropics</a></li><li><a href="#cat-aging">Anti-Aging</a></li></ul></div>
+      <div class="footer-col"><h5>More</h5><ul><li><a href="#cat-hormones">Hormones & PCT</a></li><li><a href="#vials">Injectables</a></li><li><a href="#cat-orals">Oral Compounds</a></li><li><a href="#bundles">Bundles</a></li></ul></div>
+      <div class="footer-col"><h5>Info</h5><ul><li><a href="#how">How to Order</a></li><li><a href="#faq">FAQ</a></li><li><a href="#">COA / Lab Testing</a></li><li><a href="#">Contact Us</a></li></ul></div>
     </div>
-    <div class="footer-bottom">© 2026 Timeless Research. All rights reserved. &nbsp;|&nbsp; For research purposes only. &nbsp;|&nbsp; Not for human consumption.</div>
+    <div class="footer-bottom">
+      <p>© 2026 Timeless Research. All rights reserved. For research purposes only. Not for human consumption.</p>
+      <p>support@timelessresearch.com</p>
+    </div>
   </footer>
 
 </body>
