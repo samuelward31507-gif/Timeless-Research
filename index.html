@@ -11,9 +11,9 @@
     :root{
       --bg:#020202;--s1:#070707;--s2:#0c0c0c;--s3:#111;--s4:#161616;
       --brd:rgba(255,255,255,.055);--brdm:rgba(255,255,255,.1);
-      --bl:#4FACFE;--blg:rgba(79,172,254,.08);
+      --bl:#4FACFE;
       --wh:#F2F4F8;--w60:rgba(242,244,248,.6);--w40:rgba(242,244,248,.4);
-      --w20:rgba(242,244,248,.2);--w08:rgba(242,244,248,.08);
+      --w20:rgba(242,244,248,.2);
       --fd:'Cormorant Garamond',Georgia,serif;
       --fu:'Inter',system-ui,sans-serif;
       --fm:'SF Mono','Fira Code','Courier New',monospace;
@@ -80,7 +80,7 @@
     .ssb{font-size:.88rem;font-weight:300;line-height:1.8;color:var(--w40);max-width:480px}
     @media(max-width:768px){.sec{padding:4rem 2rem}}
 
-    /* ═══════ PRODUCT CARD — REAL VIAL PHOTO ═══════ */
+    /* CATALOG TABS */
     .ctabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--brd);margin-bottom:2.5rem;scrollbar-width:none;-ms-overflow-style:none}
     .ctabs::-webkit-scrollbar{display:none}
     .ctab{flex-shrink:0;font-family:var(--fu);font-size:.72rem;font-weight:400;color:var(--w40);padding:.8rem 1.15rem;cursor:pointer;transition:color .2s;border-bottom:2px solid transparent;letter-spacing:.3px;user-select:none;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap}
@@ -91,18 +91,58 @@
     @media(max-width:850px){.cgr{grid-template-columns:repeat(3,1fr)}}
     @media(max-width:560px){.cgr{grid-template-columns:repeat(2,1fr)}}
 
+    /* ═══════════════════════════════════════════
+       PRODUCT CARD — LARGER VIAL PHOTO + LABEL OVERLAY
+    ═══════════════════════════════════════════ */
     .cc{background:var(--s1);display:flex;flex-direction:column;transition:background .25s;cursor:pointer;position:relative;overflow:hidden}
-    .cc::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 85%,rgba(79,172,254,.09),transparent);opacity:0;transition:opacity .4s;pointer-events:none;z-index:1}
+    .cc::before{content:'';position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 70% 50% at 50% 90%,rgba(79,172,254,.1),transparent);opacity:0;transition:opacity .4s;pointer-events:none}
     .cc:hover::before{opacity:1}
     .cc:hover{background:var(--s2)}
 
-    .cc-v{height:260px;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--brd);background:radial-gradient(ellipse 70% 70% at 50% 60%,rgba(79,172,254,.04),transparent),#050505;overflow:hidden}
+    /* Taller visual area */
+    .cc-v{height:320px;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--brd);background:radial-gradient(ellipse 60% 60% at 50% 65%,rgba(79,172,254,.05),transparent),#040404;overflow:hidden}
 
-    /* THE REAL VIAL PHOTO */
-    .cc-img{height:230px;width:auto;max-width:110px;object-fit:contain;transition:transform .45s cubic-bezier(.34,1.56,.64,1),filter .3s;filter:drop-shadow(0 8px 18px rgba(0,0,0,.55)) drop-shadow(0 2px 4px rgba(0,0,0,.4));position:relative;z-index:2}
-    .cc:hover .cc-img{transform:translateY(-10px) scale(1.05);filter:drop-shadow(0 18px 32px rgba(0,0,0,.5)) drop-shadow(0 4px 8px rgba(0,0,0,.35)) drop-shadow(0 0 24px rgba(79,172,254,.18))}
+    /* Fixed-size wrapper: same proportions as 2:3 photo rendered at 140px wide */
+    .cc-wrap{
+      position:relative;
+      display:inline-flex;align-items:center;justify-content:center;
+      width:140px;height:280px;
+      flex-shrink:0;
+      transition:transform .45s cubic-bezier(.34,1.56,.64,1);
+      filter:drop-shadow(0 8px 20px rgba(0,0,0,.6)) drop-shadow(0 2px 4px rgba(0,0,0,.45));
+      z-index:2
+    }
+    .cc:hover .cc-wrap{
+      transform:translateY(-10px) scale(1.05);
+      filter:drop-shadow(0 20px 36px rgba(0,0,0,.55)) drop-shadow(0 4px 8px rgba(0,0,0,.4)) drop-shadow(0 0 28px rgba(79,172,254,.2))
+    }
 
-    .cc-gw{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:80px;height:18px;z-index:1;background:radial-gradient(ellipse,rgba(79,172,254,.28),transparent 70%);filter:blur(10px)}
+    /* Photo fills the wrapper */
+    .cc-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;object-position:center}
+
+    /* Label overlay
+       Photo is 2:3. Renders at 140×210 inside 140×280 wrapper.
+       Top padding: (280-210)/2 = 35px.
+       Label occupies roughly 22-68% of image height = 46-143px from image top.
+       From wrapper top: 35+46=81px to 35+143=178px → center ≈ 130px = 46% of 280px */
+    .cc-lbl{
+      position:absolute;
+      top:44%;left:50%;
+      transform:translate(-50%,-50%);
+      width:90px;
+      text-align:center;
+      pointer-events:none;
+      z-index:3;
+      display:flex;flex-direction:column;align-items:center;gap:0
+    }
+    .cl-brand{font-family:var(--fu);font-size:5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(79,172,254,.95);margin-bottom:5px;text-shadow:0 0 8px rgba(79,172,254,.4)}
+    .cl-name{font-family:var(--fu);font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.3px;line-height:1.1;text-shadow:0 1px 6px rgba(0,0,0,.9),0 0 14px rgba(0,0,0,.7);margin-bottom:5px}
+    .cl-sep{width:75%;height:1px;background:linear-gradient(90deg,transparent,rgba(79,172,254,.85),transparent);margin-bottom:5px;flex-shrink:0}
+    .cl-dose{font-family:var(--fm);font-size:7.5px;font-weight:600;color:rgba(255,255,255,.9);letter-spacing:.3px;text-shadow:0 1px 4px rgba(0,0,0,.8);margin-bottom:4px}
+    .cl-pur{font-family:var(--fm);font-size:5px;font-weight:600;color:rgba(79,172,254,.9);letter-spacing:.6px;text-transform:uppercase;text-shadow:0 0 8px rgba(79,172,254,.35)}
+
+    .cc-gw{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:90px;height:20px;z-index:1;background:radial-gradient(ellipse,rgba(79,172,254,.32),transparent 70%);filter:blur(10px)}
+
     .cc-inf{padding:1rem .9rem .9rem;flex:1;display:flex;flex-direction:column;position:relative;z-index:2}
     .cc-id{font-family:var(--fm);font-size:.5rem;color:var(--bl);letter-spacing:1.5px;margin-bottom:.22rem;opacity:.7}
     .cc-nm{font-family:var(--fd);font-size:1.05rem;font-weight:400;color:var(--wh);margin-bottom:.18rem;line-height:1.15}
@@ -199,7 +239,7 @@
 <div class="abar">
   <span>🚀 <em>Free Shipping</em> on Orders $300+</span>
   <span>⏱ Delivery: <em>4–14 Days</em></span>
-  <span>👥 Buying with a Friend? Split the cost — each pay <em>50%</em></span>
+  <span>👥 Buying with a Friend? Split — each pay <em>50%</em></span>
 </div>
 
 <nav class="nav" id="nav">
@@ -220,7 +260,7 @@
   <div class="hcnt">
     <div class="htag">Research-Grade Peptide Compounds</div>
     <h1>Precision. Purity.<br><em>Verified Results.</em></h1>
-    <p class="hsub">60+ research compounds. 99% average purity. Full Certificate of Analysis on every lot. Built for serious research.</p>
+    <p class="hsub">60+ research compounds. 99% average purity. Full Certificate of Analysis on every lot.</p>
     <div class="hbtns">
       <a href="#catalog" class="bp">Shop Catalog</a>
       <a href="#quality" class="bg">Our Standards</a>
@@ -374,7 +414,7 @@
 </footer>
 
 <script>
-const VIAL_IMG = 'https://storage.googleapis.com/crm-conversations-ai-production/ask-ai-images/1788083226206/d297f49e-4f38-407b-9e9a-cabbafbdf0b1.png';
+const VIAL = 'https://storage.googleapis.com/crm-conversations-ai-production/ask-ai-images/1788083226206/d297f49e-4f38-407b-9e9a-cabbafbdf0b1.png';
 
 const P = [
   ['RT30','Retatrutide','30mg','30 caps',300,'weight','GLP-1/GIP/Glucagon Agonist'],
@@ -386,7 +426,7 @@ const P = [
   ['T3','T3 Thyroid','25mcg','30 pills',45,'weight','Thyroid Hormone Analog'],
   ['BPC60','BPC-157','2mg','30 caps',80,'healing','Body Protection Compound'],
   ['TB30','TB-500','1mg','30 caps',180,'healing','Thymosin Beta-4 Analog'],
-  ['BPCTB60','Wolverine Peptide','2mg','30 caps',245,'healing','BPC-157 + TB-500 Blend'],
+  ['BPCTB60','Wolverine Blend','2mg','30 caps',245,'healing','BPC-157 + TB-500'],
   ['GLOW210','GLOW Blend','7mg','30 caps',245,'healing','TB + BPC + GHK-CU'],
   ['KLOW240','KLOW Blend','8mg','30 caps',265,'healing','GHK-CU + TB + BPC + KPV'],
   ['HGH360','HGH','360 IU','',300,'growth','Human Growth Hormone'],
@@ -403,7 +443,7 @@ const P = [
   ['GLUTA','Glutathione','150mg','30 caps',150,'longevity','Master Antioxidant'],
   ['SEL30','Selank','1mg','30 caps',105,'cognitive','Anxiolytic Heptapeptide'],
   ['SEM30','Semax','1mg','30 caps',105,'cognitive','Nootropic Heptapeptide'],
-  ['DIHEX20','Dihexa','667mcg','30 caps',145,'cognitive','Cognitive Enhancement Peptide'],
+  ['DIHEX20','Dihexa','667mcg','30 caps',145,'cognitive','Cognitive Enhancement'],
   ['DSIP30','DSIP','1mg','30 caps',100,'cognitive','Delta Sleep-Inducing Peptide'],
   ['KPV30','KPV','1mg','30 caps',80,'cognitive','Anti-Inflammatory Tripeptide'],
   ['MT1','MT-1','667mcg','30 caps',65,'sexual','Melanotan I'],
@@ -432,7 +472,7 @@ const P = [
   ['TURINA','Turinabol','50mg','30 pills',70,'orals','Chlorodehydromethyltestosterone'],
   ['HALO','Halotestin','10mg','30 pills',40,'orals','Fluoxymesterone'],
   ['VAR50','Anavar','50mg','30 pills',70,'orals','Oxandrolone'],
-  ['ARIM3','Arimidex','1mg','30 pills',40,'orals','Anastrozole / Aromatase Inhibitor'],
+  ['ARIM3','Arimidex','1mg','30 pills',40,'orals','Anastrozole / AI'],
   ['LETRO','Letrozole','2.5mg','30 pills',40,'orals','Aromatase Inhibitor'],
   ['TAMOX','Tamoxifen','20mg','30 pills',30,'orals','SERM — Nolvadex'],
   ['PROV','Proviron','25mg','30 pills',40,'orals','Mesterolone'],
@@ -460,8 +500,9 @@ const CATS = [
 ];
 
 function card(p) {
-  const dose = p[2] + (p[3] ? ' · ' + p[3] : '');
-  return `<div class="cc"><div class="cc-v"><img class="cc-img" src="${VIAL_IMG}" alt="${p[1]}" loading="lazy"><div class="cc-gw"></div></div><div class="cc-inf"><div class="cc-id">${p[0]}</div><div class="cc-nm">${p[1]}</div><div class="cc-ds">${p[6]}</div><div class="cc-bot"><span class="cc-do">${dose}</span><span class="cc-pr">$${p[4]}</span></div></div></div>`;
+  const nm = p[1].length > 13 ? p[1].slice(0,12)+'…' : p[1];
+  const dose = p[2]+(p[3]?' · '+p[3]:'');
+  return `<div class="cc"><div class="cc-v"><div class="cc-wrap"><img class="cc-img" src="${VIAL}" alt="${p[1]}" loading="lazy"><div class="cc-lbl"><div class="cl-brand">TIMELESS RESEARCH</div><div class="cl-name">${nm.toUpperCase()}</div><div class="cl-sep"></div><div class="cl-dose">${p[2]}</div><div class="cl-pur">≥99% PURITY</div></div></div><div class="cc-gw"></div></div><div class="cc-inf"><div class="cc-id">${p[0]}</div><div class="cc-nm">${p[1]}</div><div class="cc-ds">${p[6]}</div><div class="cc-bot"><span class="cc-do">${dose}</span><span class="cc-pr">$${p[4]}</span></div></div></div>`;
 }
 
 function render(cat){return(cat==='all'?P:P.filter(p=>p[5]===cat)).map(card).join('')}
@@ -478,7 +519,7 @@ grid.innerHTML=render('all');
 document.getElementById('csg').innerHTML=CS.map(c=>`<div class="csc"><div class="cstg">COMING SOON</div><div class="csnm">${c[0]}</div><div class="csdo">${c[1]}</div></div>`).join('');
 
 const nav=document.getElementById('nav');
-window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>80)},{passive:true});
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>80),{passive:true});
 
 const cv=document.getElementById('pcvs'),cx=cv.getContext('2d');
 let pts=[],ms={x:-999,y:-999};
