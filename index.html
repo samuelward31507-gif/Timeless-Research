@@ -81,16 +81,119 @@
     .product-price .from { font-size: .7rem; font-weight: 400; color: var(--muted); }
     .add-to-cart { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: .4rem .85rem; font-size: .75rem; font-weight: 700; cursor: pointer; transition: background .2s; }
     .add-to-cart:hover { background: var(--gold); }
+
+    /* ── VIAL CARD SHELL ── */
     .vial-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem; }
     .vial-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: box-shadow .2s, transform .15s; }
-    .vial-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,.08); transform: translateY(-2px); }
-    .vial-img { height: 140px; background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); display: flex; align-items: center; justify-content: center; font-size: 3rem; position: relative; color: #fff; }
-    .vial-conc { position: absolute; bottom: 8px; right: 8px; background: rgba(255,255,255,.15); color: #fff; font-size: .65rem; font-weight: 700; padding: .2rem .5rem; border-radius: 6px; }
+    .vial-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,.1); transform: translateY(-2px); }
     .vial-body { padding: 1rem; }
-    .vial-name { font-size: .95rem; font-weight: 800; margin-bottom: .2rem; }
+
+    /* ===== PREMIUM VIAL DESIGN ===== */
+    .vial-img {
+      height: 180px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(255,255,255,.12), transparent 38%),
+        linear-gradient(145deg, #111827 0%, #0f3460 55%, #0b1220 100%);
+    }
+    .vial-img::before {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.06);
+      filter: blur(25px);
+    }
+    .research-vial {
+      position: relative;
+      width: 72px;
+      height: 105px;
+      z-index: 2;
+      filter: drop-shadow(0 14px 12px rgba(0,0,0,.35));
+      transition: transform .25s ease;
+    }
+    .vial-card:hover .research-vial { transform: translateY(-3px) rotate(-1deg); }
+    .vial-cap {
+      position: absolute;
+      top: 0; left: 8px;
+      width: 56px; height: 23px;
+      border-radius: 7px 7px 3px 3px;
+      background: linear-gradient(90deg, #8d939b 0%, #f5f5f5 18%, #aeb4bb 38%, #fafafa 55%, #898f97 100%);
+      border: 1px solid rgba(0,0,0,.25);
+    }
+    .vial-stopper {
+      position: absolute;
+      top: 18px; left: 15px;
+      width: 42px; height: 10px;
+      border-radius: 3px;
+      background: #30343a;
+      box-shadow: inset 0 2px 2px rgba(255,255,255,.08);
+    }
+    .vial-glass {
+      position: absolute;
+      top: 27px; left: 5px;
+      width: 62px; height: 76px;
+      border-radius: 7px 7px 11px 11px;
+      border: 1px solid rgba(255,255,255,.38);
+      background: linear-gradient(90deg, rgba(255,255,255,.18), rgba(255,255,255,.04) 22%, rgba(255,255,255,.02) 70%, rgba(255,255,255,.16));
+      box-shadow: inset 6px 0 8px rgba(255,255,255,.07), inset -5px 0 8px rgba(0,0,0,.12);
+      overflow: hidden;
+    }
+    .vial-liquid {
+      position: absolute;
+      left: 7px; right: 7px; bottom: 7px;
+      height: 48px;
+      border-radius: 3px 3px 7px 7px;
+      background: linear-gradient(180deg, rgba(244,246,248,.82), rgba(213,218,224,.92));
+    }
+    .vial-label {
+      position: absolute;
+      left: 9px; right: 9px; top: 43px;
+      height: 38px;
+      z-index: 3;
+      background: #fff;
+      border-radius: 2px;
+      padding: 4px 3px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,.18);
+    }
+    .vial-label::after {
+      content: "";
+      display: block;
+      height: 2px;
+      margin: 3px 3px 0;
+      border-radius: 2px;
+      background: #e94560;
+    }
+    .vlabel-brand { font-size: 5px; font-weight: 900; letter-spacing: .8px; color: #111827; line-height: 1; }
+    .vlabel-name { font-size: 6px; font-weight: 800; color: #0f3460; margin-top: 4px; line-height: 1.1; }
+    .vlabel-research { font-size: 3.5px; font-weight: 700; letter-spacing: .35px; color: #6b7280; margin-top: 3px; text-transform: uppercase; }
+    .vial-conc {
+      position: absolute;
+      bottom: 9px; right: 9px;
+      z-index: 5;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.18);
+      backdrop-filter: blur(6px);
+      color: #fff;
+      font-size: .65rem;
+      font-weight: 700;
+      padding: .25rem .5rem;
+      border-radius: 6px;
+    }
+    /* ── VIAL BODY TEXT ── */
+    .vial-title { font-size: .95rem; font-weight: 800; margin-bottom: .2rem; color: var(--text); }
     .vial-details { font-size: .75rem; color: var(--muted); margin-bottom: .75rem; }
     .vial-footer { display: flex; align-items: center; justify-content: space-between; }
     .vial-price { font-size: 1.1rem; font-weight: 900; }
+    .research-designation { display: inline-block; margin-top: .45rem; font-size: .6rem; font-weight: 700; letter-spacing: .7px; color: var(--muted2); text-transform: uppercase; }
+
+    /* ── BUNDLES ── */
     .bundle-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
     .bundle-card { background: #fff; border: 2px solid var(--border); border-radius: 18px; padding: 1.75rem; position: relative; transition: border-color .2s; }
     .bundle-card:hover { border-color: var(--accent); }
@@ -196,6 +299,7 @@
     </div>
   </div>
 
+  <!-- ── SHOP ── -->
   <section class="section" id="shop">
     <div class="section-inner">
       <div class="section-head-row">
@@ -217,6 +321,7 @@
         <a href="#vials" class="cat-pill">💉 Injectables</a>
       </div>
 
+      <!-- GLP-1 -->
       <div id="cat-glp1" style="margin-bottom:3rem;">
         <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--border);">⚖️ Weight Loss / GLP-1</h3>
         <div class="product-grid">
@@ -230,6 +335,7 @@
         </div>
       </div>
 
+      <!-- GROWTH HORMONE -->
       <div id="cat-peptides" style="margin-bottom:3rem;">
         <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--border);">📈 Growth Hormone Peptides</h3>
         <div class="product-grid">
@@ -243,6 +349,7 @@
         </div>
       </div>
 
+      <!-- RECOVERY -->
       <div id="cat-recovery" style="margin-bottom:3rem;">
         <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--border);">🔧 Recovery & Healing</h3>
         <div class="product-grid">
@@ -255,6 +362,7 @@
         </div>
       </div>
 
+      <!-- NOOTROPICS -->
       <div id="cat-brain" style="margin-bottom:3rem;">
         <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--border);">🧠 Nootropics & Brain Health</h3>
         <div class="product-grid">
@@ -267,6 +375,7 @@
         </div>
       </div>
 
+      <!-- ANTI-AGING -->
       <div id="cat-aging" style="margin-bottom:3rem;">
         <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--border);">✨ Anti-Aging & Longevity</h3>
         <div class="product-grid">
@@ -278,6 +387,7 @@
         </div>
       </div>
 
+      <!-- HORMONES -->
       <div id="cat-hormones" style="margin-bottom:3rem;">
         <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--border);">⚗️ Hormones & PCT Support</h3>
         <div class="product-grid">
@@ -293,6 +403,7 @@
         </div>
       </div>
 
+      <!-- ORALS -->
       <div id="cat-orals" style="margin-bottom:3rem;">
         <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--border);">💊 Oral Compounds — 30 Pills Per Pack</h3>
         <div class="product-grid">
@@ -309,41 +420,279 @@
     </div>
   </section>
 
+  <!-- ── INJECTABLES / VIALS (PREMIUM DESIGN) ── -->
   <section class="section alt" id="vials">
     <div class="section-inner">
       <div class="section-head">
         <div class="eyebrow">10mL Vials</div>
         <h2>💉 Injectable Compounds</h2>
-        <p>Pharmaceutical-grade injectable solutions in 10mL multi-dose vials.</p>
+        <p>Pharmaceutical-grade injectable solutions in 10mL multi-dose vials. Premium CSS-rendered vial artwork — each labeled with concentration and compound.</p>
       </div>
+
       <h4 style="font-size:.85rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem;">Testosterone</h4>
-      <div class="vial-grid" style="margin-bottom:2rem;">
-        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">250mg/mL</div></div><div class="vial-body"><div class="vial-name">Testosterone Enanthate</div><div class="vial-details">250mg/mL · 10mL vial · ID: TESTE</div><div class="vial-footer"><div class="vial-price">$75</div><button class="add-to-cart">+ Add</button></div></div></div>
-        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">250mg/mL</div></div><div class="vial-body"><div class="vial-name">Testosterone Cypionate</div><div class="vial-details">250mg/mL · 10mL vial · ID: TESTC</div><div class="vial-footer"><div class="vial-price">$75</div><button class="add-to-cart">+ Add</button></div></div></div>
-        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">200mg/mL</div></div><div class="vial-body"><div class="vial-name">Testosterone Propionate</div><div class="vial-details">200mg/mL · 10mL vial · ID: TESTP</div><div class="vial-footer"><div class="vial-price">$75</div><button class="add-to-cart">+ Add</button></div></div></div>
+      <div class="vial-grid" style="margin-bottom:2.5rem;">
+
+        <!-- TEST E -->
+        <div class="vial-card">
+          <div class="vial-img">
+            <div class="research-vial">
+              <div class="vial-cap"></div>
+              <div class="vial-stopper"></div>
+              <div class="vial-glass">
+                <div class="vial-liquid"></div>
+                <div class="vial-label">
+                  <div class="vlabel-brand">TIMELESS RESEARCH</div>
+                  <div class="vlabel-name">TEST ENANTHATE</div>
+                  <div class="vlabel-research">LABORATORY USE ONLY</div>
+                </div>
+              </div>
+            </div>
+            <div class="vial-conc">250mg/mL</div>
+          </div>
+          <div class="vial-body">
+            <div class="vial-title">Testosterone Enanthate</div>
+            <div class="vial-details">250mg/mL · 10mL vial · ID: TESTE</div>
+            <div class="vial-footer"><div class="vial-price">$75</div><button class="add-to-cart">+ Add</button></div>
+            <span class="research-designation">For research use only</span>
+          </div>
+        </div>
+
+        <!-- TEST C -->
+        <div class="vial-card">
+          <div class="vial-img">
+            <div class="research-vial">
+              <div class="vial-cap"></div>
+              <div class="vial-stopper"></div>
+              <div class="vial-glass">
+                <div class="vial-liquid"></div>
+                <div class="vial-label">
+                  <div class="vlabel-brand">TIMELESS RESEARCH</div>
+                  <div class="vlabel-name">TEST CYPIONATE</div>
+                  <div class="vlabel-research">LABORATORY USE ONLY</div>
+                </div>
+              </div>
+            </div>
+            <div class="vial-conc">250mg/mL</div>
+          </div>
+          <div class="vial-body">
+            <div class="vial-title">Testosterone Cypionate</div>
+            <div class="vial-details">250mg/mL · 10mL vial · ID: TESTC</div>
+            <div class="vial-footer"><div class="vial-price">$75</div><button class="add-to-cart">+ Add</button></div>
+            <span class="research-designation">For research use only</span>
+          </div>
+        </div>
+
+        <!-- TEST P -->
+        <div class="vial-card">
+          <div class="vial-img">
+            <div class="research-vial">
+              <div class="vial-cap"></div>
+              <div class="vial-stopper"></div>
+              <div class="vial-glass">
+                <div class="vial-liquid"></div>
+                <div class="vial-label">
+                  <div class="vlabel-brand">TIMELESS RESEARCH</div>
+                  <div class="vlabel-name">TEST PROPIONATE</div>
+                  <div class="vlabel-research">LABORATORY USE ONLY</div>
+                </div>
+              </div>
+            </div>
+            <div class="vial-conc">200mg/mL</div>
+          </div>
+          <div class="vial-body">
+            <div class="vial-title">Testosterone Propionate</div>
+            <div class="vial-details">200mg/mL · 10mL vial · ID: TESTP</div>
+            <div class="vial-footer"><div class="vial-price">$75</div><button class="add-to-cart">+ Add</button></div>
+            <span class="research-designation">For research use only</span>
+          </div>
+        </div>
+
       </div>
+
       <h4 style="font-size:.85rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem;">Trenbolone</h4>
-      <div class="vial-grid" style="margin-bottom:2rem;">
-        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">100mg/mL</div></div><div class="vial-body"><div class="vial-name">Trenbolone Acetate</div><div class="vial-details">100mg/mL · 10mL vial · ID: TRENA</div><div class="vial-footer"><div class="vial-price">$90</div><button class="add-to-cart">+ Add</button></div></div></div>
-        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">200mg/mL</div></div><div class="vial-body"><div class="vial-name">Trenbolone Enanthate</div><div class="vial-details">200mg/mL · 10mL vial · ID: TRENE</div><div class="vial-footer"><div class="vial-price">$140</div><button class="add-to-cart">+ Add</button></div></div></div>
+      <div class="vial-grid" style="margin-bottom:2.5rem;">
+
+        <!-- TREN A -->
+        <div class="vial-card">
+          <div class="vial-img">
+            <div class="research-vial">
+              <div class="vial-cap"></div>
+              <div class="vial-stopper"></div>
+              <div class="vial-glass">
+                <div class="vial-liquid"></div>
+                <div class="vial-label">
+                  <div class="vlabel-brand">TIMELESS RESEARCH</div>
+                  <div class="vlabel-name">TREN ACETATE</div>
+                  <div class="vlabel-research">LABORATORY USE ONLY</div>
+                </div>
+              </div>
+            </div>
+            <div class="vial-conc">100mg/mL</div>
+          </div>
+          <div class="vial-body">
+            <div class="vial-title">Trenbolone Acetate</div>
+            <div class="vial-details">100mg/mL · 10mL vial · ID: TRENA</div>
+            <div class="vial-footer"><div class="vial-price">$90</div><button class="add-to-cart">+ Add</button></div>
+            <span class="research-designation">For research use only</span>
+          </div>
+        </div>
+
+        <!-- TREN E -->
+        <div class="vial-card">
+          <div class="vial-img">
+            <div class="research-vial">
+              <div class="vial-cap"></div>
+              <div class="vial-stopper"></div>
+              <div class="vial-glass">
+                <div class="vial-liquid"></div>
+                <div class="vial-label">
+                  <div class="vlabel-brand">TIMELESS RESEARCH</div>
+                  <div class="vlabel-name">TREN ENANTHATE</div>
+                  <div class="vlabel-research">LABORATORY USE ONLY</div>
+                </div>
+              </div>
+            </div>
+            <div class="vial-conc">200mg/mL</div>
+          </div>
+          <div class="vial-body">
+            <div class="vial-title">Trenbolone Enanthate</div>
+            <div class="vial-details">200mg/mL · 10mL vial · ID: TRENE</div>
+            <div class="vial-footer"><div class="vial-price">$140</div><button class="add-to-cart">+ Add</button></div>
+            <span class="research-designation">For research use only</span>
+          </div>
+        </div>
+
       </div>
+
       <h4 style="font-size:.85rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem;">Other Injectables</h4>
-      <div class="vial-grid" style="margin-bottom:2rem;">
-        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">200mg/mL</div></div><div class="vial-body"><div class="vial-name">NPP (Nandrolone)</div><div class="vial-details">200mg/mL · 10mL · ID: NPP</div><div class="vial-footer"><div class="vial-price">$75</div><button class="add-to-cart">+ Add</button></div></div></div>
-        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">300mg/mL</div></div><div class="vial-body"><div class="vial-name">EQ (Boldenone) 300</div><div class="vial-details">300mg/mL · 10mL · ID: EQ300</div><div class="vial-footer"><div class="vial-price">$90</div><button class="add-to-cart">+ Add</button></div></div></div>
-        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">600mg/mL</div></div><div class="vial-body"><div class="vial-name">EQ (Boldenone) 600</div><div class="vial-details">600mg/mL · 10mL · ID: EQ600</div><div class="vial-footer"><div class="vial-price">$120</div><button class="add-to-cart">+ Add</button></div></div></div>
-        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">100mg/mL</div></div><div class="vial-body"><div class="vial-name">Masteron Propionate</div><div class="vial-details">100mg/mL · 10mL · ID: MASTP</div><div class="vial-footer"><div class="vial-price">$120</div><button class="add-to-cart">+ Add</button></div></div></div>
-        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">200mg/mL</div></div><div class="vial-body"><div class="vial-name">Masteron Enanthate</div><div class="vial-details">200mg/mL · 10mL · ID: MASTE</div><div class="vial-footer"><div class="vial-price">$180</div><button class="add-to-cart">+ Add</button></div></div></div>
-        <div class="vial-card"><div class="vial-img">💉<div class="vial-conc">200mg/mL</div></div><div class="vial-body"><div class="vial-name">Primobolan</div><div class="vial-details">200mg/mL · 10mL · ID: PRIMO</div><div class="vial-footer"><div class="vial-price">$160</div><button class="add-to-cart">+ Add</button></div></div></div>
+      <div class="vial-grid" style="margin-bottom:2.5rem;">
+
+        <!-- NPP -->
+        <div class="vial-card">
+          <div class="vial-img">
+            <div class="research-vial">
+              <div class="vial-cap"></div><div class="vial-stopper"></div>
+              <div class="vial-glass"><div class="vial-liquid"></div>
+                <div class="vial-label"><div class="vlabel-brand">TIMELESS RESEARCH</div><div class="vlabel-name">NPP NANDROLONE</div><div class="vlabel-research">LABORATORY USE ONLY</div></div>
+              </div>
+            </div>
+            <div class="vial-conc">200mg/mL</div>
+          </div>
+          <div class="vial-body"><div class="vial-title">NPP (Nandrolone)</div><div class="vial-details">200mg/mL · 10mL vial · ID: NPP</div><div class="vial-footer"><div class="vial-price">$75</div><button class="add-to-cart">+ Add</button></div><span class="research-designation">For research use only</span></div>
+        </div>
+
+        <!-- EQ 300 -->
+        <div class="vial-card">
+          <div class="vial-img">
+            <div class="research-vial">
+              <div class="vial-cap"></div><div class="vial-stopper"></div>
+              <div class="vial-glass"><div class="vial-liquid"></div>
+                <div class="vial-label"><div class="vlabel-brand">TIMELESS RESEARCH</div><div class="vlabel-name">BOLDENONE EQ 300</div><div class="vlabel-research">LABORATORY USE ONLY</div></div>
+              </div>
+            </div>
+            <div class="vial-conc">300mg/mL</div>
+          </div>
+          <div class="vial-body"><div class="vial-title">EQ (Boldenone) 300</div><div class="vial-details">300mg/mL · 10mL vial · ID: EQ300</div><div class="vial-footer"><div class="vial-price">$90</div><button class="add-to-cart">+ Add</button></div><span class="research-designation">For research use only</span></div>
+        </div>
+
+        <!-- EQ 600 -->
+        <div class="vial-card">
+          <div class="vial-img">
+            <div class="research-vial">
+              <div class="vial-cap"></div><div class="vial-stopper"></div>
+              <div class="vial-glass"><div class="vial-liquid"></div>
+                <div class="vial-label"><div class="vlabel-brand">TIMELESS RESEARCH</div><div class="vlabel-name">BOLDENONE EQ 600</div><div class="vlabel-research">LABORATORY USE ONLY</div></div>
+              </div>
+            </div>
+            <div class="vial-conc">600mg/mL</div>
+          </div>
+          <div class="vial-body"><div class="vial-title">EQ (Boldenone) 600</div><div class="vial-details">600mg/mL · 10mL vial · ID: EQ600</div><div class="vial-footer"><div class="vial-price">$120</div><button class="add-to-cart">+ Add</button></div><span class="research-designation">For research use only</span></div>
+        </div>
+
+        <!-- MAST P -->
+        <div class="vial-card">
+          <div class="vial-img">
+            <div class="research-vial">
+              <div class="vial-cap"></div><div class="vial-stopper"></div>
+              <div class="vial-glass"><div class="vial-liquid"></div>
+                <div class="vial-label"><div class="vlabel-brand">TIMELESS RESEARCH</div><div class="vlabel-name">MASTERON PROP</div><div class="vlabel-research">LABORATORY USE ONLY</div></div>
+              </div>
+            </div>
+            <div class="vial-conc">100mg/mL</div>
+          </div>
+          <div class="vial-body"><div class="vial-title">Masteron Propionate</div><div class="vial-details">100mg/mL · 10mL vial · ID: MASTP</div><div class="vial-footer"><div class="vial-price">$120</div><button class="add-to-cart">+ Add</button></div><span class="research-designation">For research use only</span></div>
+        </div>
+
+        <!-- MAST E -->
+        <div class="vial-card">
+          <div class="vial-img">
+            <div class="research-vial">
+              <div class="vial-cap"></div><div class="vial-stopper"></div>
+              <div class="vial-glass"><div class="vial-liquid"></div>
+                <div class="vial-label"><div class="vlabel-brand">TIMELESS RESEARCH</div><div class="vlabel-name">MASTERON ENANTH</div><div class="vlabel-research">LABORATORY USE ONLY</div></div>
+              </div>
+            </div>
+            <div class="vial-conc">200mg/mL</div>
+          </div>
+          <div class="vial-body"><div class="vial-title">Masteron Enanthate</div><div class="vial-details">200mg/mL · 10mL vial · ID: MASTE</div><div class="vial-footer"><div class="vial-price">$180</div><button class="add-to-cart">+ Add</button></div><span class="research-designation">For research use only</span></div>
+        </div>
+
+        <!-- PRIMO -->
+        <div class="vial-card">
+          <div class="vial-img">
+            <div class="research-vial">
+              <div class="vial-cap"></div><div class="vial-stopper"></div>
+              <div class="vial-glass"><div class="vial-liquid"></div>
+                <div class="vial-label"><div class="vlabel-brand">TIMELESS RESEARCH</div><div class="vlabel-name">PRIMOBOLAN</div><div class="vlabel-research">LABORATORY USE ONLY</div></div>
+              </div>
+            </div>
+            <div class="vial-conc">200mg/mL</div>
+          </div>
+          <div class="vial-body"><div class="vial-title">Primobolan</div><div class="vial-details">200mg/mL · 10mL vial · ID: PRIMO</div><div class="vial-footer"><div class="vial-price">$160</div><button class="add-to-cart">+ Add</button></div><span class="research-designation">For research use only</span></div>
+        </div>
+
       </div>
+
       <h4 style="font-size:.85rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem;">Reconstitution Supplies</h4>
       <div class="vial-grid">
-        <div class="vial-card"><div class="vial-img" style="background:linear-gradient(135deg,#e0f2fe,#bae6fd);color:#0c4a6e;">🧴<div class="vial-conc" style="color:#0c4a6e;">10mL</div></div><div class="vial-body"><div class="vial-name">Sterile Water</div><div class="vial-details">No benzyl alcohol · 10mL · ID: WA10</div><div class="vial-footer"><div class="vial-price">$15</div><button class="add-to-cart">+ Add</button></div></div></div>
-        <div class="vial-card"><div class="vial-img" style="background:linear-gradient(135deg,#e0f2fe,#bae6fd);color:#0c4a6e;">🧴<div class="vial-conc" style="color:#0c4a6e;">10mL</div></div><div class="vial-body"><div class="vial-name">Antibacterial Water</div><div class="vial-details">0.9% benzyl alcohol · 10mL · ID: BAC10</div><div class="vial-footer"><div class="vial-price">$15</div><button class="add-to-cart">+ Add</button></div></div></div>
+
+        <!-- STERILE WATER -->
+        <div class="vial-card">
+          <div class="vial-img" style="background: linear-gradient(145deg, #0c4a6e, #0369a1, #075985);">
+            <div class="research-vial">
+              <div class="vial-cap" style="background: linear-gradient(90deg, #6ea8c8 0%, #d0e9f5 18%, #7abbd4 38%, #e0f2fe 55%, #5a9cb8 100%);"></div>
+              <div class="vial-stopper" style="background:#1e3a5f;"></div>
+              <div class="vial-glass">
+                <div class="vial-liquid" style="background: linear-gradient(180deg, rgba(224,242,254,.9), rgba(186,230,253,.95));"></div>
+                <div class="vial-label"><div class="vlabel-brand">TIMELESS RESEARCH</div><div class="vlabel-name">STERILE WATER</div><div class="vlabel-research">LABORATORY USE ONLY</div></div>
+              </div>
+            </div>
+            <div class="vial-conc">10mL</div>
+          </div>
+          <div class="vial-body"><div class="vial-title">Sterile Water</div><div class="vial-details">No benzyl alcohol · 10mL · ID: WA10</div><div class="vial-footer"><div class="vial-price">$15</div><button class="add-to-cart">+ Add</button></div><span class="research-designation">For research use only</span></div>
+        </div>
+
+        <!-- BAC WATER -->
+        <div class="vial-card">
+          <div class="vial-img" style="background: linear-gradient(145deg, #064e3b, #065f46, #047857);">
+            <div class="research-vial">
+              <div class="vial-cap" style="background: linear-gradient(90deg, #6ab29a 0%, #d1fae5 18%, #7bc4a8 38%, #ecfdf5 55%, #5a9e84 100%);"></div>
+              <div class="vial-stopper" style="background:#1a3d30;"></div>
+              <div class="vial-glass">
+                <div class="vial-liquid" style="background: linear-gradient(180deg, rgba(209,250,229,.85), rgba(167,243,208,.95));"></div>
+                <div class="vial-label"><div class="vlabel-brand">TIMELESS RESEARCH</div><div class="vlabel-name">BAC WATER 0.9%</div><div class="vlabel-research">LABORATORY USE ONLY</div></div>
+              </div>
+            </div>
+            <div class="vial-conc">10mL</div>
+          </div>
+          <div class="vial-body"><div class="vial-title">Antibacterial Water</div><div class="vial-details">0.9% benzyl alcohol · 10mL · ID: BAC10</div><div class="vial-footer"><div class="vial-price">$15</div><button class="add-to-cart">+ Add</button></div><span class="research-designation">For research use only</span></div>
+        </div>
+
       </div>
     </div>
   </section>
 
+  <!-- ── BUNDLES ── -->
   <section class="section" id="bundles">
     <div class="section-inner">
       <div class="section-head">
@@ -362,6 +711,7 @@
     </div>
   </section>
 
+  <!-- ── COA ── -->
   <div class="coa-section">
     <div class="coa-inner">
       <div>
@@ -379,6 +729,7 @@
     </div>
   </div>
 
+  <!-- ── HOW TO ORDER ── -->
   <section class="section" id="how">
     <div class="section-inner">
       <div class="section-head" style="text-align:center;max-width:500px;margin:0 auto 2.5rem;">
@@ -395,6 +746,7 @@
     </div>
   </section>
 
+  <!-- ── FAQ ── -->
   <section class="section alt" id="faq">
     <div class="section-inner">
       <div class="section-head" style="text-align:center;max-width:500px;margin:0 auto 2.5rem;">
@@ -413,10 +765,12 @@
     </div>
   </section>
 
+  <!-- ── DISCLAIMER ── -->
   <div class="disclaimer">
     <p><strong>⚠️ For Research Purposes Only.</strong> All products on this website are intended for laboratory and research use only. These compounds are NOT approved by the FDA for human consumption and are NOT intended to diagnose, treat, cure, or prevent any disease or medical condition. By accessing this site and purchasing products, you confirm you are a qualified researcher and agree to use all compounds solely for lawful in vitro research purposes. Not for human or veterinary use. Always consult a licensed medical professional. Must be 18+ to purchase.</p>
   </div>
 
+  <!-- ── FOOTER ── -->
   <footer>
     <div class="footer-inner">
       <div class="footer-brand">
