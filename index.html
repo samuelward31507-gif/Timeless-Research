@@ -27,13 +27,11 @@
     [data-r].in{opacity:1;transform:translateY(0)}
     [data-d="1"]{transition-delay:.1s}[data-d="2"]{transition-delay:.2s}[data-d="3"]{transition-delay:.3s}[data-d="4"]{transition-delay:.4s}
 
-    /* ── ANNOUNCEMENT BAR ── */
     .abar{background:var(--s2);border-bottom:1px solid var(--brd);padding:.5rem 2rem;display:flex;gap:2.5rem;justify-content:center;flex-wrap:wrap;position:sticky;top:0;z-index:400}
     .abar span{font-size:.63rem;color:var(--w40);letter-spacing:.3px;display:flex;align-items:center;gap:.35rem}
     .abar em{color:var(--bl);font-style:normal}
     @media(max-width:600px){.abar span:last-child{display:none}}
 
-    /* ── NAV ── */
     .nav{position:sticky;top:31px;z-index:300;display:flex;align-items:center;justify-content:space-between;padding:1.75rem 4rem;transition:all .4s ease;border-bottom:1px solid transparent}
     .nav.scrolled{padding:1.1rem 4rem;background:rgba(2,2,2,.92);backdrop-filter:blur(28px) saturate(180%);border-color:var(--brd)}
     .nav-logo{font-size:.76rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase}
@@ -45,7 +43,6 @@
     .nav-cta:hover{background:rgba(79,172,254,.08);border-color:rgba(79,172,254,.6)}
     @media(max-width:900px){.nav-links{display:none}.nav,.nav.scrolled{padding:1.2rem 2rem}}
 
-    /* ── HERO ── */
     .hero{position:relative;width:100%;height:100vh;min-height:680px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--bg)}
     #pcvs{position:absolute;inset:0;width:100%;height:100%}
     .hgr{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(79,172,254,.045) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 50% 100%,rgba(79,172,254,.06) 0%,transparent 60%)}
@@ -65,7 +62,6 @@
     @keyframes fup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
     @keyframes bnc{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
 
-    /* ── TRUST ── */
     .trust{padding:4.5rem 4rem;border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);background:var(--s1)}
     .trust-i{max-width:1420px;margin:0 auto}
     .tgr{display:grid;grid-template-columns:repeat(4,1fr)}
@@ -76,7 +72,6 @@
     .tdsc{font-size:.78rem;font-weight:300;line-height:1.75;color:var(--w40)}
     @media(max-width:900px){.trust{padding:3rem 2rem}.tgr{grid-template-columns:1fr 1fr}.ti{border-right:none;border-bottom:1px solid var(--brd);padding:1.75rem}.ti:last-child{border-bottom:none}}
 
-    /* ── SECTION UTIL ── */
     .sec{padding:5.5rem 4rem}.sec.dk{background:var(--s1)}
     .si{max-width:1420px;margin:0 auto}
     .ey{font-family:var(--fm);font-size:.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--bl);margin-bottom:1.2rem;display:block}
@@ -85,117 +80,7 @@
     .ssb{font-size:.88rem;font-weight:300;line-height:1.8;color:var(--w40);max-width:480px}
     @media(max-width:768px){.sec{padding:4rem 2rem}}
 
-    /* ══════════════════════════════════════
-       ULTRA-REALISM PHARMACEUTICAL VIAL
-       Modeled after real lyophilized research vials
-       100px × 220px · Glass · Aluminum Cap · Rubber Stopper · Label · Cake
-    ══════════════════════════════════════ */
-
-    .uv{
-      position:relative;width:100px;height:220px;flex-shrink:0;
-      transition:transform .45s cubic-bezier(.34,1.56,.64,1);
-      filter:
-        drop-shadow(0 2px 2px rgba(0,0,0,.35))
-        drop-shadow(0 10px 8px rgba(0,0,0,.28))
-        drop-shadow(0 28px 20px rgba(0,0,0,.18))
-        drop-shadow(0 42px 30px rgba(0,0,0,.09));
-    }
-    .cc:hover .uv{transform:translateY(-16px) rotate(-2deg) scale(1.04)}
-
-    /* ALUMINUM CRIMP CAP */
-    .uv-cap{position:absolute;top:0;left:4px;width:92px;height:34px;border-radius:9px 9px 4px 4px;overflow:hidden;z-index:10}
-
-    /* Top blue disc */
-    .uv-cd{
-      position:absolute;top:0;left:0;right:0;height:21px;border-radius:8px 8px 0 0;
-      background:
-        linear-gradient(90deg,rgba(0,0,0,.18) 0%,transparent 14%,transparent 86%,rgba(0,0,0,.2) 100%),
-        radial-gradient(ellipse 72% 38% at 50% 18%,rgba(255,255,255,.24) 0%,transparent 100%),
-        radial-gradient(ellipse 44% 55% at 50% 60%,rgba(0,0,0,.1) 0%,rgba(0,0,0,.06) 60%,transparent 100%),
-        linear-gradient(160deg,#0d3ea8 0%,#1754c8 12%,#2870e2 26%,#4898f8 41%,#3282f4 54%,#1a60d8 68%,#104cc4 82%,#0c3898 100%)
-    }
-    /* Cap top shine bar */
-    .uv-cs{position:absolute;top:4px;left:22%;width:56%;height:5px;border-radius:3px;z-index:4;background:linear-gradient(90deg,transparent,rgba(255,255,255,.42),transparent)}
-    /* Flip-off tab relief */
-    .uv-ct{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:42px;height:11px;border-radius:5px;z-index:5;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(0,0,0,.14));border:1px solid rgba(0,0,0,.26);box-shadow:inset 0 1px 2px rgba(255,255,255,.12),inset 0 -1px 2px rgba(0,0,0,.2)}
-    /* Aluminum crimp ring with machined ridges */
-    .uv-cr{
-      position:absolute;bottom:0;left:0;right:0;height:14px;
-      background:
-        repeating-linear-gradient(180deg,rgba(255,255,255,.12) 0px,rgba(255,255,255,.12) 1px,rgba(0,0,0,.07) 1px,rgba(0,0,0,.07) 2.5px),
-        linear-gradient(90deg,#08288a 0%,#103db8 9%,#4478f0 22%,#2262e4 35%,#4888f8 50%,#205ed8 65%,#3a72ec 78%,#1242b8 91%,#082890 100%)
-    }
-
-    /* RUBBER STOPPER */
-    .uv-st{
-      position:absolute;top:32px;left:16px;width:68px;height:14px;
-      border-radius:2px 2px 6px 6px;z-index:9;
-      background:
-        linear-gradient(180deg,rgba(255,255,255,.05) 0%,transparent 35%),
-        linear-gradient(90deg,#121212 0%,#202020 15%,#2c2c2c 30%,#343434 50%,#282828 70%,#1c1c1c 85%,#121212 100%);
-      box-shadow:0 3px 9px rgba(0,0,0,.55),inset 0 1px 1px rgba(255,255,255,.05),inset 0 -2px 4px rgba(0,0,0,.38)
-    }
-    /* Needle penetration point */
-    .uv-st::before{content:'';position:absolute;top:4px;left:50%;transform:translateX(-50%);width:16px;height:6px;border-radius:50%;background:rgba(0,0,0,.22);box-shadow:inset 0 1px 3px rgba(0,0,0,.45)}
-
-    /* BOROSILICATE GLASS BODY */
-    .uv-b{
-      position:absolute;top:44px;left:0;width:100px;height:174px;
-      border-radius:4px 4px 13px 13px;overflow:hidden;z-index:1;
-      background:
-        linear-gradient(90deg,transparent 89%,rgba(0,0,0,.22) 100%),
-        linear-gradient(90deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.11) 9%,rgba(200,218,255,.04) 28%,rgba(200,218,255,.02) 52%,rgba(212,228,255,.04) 74%,rgba(255,255,255,.09) 91%,rgba(255,255,255,.38) 100%),
-        rgba(192,210,248,.05);
-      border:1.5px solid rgba(255,255,255,.22);
-      border-top:1px solid rgba(255,255,255,.14);
-      box-shadow:inset -5px 0 12px rgba(0,0,0,.14),inset 2px 0 5px rgba(255,255,255,.04),inset 0 3px 5px rgba(0,0,0,.08)
-    }
-    /* Primary left glass shine — the bright streak that reads as glass */
-    .uv-gl{position:absolute;left:7px;top:0;bottom:0;width:7px;z-index:20;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.65) 9%,rgba(255,255,255,.32) 35%,rgba(255,255,255,.52) 64%,rgba(255,255,255,.18) 88%,rgba(255,255,255,0) 100%);border-radius:4px;filter:blur(.5px)}
-    /* Narrow secondary left shine */
-    .uv-gl2{position:absolute;left:3px;top:12%;bottom:12%;width:2px;z-index:21;background:linear-gradient(180deg,transparent,rgba(255,255,255,.28),rgba(255,255,255,.14),transparent);border-radius:2px}
-    /* Right edge specular highlight */
-    .uv-gr{position:absolute;right:6px;top:8%;bottom:8%;width:3px;z-index:20;background:linear-gradient(180deg,transparent,rgba(255,255,255,.16),rgba(255,255,255,.08),rgba(255,255,255,.14),transparent);border-radius:2px}
-    /* Light caustic refraction diagonal (light bending through glass) */
-    .uv-gc{position:absolute;left:18px;top:4%;height:72%;width:11px;z-index:8;background:linear-gradient(180deg,transparent,rgba(255,255,255,.055) 20%,rgba(255,255,255,.03) 80%,transparent);transform:skewX(-4deg);border-radius:6px;filter:blur(1.2px)}
-
-    /* PRINTED BLACK LABEL */
-    .uv-lbl{
-      position:absolute;left:6px;right:6px;top:8px;bottom:32px;
-      background:linear-gradient(168deg,#040404,#080808 45%,#050505);
-      border-radius:2px 2px 3px 3px;overflow:hidden;
-      display:flex;flex-direction:column;align-items:center;
-      padding:9px 5px 7px;z-index:10;
-      box-shadow:2px 0 5px rgba(0,0,0,.4),-2px 0 5px rgba(0,0,0,.4),0 2px 4px rgba(0,0,0,.22)
-    }
-    /* Electric blue top stripe */
-    .uv-lbl::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent 3%,#4FACFE 25%,#80D0FF 50%,#4FACFE 75%,transparent 97%)}
-    /* Blue bottom stripe */
-    .uv-lbl::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent 5%,rgba(79,172,254,.5) 30%,rgba(79,172,254,.5) 70%,transparent 95%)}
-    /* Label text elements */
-    .lb{font-family:var(--fu);font-size:4.8px;font-weight:700;letter-spacing:1.8px;color:rgba(79,172,254,.92);text-transform:uppercase;margin-bottom:6px}
-    .ln{font-family:var(--fu);font-size:9px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.4px;text-align:center;line-height:1.15;margin-bottom:3px}
-    .ld{font-family:var(--fu);font-size:4.2px;font-weight:300;color:rgba(255,255,255,.38);text-align:center;line-height:1.4;margin-bottom:8px}
-    .ls{width:76%;height:1px;background:linear-gradient(90deg,transparent,rgba(79,172,254,.7),rgba(79,172,254,.7),transparent);margin-bottom:8px;flex-shrink:0}
-    .ldo{font-family:var(--fm);font-size:6px;font-weight:600;color:rgba(255,255,255,.84);letter-spacing:.4px;margin-bottom:4px}
-    .lp{font-family:var(--fm);font-size:4.5px;font-weight:600;color:rgba(79,172,254,.88);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px}
-    .ll{font-family:var(--fm);font-size:3.8px;color:rgba(255,255,255,.18);letter-spacing:.4px;margin-top:auto;margin-bottom:3px}
-    .lr{font-family:var(--fu);font-size:3.8px;font-weight:500;color:rgba(255,255,255,.22);letter-spacing:.6px;text-transform:uppercase;text-align:center;line-height:1.4}
-
-    /* LYOPHILIZED POWDER CAKE (visible through glass below label) */
-    .uv-ck{
-      position:absolute;bottom:6px;left:7px;right:7px;height:26px;
-      border-radius:2px 2px 10px 10px;z-index:6;
-      background:
-        radial-gradient(ellipse 38% 72% at 28% 42%,rgba(255,255,255,.58) 0%,transparent 100%),
-        radial-gradient(ellipse 22% 55% at 74% 35%,rgba(255,255,255,.38) 0%,transparent 100%),
-        radial-gradient(ellipse 55% 32% at 50% 8%,rgba(255,255,255,.28) 0%,transparent 100%),
-        linear-gradient(180deg,rgba(255,255,255,.6) 0%,rgba(248,244,238,.74) 48%,rgba(240,234,226,.87) 100%);
-      box-shadow:0 -1px 5px rgba(0,0,0,.14)
-    }
-
-    /* ── CATALOG ── */
-    .cth{display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;margin-bottom:2.5rem;flex-wrap:wrap}
+    /* ═══════ PRODUCT CARD — REAL VIAL PHOTO ═══════ */
     .ctabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--brd);margin-bottom:2.5rem;scrollbar-width:none;-ms-overflow-style:none}
     .ctabs::-webkit-scrollbar{display:none}
     .ctab{flex-shrink:0;font-family:var(--fu);font-size:.72rem;font-weight:400;color:var(--w40);padding:.8rem 1.15rem;cursor:pointer;transition:color .2s;border-bottom:2px solid transparent;letter-spacing:.3px;user-select:none;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap}
@@ -206,15 +91,19 @@
     @media(max-width:850px){.cgr{grid-template-columns:repeat(3,1fr)}}
     @media(max-width:560px){.cgr{grid-template-columns:repeat(2,1fr)}}
 
-    /* CATALOG CARD */
     .cc{background:var(--s1);display:flex;flex-direction:column;transition:background .25s;cursor:pointer;position:relative;overflow:hidden}
-    .cc::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 85%,rgba(79,172,254,.08),transparent);opacity:0;transition:opacity .4s}
+    .cc::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 85%,rgba(79,172,254,.09),transparent);opacity:0;transition:opacity .4s;pointer-events:none;z-index:1}
     .cc:hover::before{opacity:1}
     .cc:hover{background:var(--s2)}
-    /* Tall visual area for full-size vial */
-    .cc-v{height:260px;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--brd)}
-    .cc-gw{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:70px;height:22px;background:radial-gradient(ellipse,rgba(79,172,254,.22),transparent 70%);filter:blur(8px)}
-    .cc-inf{padding:1rem .9rem .9rem;flex:1;display:flex;flex-direction:column}
+
+    .cc-v{height:260px;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--brd);background:radial-gradient(ellipse 70% 70% at 50% 60%,rgba(79,172,254,.04),transparent),#050505;overflow:hidden}
+
+    /* THE REAL VIAL PHOTO */
+    .cc-img{height:230px;width:auto;max-width:110px;object-fit:contain;transition:transform .45s cubic-bezier(.34,1.56,.64,1),filter .3s;filter:drop-shadow(0 8px 18px rgba(0,0,0,.55)) drop-shadow(0 2px 4px rgba(0,0,0,.4));position:relative;z-index:2}
+    .cc:hover .cc-img{transform:translateY(-10px) scale(1.05);filter:drop-shadow(0 18px 32px rgba(0,0,0,.5)) drop-shadow(0 4px 8px rgba(0,0,0,.35)) drop-shadow(0 0 24px rgba(79,172,254,.18))}
+
+    .cc-gw{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:80px;height:18px;z-index:1;background:radial-gradient(ellipse,rgba(79,172,254,.28),transparent 70%);filter:blur(10px)}
+    .cc-inf{padding:1rem .9rem .9rem;flex:1;display:flex;flex-direction:column;position:relative;z-index:2}
     .cc-id{font-family:var(--fm);font-size:.5rem;color:var(--bl);letter-spacing:1.5px;margin-bottom:.22rem;opacity:.7}
     .cc-nm{font-family:var(--fd);font-size:1.05rem;font-weight:400;color:var(--wh);margin-bottom:.18rem;line-height:1.15}
     .cc-ds{font-size:.6rem;color:var(--w40);line-height:1.5;margin-bottom:.65rem;flex:1}
@@ -222,7 +111,6 @@
     .cc-do{font-family:var(--fm);font-size:.5rem;color:var(--w20);line-height:1.5}
     .cc-pr{font-family:var(--fu);font-size:1rem;font-weight:700;color:var(--wh)}
 
-    /* COMING SOON */
     .csg{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--brd);border:1px solid var(--brd)}
     @media(max-width:1200px){.csg{grid-template-columns:repeat(4,1fr)}}
     @media(max-width:780px){.csg{grid-template-columns:repeat(3,1fr)}}
@@ -232,7 +120,6 @@
     .csdo{font-family:var(--fm);font-size:.48rem;color:var(--w40)}
     .cstg{font-family:var(--fm);font-size:.44rem;color:var(--bl);letter-spacing:1px;text-transform:uppercase;opacity:.6}
 
-    /* SCIENCE */
     .sci-l{display:grid;grid-template-columns:1fr 1fr;gap:7rem;align-items:start}
     .sci-lft{position:sticky;top:7rem}
     .sci-sr{display:flex;gap:3rem;margin-top:3rem;padding-top:3rem;border-top:1px solid var(--brd)}
@@ -245,7 +132,6 @@
     .sdv{width:100%;height:1px;background:var(--brd)}
     @media(max-width:900px){.sci-l{grid-template-columns:1fr;gap:3rem}.sci-lft{position:static}}
 
-    /* PROCESS */
     .prhd{max-width:580px;margin-bottom:4.5rem}
     .prst{display:flex;flex-direction:column;max-width:720px}
     .prsp{display:grid;grid-template-columns:80px 1fr;gap:2rem;position:relative;padding-bottom:3rem}
@@ -260,7 +146,6 @@
     .prtl{font-family:var(--fd);font-size:1.6rem;font-weight:400;color:var(--wh);margin-bottom:.65rem}
     .prds{font-size:.84rem;font-weight:300;line-height:1.82;color:var(--w40)}
 
-    /* ABOUT */
     .abl{display:grid;grid-template-columns:1fr 1fr;gap:7rem;align-items:center}
     .abv{height:480px;background:var(--s2);border:1px solid var(--brd);border-radius:4px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
     .avi{display:flex;flex-direction:column;align-items:center;gap:1.5rem;opacity:.5}
@@ -277,7 +162,6 @@
     .abvd{font-size:.7rem;font-weight:300;color:var(--w40);line-height:1.6}
     @media(max-width:900px){.abl{grid-template-columns:1fr;gap:3rem}.abv{height:260px}}
 
-    /* FAQ */
     .fql{display:grid;grid-template-columns:380px 1fr;gap:6rem;align-items:start}
     .fqlft{position:sticky;top:7rem}
     .fqls{display:flex;flex-direction:column}
@@ -290,7 +174,6 @@
     .fqi.op .fqa{max-height:300px;padding-bottom:1.5rem}
     @media(max-width:900px){.fql{grid-template-columns:1fr;gap:3rem}.fqlft{position:static}}
 
-    /* FOOTER */
     footer{padding:5rem 4rem 3rem;border-top:1px solid var(--brd);background:var(--s1)}
     .fi{max-width:1420px;margin:0 auto}
     .ftp{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4rem;margin-bottom:4rem}
@@ -359,7 +242,7 @@
 
 <section class="sec" id="catalog">
   <div class="si">
-    <div class="cth" data-r>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;margin-bottom:2.5rem;flex-wrap:wrap" data-r>
       <div>
         <span class="ey">Full Product Catalog</span>
         <h2 class="stl">Research Compounds</h2>
@@ -491,36 +374,7 @@
 </footer>
 
 <script>
-function vial(name, dose, desc) {
-  const nm = name.length > 14 ? name.slice(0,13)+'…' : name;
-  const dc = desc ? (desc.length > 28 ? desc.slice(0,26)+'…' : desc) : '';
-  return `<div class="uv">
-  <div class="uv-cap">
-    <div class="uv-cd"></div>
-    <div class="uv-cs"></div>
-    <div class="uv-ct"></div>
-    <div class="uv-cr"></div>
-  </div>
-  <div class="uv-st"></div>
-  <div class="uv-b">
-    <div class="uv-gl"></div>
-    <div class="uv-gl2"></div>
-    <div class="uv-gr"></div>
-    <div class="uv-gc"></div>
-    <div class="uv-lbl">
-      <span class="lb">TIMELESS RESEARCH</span>
-      <span class="ln">${nm}</span>
-      <span class="ld">${dc}</span>
-      <div class="ls"></div>
-      <span class="ldo">${dose}</span>
-      <span class="lp">≥99% Purity · HPLC</span>
-      <span class="ll">Lot: TR-2026</span>
-      <span class="lr">For Research Use Only</span>
-    </div>
-    <div class="uv-ck"></div>
-  </div>
-</div>`;
-}
+const VIAL_IMG = 'https://storage.googleapis.com/crm-conversations-ai-production/ask-ai-images/1788083226206/d297f49e-4f38-407b-9e9a-cabbafbdf0b1.png';
 
 const P = [
   ['RT30','Retatrutide','30mg','30 caps',300,'weight','GLP-1/GIP/Glucagon Agonist'],
@@ -606,7 +460,8 @@ const CATS = [
 ];
 
 function card(p) {
-  return `<div class="cc"><div class="cc-v">${vial(p[1],p[2],p[6])}<div class="cc-gw"></div></div><div class="cc-inf"><div class="cc-id">${p[0]}</div><div class="cc-nm">${p[1]}</div><div class="cc-ds">${p[6]}</div><div class="cc-bot"><span class="cc-do">${p[2]}${p[3]?' · '+p[3]:''}</span><span class="cc-pr">$${p[4]}</span></div></div></div>`;
+  const dose = p[2] + (p[3] ? ' · ' + p[3] : '');
+  return `<div class="cc"><div class="cc-v"><img class="cc-img" src="${VIAL_IMG}" alt="${p[1]}" loading="lazy"><div class="cc-gw"></div></div><div class="cc-inf"><div class="cc-id">${p[0]}</div><div class="cc-nm">${p[1]}</div><div class="cc-ds">${p[6]}</div><div class="cc-bot"><span class="cc-do">${dose}</span><span class="cc-pr">$${p[4]}</span></div></div></div>`;
 }
 
 function render(cat){return(cat==='all'?P:P.filter(p=>p[5]===cat)).map(card).join('')}
@@ -619,6 +474,7 @@ CATS.forEach((c,i)=>{
   tabs.appendChild(b);
 });
 grid.innerHTML=render('all');
+
 document.getElementById('csg').innerHTML=CS.map(c=>`<div class="csc"><div class="cstg">COMING SOON</div><div class="csnm">${c[0]}</div><div class="csdo">${c[1]}</div></div>`).join('');
 
 const nav=document.getElementById('nav');
