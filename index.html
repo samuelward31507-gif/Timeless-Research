@@ -3,460 +3,246 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Timeless Research — Advancing Peptide Research</title>
+  <title>Timeless Research — Peptide Research Compounds</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    /* === VARIABLES === */
     :root {
-      --bg: #020202;
-      --s1: #070707;
-      --s2: #0c0c0c;
-      --s3: #111111;
-      --s4: #161616;
-      --border: rgba(255,255,255,0.055);
-      --border-md: rgba(255,255,255,0.1);
-      --blue: #4FACFE;
-      --blue-dim: rgba(79,172,254,0.1);
-      --blue-glow: rgba(79,172,254,0.06);
-      --white: #F2F4F8;
-      --white-60: rgba(242,244,248,0.6);
-      --white-40: rgba(242,244,248,0.4);
-      --white-20: rgba(242,244,248,0.2);
-      --white-08: rgba(242,244,248,0.08);
-      --white-04: rgba(242,244,248,0.04);
-      --fd: 'Cormorant Garamond', Georgia, serif;
-      --fu: 'Inter', system-ui, sans-serif;
-      --fm: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+      --bg:#020202; --s1:#070707; --s2:#0c0c0c; --s3:#111; --s4:#161616;
+      --border:rgba(255,255,255,.055); --border-md:rgba(255,255,255,.1);
+      --blue:#4FACFE; --blue-dim:rgba(79,172,254,.1); --blue-glow:rgba(79,172,254,.08);
+      --white:#F2F4F8; --w60:rgba(242,244,248,.6); --w40:rgba(242,244,248,.4);
+      --w20:rgba(242,244,248,.2); --w08:rgba(242,244,248,.08);
+      --fd:'Cormorant Garamond',Georgia,serif;
+      --fu:'Inter',system-ui,sans-serif;
+      --fm:'SF Mono','Fira Code','Courier New',monospace;
     }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;font-size:16px}
+    body{background:var(--bg);color:var(--white);font-family:var(--fu);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+    a{text-decoration:none;color:inherit}
+    ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-track{background:var(--bg)} ::-webkit-scrollbar-thumb{background:var(--s4);border-radius:2px}
+    [data-reveal]{opacity:0;transform:translateY(28px);transition:opacity .75s ease,transform .75s ease}
+    [data-reveal].in{opacity:1;transform:translateY(0)}
+    [data-delay="1"]{transition-delay:.1s} [data-delay="2"]{transition-delay:.2s} [data-delay="3"]{transition-delay:.3s}
+    [data-delay="4"]{transition-delay:.4s} [data-delay="5"]{transition-delay:.5s}
 
-    /* === RESET === */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; font-size: 16px; }
-    body { background: var(--bg); color: var(--white); font-family: var(--fu); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
-    a { text-decoration: none; color: inherit; }
-    img { display: block; max-width: 100%; }
+    /* ANNOUNCEMENT BAR */
+    .abar{background:var(--s2);border-bottom:1px solid var(--border);padding:.55rem 2rem;display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;position:sticky;top:0;z-index:300}
+    .abar span{font-size:.65rem;font-weight:400;color:var(--w40);letter-spacing:.3px;display:flex;align-items:center;gap:.4rem}
+    .abar em{color:var(--blue);font-style:normal}
+    @media(max-width:600px){.abar{gap:1rem}.abar span:last-child{display:none}}
 
-    /* === REVEAL ANIMATIONS === */
-    [data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity 0.75s ease, transform 0.75s ease; }
-    [data-reveal].in { opacity: 1; transform: translateY(0); }
-    [data-delay="1"] { transition-delay: 0.1s; }
-    [data-delay="2"] { transition-delay: 0.2s; }
-    [data-delay="3"] { transition-delay: 0.3s; }
-    [data-delay="4"] { transition-delay: 0.4s; }
-    [data-delay="5"] { transition-delay: 0.5s; }
-    [data-delay="6"] { transition-delay: 0.6s; }
+    /* NAV */
+    .nav{position:sticky;top:33px;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:1.75rem 4rem;transition:padding .4s ease,background .4s ease,border-color .4s ease,backdrop-filter .4s;border-bottom:1px solid transparent}
+    .nav.scrolled{padding:1.1rem 4rem;background:rgba(2,2,2,.9);backdrop-filter:blur(24px) saturate(150%);border-color:var(--border)}
+    .nav-logo{font-family:var(--fu);font-size:.78rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--white)}
+    .nav-logo em{color:var(--blue);font-style:normal}
+    .nav-links{display:flex;gap:2.5rem;list-style:none}
+    .nav-links a{font-size:.78rem;font-weight:400;letter-spacing:.4px;color:var(--w60);transition:color .2s}
+    .nav-links a:hover{color:var(--white)}
+    .nav-cta{font-size:.72rem;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);border:1px solid rgba(79,172,254,.3);padding:.5rem 1.3rem;border-radius:2px;transition:background .2s,border-color .2s}
+    .nav-cta:hover{background:rgba(79,172,254,.08);border-color:rgba(79,172,254,.6)}
+    @media(max-width:900px){.nav-links{display:none}.nav,.nav.scrolled{padding:1.25rem 2rem}}
 
-    /* === SCROLLBAR === */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--s4); border-radius: 2px; }
+    /* HERO */
+    .hero{position:relative;width:100%;height:100vh;min-height:680px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--bg)}
+    #particle-canvas{position:absolute;inset:0;width:100%;height:100%}
+    .hero-gradient{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(79,172,254,.04) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 50% 100%,rgba(79,172,254,.06) 0%,transparent 60%)}
+    .hero-content{position:relative;z-index:2;text-align:center;max-width:860px;padding:0 2rem}
+    .hero-tag{display:inline-flex;align-items:center;gap:1rem;font-family:var(--fm);font-size:.65rem;letter-spacing:3.5px;text-transform:uppercase;color:var(--blue);margin-bottom:2.5rem;opacity:0;animation:fadeUp .8s ease .3s forwards}
+    .hero-tag::before,.hero-tag::after{content:'';display:block;width:32px;height:1px;background:rgba(79,172,254,.4)}
+    .hero h1{font-family:var(--fd);font-size:clamp(2.8rem,7vw,6.5rem);font-weight:300;line-height:1.04;letter-spacing:-.5px;color:var(--white);margin-bottom:1.75rem;opacity:0;animation:fadeUp .9s ease .5s forwards}
+    .hero h1 em{font-style:italic;color:var(--w60)}
+    .hero-sub{font-size:1rem;font-weight:300;line-height:1.75;color:var(--w40);max-width:520px;margin:0 auto 3rem;opacity:0;animation:fadeUp .9s ease .7s forwards}
+    .hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp .9s ease .9s forwards}
+    .btn-primary{font-size:.75rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;background:var(--blue);color:#000;padding:.85rem 2.2rem;border-radius:2px;transition:opacity .2s,transform .2s}
+    .btn-primary:hover{opacity:.88;transform:translateY(-1px)}
+    .btn-ghost{font-size:.75rem;font-weight:400;letter-spacing:1.5px;text-transform:uppercase;color:var(--w60);border:1px solid var(--border-md);padding:.85rem 2.2rem;border-radius:2px;transition:border-color .2s,color .2s}
+    .btn-ghost:hover{border-color:var(--w40);color:var(--white)}
+    .hero-scroll{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.6rem;color:var(--w20);font-size:.62rem;letter-spacing:2px;text-transform:uppercase;animation:bounce 2.5s ease-in-out infinite}
+    .hero-scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,var(--w20),transparent)}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
 
-    /* === NAVIGATION === */
-    .nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 2rem 4rem;
-      transition: padding 0.4s ease, background 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease;
-      border-bottom: 1px solid transparent;
-    }
-    .nav.scrolled {
-      padding: 1.25rem 4rem;
-      background: rgba(2,2,2,0.88);
-      backdrop-filter: blur(24px) saturate(150%);
-      border-color: var(--border);
-    }
-    .nav-logo {
-      font-family: var(--fu);
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--white);
-    }
-    .nav-logo em { color: var(--blue); font-style: normal; }
-    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
-    .nav-links a { font-size: 0.78rem; font-weight: 400; letter-spacing: 0.4px; color: var(--white-60); transition: color 0.2s; }
-    .nav-links a:hover { color: var(--white); }
-    .nav-cta {
-      font-size: 0.72rem; font-weight: 500; letter-spacing: 1.2px;
-      text-transform: uppercase; color: var(--blue);
-      border: 1px solid rgba(79,172,254,0.3);
-      padding: 0.55rem 1.4rem; border-radius: 2px;
-      transition: background 0.2s, border-color 0.2s, color 0.2s;
-    }
-    .nav-cta:hover { background: rgba(79,172,254,0.08); border-color: rgba(79,172,254,0.6); }
-    @media (max-width: 900px) { .nav-links { display: none; } .nav { padding: 1.5rem 2rem; } .nav.scrolled { padding: 1rem 2rem; } }
+    /* TRUST PILLARS */
+    .trust{padding:4.5rem 4rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--s1)}
+    .trust-inner{max-width:1400px;margin:0 auto}
+    .trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+    .trust-item{padding:2rem 2.5rem;border-right:1px solid var(--border)}
+    .trust-item:last-child{border-right:none}
+    .trust-num{font-family:var(--fm);font-size:.6rem;color:var(--blue);letter-spacing:2px;margin-bottom:1rem;display:block}
+    .trust-title{font-family:var(--fd);font-size:1.3rem;font-weight:400;color:var(--white);margin-bottom:.6rem;line-height:1.2}
+    .trust-desc{font-size:.8rem;font-weight:300;line-height:1.75;color:var(--w40)}
+    @media(max-width:900px){.trust{padding:3rem 2rem}.trust-grid{grid-template-columns:1fr 1fr}.trust-item{border-right:none;border-bottom:1px solid var(--border);padding:1.75rem}.trust-item:last-child{border-bottom:none}}
 
-    /* === HERO === */
-    .hero {
-      position: relative; width: 100%; height: 100vh; min-height: 680px;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; background: var(--bg);
-    }
-    #particle-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-    .hero-gradient {
-      position: absolute; inset: 0; pointer-events: none;
-      background:
-        radial-gradient(ellipse 80% 60% at 50% 50%, rgba(79,172,254,0.04) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 30% at 50% 100%, rgba(79,172,254,0.06) 0%, transparent 60%);
-    }
-    .hero-content {
-      position: relative; z-index: 2; text-align: center;
-      max-width: 860px; padding: 0 2rem;
-    }
-    .hero-tag {
-      display: inline-flex; align-items: center; gap: 1rem;
-      font-family: var(--fm); font-size: 0.65rem; font-weight: 400;
-      letter-spacing: 3.5px; text-transform: uppercase; color: var(--blue);
-      margin-bottom: 2.5rem;
-      opacity: 0; animation: fadeUp 0.8s ease 0.3s forwards;
-    }
-    .hero-tag::before, .hero-tag::after { content: ''; display: block; width: 32px; height: 1px; background: rgba(79,172,254,0.4); }
-    .hero h1 {
-      font-family: var(--fd);
-      font-size: clamp(2.8rem, 7vw, 6.5rem);
-      font-weight: 300; line-height: 1.04; letter-spacing: -0.5px;
-      color: var(--white); margin-bottom: 1.75rem;
-      opacity: 0; animation: fadeUp 0.9s ease 0.5s forwards;
-    }
-    .hero h1 em { font-style: italic; color: var(--white-60); }
-    .hero-sub {
-      font-size: 1rem; font-weight: 300; line-height: 1.75;
-      color: var(--white-40); max-width: 520px; margin: 0 auto 3rem;
-      opacity: 0; animation: fadeUp 0.9s ease 0.7s forwards;
-    }
-    .hero-btns {
-      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
-      opacity: 0; animation: fadeUp 0.9s ease 0.9s forwards;
-    }
-    .btn-primary {
-      font-size: 0.75rem; font-weight: 500; letter-spacing: 1.5px;
-      text-transform: uppercase; background: var(--blue); color: #000;
-      padding: 0.85rem 2.2rem; border-radius: 2px; transition: opacity 0.2s, transform 0.2s;
-    }
-    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
-    .btn-ghost {
-      font-size: 0.75rem; font-weight: 400; letter-spacing: 1.5px;
-      text-transform: uppercase; color: var(--white-60);
-      border: 1px solid var(--border-md); padding: 0.85rem 2.2rem;
-      border-radius: 2px; transition: border-color 0.2s, color 0.2s;
-    }
-    .btn-ghost:hover { border-color: var(--white-40); color: var(--white); }
-    .hero-scroll {
-      position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
-      display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
-      color: var(--white-20); font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase;
-      animation: bounce 2.5s ease-in-out infinite;
-    }
-    .hero-scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--white-20), transparent); }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+    /* SECTION */
+    .section{padding:6rem 4rem}.section.dark{background:var(--s1)}
+    .section-inner{max-width:1400px;margin:0 auto}
+    .section-eyebrow{font-family:var(--fm);font-size:.62rem;letter-spacing:3px;text-transform:uppercase;color:var(--blue);margin-bottom:1.25rem;display:block}
+    .section-title{font-family:var(--fd);font-size:clamp(2.2rem,4vw,3.8rem);font-weight:300;line-height:1.07;letter-spacing:-.3px;color:var(--white);margin-bottom:1.25rem}
+    .section-title em{font-style:italic;color:var(--w60)}
+    .section-sub{font-size:.9rem;font-weight:300;line-height:1.8;color:var(--w40);max-width:480px}
+    @media(max-width:768px){.section{padding:4rem 2rem}}
 
-    /* === TRUST PILLARS === */
-    .trust {
-      padding: 5rem 4rem;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      background: var(--s1);
-    }
-    .trust-inner { max-width: 1360px; margin: 0 auto; }
-    .trust-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
-    .trust-item {
-      padding: 2.5rem 3rem;
-      border-right: 1px solid var(--border);
-    }
-    .trust-item:last-child { border-right: none; }
-    .trust-num {
-      font-family: var(--fm); font-size: 0.6rem; color: var(--blue);
-      letter-spacing: 2px; margin-bottom: 1.25rem; display: block;
-    }
-    .trust-title {
-      font-family: var(--fd); font-size: 1.35rem; font-weight: 400;
-      color: var(--white); margin-bottom: 0.75rem; line-height: 1.2;
-    }
-    .trust-desc { font-size: 0.82rem; font-weight: 300; line-height: 1.75; color: var(--white-40); }
-    @media (max-width: 900px) {
-      .trust { padding: 3rem 2rem; }
-      .trust-grid { grid-template-columns: 1fr 1fr; }
-      .trust-item { border-right: none; border-bottom: 1px solid var(--border); padding: 2rem; }
-      .trust-item:last-child { border-bottom: none; }
-    }
+    /* ===== VIAL SYSTEM ===== */
+    .pv{position:relative;width:52px;height:112px;filter:drop-shadow(0 14px 22px rgba(0,0,0,.65));transition:transform .4s cubic-bezier(.34,1.56,.64,1);flex-shrink:0}
+    .cc:hover .pv{transform:translateY(-10px) rotate(-1.5deg)}
+    .pv-cap{position:absolute;top:0;left:1px;width:50px;height:22px;border-radius:7px 7px 3px 3px;
+      background:linear-gradient(135deg,#1458c8 0%,#2470e0 25%,#5ba8ff 50%,#3080f0 72%,#1a5ed4 100%);
+      box-shadow:0 3px 10px rgba(37,99,235,.45),inset 0 1px 3px rgba(255,255,255,.3),inset 0 -1px 2px rgba(0,0,0,.25)}
+    .pv-cap::before{content:'';position:absolute;top:3px;left:20%;width:60%;height:3px;border-radius:2px;background:rgba(255,255,255,.3)}
+    .pv-cap::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:7px;border-radius:3px;background:rgba(0,0,0,.12);border:1px solid rgba(0,0,0,.15)}
+    .pv-body{position:absolute;top:20px;left:1px;width:50px;height:89px;border-radius:3px 3px 10px 10px;overflow:hidden;
+      background:linear-gradient(90deg,rgba(255,255,255,.28) 0%,rgba(255,255,255,.06) 18%,rgba(255,255,255,.02) 50%,rgba(255,255,255,.06) 82%,rgba(255,255,255,.24) 100%);
+      border:1px solid rgba(255,255,255,.2)}
+    .pv-body::before{content:'';position:absolute;left:4px;top:4px;bottom:4px;width:3px;background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.08),rgba(255,255,255,.2));border-radius:2px;z-index:10}
+    .pv-body::after{content:'';position:absolute;right:3px;top:4px;bottom:4px;width:2px;background:rgba(255,255,255,.08);border-radius:2px;z-index:10}
+    .pv-label{position:absolute;left:3px;right:3px;top:4px;bottom:4px;background:#080808;border-radius:1px 1px 8px 8px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:5px 3px 5px;z-index:5;overflow:hidden}
+    .pv-label::before{content:'';position:absolute;top:0;left:15%;right:15%;height:2px;background:linear-gradient(90deg,transparent,var(--blue),transparent)}
+    .pv-brand{font-family:var(--fu);font-size:4px;font-weight:700;letter-spacing:1.2px;color:rgba(79,172,254,.85);text-transform:uppercase}
+    .pv-name{font-family:var(--fu);font-size:6px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.3px;text-align:center;line-height:1.2}
+    .pv-stripe{width:65%;height:1px;background:linear-gradient(90deg,transparent,var(--blue),transparent);opacity:.5}
+    .pv-dose-text{font-family:var(--fu);font-size:4px;font-weight:400;color:rgba(255,255,255,.5)}
+    .pv-purity{font-family:var(--fu);font-size:3.5px;font-weight:600;color:rgba(79,172,254,.75);letter-spacing:.4px;text-transform:uppercase}
 
-    /* === SECTION UTILITY === */
-    .section { padding: 7rem 4rem; }
-    .section.dark { background: var(--s1); }
-    .section-inner { max-width: 1360px; margin: 0 auto; }
-    .section-eyebrow {
-      font-family: var(--fm); font-size: 0.62rem; letter-spacing: 3px;
-      text-transform: uppercase; color: var(--blue); margin-bottom: 1.25rem; display: block;
-    }
-    .section-title {
-      font-family: var(--fd); font-size: clamp(2.2rem, 4vw, 3.8rem);
-      font-weight: 300; line-height: 1.07; letter-spacing: -0.3px;
-      color: var(--white); margin-bottom: 1.25rem;
-    }
-    .section-title em { font-style: italic; color: var(--white-60); }
-    .section-sub { font-size: 0.9rem; font-weight: 300; line-height: 1.8; color: var(--white-40); max-width: 480px; }
-    @media (max-width: 768px) { .section { padding: 4.5rem 2rem; } }
+    /* CATALOG */
+    .catalog-header{display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;margin-bottom:2.5rem;flex-wrap:wrap}
+    .cat-tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);margin-bottom:2.5rem;scrollbar-width:none;-ms-overflow-style:none}
+    .cat-tabs::-webkit-scrollbar{display:none}
+    .cat-tab{flex-shrink:0;font-family:var(--fu);font-size:.72rem;font-weight:400;color:var(--w40);padding:.8rem 1.2rem;cursor:pointer;transition:color .2s;border-bottom:2px solid transparent;letter-spacing:.3px;user-select:none;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap}
+    .cat-tab:hover{color:var(--w60)}
+    .cat-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+    .cat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border)}
+    @media(max-width:1100px){.cat-grid{grid-template-columns:repeat(4,1fr)}}
+    @media(max-width:780px){.cat-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:520px){.cat-grid{grid-template-columns:repeat(2,1fr)}}
 
-    /* === CSS VIAL SYSTEM (adapted for dark) === */
-    .rv-wrap { position: relative; display: inline-block; }
-    .rv {
-      position: relative; width: 54px; height: 104px;
-      filter: drop-shadow(0 16px 24px rgba(0,0,0,0.7));
-      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
-      z-index: 2;
-    }
-    .product-card:hover .rv { transform: translateY(-8px) rotate(-1deg); }
-    .rv-cap { position: absolute; top: 0; left: 5px; width: 44px; height: 19px; border-radius: 6px 6px 2px 2px; }
-    .rv--am .rv-cap { background: linear-gradient(90deg, #6e4f07 0%, #c49a14 15%, #f0cc40 32%, #c49a14 48%, #e0b818 65%, #9a7510 82%, #6e4f07 100%); border: 1px solid rgba(0,0,0,.35); }
-    .rv--cl .rv-cap { background: linear-gradient(90deg, #78808a 0%, #e5e8ea 18%, #a5aab2 38%, #f0f2f3 55%, #808890 100%); border: 1px solid rgba(0,0,0,.22); }
-    .rv-crimp { position: absolute; top: 14px; left: 8px; width: 38px; height: 7px; border-radius: 2px; }
-    .rv--am .rv-crimp { background: linear-gradient(180deg, #604406, #ac8410, #604406); }
-    .rv--cl .rv-crimp { background: linear-gradient(180deg, #585e66, #b5b9c0, #585e66); }
-    .rv-stopper { position: absolute; top: 19px; left: 13px; width: 28px; height: 8px; border-radius: 2px; }
-    .rv--am .rv-stopper { background: #382a00; }
-    .rv--cl .rv-stopper { background: #22272e; }
-    .rv-glass {
-      position: absolute; top: 25px; left: 3px; width: 48px; height: 77px;
-      border-radius: 4px 4px 9px 9px; overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.22);
-    }
-    .rv-glass::before {
-      content: ''; position: absolute;
-      left: 4px; top: 4px; bottom: 4px; width: 2.5px;
-      border-radius: 2px; background: rgba(255,255,255,0.1);
-    }
-    .rv--am .rv-glass { background: linear-gradient(90deg, rgba(255,185,42,.25) 0%, rgba(255,185,42,.08) 22%, rgba(255,185,42,.03) 68%, rgba(255,185,42,.2) 100%); box-shadow: inset 5px 0 10px rgba(255,185,42,.1), inset -4px 0 8px rgba(0,0,0,.25); }
-    .rv--cl .rv-glass { background: linear-gradient(90deg, rgba(255,255,255,.2) 0%, rgba(255,255,255,.05) 22%, rgba(255,255,255,.02) 68%, rgba(255,255,255,.16) 100%); box-shadow: inset 6px 0 10px rgba(255,255,255,.06), inset -5px 0 8px rgba(0,0,0,.2); }
-    .rv-powder { position: absolute; left: 4px; right: 4px; bottom: 4px; height: 24px; border-radius: 2px 2px 6px 6px; background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(242,240,234,.82)); }
-    .rv-liquid { position: absolute; left: 4px; right: 4px; bottom: 4px; height: 46px; border-radius: 2px 2px 7px 7px; background: linear-gradient(180deg, rgba(236,244,252,.65), rgba(208,222,234,.85)); }
-    .rv-label {
-      position: absolute; left: 5px; right: 5px; top: 14px; height: 32px;
-      background: #fff; border-radius: 1px; padding: 3px 2px 2px;
-      text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.35); z-index: 3; overflow: hidden;
-    }
-    .rv-label::after { content: ''; display: block; height: 2px; margin: 2px 2px 0; border-radius: 1px; background: #4FACFE; }
-    .rv-lb { display: block; font-size: 4px; font-weight: 900; letter-spacing: .6px; color: #111; line-height: 1; text-transform: uppercase; font-family: var(--fu); }
-    .rv-ln { display: block; font-size: 5px; font-weight: 700; color: #0f3460; margin-top: 2px; line-height: 1.1; text-transform: uppercase; font-family: var(--fu); }
-    .rv-badge {
-      position: absolute; bottom: 6px; right: 6px; z-index: 5;
-      background: rgba(79,172,254,0.15); border: 1px solid rgba(79,172,254,0.3);
-      backdrop-filter: blur(6px); color: var(--blue); font-family: var(--fm);
-      font-size: 0.55rem; font-weight: 500; padding: 0.18rem 0.4rem; border-radius: 3px; letter-spacing: 0.3px;
-    }
+    /* CARD */
+    .cc{background:var(--s1);display:flex;flex-direction:column;transition:background .25s;cursor:pointer;position:relative;overflow:hidden}
+    .cc::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 80%,var(--blue-glow),transparent);opacity:0;transition:opacity .35s}
+    .cc:hover::before{opacity:1}
+    .cc:hover{background:var(--s2)}
+    .cc-top{height:130px;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--border)}
+    .cc-glow{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:55px;height:18px;background:radial-gradient(ellipse,rgba(79,172,254,.18),transparent 70%);filter:blur(6px)}
+    .cc-body{padding:.9rem .85rem .85rem;flex:1;display:flex;flex-direction:column}
+    .cc-id{font-family:var(--fm);font-size:.5rem;color:var(--blue);letter-spacing:1.5px;margin-bottom:.25rem;opacity:.7}
+    .cc-name{font-family:var(--fd);font-size:1rem;font-weight:400;color:var(--white);margin-bottom:.2rem;line-height:1.15}
+    .cc-desc{font-size:.6rem;color:var(--w40);line-height:1.5;margin-bottom:.6rem;flex:1}
+    .cc-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
+    .cc-dose{font-family:var(--fm);font-size:.5rem;color:var(--w20);line-height:1.5}
+    .cc-price{font-family:var(--fu);font-size:.95rem;font-weight:600;color:var(--white)}
 
-    /* === PRODUCTS === */
-    .products-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; margin-bottom: 4rem; flex-wrap: wrap; }
-    .products-link { font-size: 0.75rem; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; color: var(--blue); display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid rgba(79,172,254,0.3); padding-bottom: 0.15rem; transition: border-color 0.2s; }
-    .products-link:hover { border-color: var(--blue); }
-    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
-    .product-card {
-      background: var(--s1); padding: 2.5rem;
-      display: flex; flex-direction: column;
-      transition: background 0.3s;
-      cursor: pointer; position: relative; overflow: hidden;
-    }
-    .product-card::before {
-      content: ''; position: absolute; inset: 0;
-      background: radial-gradient(ellipse 60% 50% at 30% 60%, rgba(79,172,254,0.05), transparent);
-      opacity: 0; transition: opacity 0.4s;
-    }
-    .product-card:hover::before { opacity: 1; }
-    .product-card:hover { background: var(--s2); }
-    .product-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2.25rem; }
-    .product-index { font-family: var(--fm); font-size: 0.62rem; letter-spacing: 2px; color: var(--blue); opacity: 0.7; }
-    .product-badge-top {
-      font-family: var(--fm); font-size: 0.55rem; letter-spacing: 1px;
-      text-transform: uppercase; color: var(--white-40);
-      border: 1px solid var(--border); padding: 0.2rem 0.55rem; border-radius: 2px;
-    }
-    .product-visual {
-      display: flex; align-items: center; justify-content: center;
-      height: 140px; margin-bottom: 2rem; position: relative;
-    }
-    .product-vial-glow {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 80px; height: 30px;
-      background: radial-gradient(ellipse, rgba(79,172,254,0.2) 0%, transparent 70%);
-      filter: blur(8px);
-    }
-    .product-name {
-      font-family: var(--fd); font-size: 2rem; font-weight: 400;
-      color: var(--white); margin-bottom: 0.5rem; line-height: 1.1;
-      transition: color 0.2s;
-    }
-    .product-card:hover .product-name { color: var(--white); }
-    .product-common { font-size: 0.75rem; font-weight: 300; color: var(--white-40); margin-bottom: 1.25rem; }
-    .product-specs-row {
-      display: flex; gap: 1.5rem; margin-bottom: 1.75rem;
-      padding-top: 1.25rem; border-top: 1px solid var(--border);
-    }
-    .pspec { }
-    .pspec-lbl { font-family: var(--fm); font-size: 0.55rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--white-20); display: block; margin-bottom: 0.25rem; }
-    .pspec-val { font-family: var(--fm); font-size: 0.78rem; color: var(--white-60); }
-    .pspec-val.blue { color: var(--blue); }
-    .product-cta-row {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-top: auto; padding-top: 1.25rem; border-top: 1px solid var(--border);
-    }
-    .p-research-tag { font-size: 0.62rem; font-weight: 400; letter-spacing: 0.5px; color: var(--white-20); }
-    .p-cta { font-size: 0.72rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--blue); display: flex; align-items: center; gap: 0.4rem; transition: gap 0.2s; }
-    .product-card:hover .p-cta { gap: 0.7rem; }
-    @media (max-width: 900px) { .products-grid { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 600px) { .products-grid { grid-template-columns: 1fr; } }
+    /* COMING SOON */
+    .cs-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);border:1px solid var(--border)}
+    @media(max-width:1100px){.cs-grid{grid-template-columns:repeat(4,1fr)}}
+    @media(max-width:780px){.cs-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:520px){.cs-grid{grid-template-columns:repeat(2,1fr)}}
+    .cs-card{background:var(--s1);padding:.85rem;display:flex;flex-direction:column;gap:.3rem;opacity:.45}
+    .cs-name{font-family:var(--fd);font-size:.9rem;font-weight:400;color:var(--white)}
+    .cs-dose{font-family:var(--fm);font-size:.5rem;color:var(--w40)}
+    .cs-tag{font-family:var(--fm);font-size:.45rem;color:var(--blue);letter-spacing:1px;text-transform:uppercase;opacity:.6}
 
-    /* === SCIENCE === */
-    .science-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 7rem; align-items: start; }
-    .science-left { position: sticky; top: 8rem; }
-    .science-stat-row { display: flex; gap: 3rem; margin-top: 3.5rem; padding-top: 3.5rem; border-top: 1px solid var(--border); }
-    .science-stat .num {
-      font-family: var(--fd); font-size: 3rem; font-weight: 300; color: var(--white);
-      line-height: 1; margin-bottom: 0.35rem; letter-spacing: -1px;
-    }
-    .science-stat .lbl { font-size: 0.72rem; font-weight: 300; color: var(--white-40); letter-spacing: 0.3px; }
-    .science-right { display: flex; flex-direction: column; gap: 3.5rem; padding-top: 0.5rem; }
-    .science-item { }
-    .science-item-num { font-family: var(--fm); font-size: 0.58rem; color: var(--blue); letter-spacing: 2px; margin-bottom: 1rem; display: block; }
-    .science-item h3 { font-family: var(--fd); font-size: 1.5rem; font-weight: 400; color: var(--white); margin-bottom: 0.75rem; }
-    .science-item p { font-size: 0.88rem; font-weight: 300; line-height: 1.82; color: var(--white-40); }
-    .science-divider { width: 100%; height: 1px; background: var(--border); }
-    @media (max-width: 900px) { .science-layout { grid-template-columns: 1fr; gap: 3.5rem; } .science-left { position: static; } }
+    /* SCIENCE */
+    .science-layout{display:grid;grid-template-columns:1fr 1fr;gap:7rem;align-items:start}
+    .science-left{position:sticky;top:7rem}
+    .science-stat-row{display:flex;gap:3rem;margin-top:3rem;padding-top:3rem;border-top:1px solid var(--border)}
+    .science-stat .num{font-family:var(--fd);font-size:3rem;font-weight:300;color:var(--white);line-height:1;margin-bottom:.3rem;letter-spacing:-1px}
+    .science-stat .lbl{font-size:.72rem;font-weight:300;color:var(--w40);letter-spacing:.3px}
+    .science-right{display:flex;flex-direction:column;gap:3rem;padding-top:.5rem}
+    .science-item-num{font-family:var(--fm);font-size:.58rem;color:var(--blue);letter-spacing:2px;margin-bottom:1rem;display:block}
+    .science-item h3{font-family:var(--fd);font-size:1.5rem;font-weight:400;color:var(--white);margin-bottom:.65rem}
+    .science-item p{font-size:.87rem;font-weight:300;line-height:1.82;color:var(--w40)}
+    .sdiv{width:100%;height:1px;background:var(--border)}
+    @media(max-width:900px){.science-layout{grid-template-columns:1fr;gap:3rem}.science-left{position:static}}
 
-    /* === QUALITY PROCESS === */
-    .process-header { max-width: 580px; margin-bottom: 5rem; }
-    .process-steps { display: flex; flex-direction: column; max-width: 720px; }
-    .process-step {
-      display: grid; grid-template-columns: 80px 1fr;
-      gap: 2rem; position: relative; padding-bottom: 3.5rem;
-    }
-    .process-step:last-child { padding-bottom: 0; }
-    .process-step-line {
-      position: absolute; left: 27px; top: 40px; bottom: 0;
-      width: 1px; background: var(--border);
-    }
-    .process-step:last-child .process-step-line { display: none; }
-    .process-step-left { display: flex; flex-direction: column; align-items: center; gap: 0; }
-    .process-num-circle {
-      width: 54px; height: 54px; border-radius: 50%;
-      border: 1px solid var(--border-md);
-      background: var(--s2);
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--fm); font-size: 0.65rem; color: var(--blue);
-      letter-spacing: 1px; flex-shrink: 0;
-      transition: border-color 0.3s, background 0.3s;
-    }
-    .process-step.active .process-num-circle { border-color: var(--blue); background: rgba(79,172,254,0.08); }
-    .process-content { padding-top: 0.9rem; }
-    .process-label { font-family: var(--fm); font-size: 0.58rem; color: var(--white-20); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.6rem; display: block; }
-    .process-title { font-family: var(--fd); font-size: 1.65rem; font-weight: 400; color: var(--white); margin-bottom: 0.75rem; }
-    .process-desc { font-size: 0.85rem; font-weight: 300; line-height: 1.82; color: var(--white-40); }
+    /* PROCESS */
+    .process-header{max-width:580px;margin-bottom:4.5rem}
+    .process-steps{display:flex;flex-direction:column;max-width:720px}
+    .process-step{display:grid;grid-template-columns:80px 1fr;gap:2rem;position:relative;padding-bottom:3rem}
+    .process-step:last-child{padding-bottom:0}
+    .process-step-line{position:absolute;left:27px;top:40px;bottom:0;width:1px;background:var(--border)}
+    .process-step:last-child .process-step-line{display:none}
+    .process-step-left{display:flex;flex-direction:column;align-items:center}
+    .pnum{width:54px;height:54px;border-radius:50%;border:1px solid var(--border-md);background:var(--s2);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:.65rem;color:var(--blue);letter-spacing:1px;flex-shrink:0;transition:border-color .3s,background .3s}
+    .process-step.active .pnum{border-color:var(--blue);background:rgba(79,172,254,.08)}
+    .process-content{padding-top:.9rem}
+    .p-label{font-family:var(--fm);font-size:.58rem;color:var(--w20);letter-spacing:2px;text-transform:uppercase;margin-bottom:.55rem;display:block}
+    .p-title{font-family:var(--fd);font-size:1.6rem;font-weight:400;color:var(--white);margin-bottom:.65rem}
+    .p-desc{font-size:.85rem;font-weight:300;line-height:1.82;color:var(--w40)}
 
-    /* === ABOUT === */
-    .about-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 7rem; align-items: center; }
-    .about-visual {
-      height: 480px; background: var(--s2); border: 1px solid var(--border);
-      border-radius: 4px; position: relative; overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .about-visual-inner {
-      display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
-      opacity: 0.5;
-    }
-    .about-visual-line { width: 1px; height: 80px; background: linear-gradient(to bottom, transparent, var(--blue), transparent); }
-    .about-visual-node {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--blue); box-shadow: 0 0 20px rgba(79,172,254,0.6);
-    }
-    .about-visual-ring {
-      position: absolute; border: 1px solid rgba(79,172,254,0.08);
-      border-radius: 50%; animation: pulse 4s ease-in-out infinite;
-    }
-    .about-visual-ring:nth-child(1) { width: 150px; height: 150px; }
-    .about-visual-ring:nth-child(2) { width: 250px; height: 250px; animation-delay: 1s; }
-    .about-visual-ring:nth-child(3) { width: 380px; height: 380px; animation-delay: 2s; }
-    @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.8; } }
-    .about-text { }
-    .about-text p { font-size: 0.9rem; font-weight: 300; line-height: 1.88; color: var(--white-40); margin-bottom: 1.5rem; }
-    .about-text p:last-of-type { margin-bottom: 2.5rem; }
-    .about-values { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2.5rem; }
-    .about-value {
-      padding: 1.25rem; border: 1px solid var(--border); border-radius: 3px;
-      background: var(--s2); transition: border-color 0.2s, background 0.2s;
-    }
-    .about-value:hover { border-color: var(--border-md); background: var(--s3); }
-    .about-value-title { font-size: 0.78rem; font-weight: 500; color: var(--white); margin-bottom: 0.3rem; }
-    .about-value-desc { font-size: 0.72rem; font-weight: 300; color: var(--white-40); line-height: 1.6; }
-    @media (max-width: 900px) { .about-layout { grid-template-columns: 1fr; gap: 3rem; } .about-visual { height: 280px; } }
+    /* ABOUT */
+    .about-layout{display:grid;grid-template-columns:1fr 1fr;gap:7rem;align-items:center}
+    .about-visual{height:480px;background:var(--s2);border:1px solid var(--border);border-radius:4px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .av-inner{display:flex;flex-direction:column;align-items:center;gap:1.5rem;opacity:.5}
+    .av-line{width:1px;height:80px;background:linear-gradient(to bottom,transparent,var(--blue),transparent)}
+    .av-node{width:8px;height:8px;border-radius:50%;background:var(--blue);box-shadow:0 0 20px rgba(79,172,254,.6)}
+    .av-ring{position:absolute;border:1px solid rgba(79,172,254,.08);border-radius:50%;animation:pulse 4s ease-in-out infinite}
+    .av-ring:nth-child(1){width:150px;height:150px}.av-ring:nth-child(2){width:250px;height:250px;animation-delay:1s}.av-ring:nth-child(3){width:380px;height:380px;animation-delay:2s}
+    @keyframes pulse{0%,100%{opacity:.3}50%{opacity:.8}}
+    .about-text p{font-size:.9rem;font-weight:300;line-height:1.88;color:var(--w40);margin-bottom:1.5rem}
+    .about-values{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem}
+    .about-value{padding:1.15rem;border:1px solid var(--border);border-radius:3px;background:var(--s2);transition:border-color .2s,background .2s}
+    .about-value:hover{border-color:var(--border-md);background:var(--s3)}
+    .av-title{font-size:.78rem;font-weight:500;color:var(--white);margin-bottom:.25rem}
+    .av-desc{font-size:.7rem;font-weight:300;color:var(--w40);line-height:1.6}
+    @media(max-width:900px){.about-layout{grid-template-columns:1fr;gap:3rem}.about-visual{height:260px}}
 
-    /* === FAQ === */
-    .faq-layout { display: grid; grid-template-columns: 380px 1fr; gap: 6rem; align-items: start; }
-    .faq-left { position: sticky; top: 8rem; }
-    .faq-list { display: flex; flex-direction: column; }
-    .faq-item { border-bottom: 1px solid var(--border); }
-    .faq-q {
-      width: 100%; background: none; border: none; color: var(--white);
-      font-family: var(--fu); font-size: 0.9rem; font-weight: 400;
-      text-align: left; padding: 1.5rem 0;
-      display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
-      cursor: pointer; transition: color 0.2s; line-height: 1.4;
-    }
-    .faq-q:hover { color: var(--white-60); }
-    .faq-icon {
-      width: 22px; height: 22px; border-radius: 50%;
-      border: 1px solid var(--border-md); flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.9rem; color: var(--white-40); transition: border-color 0.2s, transform 0.3s, background 0.2s;
-    }
-    .faq-item.open .faq-icon { transform: rotate(45deg); border-color: var(--blue); color: var(--blue); background: rgba(79,172,254,0.08); }
-    .faq-a { font-size: 0.85rem; font-weight: 300; line-height: 1.85; color: var(--white-40); max-height: 0; overflow: hidden; transition: max-height 0.45s ease, padding 0.3s ease; }
-    .faq-item.open .faq-a { max-height: 300px; padding-bottom: 1.5rem; }
-    @media (max-width: 900px) { .faq-layout { grid-template-columns: 1fr; gap: 3rem; } .faq-left { position: static; } }
+    /* FAQ */
+    .faq-layout{display:grid;grid-template-columns:380px 1fr;gap:6rem;align-items:start}
+    .faq-left{position:sticky;top:7rem}
+    .faq-list{display:flex;flex-direction:column}
+    .faq-item{border-bottom:1px solid var(--border)}
+    .faq-q{width:100%;background:none;border:none;color:var(--white);font-family:var(--fu);font-size:.88rem;font-weight:400;text-align:left;padding:1.4rem 0;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;cursor:pointer;transition:color .2s;line-height:1.4}
+    .faq-q:hover{color:var(--w60)}
+    .faq-icon{width:22px;height:22px;border-radius:50%;border:1px solid var(--border-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--w40);transition:border-color .2s,transform .3s,background .2s}
+    .faq-item.open .faq-icon{transform:rotate(45deg);border-color:var(--blue);color:var(--blue);background:rgba(79,172,254,.08)}
+    .faq-a{font-size:.84rem;font-weight:300;line-height:1.85;color:var(--w40);max-height:0;overflow:hidden;transition:max-height .45s ease,padding .3s ease}
+    .faq-item.open .faq-a{max-height:300px;padding-bottom:1.5rem}
+    @media(max-width:900px){.faq-layout{grid-template-columns:1fr;gap:3rem}.faq-left{position:static}}
 
-    /* === FOOTER === */
-    footer {
-      padding: 5rem 4rem 3rem;
-      border-top: 1px solid var(--border);
-      background: var(--s1);
-    }
-    .footer-inner { max-width: 1360px; margin: 0 auto; }
-    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 4rem; margin-bottom: 4rem; }
-    .footer-brand-logo { font-family: var(--fu); font-size: 0.78rem; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--white); margin-bottom: 1rem; }
-    .footer-brand-logo em { color: var(--blue); font-style: normal; }
-    .footer-brand-tag { font-family: var(--fd); font-size: 1.1rem; font-weight: 300; font-style: italic; color: var(--white-40); line-height: 1.5; margin-bottom: 1.5rem; }
-    .footer-disclaimer p { font-size: 0.68rem; font-weight: 400; color: var(--white-20); line-height: 1.8; letter-spacing: 0.2px; }
-    .footer-col h5 { font-size: 0.6rem; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--white-20); margin-bottom: 1.5rem; }
-    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
-    .footer-col ul li a { font-size: 0.82rem; font-weight: 300; color: var(--white-40); transition: color 0.2s; }
-    .footer-col ul li a:hover { color: var(--white); }
-    .footer-bottom { border-top: 1px solid var(--border); padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
-    .footer-bottom p { font-size: 0.7rem; font-weight: 300; color: var(--white-20); }
-    .footer-bottom-links { display: flex; gap: 2rem; }
-    .footer-bottom-links a { font-size: 0.7rem; color: var(--white-20); transition: color 0.2s; }
-    .footer-bottom-links a:hover { color: var(--white-40); }
-    @media (max-width: 900px) { footer { padding: 4rem 2rem 2rem; } .footer-top { grid-template-columns: 1fr 1fr; gap: 2.5rem; } }
-    @media (max-width: 600px) { .footer-top { grid-template-columns: 1fr; } }
-
-    /* === MISC === */
-    .line-blue { display: block; width: 32px; height: 2px; background: var(--blue); margin-bottom: 1.75rem; opacity: 0.6; }
-
+    /* FOOTER */
+    footer{padding:5rem 4rem 3rem;border-top:1px solid var(--border);background:var(--s1)}
+    .footer-inner{max-width:1400px;margin:0 auto}
+    .footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4rem;margin-bottom:4rem}
+    .f-logo{font-family:var(--fu);font-size:.78rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--white);margin-bottom:1rem}
+    .f-logo em{color:var(--blue);font-style:normal}
+    .f-tag{font-family:var(--fd);font-size:1.1rem;font-weight:300;font-style:italic;color:var(--w40);line-height:1.5;margin-bottom:1.5rem}
+    .f-dis p{font-size:.66rem;font-weight:400;color:var(--w20);line-height:1.85}
+    .f-col h5{font-size:.6rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--w20);margin-bottom:1.5rem}
+    .f-col ul{list-style:none;display:flex;flex-direction:column;gap:.7rem}
+    .f-col ul li a{font-size:.82rem;font-weight:300;color:var(--w40);transition:color .2s}
+    .f-col ul li a:hover{color:var(--white)}
+    .footer-bottom{border-top:1px solid var(--border);padding-top:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+    .footer-bottom p{font-size:.68rem;font-weight:300;color:var(--w20)}
+    .fb-links{display:flex;gap:2rem}
+    .fb-links a{font-size:.68rem;color:var(--w20);transition:color .2s}
+    .fb-links a:hover{color:var(--w40)}
+    @media(max-width:900px){footer{padding:4rem 2rem 2rem}.footer-top{grid-template-columns:1fr 1fr;gap:2.5rem}}
+    @media(max-width:600px){.footer-top{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
+
+<!-- ANNOUNCEMENT BAR -->
+<div class="abar">
+  <span>🚀 <em>Free Shipping</em> on Orders $300+</span>
+  <span>⏱ Delivery: <em>4–14 Days</em></span>
+  <span>👥 Buying with a Friend? Split the cost — each pay <em>50%</em></span>
+</div>
 
 <!-- NAVIGATION -->
 <nav class="nav" id="nav">
   <a href="#" class="nav-logo">TIMELESS <em>RESEARCH</em></a>
   <ul class="nav-links">
-    <li><a href="#research">Research</a></li>
+    <li><a href="#catalog">Catalog</a></li>
     <li><a href="#science">Science</a></li>
     <li><a href="#quality">Quality</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#faq">FAQ</a></li>
   </ul>
-  <a href="#research" class="nav-cta">View Catalog</a>
+  <a href="#catalog" class="nav-cta">Order Now</a>
 </nav>
 
 <!-- HERO -->
@@ -464,11 +250,11 @@
   <canvas id="particle-canvas"></canvas>
   <div class="hero-gradient"></div>
   <div class="hero-content">
-    <div class="hero-tag">Peptide Research Compounds</div>
-    <h1>Advancing the Future<br>of <em>Peptide Research.</em></h1>
-    <p class="hero-sub">High-quality research peptides manufactured with precision, transparency, and scientific integrity.</p>
+    <div class="hero-tag">Research-Grade Peptide Compounds</div>
+    <h1>Precision. Purity.<br><em>Verified Results.</em></h1>
+    <p class="hero-sub">60+ research compounds. 99% average purity. Full Certificate of Analysis on every lot. Built for serious research.</p>
     <div class="hero-btns">
-      <a href="#research" class="btn-primary">Explore Research</a>
+      <a href="#catalog" class="btn-primary">Shop Catalog</a>
       <a href="#quality" class="btn-ghost">Our Standards</a>
     </div>
   </div>
@@ -484,242 +270,66 @@
     <div class="trust-grid">
       <div class="trust-item" data-reveal>
         <span class="trust-num">01</span>
-        <h3 class="trust-title">Research-Grade Quality</h3>
-        <p class="trust-desc">Rigorous quality standards applied consistently across our entire product catalog. Every compound produced to exacting specifications.</p>
+        <h3 class="trust-title">99% Average Purity</h3>
+        <p class="trust-desc">Every compound analyzed via HPLC purity testing and mass spectrometry identity confirmation before release.</p>
       </div>
       <div class="trust-item" data-reveal data-delay="1">
         <span class="trust-num">02</span>
-        <h3 class="trust-title">Transparent Testing</h3>
-        <p class="trust-desc">Detailed analytical documentation including Certificates of Analysis for every research product, every production lot.</p>
+        <h3 class="trust-title">60+ Active Compounds</h3>
+        <p class="trust-desc">From GLP-1 agonists and growth hormone secretagogues to longevity peptides and cognitive research compounds.</p>
       </div>
       <div class="trust-item" data-reveal data-delay="2">
         <span class="trust-num">03</span>
-        <h3 class="trust-title">Precision Manufacturing</h3>
-        <p class="trust-desc">Consistent manufacturing processes designed around purity and reliability, minimizing lot-to-lot variability in your research.</p>
+        <h3 class="trust-title">Free Shipping $300+</h3>
+        <p class="trust-desc">Free shipping on qualifying orders. 4–14 day delivery. Split orders available — each party pays 50%.</p>
       </div>
       <div class="trust-item" data-reveal data-delay="3">
         <span class="trust-num">04</span>
-        <h3 class="trust-title">Scientific Integrity</h3>
-        <p class="trust-desc">Built around responsible research and accurate, unexaggerated information. We make no medical claims — only facts.</p>
+        <h3 class="trust-title">COA Every Lot</h3>
+        <p class="trust-desc">Certificate of Analysis issued for every production lot. Documentation available on request for all products.</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- FEATURED PRODUCTS -->
-<section class="section" id="research">
+<!-- PRODUCT CATALOG -->
+<section class="section" id="catalog">
   <div class="section-inner">
-    <div class="products-header">
-      <div data-reveal>
-        <span class="section-eyebrow">Featured Research Compounds</span>
-        <h2 class="section-title">Research Catalog</h2>
-        <p class="section-sub">A selection of our rigorously tested research compounds. All products are intended strictly for laboratory research use.</p>
+    <div class="catalog-header" data-reveal>
+      <div>
+        <span class="section-eyebrow">Full Product Catalog</span>
+        <h2 class="section-title">Research Compounds</h2>
+        <p class="section-sub">All products for research use only. Not for human or veterinary consumption.</p>
       </div>
-      <a href="#" class="products-link" data-reveal>View Full Catalog →</a>
     </div>
-    <div class="products-grid">
+    <div class="cat-tabs" id="cat-tabs"></div>
+    <div class="cat-grid" id="cat-grid"></div>
+  </div>
+</section>
 
-      <!-- BPC-157 -->
-      <div class="product-card" data-reveal>
-        <div class="product-card-top">
-          <span class="product-index">01</span>
-          <span class="product-badge-top">Research Use Only</span>
-        </div>
-        <div class="product-visual">
-          <div class="rv-wrap">
-            <div class="rv rv--am">
-              <div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div>
-              <div class="rv-glass"><div class="rv-powder"></div>
-                <div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">BPC-157</span></div>
-              </div>
-            </div>
-          </div>
-          <div class="product-vial-glow"></div>
-          <span class="rv-badge">5mg</span>
-        </div>
-        <h3 class="product-name">BPC-157</h3>
-        <p class="product-common">Body Protection Compound</p>
-        <div class="product-specs-row">
-          <div class="pspec"><span class="pspec-lbl">Purity</span><span class="pspec-val blue">≥99%</span></div>
-          <div class="pspec"><span class="pspec-lbl">MW</span><span class="pspec-val">1419.5 Da</span></div>
-          <div class="pspec"><span class="pspec-lbl">Form</span><span class="pspec-val">Lyophilized</span></div>
-        </div>
-        <div class="product-cta-row">
-          <span class="p-research-tag">Pentadecapeptide</span>
-          <span class="p-cta">View Research →</span>
-        </div>
-      </div>
-
-      <!-- TB-500 -->
-      <div class="product-card" data-reveal data-delay="1">
-        <div class="product-card-top">
-          <span class="product-index">02</span>
-          <span class="product-badge-top">Research Use Only</span>
-        </div>
-        <div class="product-visual">
-          <div class="rv-wrap">
-            <div class="rv rv--am">
-              <div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div>
-              <div class="rv-glass"><div class="rv-powder"></div>
-                <div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">TB-500</span></div>
-              </div>
-            </div>
-          </div>
-          <div class="product-vial-glow"></div>
-          <span class="rv-badge">5mg</span>
-        </div>
-        <h3 class="product-name">TB-500</h3>
-        <p class="product-common">Thymosin Beta-4 Analog</p>
-        <div class="product-specs-row">
-          <div class="pspec"><span class="pspec-lbl">Purity</span><span class="pspec-val blue">≥98%</span></div>
-          <div class="pspec"><span class="pspec-lbl">MW</span><span class="pspec-val">4963.5 Da</span></div>
-          <div class="pspec"><span class="pspec-lbl">Form</span><span class="pspec-val">Lyophilized</span></div>
-        </div>
-        <div class="product-cta-row">
-          <span class="p-research-tag">Actin-Binding Peptide</span>
-          <span class="p-cta">View Research →</span>
-        </div>
-      </div>
-
-      <!-- CJC-1295 -->
-      <div class="product-card" data-reveal data-delay="2">
-        <div class="product-card-top">
-          <span class="product-index">03</span>
-          <span class="product-badge-top">Research Use Only</span>
-        </div>
-        <div class="product-visual">
-          <div class="rv-wrap">
-            <div class="rv rv--am">
-              <div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div>
-              <div class="rv-glass"><div class="rv-powder"></div>
-                <div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">CJC-1295</span></div>
-              </div>
-            </div>
-          </div>
-          <div class="product-vial-glow"></div>
-          <span class="rv-badge">2mg</span>
-        </div>
-        <h3 class="product-name">CJC-1295</h3>
-        <p class="product-common">GHRH Analog</p>
-        <div class="product-specs-row">
-          <div class="pspec"><span class="pspec-lbl">Purity</span><span class="pspec-val blue">≥99%</span></div>
-          <div class="pspec"><span class="pspec-lbl">MW</span><span class="pspec-val">3367.9 Da</span></div>
-          <div class="pspec"><span class="pspec-lbl">Form</span><span class="pspec-val">Lyophilized</span></div>
-        </div>
-        <div class="product-cta-row">
-          <span class="p-research-tag">Growth Hormone Secretagogue</span>
-          <span class="p-cta">View Research →</span>
-        </div>
-      </div>
-
-      <!-- IPAMORELIN -->
-      <div class="product-card" data-reveal data-delay="3">
-        <div class="product-card-top">
-          <span class="product-index">04</span>
-          <span class="product-badge-top">Research Use Only</span>
-        </div>
-        <div class="product-visual">
-          <div class="rv-wrap">
-            <div class="rv rv--am">
-              <div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div>
-              <div class="rv-glass"><div class="rv-powder"></div>
-                <div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">IPAMORELIN</span></div>
-              </div>
-            </div>
-          </div>
-          <div class="product-vial-glow"></div>
-          <span class="rv-badge">2mg</span>
-        </div>
-        <h3 class="product-name">Ipamorelin</h3>
-        <p class="product-common">Selective GHRP</p>
-        <div class="product-specs-row">
-          <div class="pspec"><span class="pspec-lbl">Purity</span><span class="pspec-val blue">≥99%</span></div>
-          <div class="pspec"><span class="pspec-lbl">MW</span><span class="pspec-val">711.8 Da</span></div>
-          <div class="pspec"><span class="pspec-lbl">Form</span><span class="pspec-val">Lyophilized</span></div>
-        </div>
-        <div class="product-cta-row">
-          <span class="p-research-tag">Pentapeptide / GHRP</span>
-          <span class="p-cta">View Research →</span>
-        </div>
-      </div>
-
-      <!-- GHK-CU -->
-      <div class="product-card" data-reveal data-delay="4">
-        <div class="product-card-top">
-          <span class="product-index">05</span>
-          <span class="product-badge-top">Research Use Only</span>
-        </div>
-        <div class="product-visual">
-          <div class="rv-wrap">
-            <div class="rv rv--am">
-              <div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div>
-              <div class="rv-glass"><div class="rv-powder"></div>
-                <div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">GHK-CU</span></div>
-              </div>
-            </div>
-          </div>
-          <div class="product-vial-glow"></div>
-          <span class="rv-badge">50mg</span>
-        </div>
-        <h3 class="product-name">GHK-Cu</h3>
-        <p class="product-common">Copper Peptide Complex</p>
-        <div class="product-specs-row">
-          <div class="pspec"><span class="pspec-lbl">Purity</span><span class="pspec-val blue">≥98%</span></div>
-          <div class="pspec"><span class="pspec-lbl">MW</span><span class="pspec-val">403.9 Da</span></div>
-          <div class="pspec"><span class="pspec-lbl">Form</span><span class="pspec-val">Lyophilized</span></div>
-        </div>
-        <div class="product-cta-row">
-          <span class="p-research-tag">Tripeptide-Copper Complex</span>
-          <span class="p-cta">View Research →</span>
-        </div>
-      </div>
-
-      <!-- SELANK -->
-      <div class="product-card" data-reveal data-delay="5">
-        <div class="product-card-top">
-          <span class="product-index">06</span>
-          <span class="product-badge-top">Research Use Only</span>
-        </div>
-        <div class="product-visual">
-          <div class="rv-wrap">
-            <div class="rv rv--am">
-              <div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div>
-              <div class="rv-glass"><div class="rv-powder"></div>
-                <div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">SELANK</span></div>
-              </div>
-            </div>
-          </div>
-          <div class="product-vial-glow"></div>
-          <span class="rv-badge">5mg</span>
-        </div>
-        <h3 class="product-name">Selank</h3>
-        <p class="product-common">Anxiolytic Heptapeptide</p>
-        <div class="product-specs-row">
-          <div class="pspec"><span class="pspec-lbl">Purity</span><span class="pspec-val blue">≥99%</span></div>
-          <div class="pspec"><span class="pspec-lbl">MW</span><span class="pspec-val">751.9 Da</span></div>
-          <div class="pspec"><span class="pspec-lbl">Form</span><span class="pspec-val">Lyophilized</span></div>
-        </div>
-        <div class="product-cta-row">
-          <span class="p-research-tag">Heptapeptide / Nootropic</span>
-          <span class="p-cta">View Research →</span>
-        </div>
-      </div>
-
+<!-- COMING SOON -->
+<section class="section dark" id="coming-soon">
+  <div class="section-inner">
+    <div data-reveal>
+      <span class="section-eyebrow">Expanding Catalog</span>
+      <h2 class="section-title" style="font-size:clamp(1.8rem,3vw,2.8rem);margin-bottom:1rem;">Coming <em>Soon.</em></h2>
+      <p class="section-sub" style="margin-bottom:2.5rem;">These compounds are in production or pending availability. Check back or contact us for timeline updates.</p>
     </div>
+    <div class="cs-grid" id="cs-grid"></div>
   </div>
 </section>
 
 <!-- SCIENCE -->
-<section class="section dark" id="science">
+<section class="section" id="science">
   <div class="section-inner">
     <div class="science-layout">
       <div class="science-left" data-reveal>
         <span class="section-eyebrow">The Science</span>
         <h2 class="section-title">Built Around<br><em>Better Research.</em></h2>
-        <p style="font-size:.88rem;font-weight:300;line-height:1.85;color:var(--white-40);margin-top:1.25rem;max-width:380px;">We exist to supply researchers with precisely manufactured compounds backed by rigorous documentation — nothing more, nothing less.</p>
+        <p style="font-size:.88rem;font-weight:300;line-height:1.85;color:var(--w40);margin-top:1.25rem;max-width:380px;">We supply researchers with precisely manufactured compounds backed by rigorous documentation — nothing more, nothing less.</p>
         <div class="science-stat-row">
           <div class="science-stat"><div class="num" data-count="99">0</div><div class="lbl">Average purity %</div></div>
-          <div class="science-stat"><div class="num" data-count="60">0</div><div class="lbl">Compounds in catalog</div></div>
+          <div class="science-stat"><div class="num" data-count="60">0</div><div class="lbl">Active compounds</div></div>
           <div class="science-stat"><div class="num" data-count="100">0</div><div class="lbl">% lots tested</div></div>
         </div>
       </div>
@@ -729,23 +339,23 @@
           <h3>Chains of Amino Acids With Defined Research Utility</h3>
           <p>Peptides are short chains of amino acids — the building blocks of proteins — that play signaling roles throughout biological systems. In the research context, synthetic peptides allow scientists to study these signaling pathways in controlled laboratory environments.</p>
         </div>
-        <div class="science-divider"></div>
+        <div class="sdiv"></div>
         <div class="science-item" data-reveal>
           <span class="science-item-num">02 — ANALYTICAL TESTING</span>
           <h3>HPLC Purity Analysis and Mass Spectrometry</h3>
           <p>Every production lot is analyzed using High-Performance Liquid Chromatography (HPLC) to verify purity, and Mass Spectrometry (MS) to confirm molecular identity. These two analytical methods together establish that a compound is both pure and correctly identified.</p>
         </div>
-        <div class="science-divider"></div>
+        <div class="sdiv"></div>
         <div class="science-item" data-reveal>
-          <span class="science-item-num">03 — WHY DOCUMENTATION MATTERS</span>
-          <h3>Research Reproducibility Depends on Material Consistency</h3>
-          <p>Scientific research requires consistent materials across experiments. Batch documentation — including purity data, molecular weight confirmation, and lot numbers — allows researchers to account for material variables in their protocols and replicate results accurately.</p>
-        </div>
-        <div class="science-divider"></div>
-        <div class="science-item" data-reveal>
-          <span class="science-item-num">04 — STORAGE & HANDLING</span>
+          <span class="science-item-num">03 — STORAGE & HANDLING</span>
           <h3>Lyophilization for Long-Term Research Stability</h3>
           <p>Lyophilized (freeze-dried) peptides provide superior stability compared to liquid formulations. Stored at the correct temperature and protected from moisture and UV light, lyophilized compounds retain their integrity throughout extended research programs.</p>
+        </div>
+        <div class="sdiv"></div>
+        <div class="science-item" data-reveal>
+          <span class="science-item-num">04 — DOCUMENTATION</span>
+          <h3>Research Reproducibility Depends on Material Consistency</h3>
+          <p>Batch documentation — including purity data, molecular weight confirmation, and lot numbers — allows researchers to account for material variables in their protocols and replicate results accurately across studies.</p>
         </div>
       </div>
     </div>
@@ -753,7 +363,7 @@
 </section>
 
 <!-- QUALITY PROCESS -->
-<section class="section" id="quality">
+<section class="section dark" id="quality">
   <div class="section-inner">
     <div class="process-header" data-reveal>
       <span class="section-eyebrow">Quality & Testing</span>
@@ -761,82 +371,62 @@
       <p class="section-sub" style="margin-top:1rem;">Every compound follows the same five-stage process before it reaches a researcher's hands.</p>
     </div>
     <div class="process-steps">
-
       <div class="process-step" data-reveal>
         <div class="process-step-line"></div>
-        <div class="process-step-left">
-          <div class="process-num-circle">01</div>
-        </div>
+        <div class="process-step-left"><div class="pnum">01</div></div>
         <div class="process-content">
-          <span class="process-label">Source Material</span>
-          <h3 class="process-title">Pharmaceutical-Grade Raw Inputs</h3>
-          <p class="process-desc">We source amino acid inputs and synthesis precursors from validated pharmaceutical-grade suppliers. Incoming materials are evaluated for certificate compliance before entering our production process.</p>
+          <span class="p-label">Source Material</span>
+          <h3 class="p-title">Pharmaceutical-Grade Raw Inputs</h3>
+          <p class="p-desc">We source amino acid inputs and synthesis precursors from validated pharmaceutical-grade suppliers. Incoming materials are evaluated for certificate compliance before entering our production process.</p>
         </div>
       </div>
-
       <div class="process-step" data-reveal>
         <div class="process-step-line"></div>
-        <div class="process-step-left">
-          <div class="process-num-circle">02</div>
-        </div>
+        <div class="process-step-left"><div class="pnum">02</div></div>
         <div class="process-content">
-          <span class="process-label">Synthesis</span>
-          <h3 class="process-title">Solid-Phase Peptide Synthesis</h3>
-          <p class="process-desc">Peptides are assembled using Solid-Phase Peptide Synthesis (SPPS), a method that provides precise control over amino acid sequence and allows for intermediate purification steps throughout the synthesis process.</p>
+          <span class="p-label">Synthesis</span>
+          <h3 class="p-title">Solid-Phase Peptide Synthesis</h3>
+          <p class="p-desc">Peptides are assembled using Solid-Phase Peptide Synthesis (SPPS), a method that provides precise control over amino acid sequence and allows for intermediate purification steps throughout the synthesis process.</p>
         </div>
       </div>
-
       <div class="process-step" data-reveal>
         <div class="process-step-line"></div>
-        <div class="process-step-left">
-          <div class="process-num-circle">03</div>
-        </div>
+        <div class="process-step-left"><div class="pnum">03</div></div>
         <div class="process-content">
-          <span class="process-label">Analytical Testing</span>
-          <h3 class="process-title">HPLC Purity and Mass Spectrometry</h3>
-          <p class="process-desc">Every batch undergoes HPLC analysis to quantify purity (≥98% threshold required for release) and mass spectrometry for molecular identity confirmation. Results are documented and retained per lot.</p>
+          <span class="p-label">Analytical Testing</span>
+          <h3 class="p-title">HPLC Purity and Mass Spectrometry</h3>
+          <p class="p-desc">Every batch undergoes HPLC analysis to quantify purity (≥98% threshold required for release) and mass spectrometry for molecular identity confirmation. Results are documented and retained per lot.</p>
         </div>
       </div>
-
       <div class="process-step" data-reveal>
         <div class="process-step-line"></div>
-        <div class="process-step-left">
-          <div class="process-num-circle">04</div>
-        </div>
+        <div class="process-step-left"><div class="pnum">04</div></div>
         <div class="process-content">
-          <span class="process-label">Batch Verification</span>
-          <h3 class="process-title">Independent Review Before Release</h3>
-          <p class="process-desc">Test results are reviewed against compound-specific specifications. Batches failing purity thresholds are rejected and not released. Lot numbers are assigned only to batches meeting all specifications.</p>
+          <span class="p-label">Batch Verification</span>
+          <h3 class="p-title">Independent Review Before Release</h3>
+          <p class="p-desc">Test results are reviewed against compound-specific specifications. Batches failing purity thresholds are rejected and not released. Lot numbers are assigned only to batches meeting all specifications.</p>
         </div>
       </div>
-
       <div class="process-step" data-reveal>
-        <div class="process-step-left">
-          <div class="process-num-circle">05</div>
-        </div>
+        <div class="process-step-left"><div class="pnum">05</div></div>
         <div class="process-content">
-          <span class="process-label">Documentation</span>
-          <h3 class="process-title">Certificate of Analysis — Every Lot</h3>
-          <p class="process-desc">A Certificate of Analysis is issued for each production lot, containing purity data, molecular weight, CAS number, lot identifier, and test date. COAs are available for download or on request for any product in our catalog.</p>
+          <span class="p-label">Documentation</span>
+          <h3 class="p-title">Certificate of Analysis — Every Lot</h3>
+          <p class="p-desc">A Certificate of Analysis is issued for each production lot, containing purity data, molecular weight, CAS number, lot identifier, and test date. COAs are available on request for any product in our catalog.</p>
         </div>
       </div>
-
     </div>
   </div>
 </section>
 
 <!-- ABOUT -->
-<section class="section dark" id="about">
+<section class="section" id="about">
   <div class="section-inner">
     <div class="about-layout">
       <div class="about-visual" data-reveal>
-        <div class="about-visual-ring"></div>
-        <div class="about-visual-ring"></div>
-        <div class="about-visual-ring"></div>
-        <div class="about-visual-inner">
-          <div class="about-visual-line"></div>
-          <div class="about-visual-node"></div>
-          <div class="about-visual-line"></div>
+        <div class="av-ring"></div><div class="av-ring"></div><div class="av-ring"></div>
+        <div class="av-inner">
+          <div class="av-line"></div><div class="av-node"></div><div class="av-line"></div>
         </div>
       </div>
       <div class="about-text" data-reveal>
@@ -846,22 +436,10 @@
         <p>We do not make medical claims. We do not recommend protocols. We supply precisely characterized research materials and the documentation required to use them responsibly in legitimate laboratory settings.</p>
         <p>Every compound we offer has been independently analyzed. Every lot has documentation. Every certificate is available on demand.</p>
         <div class="about-values">
-          <div class="about-value" data-reveal>
-            <div class="about-value-title">Precision</div>
-            <div class="about-value-desc">Exact manufacturing specifications applied to every production run without exception.</div>
-          </div>
-          <div class="about-value" data-reveal data-delay="1">
-            <div class="about-value-title">Transparency</div>
-            <div class="about-value-desc">Full analytical documentation available for every compound in our catalog.</div>
-          </div>
-          <div class="about-value" data-reveal data-delay="2">
-            <div class="about-value-title">Responsibility</div>
-            <div class="about-value-desc">We serve researchers. Our products are not for human or veterinary use.</div>
-          </div>
-          <div class="about-value" data-reveal data-delay="3">
-            <div class="about-value-title">Integrity</div>
-            <div class="about-value-desc">No inflated claims. No medical promises. Accurate information only.</div>
-          </div>
+          <div class="about-value" data-reveal><div class="av-title">Precision</div><div class="av-desc">Exact manufacturing specifications applied to every production run without exception.</div></div>
+          <div class="about-value" data-reveal data-delay="1"><div class="av-title">Transparency</div><div class="av-desc">Full analytical documentation available for every compound in our catalog.</div></div>
+          <div class="about-value" data-reveal data-delay="2"><div class="av-title">Responsibility</div><div class="av-desc">We serve researchers. Our products are not for human or veterinary use.</div></div>
+          <div class="about-value" data-reveal data-delay="3"><div class="av-title">Integrity</div><div class="av-desc">No inflated claims. No medical promises. Accurate information only.</div></div>
         </div>
       </div>
     </div>
@@ -869,75 +447,44 @@
 </section>
 
 <!-- FAQ -->
-<section class="section" id="faq">
+<section class="section dark" id="faq">
   <div class="section-inner">
     <div class="faq-layout">
       <div class="faq-left" data-reveal>
         <span class="section-eyebrow">FAQ</span>
         <h2 class="section-title" style="font-size:clamp(1.8rem,3vw,2.8rem);">Common<br><em>Questions.</em></h2>
         <p class="section-sub" style="margin-top:1rem;font-size:.82rem;">If you have a question not listed here, contact our research team directly.</p>
-        <div style="margin-top:2.5rem;">
-          <a href="#" class="btn-ghost" style="display:inline-block;font-size:.7rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);border:1px solid rgba(79,172,254,.3);padding:.7rem 1.6rem;border-radius:2px;">Contact Research Team</a>
-        </div>
+        <div style="margin-top:2.5rem;"><a href="#" style="display:inline-block;font-size:.7rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);border:1px solid rgba(79,172,254,.3);padding:.7rem 1.6rem;border-radius:2px;">Contact Research Team</a></div>
       </div>
       <div class="faq-list" data-reveal>
-
         <div class="faq-item">
-          <button class="faq-q">
-            What are research peptides?
-            <span class="faq-icon">+</span>
-          </button>
+          <button class="faq-q">What are research peptides?<span class="faq-icon">+</span></button>
           <div class="faq-a">Research peptides are short chains of amino acids synthesized for use in laboratory and scientific research settings. They are used by researchers to study biological mechanisms, signaling pathways, and molecular interactions. They are not approved for human consumption and are not intended for any clinical, therapeutic, or veterinary use.</div>
         </div>
-
         <div class="faq-item">
-          <button class="faq-q">
-            Are these products approved for human use?
-            <span class="faq-icon">+</span>
-          </button>
+          <button class="faq-q">Are these products approved for human use?<span class="faq-icon">+</span></button>
           <div class="faq-a">No. All products offered by Timeless Research are strictly for laboratory and in vitro research purposes only. They are not approved by the FDA or any regulatory agency for human or animal consumption, and are not intended to diagnose, treat, cure, or prevent any disease or condition. Researchers are responsible for compliance with all applicable laws in their jurisdiction.</div>
         </div>
-
         <div class="faq-item">
-          <button class="faq-q">
-            Where can I find the Certificate of Analysis?
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-a">A Certificate of Analysis is available for every product in our catalog. COAs can be requested by contacting our team with the product name and lot number. We maintain documentation for all production lots and provide this information promptly upon request. Every COA includes HPLC purity data and mass spectrometry identity confirmation.</div>
+          <button class="faq-q">Where can I find the Certificate of Analysis?<span class="faq-icon">+</span></button>
+          <div class="faq-a">A Certificate of Analysis is available for every product in our catalog. COAs can be requested by contacting our team with the product name and lot number. Every COA includes HPLC purity data and mass spectrometry identity confirmation.</div>
         </div>
-
         <div class="faq-item">
-          <button class="faq-q">
-            How are products tested?
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-a">Every production lot is tested using High-Performance Liquid Chromatography (HPLC) for purity quantification and Mass Spectrometry (MS) for molecular identity confirmation. Compounds must meet a minimum purity threshold before receiving a lot number and being released. Lots failing to meet specifications are rejected.</div>
+          <button class="faq-q">How should research materials be stored?<span class="faq-icon">+</span></button>
+          <div class="faq-a">Lyophilized peptides should be stored in a cool, dry environment, away from direct light and moisture. We recommend refrigeration at 2–8°C for short-term storage, or −20°C for extended storage. Reconstituted compounds should be used promptly or stored at −20°C in small aliquots to minimize freeze-thaw cycles.</div>
         </div>
-
         <div class="faq-item">
-          <button class="faq-q">
-            How should research materials be stored?
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-a">Lyophilized peptides should be stored in a cool, dry environment, away from direct light and moisture. We recommend refrigeration at 2–8°C for short-term storage, or −20°C for extended storage. Reconstituted compounds should be used promptly or stored at −20°C in small aliquots to minimize freeze-thaw cycles. Specific storage guidance is included with each order.</div>
+          <button class="faq-q">Do you ship internationally?<span class="faq-icon">+</span></button>
+          <div class="faq-a">We ship to most countries, subject to applicable import/export regulations. Researchers are responsible for understanding the regulations governing research compounds in their jurisdiction. We provide all necessary documentation to support customs clearance.</div>
         </div>
-
         <div class="faq-item">
-          <button class="faq-q">
-            Do you ship internationally?
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-a">We ship to most countries, subject to applicable import/export regulations. Researchers are responsible for understanding the regulations governing research compounds in their jurisdiction. We provide all necessary documentation to support customs clearance. Contact us with your country of destination prior to ordering for specific information.</div>
+          <button class="faq-q">Can two people split an order?<span class="faq-icon">+</span></button>
+          <div class="faq-a">Yes. If you are buying with a colleague or partner, you can each pay 50% of the listed price. Simply coordinate your order together and note the split arrangement when placing. Contact us with any questions about split orders before submitting.</div>
         </div>
-
         <div class="faq-item">
-          <button class="faq-q">
-            What documentation is provided with orders?
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-a">Each order is accompanied by a product specification sheet, lot number, and available Certificate of Analysis. COAs include compound name, CAS number, molecular weight, HPLC purity result, MS confirmation, lot number, and test date. Additional documentation can be provided on request to support research program requirements.</div>
+          <button class="faq-q">What does "30 caps" or "30 pills" mean for dosage?<span class="faq-icon">+</span></button>
+          <div class="faq-a">For all capsule and pill products, the listed amount is the dose per capsule, not the total package amount. Each package contains 30 capsules or pills. Therefore, the total active ingredient per package equals the listed amount multiplied by 30. For example, BPC-157 listed at 2mg per capsule means 60mg total per package of 30 capsules.</div>
         </div>
-
       </div>
     </div>
   </div>
@@ -948,22 +495,21 @@
   <div class="footer-inner">
     <div class="footer-top">
       <div>
-        <div class="footer-brand-logo">TIMELESS <em>RESEARCH</em></div>
-        <p class="footer-brand-tag">Advancing the Future<br>of Peptide Research.</p>
-        <div class="footer-disclaimer">
-          <p>Research Use Only<br>Not for Human Consumption<br>Not for Veterinary Use</p>
-        </div>
+        <div class="f-logo">TIMELESS <em>RESEARCH</em></div>
+        <p class="f-tag">Advancing the Future<br>of Peptide Research.</p>
+        <div class="f-dis"><p>Research Use Only · Not for Human Consumption<br>Not for Veterinary Use<br>Free Shipping on Orders $300+ · Delivery 4–14 Days</p></div>
       </div>
-      <div class="footer-col">
-        <h5>Research</h5>
+      <div class="f-col">
+        <h5>Catalog</h5>
         <ul>
-          <li><a href="#research">Product Catalog</a></li>
-          <li><a href="#research">Peptide Library</a></li>
-          <li><a href="#">COA Database</a></li>
-          <li><a href="#">Batch Search</a></li>
+          <li><a href="#catalog">All Products</a></li>
+          <li><a href="#catalog">Weight Management</a></li>
+          <li><a href="#catalog">Healing & Recovery</a></li>
+          <li><a href="#catalog">Growth Hormones</a></li>
+          <li><a href="#catalog">Longevity</a></li>
         </ul>
       </div>
-      <div class="footer-col">
+      <div class="f-col">
         <h5>Science</h5>
         <ul>
           <li><a href="#science">What Are Peptides</a></li>
@@ -972,151 +518,196 @@
           <li><a href="#about">About Us</a></li>
         </ul>
       </div>
-      <div class="footer-col">
+      <div class="f-col">
         <h5>Information</h5>
         <ul>
           <li><a href="#faq">FAQ</a></li>
           <li><a href="#">Contact</a></li>
           <li><a href="#">Shipping Info</a></li>
-          <li><a href="#">Research Resources</a></li>
+          <li><a href="#">COA Request</a></li>
+          <li><a href="#coming-soon">Coming Soon</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
       <p>&copy; 2026 Timeless Research. All rights reserved. Products are for research use only.</p>
-      <div class="footer-bottom-links">
-        <a href="#">Terms</a>
-        <a href="#">Privacy</a>
-        <a href="#">Research Disclaimer</a>
-      </div>
+      <div class="fb-links"><a href="#">Terms</a><a href="#">Privacy</a><a href="#">Research Disclaimer</a></div>
     </div>
   </div>
 </footer>
 
 <script>
-  /* === NAV SCROLL === */
-  const nav = document.getElementById('nav');
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('scrolled', window.scrollY > 60);
-  }, { passive: true });
+const products = [
+  ['RT30','Retatrutide','30mg','30 caps',300,'weight','GLP-1/GIP/Glucagon Agonist'],
+  ['RT60','Retatrutide','60mg','30 caps',450,'weight','GLP-1/GIP/Glucagon Agonist'],
+  ['RT90','Retatrutide','90mg','30 caps',550,'weight','GLP-1/GIP/Glucagon Agonist'],
+  ['RT300','Retatrutide','300mg','30 caps',800,'weight','GLP-1/GIP/Glucagon Agonist'],
+  ['TR100','Tirzepatide','100mg','30 caps',375,'weight','Dual GIP/GLP-1 Agonist'],
+  ['SM30','Semaglutide','30mg','30 caps',180,'weight','GLP-1 Receptor Agonist'],
+  ['T3','T3 Thyroid','25mcg','30 pills',45,'weight','Thyroid Hormone Analog'],
+  ['BPC60','BPC-157','2mg','30 caps',80,'healing','Body Protection Compound'],
+  ['TB30','TB-500','1mg','30 caps',180,'healing','Thymosin Beta-4 Analog'],
+  ['BPCTB60','Wolverine Peptide','2mg','30 caps',245,'healing','BPC-157 + TB-500 Blend'],
+  ['GLOW210','GLOW Blend','7mg','30 caps',245,'healing','TB + BPC + GHK-CU'],
+  ['KLOW240','KLOW Blend','8mg','30 caps',265,'healing','GHK-CU + TB + BPC + KPV'],
+  ['HGH360','HGH','360 IU','',300,'growth','Human Growth Hormone'],
+  ['CJCDAC15','CJC-1295 DAC','0.5mg','30 caps',200,'growth','GHRH Analog With DAC'],
+  ['CJC30','CJC-1295','1mg','30 caps',180,'growth','GHRH Analog — No DAC'],
+  ['IP30','Ipamorelin','1mg','30 caps',80,'growth','Selective GHRP'],
+  ['TESA60','Tesamorelin','2mg','30 caps',385,'growth','GHRH Analog'],
+  ['MOTS120','MOTS-C','4mg','30 caps',285,'growth','Mitochondrial Peptide'],
+  ['IGF3','IGF-1 LR3','100mcg','30 caps',220,'growth','Insulin-like Growth Factor'],
+  ['NAD3K','NAD+','100mg','30 caps',155,'longevity','Nicotinamide Adenine Dinucleotide'],
+  ['EPIT150','Epithalon','5mg','30 caps',165,'longevity','Telomerase Activating Peptide'],
+  ['FOX30','FOXO4-DRI','1mg','30 caps',365,'longevity','Senolytic Peptide'],
+  ['GHK300','GHK-CU','10mg','30 caps',70,'longevity','Copper Peptide Complex'],
+  ['GLUTA','Glutathione','150mg','30 caps',150,'longevity','Master Antioxidant'],
+  ['SEL30','Selank','1mg','30 caps',105,'cognitive','Anxiolytic Heptapeptide'],
+  ['SEM30','Semax','1mg','30 caps',105,'cognitive','Nootropic Heptapeptide'],
+  ['DIHEX20','Dihexa','667mcg','30 caps',145,'cognitive','Cognitive Enhancement Peptide'],
+  ['DSIP30','DSIP','1mg','30 caps',100,'cognitive','Delta Sleep-Inducing Peptide'],
+  ['KPV30','KPV','1mg','30 caps',80,'cognitive','Anti-Inflammatory Tripeptide'],
+  ['MT1','MT-1','667mcg','30 caps',65,'sexual','Melanotan I'],
+  ['MT2','MT-2','667mcg','30 caps',65,'sexual','Melanotan II Acetate'],
+  ['HCG30K','HCG','1000 IU','30 caps',180,'sexual','Human Chorionic Gonadotropin'],
+  ['KP30','Kisspeptin-10','1mg','30 caps',125,'sexual','GnRH Signaling Peptide'],
+  ['OXY30','Oxytocin','1mg','30 caps',100,'sexual','Oxytocin Acetate'],
+  ['CIALIS','Tadalafil','20mg','30 pills',30,'sexual','PDE5 Inhibitor'],
+  ['SILDEN','Sildenafil','100mg','30 pills',30,'sexual','PDE5 Inhibitor'],
+  ['TESTE','Test E','250mg/mL','10mL',75,'injectable','Testosterone Enanthate'],
+  ['TESTC','Test C','250mg/mL','10mL',75,'injectable','Testosterone Cypionate'],
+  ['TESTP','Test P','200mg/mL','10mL',75,'injectable','Testosterone Propionate'],
+  ['TRENA','Tren A','100mg/mL','10mL',90,'injectable','Trenbolone Acetate'],
+  ['TRENE','Tren E','200mg/mL','10mL',140,'injectable','Trenbolone Enanthate'],
+  ['NPP','NPP','200mg/mL','10mL',75,'injectable','Nandrolone Phenylpropionate'],
+  ['EQ300','EQ 300','300mg/mL','10mL',90,'injectable','Boldenone Undecylenate'],
+  ['EQ600','EQ 600','600mg/mL','10mL',120,'injectable','Boldenone Undecylenate'],
+  ['MASTP','Mast P','100mg/mL','10mL',120,'injectable','Drostanolone Propionate'],
+  ['MASTE','Mast E','200mg/mL','10mL',180,'injectable','Drostanolone Enanthate'],
+  ['PRIMO','Primobolan','200mg/mL','10mL',160,'injectable','Methenolone Enanthate'],
+  ['SUPER','Superdrol','50mg','',100,'orals','Methyldrostanolone'],
+  ['ANADR','Anadrol','50mg','30 pills',40,'orals','Oxymetholone'],
+  ['CLEN','Clenbuterol','40mcg','30 pills',40,'orals','Beta-2 Adrenergic Agonist'],
+  ['DIANA','Dianabol','50mg','30 pills',60,'orals','Methandrostenolone'],
+  ['WIN','Winstrol','10mg','30 pills',40,'orals','Stanozolol'],
+  ['TURINA','Turinabol','50mg','30 pills',70,'orals','Chlorodehydromethyltestosterone'],
+  ['HALO','Halotestin','10mg','30 pills',40,'orals','Fluoxymesterone'],
+  ['VAR50','Anavar','50mg','30 pills',70,'orals','Oxandrolone'],
+  ['ARIM3','Arimidex','1mg','30 pills',40,'orals','Anastrozole — Aromatase Inhibitor'],
+  ['LETRO','Letrozole','2.5mg','30 pills',40,'orals','Aromatase Inhibitor'],
+  ['TAMOX','Tamoxifen','20mg','30 pills',30,'orals','SERM — Nolvadex'],
+  ['PROV','Proviron','25mg','30 pills',40,'orals','Mesterolone'],
+  ['WA10','Sterile Water','10mL','',15,'supplies','No Benzyl Alcohol'],
+  ['BAC10','BAC Water','10mL','',15,'supplies','0.9% Benzyl Alcohol'],
+];
 
-  /* === PARTICLE CANVAS === */
-  const canvas = document.getElementById('particle-canvas');
-  const ctx = canvas.getContext('2d');
-  let particles = [], mouse = { x: -999, y: -999 }, animFrame;
+const comingSoon = [
+  ['SS-31','SS-31','10mg'],['SS-3150','SS-31','50mg'],['AHK-CU','AHK-CU','100mg'],
+  ['AICAR','AICAR','50mg'],['AOD9604','AOD 9604','10mg'],['CAGRI','Cagrilintide','10mg'],
+  ['TALPHA1','Thymosin Alpha-1','10mg'],['ADIPO','Adipotide','5mg'],['SNAP8','SNAP-8','10mg'],
+  ['THYMAL','Thymalin','10mg'],['LL37','LL-37','5mg'],['SURVO','Survodutide','10mg'],
+  ['ARA290','Ara-290','10mg'],['VIP','VIP','10mg'],['5AMINO','5-Amino-1MQ','50mg'],
+  ['HMG','HMG','75 IU'],['B12','Vitamin B12','1mg/mL'],['LEMON','Lemon Bottle','10mL'],
+  ['LCARN','L-Carnitine','600mg/mL'],['ACETIC','Acetic Acid Water','0.6%'],
+  ['GHRP2','GHRP-2','10mg'],['GHRP6','GHRP-6 Acetate','10mg'],['PINEAL','Pinealon','20mg'],
+  ['CEREBRO','Cerebroprotein','60mg'],['ADAMAX','Adamax','10mg'],['CARTILAX','Cartilax','20mg'],['P021','P021','20mg'],
+];
 
-  function resizeCanvas() {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-  }
+const cats = [
+  {key:'all',label:'All Products'},{key:'weight',label:'Weight Management'},
+  {key:'healing',label:'Healing & Recovery'},{key:'growth',label:'Growth Hormones'},
+  {key:'longevity',label:'Longevity'},{key:'cognitive',label:'Cognitive'},
+  {key:'sexual',label:'Sexual Health'},{key:'injectable',label:'Injectables'},
+  {key:'orals',label:'Orals & Ancillaries'},{key:'supplies',label:'Supplies'},
+];
 
-  function createParticles() {
-    const count = Math.min(Math.floor((canvas.width * canvas.height) / 14000), 80);
-    particles = [];
-    for (let i = 0; i < count; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.25,
-        vy: (Math.random() - 0.5) * 0.25,
-        r: Math.random() * 1.5 + 0.4,
-        a: Math.random() * 0.4 + 0.1
-      });
+function vial(name, dose) {
+  const n = name.length > 9 ? name.substring(0,9) : name;
+  return `<div class="pv"><div class="pv-cap"></div><div class="pv-body"><div class="pv-label"><span class="pv-brand">TIMELESS</span><span class="pv-name">${n}</span><div class="pv-stripe"></div><span class="pv-dose-text">${dose}</span><span class="pv-purity">99% PURITY</span></div></div></div>`;
+}
+
+function renderProducts(cat) {
+  const list = cat === 'all' ? products : products.filter(p => p[5] === cat);
+  return list.map(p => `<div class="cc"><div class="cc-top">${vial(p[1],p[2])}<div class="cc-glow"></div></div><div class="cc-body"><div class="cc-id">${p[0]}</div><div class="cc-name">${p[1]}</div><div class="cc-desc">${p[6]}</div><div class="cc-bottom"><span class="cc-dose">${p[2]}${p[3]?' · '+p[3]:''}</span><span class="cc-price">$${p[4]}</span></div></div></div>`).join('');
+}
+
+const tabBar = document.getElementById('cat-tabs');
+const grid = document.getElementById('cat-grid');
+cats.forEach((c,i) => {
+  const btn = document.createElement('button');
+  btn.className = 'cat-tab'+(i===0?' active':'');
+  btn.textContent = c.label; btn.dataset.cat = c.key;
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active'); grid.innerHTML = renderProducts(c.key);
+  });
+  tabBar.appendChild(btn);
+});
+grid.innerHTML = renderProducts('all');
+
+document.getElementById('cs-grid').innerHTML = comingSoon.map(c => `<div class="cs-card"><div class="cs-tag">COMING SOON</div><div class="cs-name">${c[1]}</div><div class="cs-dose">${c[2]}</div></div>`).join('');
+
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 80); }, { passive: true });
+
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [], mouse = { x: -999, y: -999 };
+function resizeCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+function createParticles() {
+  const count = Math.min(Math.floor((canvas.width * canvas.height) / 14000), 80);
+  particles = [];
+  for (let i = 0; i < count; i++) particles.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-.5)*.25, vy: (Math.random()-.5)*.25, r: Math.random()*1.5+.4, a: Math.random()*.4+.1 });
+}
+function drawParticles() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const maxDist = 140;
+  for (let i = 0; i < particles.length; i++) {
+    const p = particles[i];
+    const mx = mouse.x-p.x, my = mouse.y-p.y, md = Math.sqrt(mx*mx+my*my);
+    if (md < 100) { p.vx -= (mx/md)*.015; p.vy -= (my/md)*.015; }
+    p.vx *= .992; p.vy *= .992; p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
+    if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
+    for (let j = i+1; j < particles.length; j++) {
+      const q = particles[j], dx = p.x-q.x, dy = p.y-q.y, d = Math.sqrt(dx*dx+dy*dy);
+      if (d < maxDist) { ctx.beginPath(); ctx.strokeStyle=`rgba(79,172,254,${(1-d/maxDist)*.12})`; ctx.lineWidth=.5; ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke(); }
     }
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=`rgba(79,172,254,${p.a})`; ctx.fill();
   }
+  requestAnimationFrame(drawParticles);
+}
+resizeCanvas(); createParticles(); drawParticles();
+window.addEventListener('resize', () => { resizeCanvas(); createParticles(); }, { passive: true });
+canvas.addEventListener('mousemove', e => { const r = canvas.getBoundingClientRect(); mouse.x = e.clientX-r.left; mouse.y = e.clientY-r.top; });
+canvas.addEventListener('mouseleave', () => { mouse.x = -999; mouse.y = -999; });
 
-  function drawParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const maxDist = 140;
+const revealObs = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }); }, { threshold:.08, rootMargin:'0px 0px -40px 0px' });
+document.querySelectorAll('[data-reveal]').forEach(el => revealObs.observe(el));
 
-    for (let i = 0; i < particles.length; i++) {
-      const p = particles[i];
-
-      // Mouse repel
-      const mx = mouse.x - p.x, my = mouse.y - p.y;
-      const md = Math.sqrt(mx * mx + my * my);
-      if (md < 100) { p.vx -= (mx / md) * 0.015; p.vy -= (my / md) * 0.015; }
-
-      p.vx *= 0.992; p.vy *= 0.992;
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
-      if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
-
-      // Connections
-      for (let j = i + 1; j < particles.length; j++) {
-        const q = particles[j];
-        const dx = p.x - q.x, dy = p.y - q.y;
-        const d = Math.sqrt(dx * dx + dy * dy);
-        if (d < maxDist) {
-          ctx.beginPath();
-          ctx.strokeStyle = `rgba(79,172,254,${(1 - d / maxDist) * 0.12})`;
-          ctx.lineWidth = 0.5;
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(q.x, q.y);
-          ctx.stroke();
-        }
-      }
-
-      // Dot
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(79,172,254,${p.a})`;
-      ctx.fill();
-    }
-
-    animFrame = requestAnimationFrame(drawParticles);
-  }
-
-  resizeCanvas(); createParticles(); drawParticles();
-  window.addEventListener('resize', () => { resizeCanvas(); createParticles(); }, { passive: true });
-  canvas.addEventListener('mousemove', e => {
-    const r = canvas.getBoundingClientRect();
-    mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
+const countObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const el = e.target, target = parseInt(el.dataset.count);
+    let start = 0; const step = target/60;
+    const tick = () => { start = Math.min(start+step,target); el.textContent = Math.floor(start); if (start < target) requestAnimationFrame(tick); else el.textContent = target; };
+    requestAnimationFrame(tick); countObs.unobserve(el);
   });
-  canvas.addEventListener('mouseleave', () => { mouse.x = -999; mouse.y = -999; });
+}, { threshold:.5 });
+document.querySelectorAll('[data-count]').forEach(el => countObs.observe(el));
 
-  /* === SCROLL REVEAL === */
-  const revealObs = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
-  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-  document.querySelectorAll('[data-reveal]').forEach(el => revealObs.observe(el));
-
-  /* === NUMBER COUNTER === */
-  const countObs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      const el = e.target;
-      const target = parseInt(el.dataset.count);
-      const suffix = el.dataset.suffix || '';
-      let start = 0;
-      const step = target / 60;
-      const tick = () => {
-        start = Math.min(start + step, target);
-        el.textContent = Math.floor(start) + suffix;
-        if (start < target) requestAnimationFrame(tick);
-        else el.textContent = target + suffix;
-      };
-      requestAnimationFrame(tick);
-      countObs.unobserve(el);
-    });
-  }, { threshold: 0.5 });
-  document.querySelectorAll('[data-count]').forEach(el => countObs.observe(el));
-
-  /* === FAQ ACCORDION === */
-  document.querySelectorAll('.faq-q').forEach(q => {
-    q.addEventListener('click', () => {
-      const item = q.closest('.faq-item');
-      const isOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-      if (!isOpen) item.classList.add('open');
-    });
+document.querySelectorAll('.faq-q').forEach(q => {
+  q.addEventListener('click', () => {
+    const item = q.closest('.faq-item'), isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
   });
+});
 
-  /* === PROCESS STEP HOVER === */
-  document.querySelectorAll('.process-step').forEach((step, i) => {
-    step.addEventListener('mouseenter', () => step.classList.add('active'));
-    step.addEventListener('mouseleave', () => step.classList.remove('active'));
-  });
+document.querySelectorAll('.process-step').forEach(step => {
+  step.addEventListener('mouseenter', () => step.classList.add('active'));
+  step.addEventListener('mouseleave', () => step.classList.remove('active'));
+});
 </script>
 </body>
 </html>
