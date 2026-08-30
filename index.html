@@ -3,563 +3,1120 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Timeless Research — Premium Research Compounds</title>
+  <title>Timeless Research — Advancing Peptide Research</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* === VARIABLES === */
     :root {
-      --bg: #fff; --surface: #f7f8fa; --surface2: #eef0f3; --border: #e2e5ea;
-      --dark: #0d1321; --navy: #0f3460; --accent: #1a1a2e;
-      --red: #c8343a; --gold: #c8a440; --green: #0ea875;
-      --text: #0f1521; --muted: #64748b; --muted2: #94a3b8; --white: #fff;
+      --bg: #020202;
+      --s1: #070707;
+      --s2: #0c0c0c;
+      --s3: #111111;
+      --s4: #161616;
+      --border: rgba(255,255,255,0.055);
+      --border-md: rgba(255,255,255,0.1);
+      --blue: #4FACFE;
+      --blue-dim: rgba(79,172,254,0.1);
+      --blue-glow: rgba(79,172,254,0.06);
+      --white: #F2F4F8;
+      --white-60: rgba(242,244,248,0.6);
+      --white-40: rgba(242,244,248,0.4);
+      --white-20: rgba(242,244,248,0.2);
+      --white-08: rgba(242,244,248,0.08);
+      --white-04: rgba(242,244,248,0.04);
+      --fd: 'Cormorant Garamond', Georgia, serif;
+      --fu: 'Inter', system-ui, sans-serif;
+      --fm: 'SF Mono', 'Fira Code', 'Courier New', monospace;
     }
-    html { scroll-behavior: smooth; }
-    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
-    .announce { background: var(--dark); color: rgba(255,255,255,.82); text-align: center; padding: .6rem 1rem; font-size: .72rem; font-weight: 600; letter-spacing: .3px; }
-    .announce-inner { display: flex; align-items: center; justify-content: center; gap: 2.5rem; flex-wrap: wrap; }
-    .announce-item { display: flex; align-items: center; gap: .45rem; }
-    .a-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
-    nav { background: #fff; border-bottom: 1px solid var(--border); padding: 0 2.5rem; position: sticky; top: 0; z-index: 200; }
-    .nav-inner { max-width: 1360px; margin: 0 auto; height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
-    .nav-logo { font-size: 1.05rem; font-weight: 900; color: var(--accent); text-decoration: none; letter-spacing: 2.5px; text-transform: uppercase; white-space: nowrap; }
-    .nav-logo em { color: var(--red); font-style: normal; }
-    .nav-links { display: flex; gap: 2rem; list-style: none; }
-    .nav-links a { color: var(--muted); text-decoration: none; font-size: .82rem; font-weight: 500; transition: color .2s; }
-    .nav-links a:hover { color: var(--text); }
-    .nav-right { display: flex; align-items: center; gap: .75rem; }
-    .nav-search { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: .5rem 1rem; font-size: .8rem; outline: none; width: 200px; color: var(--text); }
-    .nav-search::placeholder { color: var(--muted2); }
-    .nav-cart { background: var(--dark); color: #fff; padding: .55rem 1.25rem; border-radius: 6px; font-size: .78rem; font-weight: 700; cursor: pointer; border: none; letter-spacing: .8px; text-transform: uppercase; }
-    @media (max-width: 960px) { .nav-links { display: none; } .nav-search { display: none; } }
-    .hero { background: linear-gradient(140deg, #060c18 0%, #0e1827 40%, #0b1632 70%, #06101f 100%); color: #fff; padding: 80px 2.5rem; }
-    .hero-inner { max-width: 1360px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
-    @media (max-width: 800px) { .hero-inner { grid-template-columns: 1fr; gap: 3rem; } }
-    .hero-eyebrow { display: inline-block; border: 1px solid rgba(200,164,64,.35); color: var(--gold); font-size: .62rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; padding: .32rem 1rem; border-radius: 2px; margin-bottom: 1.5rem; }
-    .hero h1 { font-size: clamp(2.2rem, 4vw, 3.6rem); font-weight: 900; line-height: 1.07; margin-bottom: 1.25rem; letter-spacing: -1.5px; }
-    .hero h1 em { color: var(--red); font-style: normal; }
-    .hero-sub { font-size: .9rem; line-height: 1.8; color: rgba(255,255,255,.6); margin-bottom: 2.5rem; max-width: 440px; }
-    .hero-btns { display: flex; gap: .75rem; flex-wrap: wrap; }
-    .btn-light { background: rgba(255,255,255,.96); color: var(--accent); padding: .9rem 2rem; border-radius: 5px; font-size: .82rem; font-weight: 800; text-decoration: none; letter-spacing: .3px; }
-    .btn-outline { background: transparent; color: rgba(255,255,255,.8); border: 1px solid rgba(255,255,255,.22); padding: .9rem 2rem; border-radius: 5px; font-size: .82rem; font-weight: 600; text-decoration: none; }
-    .hero-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09); border-radius: 14px; padding: 2.5rem 2rem; display: flex; flex-direction: column; align-items: center; }
-    .hero-vial-stage { width: 100%; height: 210px; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; }
-    .hero-card-sub { font-size: .62rem; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); margin-bottom: .5rem; text-align: center; }
-    .hero-card h3 { font-size: 1.4rem; font-weight: 900; text-align: center; margin-bottom: .5rem; }
-    .hero-card p { font-size: .78rem; color: rgba(255,255,255,.58); line-height: 1.7; text-align: center; margin-bottom: 1.5rem; max-width: 280px; }
-    .hero-price { font-size: 1.9rem; font-weight: 900; margin-bottom: 1.25rem; }
-    .hero-price span { font-size: .78rem; font-weight: 400; color: rgba(255,255,255,.45); }
-    .btn-red { background: var(--red); color: #fff; padding: .88rem 2rem; border-radius: 5px; font-size: .82rem; font-weight: 800; border: none; cursor: pointer; width: 100%; letter-spacing: .5px; text-transform: uppercase; }
-    .trust { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2.5rem; }
-    .trust-inner { max-width: 1360px; margin: 0 auto; display: flex; justify-content: center; flex-wrap: wrap; gap: 2.5rem; }
-    .trust-item { display: flex; align-items: center; gap: .55rem; font-size: .7rem; font-weight: 700; color: var(--muted); letter-spacing: .5px; text-transform: uppercase; }
-    .t-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
-    .section { padding: 80px 2.5rem; }
-    .section.alt { background: var(--surface); }
-    .section-inner { max-width: 1360px; margin: 0 auto; }
-    .eyebrow { font-size: .62rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--red); margin-bottom: .6rem; }
-    .section-head { margin-bottom: 2.5rem; }
-    .section-head h2 { font-size: clamp(1.6rem, 2.8vw, 2.4rem); font-weight: 900; letter-spacing: -1px; margin-bottom: .6rem; }
-    .section-head p { font-size: .86rem; color: var(--muted); max-width: 460px; line-height: 1.7; }
-    .section-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
-    .lnk { font-size: .78rem; font-weight: 700; color: var(--accent); text-decoration: none; letter-spacing: .3px; }
-    .cat-pills { display: flex; gap: .45rem; flex-wrap: wrap; margin-bottom: 3rem; }
-    .cat-pill { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: .42rem 1.1rem; border-radius: 2px; font-size: .7rem; font-weight: 700; cursor: pointer; transition: all .2s; text-decoration: none; letter-spacing: .8px; text-transform: uppercase; }
-    .cat-pill:hover, .cat-pill.active { background: var(--dark); color: #fff; border-color: var(--dark); }
-    .cat-block { margin-bottom: 3.5rem; }
-    .cat-header { font-size: .68rem; font-weight: 800; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.25rem; padding-bottom: .75rem; border-bottom: 1px solid var(--border); }
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(205px, 1fr)); gap: 1.15rem; }
-    .product-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: box-shadow .2s, transform .18s; }
-    .product-card:hover { box-shadow: 0 10px 40px rgba(0,0,0,.09); transform: translateY(-3px); }
-    .pv-stage {
-      width: 100%; height: 185px;
+
+    /* === RESET === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body { background: var(--bg); color: var(--white); font-family: var(--fu); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+
+    /* === REVEAL ANIMATIONS === */
+    [data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity 0.75s ease, transform 0.75s ease; }
+    [data-reveal].in { opacity: 1; transform: translateY(0); }
+    [data-delay="1"] { transition-delay: 0.1s; }
+    [data-delay="2"] { transition-delay: 0.2s; }
+    [data-delay="3"] { transition-delay: 0.3s; }
+    [data-delay="4"] { transition-delay: 0.4s; }
+    [data-delay="5"] { transition-delay: 0.5s; }
+    [data-delay="6"] { transition-delay: 0.6s; }
+
+    /* === SCROLLBAR === */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--s4); border-radius: 2px; }
+
+    /* === NAVIGATION === */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 2rem 4rem;
+      transition: padding 0.4s ease, background 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease;
+      border-bottom: 1px solid transparent;
+    }
+    .nav.scrolled {
+      padding: 1.25rem 4rem;
+      background: rgba(2,2,2,0.88);
+      backdrop-filter: blur(24px) saturate(150%);
+      border-color: var(--border);
+    }
+    .nav-logo {
+      font-family: var(--fu);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+    .nav-logo em { color: var(--blue); font-style: normal; }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a { font-size: 0.78rem; font-weight: 400; letter-spacing: 0.4px; color: var(--white-60); transition: color 0.2s; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-cta {
+      font-size: 0.72rem; font-weight: 500; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--blue);
+      border: 1px solid rgba(79,172,254,0.3);
+      padding: 0.55rem 1.4rem; border-radius: 2px;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .nav-cta:hover { background: rgba(79,172,254,0.08); border-color: rgba(79,172,254,0.6); }
+    @media (max-width: 900px) { .nav-links { display: none; } .nav { padding: 1.5rem 2rem; } .nav.scrolled { padding: 1rem 2rem; } }
+
+    /* === HERO === */
+    .hero {
+      position: relative; width: 100%; height: 100vh; min-height: 680px;
       display: flex; align-items: center; justify-content: center;
-      position: relative; overflow: hidden;
+      overflow: hidden; background: var(--bg);
+    }
+    #particle-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .hero-gradient {
+      position: absolute; inset: 0; pointer-events: none;
       background:
-        radial-gradient(ellipse at 50% 30%, rgba(255,255,255,.07) 0%, transparent 55%),
-        linear-gradient(155deg, #0c1220 0%, #19274a 55%, #0c1220 100%);
+        radial-gradient(ellipse 80% 60% at 50% 50%, rgba(79,172,254,0.04) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 50% 100%, rgba(79,172,254,0.06) 0%, transparent 60%);
     }
-    .pv-badge {
-      position: absolute; top: 10px; left: 10px;
-      font-size: .56rem; font-weight: 800;
-      padding: .2rem .55rem; border-radius: 2px;
-      text-transform: uppercase; letter-spacing: .8px; z-index: 10;
-      background: var(--red); color: #fff;
+    .hero-content {
+      position: relative; z-index: 2; text-align: center;
+      max-width: 860px; padding: 0 2rem;
     }
-    .pv-badge.gold { background: var(--gold); color: var(--dark); }
-    .pv-badge.grn { background: var(--green); color: #fff; }
-    .pb { padding: 1rem 1.1rem 1.1rem; }
-    .pc { font-size: .58rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted2); margin-bottom: .3rem; }
-    .pn { font-size: .9rem; font-weight: 800; color: var(--text); margin-bottom: .2rem; line-height: 1.3; }
-    .ps { font-size: .7rem; color: var(--muted); margin-bottom: .85rem; }
-    .pf { display: flex; align-items: center; justify-content: space-between; }
-    .pp { font-size: 1.05rem; font-weight: 900; color: var(--text); }
-    .pp .from { font-size: .62rem; font-weight: 400; color: var(--muted); }
-    .btn-add { background: var(--dark); color: #fff; border: none; border-radius: 4px; padding: .4rem .88rem; font-size: .7rem; font-weight: 700; cursor: pointer; transition: background .2s; letter-spacing: .3px; }
-    .btn-add:hover { background: var(--red); }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 1rem;
+      font-family: var(--fm); font-size: 0.65rem; font-weight: 400;
+      letter-spacing: 3.5px; text-transform: uppercase; color: var(--blue);
+      margin-bottom: 2.5rem;
+      opacity: 0; animation: fadeUp 0.8s ease 0.3s forwards;
+    }
+    .hero-tag::before, .hero-tag::after { content: ''; display: block; width: 32px; height: 1px; background: rgba(79,172,254,0.4); }
+    .hero h1 {
+      font-family: var(--fd);
+      font-size: clamp(2.8rem, 7vw, 6.5rem);
+      font-weight: 300; line-height: 1.04; letter-spacing: -0.5px;
+      color: var(--white); margin-bottom: 1.75rem;
+      opacity: 0; animation: fadeUp 0.9s ease 0.5s forwards;
+    }
+    .hero h1 em { font-style: italic; color: var(--white-60); }
+    .hero-sub {
+      font-size: 1rem; font-weight: 300; line-height: 1.75;
+      color: var(--white-40); max-width: 520px; margin: 0 auto 3rem;
+      opacity: 0; animation: fadeUp 0.9s ease 0.7s forwards;
+    }
+    .hero-btns {
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.9s ease 0.9s forwards;
+    }
+    .btn-primary {
+      font-size: 0.75rem; font-weight: 500; letter-spacing: 1.5px;
+      text-transform: uppercase; background: var(--blue); color: #000;
+      padding: 0.85rem 2.2rem; border-radius: 2px; transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-ghost {
+      font-size: 0.75rem; font-weight: 400; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--white-60);
+      border: 1px solid var(--border-md); padding: 0.85rem 2.2rem;
+      border-radius: 2px; transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--white-40); color: var(--white); }
+    .hero-scroll {
+      position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+      color: var(--white-20); font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase;
+      animation: bounce 2.5s ease-in-out infinite;
+    }
+    .hero-scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--white-20), transparent); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+
+    /* === TRUST PILLARS === */
+    .trust {
+      padding: 5rem 4rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--s1);
+    }
+    .trust-inner { max-width: 1360px; margin: 0 auto; }
+    .trust-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+    .trust-item {
+      padding: 2.5rem 3rem;
+      border-right: 1px solid var(--border);
+    }
+    .trust-item:last-child { border-right: none; }
+    .trust-num {
+      font-family: var(--fm); font-size: 0.6rem; color: var(--blue);
+      letter-spacing: 2px; margin-bottom: 1.25rem; display: block;
+    }
+    .trust-title {
+      font-family: var(--fd); font-size: 1.35rem; font-weight: 400;
+      color: var(--white); margin-bottom: 0.75rem; line-height: 1.2;
+    }
+    .trust-desc { font-size: 0.82rem; font-weight: 300; line-height: 1.75; color: var(--white-40); }
+    @media (max-width: 900px) {
+      .trust { padding: 3rem 2rem; }
+      .trust-grid { grid-template-columns: 1fr 1fr; }
+      .trust-item { border-right: none; border-bottom: 1px solid var(--border); padding: 2rem; }
+      .trust-item:last-child { border-bottom: none; }
+    }
+
+    /* === SECTION UTILITY === */
+    .section { padding: 7rem 4rem; }
+    .section.dark { background: var(--s1); }
+    .section-inner { max-width: 1360px; margin: 0 auto; }
+    .section-eyebrow {
+      font-family: var(--fm); font-size: 0.62rem; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--blue); margin-bottom: 1.25rem; display: block;
+    }
+    .section-title {
+      font-family: var(--fd); font-size: clamp(2.2rem, 4vw, 3.8rem);
+      font-weight: 300; line-height: 1.07; letter-spacing: -0.3px;
+      color: var(--white); margin-bottom: 1.25rem;
+    }
+    .section-title em { font-style: italic; color: var(--white-60); }
+    .section-sub { font-size: 0.9rem; font-weight: 300; line-height: 1.8; color: var(--white-40); max-width: 480px; }
+    @media (max-width: 768px) { .section { padding: 4.5rem 2rem; } }
+
+    /* === CSS VIAL SYSTEM (adapted for dark) === */
     .rv-wrap { position: relative; display: inline-block; }
     .rv {
-      position: relative;
-      width: 56px; height: 108px;
-      filter: drop-shadow(0 14px 20px rgba(0,0,0,.48));
-      transition: transform .32s cubic-bezier(.34,1.56,.64,1);
+      position: relative; width: 54px; height: 104px;
+      filter: drop-shadow(0 16px 24px rgba(0,0,0,0.7));
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
       z-index: 2;
     }
-    .product-card:hover .rv { transform: translateY(-6px) rotate(-1.5deg); }
-    .vial-card:hover .rv { transform: translateY(-5px) rotate(-1deg); }
-    .rv.lg { width: 88px; height: 166px; }
-    .rv-cap { position: absolute; top: 0; left: 5px; width: 46px; height: 20px; border-radius: 6px 6px 2px 2px; }
-    .rv--am .rv-cap { background: linear-gradient(90deg, #6e4f07 0%, #c49a14 15%, #f0cc40 32%, #c49a14 48%, #e0b818 65%, #9a7510 82%, #6e4f07 100%); border: 1px solid rgba(0,0,0,.32); }
+    .product-card:hover .rv { transform: translateY(-8px) rotate(-1deg); }
+    .rv-cap { position: absolute; top: 0; left: 5px; width: 44px; height: 19px; border-radius: 6px 6px 2px 2px; }
+    .rv--am .rv-cap { background: linear-gradient(90deg, #6e4f07 0%, #c49a14 15%, #f0cc40 32%, #c49a14 48%, #e0b818 65%, #9a7510 82%, #6e4f07 100%); border: 1px solid rgba(0,0,0,.35); }
     .rv--cl .rv-cap { background: linear-gradient(90deg, #78808a 0%, #e5e8ea 18%, #a5aab2 38%, #f0f2f3 55%, #808890 100%); border: 1px solid rgba(0,0,0,.22); }
-    .rv--bl .rv-cap { background: linear-gradient(90deg, #184c7a 0%, #4898d4 18%, #68bce0 38%, #3c8ec2 55%, #184c7a 100%); border: 1px solid rgba(0,0,0,.22); }
-    .rv--gr .rv-cap { background: linear-gradient(90deg, #094824 0%, #1a8c4e 18%, #26bc5e 38%, #158040 55%, #094824 100%); border: 1px solid rgba(0,0,0,.22); }
-    .rv-crimp { position: absolute; top: 15px; left: 8px; width: 40px; height: 7px; border-radius: 2px; }
+    .rv-crimp { position: absolute; top: 14px; left: 8px; width: 38px; height: 7px; border-radius: 2px; }
     .rv--am .rv-crimp { background: linear-gradient(180deg, #604406, #ac8410, #604406); }
     .rv--cl .rv-crimp { background: linear-gradient(180deg, #585e66, #b5b9c0, #585e66); }
-    .rv--bl .rv-crimp { background: linear-gradient(180deg, #103660, #3878b5, #103660); }
-    .rv--gr .rv-crimp { background: linear-gradient(180deg, #063620, #126e3c, #063620); }
-    .rv-stopper { position: absolute; top: 20px; left: 13px; width: 30px; height: 8px; border-radius: 2px; }
+    .rv-stopper { position: absolute; top: 19px; left: 13px; width: 28px; height: 8px; border-radius: 2px; }
     .rv--am .rv-stopper { background: #382a00; }
     .rv--cl .rv-stopper { background: #22272e; }
-    .rv--bl .rv-stopper { background: #0c2840; }
-    .rv--gr .rv-stopper { background: #052612; }
     .rv-glass {
-      position: absolute; top: 26px; left: 3px;
-      width: 50px; height: 80px;
-      border-radius: 5px 5px 9px 9px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,.28);
+      position: absolute; top: 25px; left: 3px; width: 48px; height: 77px;
+      border-radius: 4px 4px 9px 9px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.22);
     }
     .rv-glass::before {
-      content: ""; position: absolute;
-      left: 4px; top: 4px; bottom: 4px; width: 3px;
-      border-radius: 2px;
-      background: rgba(255,255,255,.12);
+      content: ''; position: absolute;
+      left: 4px; top: 4px; bottom: 4px; width: 2.5px;
+      border-radius: 2px; background: rgba(255,255,255,0.1);
     }
-    .rv--am .rv-glass { background: linear-gradient(90deg, rgba(255,185,42,.28) 0%, rgba(255,185,42,.09) 22%, rgba(255,185,42,.03) 68%, rgba(255,185,42,.22) 100%); box-shadow: inset 5px 0 10px rgba(255,185,42,.12), inset -4px 0 8px rgba(0,0,0,.18); }
-    .rv--cl .rv-glass { background: linear-gradient(90deg, rgba(255,255,255,.22) 0%, rgba(255,255,255,.06) 22%, rgba(255,255,255,.02) 68%, rgba(255,255,255,.18) 100%); box-shadow: inset 6px 0 10px rgba(255,255,255,.08), inset -5px 0 8px rgba(0,0,0,.14); }
-    .rv--bl .rv-glass { background: linear-gradient(90deg, rgba(68,180,255,.22) 0%, rgba(68,180,255,.07) 22%, rgba(68,180,255,.02) 68%, rgba(68,180,255,.18) 100%); box-shadow: inset 6px 0 10px rgba(68,180,255,.1), inset -5px 0 8px rgba(0,0,0,.15); }
-    .rv--gr .rv-glass { background: linear-gradient(90deg, rgba(38,200,100,.22) 0%, rgba(38,200,100,.07) 22%, rgba(38,200,100,.02) 68%, rgba(38,200,100,.18) 100%); box-shadow: inset 6px 0 10px rgba(38,200,100,.1), inset -5px 0 8px rgba(0,0,0,.15); }
-    .rv-powder { position: absolute; left: 4px; right: 4px; bottom: 4px; height: 26px; border-radius: 2px 2px 6px 6px; background: linear-gradient(180deg, rgba(255,255,255,.62), rgba(242,240,234,.88)); }
-    .rv-liquid { position: absolute; left: 4px; right: 4px; bottom: 4px; height: 50px; border-radius: 2px 2px 7px 7px; background: linear-gradient(180deg, rgba(236,244,252,.72), rgba(208,222,234,.9)); }
-    .rv--bl .rv-liquid { background: linear-gradient(180deg, rgba(208,238,255,.78), rgba(178,220,252,.92)); }
-    .rv--gr .rv-liquid { background: linear-gradient(180deg, rgba(198,246,218,.78), rgba(156,230,192,.92)); }
+    .rv--am .rv-glass { background: linear-gradient(90deg, rgba(255,185,42,.25) 0%, rgba(255,185,42,.08) 22%, rgba(255,185,42,.03) 68%, rgba(255,185,42,.2) 100%); box-shadow: inset 5px 0 10px rgba(255,185,42,.1), inset -4px 0 8px rgba(0,0,0,.25); }
+    .rv--cl .rv-glass { background: linear-gradient(90deg, rgba(255,255,255,.2) 0%, rgba(255,255,255,.05) 22%, rgba(255,255,255,.02) 68%, rgba(255,255,255,.16) 100%); box-shadow: inset 6px 0 10px rgba(255,255,255,.06), inset -5px 0 8px rgba(0,0,0,.2); }
+    .rv-powder { position: absolute; left: 4px; right: 4px; bottom: 4px; height: 24px; border-radius: 2px 2px 6px 6px; background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(242,240,234,.82)); }
+    .rv-liquid { position: absolute; left: 4px; right: 4px; bottom: 4px; height: 46px; border-radius: 2px 2px 7px 7px; background: linear-gradient(180deg, rgba(236,244,252,.65), rgba(208,222,234,.85)); }
     .rv-label {
-      position: absolute; left: 5px; right: 5px; top: 15px;
-      height: 33px; background: #fff; border-radius: 2px;
-      padding: 3px 2px 2px; text-align: center;
-      box-shadow: 0 1px 4px rgba(0,0,0,.24); z-index: 3; overflow: hidden;
+      position: absolute; left: 5px; right: 5px; top: 14px; height: 32px;
+      background: #fff; border-radius: 1px; padding: 3px 2px 2px;
+      text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.35); z-index: 3; overflow: hidden;
     }
-    .rv-label::after { content: ""; display: block; height: 2px; margin: 2px 2px 0; border-radius: 1px; background: var(--red); }
-    .rv-lb { display: block; font-size: 4px; font-weight: 900; letter-spacing: .7px; color: #111827; line-height: 1; text-transform: uppercase; }
-    .rv-ln { display: block; font-size: 5px; font-weight: 800; color: #0f3460; margin-top: 3px; line-height: 1.15; text-transform: uppercase; }
-    .rv-conc {
-      position: absolute; bottom: 8px; right: 8px; z-index: 5;
-      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18);
-      backdrop-filter: blur(6px);
-      color: #fff; font-size: .58rem; font-weight: 700;
-      padding: .22rem .45rem; border-radius: 4px; letter-spacing: .3px;
+    .rv-label::after { content: ''; display: block; height: 2px; margin: 2px 2px 0; border-radius: 1px; background: #4FACFE; }
+    .rv-lb { display: block; font-size: 4px; font-weight: 900; letter-spacing: .6px; color: #111; line-height: 1; text-transform: uppercase; font-family: var(--fu); }
+    .rv-ln { display: block; font-size: 5px; font-weight: 700; color: #0f3460; margin-top: 2px; line-height: 1.1; text-transform: uppercase; font-family: var(--fu); }
+    .rv-badge {
+      position: absolute; bottom: 6px; right: 6px; z-index: 5;
+      background: rgba(79,172,254,0.15); border: 1px solid rgba(79,172,254,0.3);
+      backdrop-filter: blur(6px); color: var(--blue); font-family: var(--fm);
+      font-size: 0.55rem; font-weight: 500; padding: 0.18rem 0.4rem; border-radius: 3px; letter-spacing: 0.3px;
     }
-    .rv.lg .rv-cap { left: 8px; width: 72px; height: 30px; border-radius: 8px 8px 3px 3px; }
-    .rv.lg .rv-crimp { top: 23px; left: 12px; width: 64px; height: 11px; }
-    .rv.lg .rv-stopper { top: 32px; left: 20px; width: 48px; height: 12px; }
-    .rv.lg .rv-glass { top: 42px; left: 4px; width: 80px; height: 122px; border-radius: 7px 7px 13px 13px; }
-    .rv.lg .rv-powder { height: 42px; }
-    .rv.lg .rv-liquid { height: 78px; }
-    .rv.lg .rv-label { left: 8px; right: 8px; top: 25px; height: 52px; padding: 5px 3px 3px; }
-    .rv.lg .rv-lb { font-size: 6px; letter-spacing: .8px; }
-    .rv.lg .rv-ln { font-size: 8px; margin-top: 5px; }
-    .rv.lg .rv-label::after { height: 3px; margin: 4px 3px 0; }
-    .vial-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem; }
-    .vial-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: box-shadow .2s, transform .18s; }
-    .vial-card:hover { box-shadow: 0 10px 40px rgba(0,0,0,.09); transform: translateY(-3px); }
-    .vial-stage {
-      height: 190px; position: relative;
-      display: flex; align-items: center; justify-content: center; overflow: hidden;
-      background:
-        radial-gradient(ellipse at 50% 32%, rgba(255,255,255,.08) 0%, transparent 52%),
-        linear-gradient(155deg, #0c1220 0%, #19274a 55%, #0c1220 100%);
+
+    /* === PRODUCTS === */
+    .products-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; margin-bottom: 4rem; flex-wrap: wrap; }
+    .products-link { font-size: 0.75rem; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; color: var(--blue); display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid rgba(79,172,254,0.3); padding-bottom: 0.15rem; transition: border-color 0.2s; }
+    .products-link:hover { border-color: var(--blue); }
+    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .product-card {
+      background: var(--s1); padding: 2.5rem;
+      display: flex; flex-direction: column;
+      transition: background 0.3s;
+      cursor: pointer; position: relative; overflow: hidden;
     }
-    .vial-stage::before { content: ""; position: absolute; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,.04); filter: blur(32px); }
-    .vb { padding: 1rem 1.1rem 1.1rem; }
-    .vt { font-size: .9rem; font-weight: 800; margin-bottom: .25rem; color: var(--text); }
-    .vd { font-size: .7rem; color: var(--muted); margin-bottom: .85rem; }
-    .vf { display: flex; align-items: center; justify-content: space-between; }
-    .vp { font-size: 1.1rem; font-weight: 900; }
-    .v-note { display: block; margin-top: .5rem; font-size: .56rem; font-weight: 700; letter-spacing: .8px; color: var(--muted2); text-transform: uppercase; }
-    .bundle-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.5rem; }
-    .bundle-card { background: #fff; border: 1.5px solid var(--border); border-radius: 12px; padding: 2rem; position: relative; transition: border-color .2s, box-shadow .2s; }
-    .bundle-card:hover { border-color: var(--dark); box-shadow: 0 8px 30px rgba(0,0,0,.06); }
-    .bundle-card.ft { border-color: var(--red); }
-    .bundle-tag { position: absolute; top: -11px; right: 18px; background: var(--red); color: #fff; font-size: .6rem; font-weight: 800; padding: .18rem .65rem; border-radius: 2px; letter-spacing: .8px; text-transform: uppercase; }
-    .bundle-name { font-size: 1.05rem; font-weight: 900; margin-bottom: .5rem; }
-    .bundle-desc { font-size: .78rem; color: var(--muted); margin-bottom: 1.1rem; line-height: 1.65; }
-    .bundle-items { list-style: none; display: flex; flex-direction: column; gap: .35rem; margin-bottom: 1.5rem; }
-    .bundle-items li { font-size: .76rem; color: var(--muted); display: flex; align-items: center; gap: .45rem; }
-    .bundle-items li::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
-    .bf { display: flex; align-items: center; justify-content: space-between; }
-    .bprice { font-size: 1.3rem; font-weight: 900; }
-    .borig { font-size: .7rem; color: var(--muted); text-decoration: line-through; margin-left: .4rem; font-weight: 400; }
-    .coa-section { background: linear-gradient(140deg, #070d1a 0%, #0e1927 55%, #060c18 100%); color: #fff; padding: 80px 2.5rem; }
-    .coa-inner { max-width: 1360px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
-    @media (max-width: 800px) { .coa-inner { grid-template-columns: 1fr; gap: 3rem; } }
-    .coa-inner h2 { font-size: clamp(1.7rem, 3vw, 2.6rem); font-weight: 900; letter-spacing: -1.2px; margin-bottom: 1.1rem; line-height: 1.08; }
-    .coa-inner p { font-size: .86rem; line-height: 1.8; color: rgba(255,255,255,.6); margin-bottom: 2rem; }
-    .coa-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .coa-stat { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.07); border-radius: 10px; padding: 1.5rem; text-align: center; }
-    .coa-num { font-size: 2rem; font-weight: 900; color: var(--gold); letter-spacing: -1px; }
-    .coa-lbl { font-size: .62rem; color: rgba(255,255,255,.45); margin-top: .35rem; letter-spacing: .8px; text-transform: uppercase; font-weight: 700; }
-    .steps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 2rem; }
-    .step-card { padding: 1.75rem; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
-    .step-num { font-size: 2.8rem; font-weight: 900; color: var(--border); line-height: 1; margin-bottom: .75rem; letter-spacing: -2px; }
-    .step-title { font-size: .95rem; font-weight: 800; margin-bottom: .5rem; }
-    .step-desc { font-size: .8rem; color: var(--muted); line-height: 1.7; }
-    .faq-wrap { max-width: 780px; margin: 0 auto; display: flex; flex-direction: column; gap: .55rem; }
-    .faq-item { border: 1px solid var(--border); border-radius: 7px; background: #fff; overflow: hidden; }
-    .faq-q { padding: 1.15rem 1.5rem; font-size: .86rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 1rem; }
-    .faq-q:hover { color: var(--red); }
-    .faq-toggle { font-size: 1rem; font-weight: 300; color: var(--muted); flex-shrink: 0; }
-    .faq-a { padding: 0 1.5rem 1.15rem; font-size: .8rem; color: var(--muted); line-height: 1.8; }
-    .disclaimer { background: #fafafa; border-top: 2px solid #fce8e8; padding: 2rem 2.5rem; }
-    .disclaimer p { font-size: .68rem; color: var(--muted); max-width: 920px; margin: 0 auto; line-height: 1.85; text-align: center; }
-    footer { background: var(--dark); color: rgba(255,255,255,.65); padding: 4rem 2.5rem 2rem; }
-    .footer-inner { max-width: 1360px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
-    @media (max-width: 800px) { .footer-inner { grid-template-columns: 1fr 1fr; gap: 2rem; } }
-    .f-logo { font-size: .95rem; font-weight: 900; color: #fff; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: .75rem; }
-    .f-logo em { color: var(--red); font-style: normal; }
-    .f-tag { font-size: .76rem; line-height: 1.75; opacity: .6; max-width: 280px; }
-    .footer-col h5 { font-size: .6rem; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 1.1rem; }
-    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .6rem; }
-    .footer-col ul li a { font-size: .78rem; color: rgba(255,255,255,.5); text-decoration: none; transition: color .2s; }
-    .footer-col ul li a:hover { color: #fff; }
-    .footer-bottom { max-width: 1360px; margin: 0 auto; border-top: 1px solid rgba(255,255,255,.07); padding-top: 1.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
-    .footer-bottom p { font-size: .7rem; opacity: .38; }
+    .product-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 30% 60%, rgba(79,172,254,0.05), transparent);
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .product-card:hover::before { opacity: 1; }
+    .product-card:hover { background: var(--s2); }
+    .product-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2.25rem; }
+    .product-index { font-family: var(--fm); font-size: 0.62rem; letter-spacing: 2px; color: var(--blue); opacity: 0.7; }
+    .product-badge-top {
+      font-family: var(--fm); font-size: 0.55rem; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--white-40);
+      border: 1px solid var(--border); padding: 0.2rem 0.55rem; border-radius: 2px;
+    }
+    .product-visual {
+      display: flex; align-items: center; justify-content: center;
+      height: 140px; margin-bottom: 2rem; position: relative;
+    }
+    .product-vial-glow {
+      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 80px; height: 30px;
+      background: radial-gradient(ellipse, rgba(79,172,254,0.2) 0%, transparent 70%);
+      filter: blur(8px);
+    }
+    .product-name {
+      font-family: var(--fd); font-size: 2rem; font-weight: 400;
+      color: var(--white); margin-bottom: 0.5rem; line-height: 1.1;
+      transition: color 0.2s;
+    }
+    .product-card:hover .product-name { color: var(--white); }
+    .product-common { font-size: 0.75rem; font-weight: 300; color: var(--white-40); margin-bottom: 1.25rem; }
+    .product-specs-row {
+      display: flex; gap: 1.5rem; margin-bottom: 1.75rem;
+      padding-top: 1.25rem; border-top: 1px solid var(--border);
+    }
+    .pspec { }
+    .pspec-lbl { font-family: var(--fm); font-size: 0.55rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--white-20); display: block; margin-bottom: 0.25rem; }
+    .pspec-val { font-family: var(--fm); font-size: 0.78rem; color: var(--white-60); }
+    .pspec-val.blue { color: var(--blue); }
+    .product-cta-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: auto; padding-top: 1.25rem; border-top: 1px solid var(--border);
+    }
+    .p-research-tag { font-size: 0.62rem; font-weight: 400; letter-spacing: 0.5px; color: var(--white-20); }
+    .p-cta { font-size: 0.72rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--blue); display: flex; align-items: center; gap: 0.4rem; transition: gap 0.2s; }
+    .product-card:hover .p-cta { gap: 0.7rem; }
+    @media (max-width: 900px) { .products-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .products-grid { grid-template-columns: 1fr; } }
+
+    /* === SCIENCE === */
+    .science-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 7rem; align-items: start; }
+    .science-left { position: sticky; top: 8rem; }
+    .science-stat-row { display: flex; gap: 3rem; margin-top: 3.5rem; padding-top: 3.5rem; border-top: 1px solid var(--border); }
+    .science-stat .num {
+      font-family: var(--fd); font-size: 3rem; font-weight: 300; color: var(--white);
+      line-height: 1; margin-bottom: 0.35rem; letter-spacing: -1px;
+    }
+    .science-stat .lbl { font-size: 0.72rem; font-weight: 300; color: var(--white-40); letter-spacing: 0.3px; }
+    .science-right { display: flex; flex-direction: column; gap: 3.5rem; padding-top: 0.5rem; }
+    .science-item { }
+    .science-item-num { font-family: var(--fm); font-size: 0.58rem; color: var(--blue); letter-spacing: 2px; margin-bottom: 1rem; display: block; }
+    .science-item h3 { font-family: var(--fd); font-size: 1.5rem; font-weight: 400; color: var(--white); margin-bottom: 0.75rem; }
+    .science-item p { font-size: 0.88rem; font-weight: 300; line-height: 1.82; color: var(--white-40); }
+    .science-divider { width: 100%; height: 1px; background: var(--border); }
+    @media (max-width: 900px) { .science-layout { grid-template-columns: 1fr; gap: 3.5rem; } .science-left { position: static; } }
+
+    /* === QUALITY PROCESS === */
+    .process-header { max-width: 580px; margin-bottom: 5rem; }
+    .process-steps { display: flex; flex-direction: column; max-width: 720px; }
+    .process-step {
+      display: grid; grid-template-columns: 80px 1fr;
+      gap: 2rem; position: relative; padding-bottom: 3.5rem;
+    }
+    .process-step:last-child { padding-bottom: 0; }
+    .process-step-line {
+      position: absolute; left: 27px; top: 40px; bottom: 0;
+      width: 1px; background: var(--border);
+    }
+    .process-step:last-child .process-step-line { display: none; }
+    .process-step-left { display: flex; flex-direction: column; align-items: center; gap: 0; }
+    .process-num-circle {
+      width: 54px; height: 54px; border-radius: 50%;
+      border: 1px solid var(--border-md);
+      background: var(--s2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--fm); font-size: 0.65rem; color: var(--blue);
+      letter-spacing: 1px; flex-shrink: 0;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .process-step.active .process-num-circle { border-color: var(--blue); background: rgba(79,172,254,0.08); }
+    .process-content { padding-top: 0.9rem; }
+    .process-label { font-family: var(--fm); font-size: 0.58rem; color: var(--white-20); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.6rem; display: block; }
+    .process-title { font-family: var(--fd); font-size: 1.65rem; font-weight: 400; color: var(--white); margin-bottom: 0.75rem; }
+    .process-desc { font-size: 0.85rem; font-weight: 300; line-height: 1.82; color: var(--white-40); }
+
+    /* === ABOUT === */
+    .about-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 7rem; align-items: center; }
+    .about-visual {
+      height: 480px; background: var(--s2); border: 1px solid var(--border);
+      border-radius: 4px; position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .about-visual-inner {
+      display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
+      opacity: 0.5;
+    }
+    .about-visual-line { width: 1px; height: 80px; background: linear-gradient(to bottom, transparent, var(--blue), transparent); }
+    .about-visual-node {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--blue); box-shadow: 0 0 20px rgba(79,172,254,0.6);
+    }
+    .about-visual-ring {
+      position: absolute; border: 1px solid rgba(79,172,254,0.08);
+      border-radius: 50%; animation: pulse 4s ease-in-out infinite;
+    }
+    .about-visual-ring:nth-child(1) { width: 150px; height: 150px; }
+    .about-visual-ring:nth-child(2) { width: 250px; height: 250px; animation-delay: 1s; }
+    .about-visual-ring:nth-child(3) { width: 380px; height: 380px; animation-delay: 2s; }
+    @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.8; } }
+    .about-text { }
+    .about-text p { font-size: 0.9rem; font-weight: 300; line-height: 1.88; color: var(--white-40); margin-bottom: 1.5rem; }
+    .about-text p:last-of-type { margin-bottom: 2.5rem; }
+    .about-values { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2.5rem; }
+    .about-value {
+      padding: 1.25rem; border: 1px solid var(--border); border-radius: 3px;
+      background: var(--s2); transition: border-color 0.2s, background 0.2s;
+    }
+    .about-value:hover { border-color: var(--border-md); background: var(--s3); }
+    .about-value-title { font-size: 0.78rem; font-weight: 500; color: var(--white); margin-bottom: 0.3rem; }
+    .about-value-desc { font-size: 0.72rem; font-weight: 300; color: var(--white-40); line-height: 1.6; }
+    @media (max-width: 900px) { .about-layout { grid-template-columns: 1fr; gap: 3rem; } .about-visual { height: 280px; } }
+
+    /* === FAQ === */
+    .faq-layout { display: grid; grid-template-columns: 380px 1fr; gap: 6rem; align-items: start; }
+    .faq-left { position: sticky; top: 8rem; }
+    .faq-list { display: flex; flex-direction: column; }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-q {
+      width: 100%; background: none; border: none; color: var(--white);
+      font-family: var(--fu); font-size: 0.9rem; font-weight: 400;
+      text-align: left; padding: 1.5rem 0;
+      display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+      cursor: pointer; transition: color 0.2s; line-height: 1.4;
+    }
+    .faq-q:hover { color: var(--white-60); }
+    .faq-icon {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 1px solid var(--border-md); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; color: var(--white-40); transition: border-color 0.2s, transform 0.3s, background 0.2s;
+    }
+    .faq-item.open .faq-icon { transform: rotate(45deg); border-color: var(--blue); color: var(--blue); background: rgba(79,172,254,0.08); }
+    .faq-a { font-size: 0.85rem; font-weight: 300; line-height: 1.85; color: var(--white-40); max-height: 0; overflow: hidden; transition: max-height 0.45s ease, padding 0.3s ease; }
+    .faq-item.open .faq-a { max-height: 300px; padding-bottom: 1.5rem; }
+    @media (max-width: 900px) { .faq-layout { grid-template-columns: 1fr; gap: 3rem; } .faq-left { position: static; } }
+
+    /* === FOOTER === */
+    footer {
+      padding: 5rem 4rem 3rem;
+      border-top: 1px solid var(--border);
+      background: var(--s1);
+    }
+    .footer-inner { max-width: 1360px; margin: 0 auto; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 4rem; margin-bottom: 4rem; }
+    .footer-brand-logo { font-family: var(--fu); font-size: 0.78rem; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--white); margin-bottom: 1rem; }
+    .footer-brand-logo em { color: var(--blue); font-style: normal; }
+    .footer-brand-tag { font-family: var(--fd); font-size: 1.1rem; font-weight: 300; font-style: italic; color: var(--white-40); line-height: 1.5; margin-bottom: 1.5rem; }
+    .footer-disclaimer p { font-size: 0.68rem; font-weight: 400; color: var(--white-20); line-height: 1.8; letter-spacing: 0.2px; }
+    .footer-col h5 { font-size: 0.6rem; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--white-20); margin-bottom: 1.5rem; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+    .footer-col ul li a { font-size: 0.82rem; font-weight: 300; color: var(--white-40); transition: color 0.2s; }
+    .footer-col ul li a:hover { color: var(--white); }
+    .footer-bottom { border-top: 1px solid var(--border); padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-bottom p { font-size: 0.7rem; font-weight: 300; color: var(--white-20); }
+    .footer-bottom-links { display: flex; gap: 2rem; }
+    .footer-bottom-links a { font-size: 0.7rem; color: var(--white-20); transition: color 0.2s; }
+    .footer-bottom-links a:hover { color: var(--white-40); }
+    @media (max-width: 900px) { footer { padding: 4rem 2rem 2rem; } .footer-top { grid-template-columns: 1fr 1fr; gap: 2.5rem; } }
+    @media (max-width: 600px) { .footer-top { grid-template-columns: 1fr; } }
+
+    /* === MISC === */
+    .line-blue { display: block; width: 32px; height: 2px; background: var(--blue); margin-bottom: 1.75rem; opacity: 0.6; }
+
   </style>
 </head>
 <body>
 
-<div class="announce">
-  <div class="announce-inner">
-    <div class="announce-item"><div class="a-dot"></div> Free Shipping on Orders $300+</div>
-    <div class="announce-item"><div class="a-dot"></div> 4-14 Day Discreet Delivery</div>
-    <div class="announce-item"><div class="a-dot"></div> Group Splits Available</div>
-    <div class="announce-item"><div class="a-dot"></div> Third-Party Lab Tested — COA Every Lot</div>
+<!-- NAVIGATION -->
+<nav class="nav" id="nav">
+  <a href="#" class="nav-logo">TIMELESS <em>RESEARCH</em></a>
+  <ul class="nav-links">
+    <li><a href="#research">Research</a></li>
+    <li><a href="#science">Science</a></li>
+    <li><a href="#quality">Quality</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="#research" class="nav-cta">View Catalog</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <canvas id="particle-canvas"></canvas>
+  <div class="hero-gradient"></div>
+  <div class="hero-content">
+    <div class="hero-tag">Peptide Research Compounds</div>
+    <h1>Advancing the Future<br>of <em>Peptide Research.</em></h1>
+    <p class="hero-sub">High-quality research peptides manufactured with precision, transparency, and scientific integrity.</p>
+    <div class="hero-btns">
+      <a href="#research" class="btn-primary">Explore Research</a>
+      <a href="#quality" class="btn-ghost">Our Standards</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="hero-scroll-line"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- TRUST PILLARS -->
+<div class="trust">
+  <div class="trust-inner">
+    <div class="trust-grid">
+      <div class="trust-item" data-reveal>
+        <span class="trust-num">01</span>
+        <h3 class="trust-title">Research-Grade Quality</h3>
+        <p class="trust-desc">Rigorous quality standards applied consistently across our entire product catalog. Every compound produced to exacting specifications.</p>
+      </div>
+      <div class="trust-item" data-reveal data-delay="1">
+        <span class="trust-num">02</span>
+        <h3 class="trust-title">Transparent Testing</h3>
+        <p class="trust-desc">Detailed analytical documentation including Certificates of Analysis for every research product, every production lot.</p>
+      </div>
+      <div class="trust-item" data-reveal data-delay="2">
+        <span class="trust-num">03</span>
+        <h3 class="trust-title">Precision Manufacturing</h3>
+        <p class="trust-desc">Consistent manufacturing processes designed around purity and reliability, minimizing lot-to-lot variability in your research.</p>
+      </div>
+      <div class="trust-item" data-reveal data-delay="3">
+        <span class="trust-num">04</span>
+        <h3 class="trust-title">Scientific Integrity</h3>
+        <p class="trust-desc">Built around responsible research and accurate, unexaggerated information. We make no medical claims — only facts.</p>
+      </div>
+    </div>
   </div>
 </div>
 
-<nav>
-  <div class="nav-inner">
-    <a href="#" class="nav-logo">TIMELESS <em>RESEARCH</em></a>
-    <ul class="nav-links">
-      <li><a href="#shop">Shop</a></li>
-      <li><a href="#injectables">Injectables</a></li>
-      <li><a href="#bundles">Bundles</a></li>
-      <li><a href="#how">How to Order</a></li>
-      <li><a href="#faq">FAQ</a></li>
-    </ul>
-    <div class="nav-right">
-      <input class="nav-search" type="text" placeholder="Search compounds..." />
-      <button class="nav-cart">Cart (0)</button>
-    </div>
-  </div>
-</nav>
-
-<div class="hero">
-  <div class="hero-inner">
-    <div>
-      <div class="hero-eyebrow">Research Grade Compounds</div>
-      <h1>The Most Advanced<br /><em>Peptides & Research</em><br />Compounds Available</h1>
-      <p class="hero-sub">Every compound independently third-party tested. Discreet packaging. 60+ compounds across 9 categories — from GLP-1 metabolic agents to injectable steroids, nootropics, and longevity peptides.</p>
-      <div class="hero-btns">
-        <a href="#shop" class="btn-light">Shop the Catalog</a>
-        <a href="#injectables" class="btn-outline">View Injectables</a>
+<!-- FEATURED PRODUCTS -->
+<section class="section" id="research">
+  <div class="section-inner">
+    <div class="products-header">
+      <div data-reveal>
+        <span class="section-eyebrow">Featured Research Compounds</span>
+        <h2 class="section-title">Research Catalog</h2>
+        <p class="section-sub">A selection of our rigorously tested research compounds. All products are intended strictly for laboratory research use.</p>
       </div>
+      <a href="#" class="products-link" data-reveal>View Full Catalog →</a>
     </div>
-    <div class="hero-card">
-      <div class="hero-vial-stage">
-        <div class="rv-wrap">
-          <div class="rv rv--am lg">
-            <div class="rv-cap"></div>
-            <div class="rv-crimp"></div>
-            <div class="rv-stopper"></div>
-            <div class="rv-glass">
-              <div class="rv-powder"></div>
-              <div class="rv-label">
-                <span class="rv-lb">TIMELESS RESEARCH</span>
-                <span class="rv-ln">RETATRUTIDE</span>
+    <div class="products-grid">
+
+      <!-- BPC-157 -->
+      <div class="product-card" data-reveal>
+        <div class="product-card-top">
+          <span class="product-index">01</span>
+          <span class="product-badge-top">Research Use Only</span>
+        </div>
+        <div class="product-visual">
+          <div class="rv-wrap">
+            <div class="rv rv--am">
+              <div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div>
+              <div class="rv-glass"><div class="rv-powder"></div>
+                <div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">BPC-157</span></div>
               </div>
             </div>
           </div>
-          <span class="rv-conc">90mg / cap</span>
+          <div class="product-vial-glow"></div>
+          <span class="rv-badge">5mg</span>
+        </div>
+        <h3 class="product-name">BPC-157</h3>
+        <p class="product-common">Body Protection Compound</p>
+        <div class="product-specs-row">
+          <div class="pspec"><span class="pspec-lbl">Purity</span><span class="pspec-val blue">≥99%</span></div>
+          <div class="pspec"><span class="pspec-lbl">MW</span><span class="pspec-val">1419.5 Da</span></div>
+          <div class="pspec"><span class="pspec-lbl">Form</span><span class="pspec-val">Lyophilized</span></div>
+        </div>
+        <div class="product-cta-row">
+          <span class="p-research-tag">Pentadecapeptide</span>
+          <span class="p-cta">View Research →</span>
         </div>
       </div>
-      <div class="hero-card-sub">No. 1 Best Seller</div>
-      <h3>Retatrutide 90mg</h3>
-      <p>Triple GIP/GLP-1/Glucagon receptor agonist. The most advanced metabolic research compound available. 30 capsules per pack.</p>
-      <div class="hero-price">$550 <span>/ 30 caps</span></div>
-      <button class="btn-red">Add to Order</button>
-    </div>
-  </div>
-</div>
 
-<div class="trust">
-  <div class="trust-inner">
-    <div class="trust-item"><div class="t-dot"></div> Third-Party Lab Tested</div>
-    <div class="trust-item"><div class="t-dot"></div> COA Available Every Lot</div>
-    <div class="trust-item"><div class="t-dot"></div> Discreet Packaging</div>
-    <div class="trust-item"><div class="t-dot"></div> Free Shipping $300+</div>
-    <div class="trust-item"><div class="t-dot"></div> 4-14 Day Delivery</div>
-    <div class="trust-item"><div class="t-dot"></div> Group Splits Available</div>
-  </div>
-</div>
-
-<section class="section" id="shop">
-  <div class="section-inner">
-    <div class="section-row">
-      <div class="section-head">
-        <div class="eyebrow">Full Catalog</div>
-        <h2>Shop by Category</h2>
-        <p>60+ research compounds organized by target — all independently tested, all in research-grade vials.</p>
+      <!-- TB-500 -->
+      <div class="product-card" data-reveal data-delay="1">
+        <div class="product-card-top">
+          <span class="product-index">02</span>
+          <span class="product-badge-top">Research Use Only</span>
+        </div>
+        <div class="product-visual">
+          <div class="rv-wrap">
+            <div class="rv rv--am">
+              <div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div>
+              <div class="rv-glass"><div class="rv-powder"></div>
+                <div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">TB-500</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="product-vial-glow"></div>
+          <span class="rv-badge">5mg</span>
+        </div>
+        <h3 class="product-name">TB-500</h3>
+        <p class="product-common">Thymosin Beta-4 Analog</p>
+        <div class="product-specs-row">
+          <div class="pspec"><span class="pspec-lbl">Purity</span><span class="pspec-val blue">≥98%</span></div>
+          <div class="pspec"><span class="pspec-lbl">MW</span><span class="pspec-val">4963.5 Da</span></div>
+          <div class="pspec"><span class="pspec-lbl">Form</span><span class="pspec-val">Lyophilized</span></div>
+        </div>
+        <div class="product-cta-row">
+          <span class="p-research-tag">Actin-Binding Peptide</span>
+          <span class="p-cta">View Research →</span>
+        </div>
       </div>
-      <a href="#" class="lnk">View all products</a>
-    </div>
-    <div class="cat-pills">
-      <a href="#cat-glp1"      class="cat-pill active">Weight Loss</a>
-      <a href="#cat-gh"        class="cat-pill">Growth Hormone</a>
-      <a href="#cat-recovery"  class="cat-pill">Recovery</a>
-      <a href="#cat-brain"     class="cat-pill">Nootropics</a>
-      <a href="#cat-aging"     class="cat-pill">Anti-Aging</a>
-      <a href="#cat-hormones"  class="cat-pill">Hormones</a>
-      <a href="#cat-orals"     class="cat-pill">Orals</a>
-      <a href="#injectables"   class="cat-pill">Injectables</a>
-    </div>
 
-    <div class="cat-block" id="cat-glp1">
-      <div class="cat-header">Weight Loss / GLP-1 Agonists</div>
-      <div class="product-grid">
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">RETATRUTIDE</span></div></div></div><span class="rv-conc">30mg</span></div><div class="pv-badge">Best Seller</div></div><div class="pb"><div class="pc">GLP-1 / GIP</div><div class="pn">Retatrutide 30mg</div><div class="ps">30 capsules · 30mg per cap</div><div class="pf"><div class="pp"><span class="from">from </span>$300</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">RETATRUTIDE</span></div></div></div><span class="rv-conc">60mg</span></div></div><div class="pb"><div class="pc">GLP-1 / GIP</div><div class="pn">Retatrutide 60mg</div><div class="ps">30 capsules · 60mg per cap</div><div class="pf"><div class="pp">$450</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">RETATRUTIDE</span></div></div></div><span class="rv-conc">90mg</span></div><div class="pv-badge gold">Top Rated</div></div><div class="pb"><div class="pc">GLP-1 / GIP</div><div class="pn">Retatrutide 90mg</div><div class="ps">30 capsules · 90mg per cap</div><div class="pf"><div class="pp">$550</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">RETATRUTIDE</span></div></div></div><span class="rv-conc">300mg</span></div></div><div class="pb"><div class="pc">GLP-1 / GIP</div><div class="pn">Retatrutide 300mg</div><div class="ps">30 capsules · 300mg per cap</div><div class="pf"><div class="pp">$800</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">TIRZEPATIDE</span></div></div></div><span class="rv-conc">100mg</span></div><div class="pv-badge">Popular</div></div><div class="pb"><div class="pc">GLP-1 / GIP</div><div class="pn">Tirzepatide 100mg</div><div class="ps">30 capsules · 100mg per cap</div><div class="pf"><div class="pp">$375</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">SEMAGLUTIDE</span></div></div></div><span class="rv-conc">30mg</span></div></div><div class="pb"><div class="pc">GLP-1</div><div class="pn">Semaglutide 30mg</div><div class="ps">30 capsules · 30mg per cap</div><div class="pf"><div class="pp">$180</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">T3 THYROID</span></div></div></div><span class="rv-conc">25mcg</span></div></div><div class="pb"><div class="pc">Thyroid</div><div class="pn">T3 Thyroid 25mcg</div><div class="ps">30 pills · 25mcg per pill</div><div class="pf"><div class="pp">$45</div><button class="btn-add">+ Add</button></div></div></div>
+      <!-- CJC-1295 -->
+      <div class="product-card" data-reveal data-delay="2">
+        <div class="product-card-top">
+          <span class="product-index">03</span>
+          <span class="product-badge-top">Research Use Only</span>
+        </div>
+        <div class="product-visual">
+          <div class="rv-wrap">
+            <div class="rv rv--am">
+              <div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div>
+              <div class="rv-glass"><div class="rv-powder"></div>
+                <div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">CJC-1295</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="product-vial-glow"></div>
+          <span class="rv-badge">2mg</span>
+        </div>
+        <h3 class="product-name">CJC-1295</h3>
+        <p class="product-common">GHRH Analog</p>
+        <div class="product-specs-row">
+          <div class="pspec"><span class="pspec-lbl">Purity</span><span class="pspec-val blue">≥99%</span></div>
+          <div class="pspec"><span class="pspec-lbl">MW</span><span class="pspec-val">3367.9 Da</span></div>
+          <div class="pspec"><span class="pspec-lbl">Form</span><span class="pspec-val">Lyophilized</span></div>
+        </div>
+        <div class="product-cta-row">
+          <span class="p-research-tag">Growth Hormone Secretagogue</span>
+          <span class="p-cta">View Research →</span>
+        </div>
       </div>
-    </div>
 
-    <div class="cat-block" id="cat-gh">
-      <div class="cat-header">Growth Hormone Peptides</div>
-      <div class="product-grid">
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">HGH</span></div></div></div><span class="rv-conc">360 IU</span></div></div><div class="pb"><div class="pc">Growth Hormone</div><div class="pn">HGH 360 IU</div><div class="ps">360 IU total</div><div class="pf"><div class="pp">$300</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">CJC-1295 DAC</span></div></div></div><span class="rv-conc">15mg</span></div><div class="pv-badge">Popular</div></div><div class="pb"><div class="pc">GHRH</div><div class="pn">CJC-1295 w/ DAC</div><div class="ps">30 caps · 15mg total</div><div class="pf"><div class="pp">$200</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">CJC-1295</span></div></div></div><span class="rv-conc">30mg</span></div></div><div class="pb"><div class="pc">GHRH</div><div class="pn">CJC-1295 No DAC</div><div class="ps">30 caps · 30mg total</div><div class="pf"><div class="pp">$180</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">IPAMORELIN</span></div></div></div><span class="rv-conc">30mg</span></div></div><div class="pb"><div class="pc">GHRP</div><div class="pn">Ipamorelin 30mg</div><div class="ps">30 caps · 30mg total</div><div class="pf"><div class="pp">$80</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">TESAMORELIN</span></div></div></div><span class="rv-conc">60mg</span></div></div><div class="pb"><div class="pc">GHRH</div><div class="pn">Tesamorelin 60mg</div><div class="ps">30 caps · 60mg total</div><div class="pf"><div class="pp">$385</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">MOTS-C</span></div></div></div><span class="rv-conc">120mg</span></div></div><div class="pb"><div class="pc">Mitochondrial</div><div class="pn">MOTS-C 120mg</div><div class="ps">30 caps · 120mg total</div><div class="pf"><div class="pp">$285</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">IGF-1 LR3</span></div></div></div><span class="rv-conc">3mg</span></div></div><div class="pb"><div class="pc">IGF</div><div class="pn">IGF-1 LR3 3mg</div><div class="ps">30 caps · 3mg total</div><div class="pf"><div class="pp">$220</div><button class="btn-add">+ Add</button></div></div></div>
+      <!-- IPAMORELIN -->
+      <div class="product-card" data-reveal data-delay="3">
+        <div class="product-card-top">
+          <span class="product-index">04</span>
+          <span class="product-badge-top">Research Use Only</span>
+        </div>
+        <div class="product-visual">
+          <div class="rv-wrap">
+            <div class="rv rv--am">
+              <div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div>
+              <div class="rv-glass"><div class="rv-powder"></div>
+                <div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">IPAMORELIN</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="product-vial-glow"></div>
+          <span class="rv-badge">2mg</span>
+        </div>
+        <h3 class="product-name">Ipamorelin</h3>
+        <p class="product-common">Selective GHRP</p>
+        <div class="product-specs-row">
+          <div class="pspec"><span class="pspec-lbl">Purity</span><span class="pspec-val blue">≥99%</span></div>
+          <div class="pspec"><span class="pspec-lbl">MW</span><span class="pspec-val">711.8 Da</span></div>
+          <div class="pspec"><span class="pspec-lbl">Form</span><span class="pspec-val">Lyophilized</span></div>
+        </div>
+        <div class="product-cta-row">
+          <span class="p-research-tag">Pentapeptide / GHRP</span>
+          <span class="p-cta">View Research →</span>
+        </div>
       </div>
-    </div>
 
-    <div class="cat-block" id="cat-recovery">
-      <div class="cat-header">Recovery & Healing</div>
-      <div class="product-grid">
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">BPC-157</span></div></div></div><span class="rv-conc">60mg</span></div><div class="pv-badge grn">Top</div></div><div class="pb"><div class="pc">Recovery</div><div class="pn">BPC-157 60mg</div><div class="ps">30 caps · 60mg total</div><div class="pf"><div class="pp">$80</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">TB-500</span></div></div></div><span class="rv-conc">30mg</span></div></div><div class="pb"><div class="pc">Recovery</div><div class="pn">TB-500 30mg</div><div class="ps">30 caps · 30mg total</div><div class="pf"><div class="pp">$180</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">WOLVERINE</span></div></div></div><span class="rv-conc">60mg</span></div><div class="pv-badge gold">Best</div></div><div class="pb"><div class="pc">Blend</div><div class="pn">Wolverine Blend</div><div class="ps">BPC-157 + TB-500 · 60mg</div><div class="pf"><div class="pp">$245</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">GLOW BLEND</span></div></div></div><span class="rv-conc">210mg</span></div></div><div class="pb"><div class="pc">Blend</div><div class="pn">GLOW Blend</div><div class="ps">TB + BPC + GHK-CU · 210mg</div><div class="pf"><div class="pp">$245</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">KLOW BLEND</span></div></div></div><span class="rv-conc">240mg</span></div></div><div class="pb"><div class="pc">Blend</div><div class="pn">KLOW Blend</div><div class="ps">GHK-CU + TB + BPC + KPV · 240mg</div><div class="pf"><div class="pp">$265</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">KPV</span></div></div></div><span class="rv-conc">30mg</span></div></div><div class="pb"><div class="pc">Anti-Inflammatory</div><div class="pn">KPV 30mg</div><div class="ps">30 caps · 30mg total</div><div class="pf"><div class="pp">$80</div><button class="btn-add">+ Add</button></div></div></div>
+      <!-- GHK-CU -->
+      <div class="product-card" data-reveal data-delay="4">
+        <div class="product-card-top">
+          <span class="product-index">05</span>
+          <span class="product-badge-top">Research Use Only</span>
+        </div>
+        <div class="product-visual">
+          <div class="rv-wrap">
+            <div class="rv rv--am">
+              <div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div>
+              <div class="rv-glass"><div class="rv-powder"></div>
+                <div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">GHK-CU</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="product-vial-glow"></div>
+          <span class="rv-badge">50mg</span>
+        </div>
+        <h3 class="product-name">GHK-Cu</h3>
+        <p class="product-common">Copper Peptide Complex</p>
+        <div class="product-specs-row">
+          <div class="pspec"><span class="pspec-lbl">Purity</span><span class="pspec-val blue">≥98%</span></div>
+          <div class="pspec"><span class="pspec-lbl">MW</span><span class="pspec-val">403.9 Da</span></div>
+          <div class="pspec"><span class="pspec-lbl">Form</span><span class="pspec-val">Lyophilized</span></div>
+        </div>
+        <div class="product-cta-row">
+          <span class="p-research-tag">Tripeptide-Copper Complex</span>
+          <span class="p-cta">View Research →</span>
+        </div>
       </div>
-    </div>
 
-    <div class="cat-block" id="cat-brain">
-      <div class="cat-header">Nootropics & Brain Health</div>
-      <div class="product-grid">
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">SELANK</span></div></div></div><span class="rv-conc">30mg</span></div></div><div class="pb"><div class="pc">Nootropic</div><div class="pn">Selank 30mg</div><div class="ps">30 caps · 30mg total</div><div class="pf"><div class="pp">$105</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">SEMAX</span></div></div></div><span class="rv-conc">30mg</span></div></div><div class="pb"><div class="pc">Nootropic</div><div class="pn">Semax 30mg</div><div class="ps">30 caps · 30mg total</div><div class="pf"><div class="pp">$105</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">DIHEXA</span></div></div></div><span class="rv-conc">20mg</span></div><div class="pv-badge">Premium</div></div><div class="pb"><div class="pc">Nootropic</div><div class="pn">Dihexa 20mg</div><div class="ps">30 caps · 20mg total</div><div class="pf"><div class="pp">$145</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">DSIP</span></div></div></div><span class="rv-conc">30mg</span></div></div><div class="pb"><div class="pc">Sleep</div><div class="pn">DSIP 30mg</div><div class="ps">30 caps · 30mg total</div><div class="pf"><div class="pp">$100</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">NAD+</span></div></div></div><span class="rv-conc">3,000mg</span></div><div class="pv-badge grn">Top</div></div><div class="pb"><div class="pc">Cellular Energy</div><div class="pn">NAD+ 3,000mg</div><div class="ps">30 caps · 3,000mg total</div><div class="pf"><div class="pp">$155</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">GLUTATHIONE</span></div></div></div><span class="rv-conc">4,500mg</span></div></div><div class="pb"><div class="pc">Antioxidant</div><div class="pn">Glutathione</div><div class="ps">30 caps · 4,500mg total</div><div class="pf"><div class="pp">$150</div><button class="btn-add">+ Add</button></div></div></div>
+      <!-- SELANK -->
+      <div class="product-card" data-reveal data-delay="5">
+        <div class="product-card-top">
+          <span class="product-index">06</span>
+          <span class="product-badge-top">Research Use Only</span>
+        </div>
+        <div class="product-visual">
+          <div class="rv-wrap">
+            <div class="rv rv--am">
+              <div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div>
+              <div class="rv-glass"><div class="rv-powder"></div>
+                <div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">SELANK</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="product-vial-glow"></div>
+          <span class="rv-badge">5mg</span>
+        </div>
+        <h3 class="product-name">Selank</h3>
+        <p class="product-common">Anxiolytic Heptapeptide</p>
+        <div class="product-specs-row">
+          <div class="pspec"><span class="pspec-lbl">Purity</span><span class="pspec-val blue">≥99%</span></div>
+          <div class="pspec"><span class="pspec-lbl">MW</span><span class="pspec-val">751.9 Da</span></div>
+          <div class="pspec"><span class="pspec-lbl">Form</span><span class="pspec-val">Lyophilized</span></div>
+        </div>
+        <div class="product-cta-row">
+          <span class="p-research-tag">Heptapeptide / Nootropic</span>
+          <span class="p-cta">View Research →</span>
+        </div>
       </div>
-    </div>
 
-    <div class="cat-block" id="cat-aging">
-      <div class="cat-header">Anti-Aging & Longevity</div>
-      <div class="product-grid">
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">GHK-CU</span></div></div></div><span class="rv-conc">300mg</span></div></div><div class="pb"><div class="pc">Copper Peptide</div><div class="pn">GHK-CU 300mg</div><div class="ps">30 caps · 300mg total</div><div class="pf"><div class="pp">$70</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">EPITHALON</span></div></div></div><span class="rv-conc">150mg</span></div><div class="pv-badge gold">Top</div></div><div class="pb"><div class="pc">Longevity</div><div class="pn">Epithalon 150mg</div><div class="ps">30 caps · 150mg total</div><div class="pf"><div class="pp">$165</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">FOXO4-DRI</span></div></div></div><span class="rv-conc">30mg</span></div></div><div class="pb"><div class="pc">Senolytic</div><div class="pn">FOXO4-DRI 30mg</div><div class="ps">30 caps · 30mg total</div><div class="pf"><div class="pp">$365</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">MELANOTAN I</span></div></div></div><span class="rv-conc">20mg</span></div></div><div class="pb"><div class="pc">Tanning</div><div class="pn">MT-1 20mg</div><div class="ps">30 caps · 20mg total</div><div class="pf"><div class="pp">$65</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">MELANOTAN II</span></div></div></div><span class="rv-conc">20mg</span></div></div><div class="pb"><div class="pc">Tanning</div><div class="pn">MT-2 (Melanotan 2)</div><div class="ps">30 caps · 20mg total</div><div class="pf"><div class="pp">$65</div><button class="btn-add">+ Add</button></div></div></div>
-      </div>
-    </div>
-
-    <div class="cat-block" id="cat-hormones">
-      <div class="cat-header">Hormones, PCT & Support</div>
-      <div class="product-grid">
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">HCG</span></div></div></div><span class="rv-conc">30,000 IU</span></div></div><div class="pb"><div class="pc">Hormone</div><div class="pn">HCG 30,000 IU</div><div class="ps">30,000 IU total</div><div class="pf"><div class="pp">$180</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">KISSPEPTIN-10</span></div></div></div><span class="rv-conc">30mg</span></div></div><div class="pb"><div class="pc">Hormone</div><div class="pn">Kisspeptin-10</div><div class="ps">30 caps · 30mg total</div><div class="pf"><div class="pp">$125</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">OXYTOCIN</span></div></div></div><span class="rv-conc">30mg</span></div></div><div class="pb"><div class="pc">Hormone</div><div class="pn">Oxytocin Acetate</div><div class="ps">30 caps · 30mg total</div><div class="pf"><div class="pp">$100</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">ARIMIDEX</span></div></div></div><span class="rv-conc">1mg</span></div></div><div class="pb"><div class="pc">AI / PCT</div><div class="pn">Arimidex 1mg</div><div class="ps">30 pills · 1mg per pill</div><div class="pf"><div class="pp">$40</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">LETROZOLE</span></div></div></div><span class="rv-conc">2.5mg</span></div></div><div class="pb"><div class="pc">AI / PCT</div><div class="pn">Letrozole 2.5mg</div><div class="ps">30 pills · 2.5mg per pill</div><div class="pf"><div class="pp">$40</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">TAMOXIFEN</span></div></div></div><span class="rv-conc">20mg</span></div></div><div class="pb"><div class="pc">SERM / PCT</div><div class="pn">Tamoxifen / Nolvadex</div><div class="ps">30 pills · 20mg per pill</div><div class="pf"><div class="pp">$30</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">PROVIRON</span></div></div></div><span class="rv-conc">25mg</span></div></div><div class="pb"><div class="pc">PCT</div><div class="pn">Proviron 25mg</div><div class="ps">30 pills · 25mg per pill</div><div class="pf"><div class="pp">$40</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">TADALAFIL</span></div></div></div><span class="rv-conc">20mg</span></div></div><div class="pb"><div class="pc">ED / Support</div><div class="pn">Cialis / Tadalafil</div><div class="ps">30 pills · 20mg per pill</div><div class="pf"><div class="pp">$30</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">SILDENAFIL</span></div></div></div><span class="rv-conc">100mg</span></div></div><div class="pb"><div class="pc">ED / Support</div><div class="pn">Sildenafil / Viagra</div><div class="ps">30 pills · 100mg per pill</div><div class="pf"><div class="pp">$30</div><button class="btn-add">+ Add</button></div></div></div>
-      </div>
-    </div>
-
-    <div class="cat-block" id="cat-orals">
-      <div class="cat-header">Oral Compounds — 30 Pills Per Pack</div>
-      <div class="product-grid">
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">SUPERDROL</span></div></div></div><span class="rv-conc">50mg</span></div></div><div class="pb"><div class="pc">Oral</div><div class="pn">Superdrol 50mg</div><div class="ps">30 pills · 50mg per pill</div><div class="pf"><div class="pp">$100</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">ANADROL</span></div></div></div><span class="rv-conc">50mg</span></div></div><div class="pb"><div class="pc">Oral</div><div class="pn">Anadrol 50mg</div><div class="ps">30 pills · 50mg per pill</div><div class="pf"><div class="pp">$40</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">CLENBUTEROL</span></div></div></div><span class="rv-conc">40mcg</span></div></div><div class="pb"><div class="pc">Oral</div><div class="pn">Clenbuterol 40mcg</div><div class="ps">30 pills · 40mcg per pill</div><div class="pf"><div class="pp">$40</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">DIANABOL</span></div></div></div><span class="rv-conc">50mg</span></div></div><div class="pb"><div class="pc">Oral</div><div class="pn">Dianabol 50mg</div><div class="ps">30 pills · 50mg per pill</div><div class="pf"><div class="pp">$60</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">WINSTROL</span></div></div></div><span class="rv-conc">10mg</span></div></div><div class="pb"><div class="pc">Oral</div><div class="pn">Winstrol 10mg</div><div class="ps">30 pills · 10mg per pill</div><div class="pf"><div class="pp">$40</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">TURINABOL</span></div></div></div><span class="rv-conc">50mg</span></div></div><div class="pb"><div class="pc">Oral</div><div class="pn">Turinabol 50mg</div><div class="ps">30 pills · 50mg per pill</div><div class="pf"><div class="pp">$70</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">HALOTESTIN</span></div></div></div><span class="rv-conc">10mg</span></div></div><div class="pb"><div class="pc">Oral</div><div class="pn">Halotestin 10mg</div><div class="ps">30 pills · 10mg per pill</div><div class="pf"><div class="pp">$40</div><button class="btn-add">+ Add</button></div></div></div>
-        <div class="product-card"><div class="pv-stage"><div class="rv-wrap"><div class="rv rv--am"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-powder"></div><div class="rv-label"><span class="rv-lb">TIMELESS</span><span class="rv-ln">ANAVAR</span></div></div></div><span class="rv-conc">50mg</span></div><div class="pv-badge">Popular</div></div><div class="pb"><div class="pc">Oral</div><div class="pn">Anavar 50mg</div><div class="ps">30 pills · 50mg per pill</div><div class="pf"><div class="pp">$70</div><button class="btn-add">+ Add</button></div></div></div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<section class="section alt" id="injectables">
-  <div class="section-inner">
-    <div class="section-head">
-      <div class="eyebrow">10mL Multi-Dose Vials</div>
-      <h2>Injectable Compounds</h2>
-      <p>Pharmaceutical-grade injectable solutions. Each vial contains a premium carrier oil blend with 10mL of product. All lots third-party tested.</p>
-    </div>
-
-    <div style="margin-bottom:2.5rem;">
-      <div class="cat-header">Testosterone</div>
-      <div class="vial-grid">
-        <div class="vial-card"><div class="vial-stage"><div class="rv-wrap"><div class="rv rv--cl"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-liquid"></div><div class="rv-label"><span class="rv-lb">TIMELESS RESEARCH</span><span class="rv-ln">TEST ENANTHATE</span></div></div></div><span class="rv-conc">250mg/mL</span></div></div><div class="vb"><div class="vt">Testosterone Enanthate</div><div class="vd">250mg/mL &middot; 10mL vial &middot; ID: TESTE</div><div class="vf"><div class="vp">$75</div><button class="btn-add">+ Add</button></div><span class="v-note">For research use only</span></div></div>
-        <div class="vial-card"><div class="vial-stage"><div class="rv-wrap"><div class="rv rv--cl"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-liquid"></div><div class="rv-label"><span class="rv-lb">TIMELESS RESEARCH</span><span class="rv-ln">TEST CYPIONATE</span></div></div></div><span class="rv-conc">250mg/mL</span></div></div><div class="vb"><div class="vt">Testosterone Cypionate</div><div class="vd">250mg/mL &middot; 10mL vial &middot; ID: TESTC</div><div class="vf"><div class="vp">$75</div><button class="btn-add">+ Add</button></div><span class="v-note">For research use only</span></div></div>
-        <div class="vial-card"><div class="vial-stage"><div class="rv-wrap"><div class="rv rv--cl"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-liquid"></div><div class="rv-label"><span class="rv-lb">TIMELESS RESEARCH</span><span class="rv-ln">TEST PROPIONATE</span></div></div></div><span class="rv-conc">200mg/mL</span></div></div><div class="vb"><div class="vt">Testosterone Propionate</div><div class="vd">200mg/mL &middot; 10mL vial &middot; ID: TESTP</div><div class="vf"><div class="vp">$75</div><button class="btn-add">+ Add</button></div><span class="v-note">For research use only</span></div></div>
-      </div>
-    </div>
-
-    <div style="margin-bottom:2.5rem;">
-      <div class="cat-header">Trenbolone</div>
-      <div class="vial-grid">
-        <div class="vial-card"><div class="vial-stage"><div class="rv-wrap"><div class="rv rv--cl"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-liquid"></div><div class="rv-label"><span class="rv-lb">TIMELESS RESEARCH</span><span class="rv-ln">TREN ACETATE</span></div></div></div><span class="rv-conc">100mg/mL</span></div></div><div class="vb"><div class="vt">Trenbolone Acetate</div><div class="vd">100mg/mL &middot; 10mL vial &middot; ID: TRENA</div><div class="vf"><div class="vp">$90</div><button class="btn-add">+ Add</button></div><span class="v-note">For research use only</span></div></div>
-        <div class="vial-card"><div class="vial-stage"><div class="rv-wrap"><div class="rv rv--cl"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-liquid"></div><div class="rv-label"><span class="rv-lb">TIMELESS RESEARCH</span><span class="rv-ln">TREN ENANTHATE</span></div></div></div><span class="rv-conc">200mg/mL</span></div></div><div class="vb"><div class="vt">Trenbolone Enanthate</div><div class="vd">200mg/mL &middot; 10mL vial &middot; ID: TRENE</div><div class="vf"><div class="vp">$140</div><button class="btn-add">+ Add</button></div><span class="v-note">For research use only</span></div></div>
-      </div>
-    </div>
-
-    <div style="margin-bottom:2.5rem;">
-      <div class="cat-header">Other Injectables</div>
-      <div class="vial-grid">
-        <div class="vial-card"><div class="vial-stage"><div class="rv-wrap"><div class="rv rv--cl"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-liquid"></div><div class="rv-label"><span class="rv-lb">TIMELESS RESEARCH</span><span class="rv-ln">NPP NANDROLONE</span></div></div></div><span class="rv-conc">200mg/mL</span></div></div><div class="vb"><div class="vt">NPP (Nandrolone)</div><div class="vd">200mg/mL &middot; 10mL vial &middot; ID: NPP</div><div class="vf"><div class="vp">$75</div><button class="btn-add">+ Add</button></div><span class="v-note">For research use only</span></div></div>
-        <div class="vial-card"><div class="vial-stage"><div class="rv-wrap"><div class="rv rv--cl"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-liquid"></div><div class="rv-label"><span class="rv-lb">TIMELESS RESEARCH</span><span class="rv-ln">BOLDENONE EQ 300</span></div></div></div><span class="rv-conc">300mg/mL</span></div></div><div class="vb"><div class="vt">EQ (Boldenone) 300</div><div class="vd">300mg/mL &middot; 10mL vial &middot; ID: EQ300</div><div class="vf"><div class="vp">$90</div><button class="btn-add">+ Add</button></div><span class="v-note">For research use only</span></div></div>
-        <div class="vial-card"><div class="vial-stage"><div class="rv-wrap"><div class="rv rv--cl"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-liquid"></div><div class="rv-label"><span class="rv-lb">TIMELESS RESEARCH</span><span class="rv-ln">BOLDENONE EQ 600</span></div></div></div><span class="rv-conc">600mg/mL</span></div></div><div class="vb"><div class="vt">EQ (Boldenone) 600</div><div class="vd">600mg/mL &middot; 10mL vial &middot; ID: EQ600</div><div class="vf"><div class="vp">$120</div><button class="btn-add">+ Add</button></div><span class="v-note">For research use only</span></div></div>
-        <div class="vial-card"><div class="vial-stage"><div class="rv-wrap"><div class="rv rv--cl"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-liquid"></div><div class="rv-label"><span class="rv-lb">TIMELESS RESEARCH</span><span class="rv-ln">MASTERON PROP</span></div></div></div><span class="rv-conc">100mg/mL</span></div></div><div class="vb"><div class="vt">Masteron Propionate</div><div class="vd">100mg/mL &middot; 10mL vial &middot; ID: MASTP</div><div class="vf"><div class="vp">$120</div><button class="btn-add">+ Add</button></div><span class="v-note">For research use only</span></div></div>
-        <div class="vial-card"><div class="vial-stage"><div class="rv-wrap"><div class="rv rv--cl"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-liquid"></div><div class="rv-label"><span class="rv-lb">TIMELESS RESEARCH</span><span class="rv-ln">MASTERON ENANTH</span></div></div></div><span class="rv-conc">200mg/mL</span></div></div><div class="vb"><div class="vt">Masteron Enanthate</div><div class="vd">200mg/mL &middot; 10mL vial &middot; ID: MASTE</div><div class="vf"><div class="vp">$180</div><button class="btn-add">+ Add</button></div><span class="v-note">For research use only</span></div></div>
-        <div class="vial-card"><div class="vial-stage"><div class="rv-wrap"><div class="rv rv--cl"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-liquid"></div><div class="rv-label"><span class="rv-lb">TIMELESS RESEARCH</span><span class="rv-ln">PRIMOBOLAN</span></div></div></div><span class="rv-conc">200mg/mL</span></div></div><div class="vb"><div class="vt">Primobolan</div><div class="vd">200mg/mL &middot; 10mL vial &middot; ID: PRIMO</div><div class="vf"><div class="vp">$160</div><button class="btn-add">+ Add</button></div><span class="v-note">For research use only</span></div></div>
-      </div>
-    </div>
-
-    <div>
-      <div class="cat-header">Reconstitution Supplies</div>
-      <div class="vial-grid">
-        <div class="vial-card"><div class="vial-stage" style="background: radial-gradient(ellipse at 50% 32%, rgba(100,190,255,.1) 0%, transparent 52%), linear-gradient(155deg, #091828 0%, #0e2e4a 55%, #091828 100%);"><div class="rv-wrap"><div class="rv rv--bl"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-liquid"></div><div class="rv-label"><span class="rv-lb">TIMELESS RESEARCH</span><span class="rv-ln">STERILE WATER</span></div></div></div><span class="rv-conc">10mL</span></div></div><div class="vb"><div class="vt">Sterile Water for Injection</div><div class="vd">No benzyl alcohol &middot; 10mL &middot; ID: WA10</div><div class="vf"><div class="vp">$15</div><button class="btn-add">+ Add</button></div><span class="v-note">For research use only</span></div></div>
-        <div class="vial-card"><div class="vial-stage" style="background: radial-gradient(ellipse at 50% 32%, rgba(40,200,100,.08) 0%, transparent 52%), linear-gradient(155deg, #071a0e 0%, #0e3020 55%, #071a0e 100%);"><div class="rv-wrap"><div class="rv rv--gr"><div class="rv-cap"></div><div class="rv-crimp"></div><div class="rv-stopper"></div><div class="rv-glass"><div class="rv-liquid"></div><div class="rv-label"><span class="rv-lb">TIMELESS RESEARCH</span><span class="rv-ln">BAC WATER 0.9%</span></div></div></div><span class="rv-conc">10mL</span></div></div><div class="vb"><div class="vt">Bacteriostatic Water</div><div class="vd">0.9% benzyl alcohol &middot; 10mL &middot; ID: BAC10</div><div class="vf"><div class="vp">$15</div><button class="btn-add">+ Add</button></div><span class="v-note">For research use only</span></div></div>
-      </div>
     </div>
   </div>
 </section>
 
-<section class="section" id="bundles">
+<!-- SCIENCE -->
+<section class="section dark" id="science">
   <div class="section-inner">
-    <div class="section-head">
-      <div class="eyebrow">Save More</div>
-      <h2>Popular Bundles</h2>
-      <p>Pre-stacked combinations at a discount. Each person pays 50% when splitting with a research partner.</p>
-    </div>
-    <div class="bundle-grid">
-      <div class="bundle-card ft"><div class="bundle-tag">Save 10%+</div><div class="bundle-name">Wolverine Stack</div><div class="bundle-desc">The definitive recovery combination — BPC-157 and TB-500 together for maximum tissue repair research.</div><ul class="bundle-items"><li>BPC-157 60mg</li><li>TB-500 30mg</li><li>BAC Water included</li></ul><div class="bf"><div class="bprice">$245 <span class="borig">$275</span></div><button class="btn-add">+ Add Bundle</button></div></div>
-      <div class="bundle-card"><div class="bundle-name">Brain Stack</div><div class="bundle-desc">Selank, Semax, and NAD+ for comprehensive cognitive and cellular energy research.</div><ul class="bundle-items"><li>Selank 30mg</li><li>Semax 30mg</li><li>NAD+ 3,000mg</li></ul><div class="bf"><div class="bprice">$340 <span class="borig">$365</span></div><button class="btn-add">+ Add Bundle</button></div></div>
-      <div class="bundle-card"><div class="bundle-name">GLP-1 Starter</div><div class="bundle-desc">Entry-level metabolic research stack — Semaglutide paired with T3 for thyroid support.</div><ul class="bundle-items"><li>Semaglutide 30mg</li><li>T3 Thyroid 25mcg</li></ul><div class="bf"><div class="bprice">$210 <span class="borig">$225</span></div><button class="btn-add">+ Add Bundle</button></div></div>
-      <div class="bundle-card"><div class="bundle-name">GH Peptide Stack</div><div class="bundle-desc">CJC-1295 + Ipamorelin — the established GHRH/GHRP research combination.</div><ul class="bundle-items"><li>CJC-1295 No DAC 30mg</li><li>Ipamorelin 30mg</li></ul><div class="bf"><div class="bprice">$240 <span class="borig">$260</span></div><button class="btn-add">+ Add Bundle</button></div></div>
-      <div class="bundle-card"><div class="bundle-name">Longevity Stack</div><div class="bundle-desc">Epithalon, GHK-CU, and NAD+ — a complete cellular rejuvenation and longevity research protocol.</div><ul class="bundle-items"><li>Epithalon 150mg</li><li>GHK-CU 300mg</li><li>NAD+ 3,000mg</li></ul><div class="bf"><div class="bprice">$360 <span class="borig">$390</span></div><button class="btn-add">+ Add Bundle</button></div></div>
-      <div class="bundle-card"><div class="bundle-name">Test + PCT Bundle</div><div class="bundle-desc">Testosterone Enanthate injectable with a complete post-cycle therapy protocol.</div><ul class="bundle-items"><li>Testosterone Enanthate 10mL</li><li>Arimidex 1mg (30 pills)</li><li>Nolvadex 20mg (30 pills)</li></ul><div class="bf"><div class="bprice">$155 <span class="borig">$180</span></div><button class="btn-add">+ Add Bundle</button></div></div>
+    <div class="science-layout">
+      <div class="science-left" data-reveal>
+        <span class="section-eyebrow">The Science</span>
+        <h2 class="section-title">Built Around<br><em>Better Research.</em></h2>
+        <p style="font-size:.88rem;font-weight:300;line-height:1.85;color:var(--white-40);margin-top:1.25rem;max-width:380px;">We exist to supply researchers with precisely manufactured compounds backed by rigorous documentation — nothing more, nothing less.</p>
+        <div class="science-stat-row">
+          <div class="science-stat"><div class="num" data-count="99">0</div><div class="lbl">Average purity %</div></div>
+          <div class="science-stat"><div class="num" data-count="60">0</div><div class="lbl">Compounds in catalog</div></div>
+          <div class="science-stat"><div class="num" data-count="100">0</div><div class="lbl">% lots tested</div></div>
+        </div>
+      </div>
+      <div class="science-right">
+        <div class="science-item" data-reveal>
+          <span class="science-item-num">01 — WHAT ARE PEPTIDES</span>
+          <h3>Chains of Amino Acids With Defined Research Utility</h3>
+          <p>Peptides are short chains of amino acids — the building blocks of proteins — that play signaling roles throughout biological systems. In the research context, synthetic peptides allow scientists to study these signaling pathways in controlled laboratory environments.</p>
+        </div>
+        <div class="science-divider"></div>
+        <div class="science-item" data-reveal>
+          <span class="science-item-num">02 — ANALYTICAL TESTING</span>
+          <h3>HPLC Purity Analysis and Mass Spectrometry</h3>
+          <p>Every production lot is analyzed using High-Performance Liquid Chromatography (HPLC) to verify purity, and Mass Spectrometry (MS) to confirm molecular identity. These two analytical methods together establish that a compound is both pure and correctly identified.</p>
+        </div>
+        <div class="science-divider"></div>
+        <div class="science-item" data-reveal>
+          <span class="science-item-num">03 — WHY DOCUMENTATION MATTERS</span>
+          <h3>Research Reproducibility Depends on Material Consistency</h3>
+          <p>Scientific research requires consistent materials across experiments. Batch documentation — including purity data, molecular weight confirmation, and lot numbers — allows researchers to account for material variables in their protocols and replicate results accurately.</p>
+        </div>
+        <div class="science-divider"></div>
+        <div class="science-item" data-reveal>
+          <span class="science-item-num">04 — STORAGE & HANDLING</span>
+          <h3>Lyophilization for Long-Term Research Stability</h3>
+          <p>Lyophilized (freeze-dried) peptides provide superior stability compared to liquid formulations. Stored at the correct temperature and protected from moisture and UV light, lyophilized compounds retain their integrity throughout extended research programs.</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<div class="coa-section">
-  <div class="coa-inner">
-    <div>
-      <div class="eyebrow" style="color:var(--gold);">Lab Verified</div>
-      <h2>Every Compound.<br />Every Batch.<br />Independently Tested.</h2>
-      <p>Every production lot is submitted to an independent third-party laboratory for HPLC purity analysis and mass spectrometry identity confirmation before release. Certificate of Analysis available on request for any product and lot number.</p>
-      <a href="#" class="btn-light" style="display:inline-block;">Request a COA</a>
-    </div>
-    <div class="coa-stats">
-      <div class="coa-stat"><div class="coa-num">99%+</div><div class="coa-lbl">Average Purity</div></div>
-      <div class="coa-stat"><div class="coa-num">100%</div><div class="coa-lbl">Lots Tested</div></div>
-      <div class="coa-stat"><div class="coa-num">60+</div><div class="coa-lbl">Compounds</div></div>
-      <div class="coa-stat"><div class="coa-num">$300+</div><div class="coa-lbl">Free Shipping</div></div>
-    </div>
-  </div>
-</div>
-
-<section class="section" id="how">
+<!-- QUALITY PROCESS -->
+<section class="section" id="quality">
   <div class="section-inner">
-    <div class="section-head" style="text-align:center; max-width:480px; margin:0 auto 3rem;">
-      <div class="eyebrow">Process</div>
-      <h2>How to Place an Order</h2>
-      <p>Four steps from browsing to delivery.</p>
+    <div class="process-header" data-reveal>
+      <span class="section-eyebrow">Quality & Testing</span>
+      <h2 class="section-title">Our Standard<br><em>Process.</em></h2>
+      <p class="section-sub" style="margin-top:1rem;">Every compound follows the same five-stage process before it reaches a researcher's hands.</p>
     </div>
-    <div class="steps-grid">
-      <div class="step-card"><div class="step-num">01</div><div class="step-title">Browse the Catalog</div><div class="step-desc">Find your compounds by category. Note the product ID from each card you want to order.</div></div>
-      <div class="step-card"><div class="step-num">02</div><div class="step-title">Build Your Order</div><div class="step-desc">Compile product IDs and quantities. Reach $300 for free shipping — or coordinate a split with a research partner.</div></div>
-      <div class="step-card"><div class="step-num">03</div><div class="step-title">Submit and Pay</div><div class="step-desc">Contact us with your order list. We confirm availability and send a secure payment link.</div></div>
-      <div class="step-card"><div class="step-num">04</div><div class="step-title">Receive Discreetly</div><div class="step-desc">Unmarked packaging. Estimated 4-14 day delivery. Tracking number provided once shipped.</div></div>
+    <div class="process-steps">
+
+      <div class="process-step" data-reveal>
+        <div class="process-step-line"></div>
+        <div class="process-step-left">
+          <div class="process-num-circle">01</div>
+        </div>
+        <div class="process-content">
+          <span class="process-label">Source Material</span>
+          <h3 class="process-title">Pharmaceutical-Grade Raw Inputs</h3>
+          <p class="process-desc">We source amino acid inputs and synthesis precursors from validated pharmaceutical-grade suppliers. Incoming materials are evaluated for certificate compliance before entering our production process.</p>
+        </div>
+      </div>
+
+      <div class="process-step" data-reveal>
+        <div class="process-step-line"></div>
+        <div class="process-step-left">
+          <div class="process-num-circle">02</div>
+        </div>
+        <div class="process-content">
+          <span class="process-label">Synthesis</span>
+          <h3 class="process-title">Solid-Phase Peptide Synthesis</h3>
+          <p class="process-desc">Peptides are assembled using Solid-Phase Peptide Synthesis (SPPS), a method that provides precise control over amino acid sequence and allows for intermediate purification steps throughout the synthesis process.</p>
+        </div>
+      </div>
+
+      <div class="process-step" data-reveal>
+        <div class="process-step-line"></div>
+        <div class="process-step-left">
+          <div class="process-num-circle">03</div>
+        </div>
+        <div class="process-content">
+          <span class="process-label">Analytical Testing</span>
+          <h3 class="process-title">HPLC Purity and Mass Spectrometry</h3>
+          <p class="process-desc">Every batch undergoes HPLC analysis to quantify purity (≥98% threshold required for release) and mass spectrometry for molecular identity confirmation. Results are documented and retained per lot.</p>
+        </div>
+      </div>
+
+      <div class="process-step" data-reveal>
+        <div class="process-step-line"></div>
+        <div class="process-step-left">
+          <div class="process-num-circle">04</div>
+        </div>
+        <div class="process-content">
+          <span class="process-label">Batch Verification</span>
+          <h3 class="process-title">Independent Review Before Release</h3>
+          <p class="process-desc">Test results are reviewed against compound-specific specifications. Batches failing purity thresholds are rejected and not released. Lot numbers are assigned only to batches meeting all specifications.</p>
+        </div>
+      </div>
+
+      <div class="process-step" data-reveal>
+        <div class="process-step-left">
+          <div class="process-num-circle">05</div>
+        </div>
+        <div class="process-content">
+          <span class="process-label">Documentation</span>
+          <h3 class="process-title">Certificate of Analysis — Every Lot</h3>
+          <p class="process-desc">A Certificate of Analysis is issued for each production lot, containing purity data, molecular weight, CAS number, lot identifier, and test date. COAs are available for download or on request for any product in our catalog.</p>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
 
-<section class="section alt" id="faq">
+<!-- ABOUT -->
+<section class="section dark" id="about">
   <div class="section-inner">
-    <div class="section-head" style="text-align:center; max-width:480px; margin:0 auto 3rem;">
-      <div class="eyebrow">Support</div>
-      <h2>Frequently Asked Questions</h2>
-    </div>
-    <div class="faq-wrap">
-      <div class="faq-item"><div class="faq-q">How are capsule amounts listed?<span class="faq-toggle">+</span></div><div class="faq-a">The listed amount is per capsule, not the total package. Every pack contains 30 capsules. Total compound = listed amount multiplied by 30.</div></div>
-      <div class="faq-item"><div class="faq-q">How does the group split work?<span class="faq-toggle">+</span></div><div class="faq-a">Each research partner pays 50% of the listed price. Simply mention when placing your order and we will arrange accordingly.</div></div>
-      <div class="faq-item"><div class="faq-q">How long does shipping take?<span class="faq-toggle">+</span></div><div class="faq-a">4 to 14 business days estimated. Tracking is provided once shipped. All orders are dispatched in discreet, unmarked packaging with no indication of contents.</div></div>
-      <div class="faq-item"><div class="faq-q">Are products third-party lab tested?<span class="faq-toggle">+</span></div><div class="faq-a">Yes. Every compound is independently tested for purity and identity. Certificates of Analysis are available on request for any product and lot number.</div></div>
-      <div class="faq-item"><div class="faq-q">How do I reconstitute lyophilized peptide vials?<span class="faq-toggle">+</span></div><div class="faq-a">Use Sterile Water (ID: WA10) for immediate use, or Bacteriostatic Water (ID: BAC10) to extend shelf life after reconstitution. BAC water is recommended for ongoing research use.</div></div>
-      <div class="faq-item"><div class="faq-q">When does free shipping apply?<span class="faq-toggle">+</span></div><div class="faq-a">Free shipping is applied automatically to any order totaling $300 or more. No discount code required.</div></div>
-      <div class="faq-item"><div class="faq-q">What compounds are coming soon?<span class="faq-toggle">+</span></div><div class="faq-a">Upcoming additions include AOD-9604, SS-31, Thymosin Alpha-1, Cagrilintide, AICAR, Survodutide, and 15+ additional compounds. Contact us to be notified on new arrivals.</div></div>
+    <div class="about-layout">
+      <div class="about-visual" data-reveal>
+        <div class="about-visual-ring"></div>
+        <div class="about-visual-ring"></div>
+        <div class="about-visual-ring"></div>
+        <div class="about-visual-inner">
+          <div class="about-visual-line"></div>
+          <div class="about-visual-node"></div>
+          <div class="about-visual-line"></div>
+        </div>
+      </div>
+      <div class="about-text" data-reveal>
+        <span class="section-eyebrow">About</span>
+        <h2 class="section-title" style="margin-bottom:1.75rem;">Precision.<br><em>Transparency.</em><br>Research.</h2>
+        <p>Timeless Research exists to provide the scientific community with consistently manufactured research peptides backed by complete, verifiable analytical documentation.</p>
+        <p>We do not make medical claims. We do not recommend protocols. We supply precisely characterized research materials and the documentation required to use them responsibly in legitimate laboratory settings.</p>
+        <p>Every compound we offer has been independently analyzed. Every lot has documentation. Every certificate is available on demand.</p>
+        <div class="about-values">
+          <div class="about-value" data-reveal>
+            <div class="about-value-title">Precision</div>
+            <div class="about-value-desc">Exact manufacturing specifications applied to every production run without exception.</div>
+          </div>
+          <div class="about-value" data-reveal data-delay="1">
+            <div class="about-value-title">Transparency</div>
+            <div class="about-value-desc">Full analytical documentation available for every compound in our catalog.</div>
+          </div>
+          <div class="about-value" data-reveal data-delay="2">
+            <div class="about-value-title">Responsibility</div>
+            <div class="about-value-desc">We serve researchers. Our products are not for human or veterinary use.</div>
+          </div>
+          <div class="about-value" data-reveal data-delay="3">
+            <div class="about-value-title">Integrity</div>
+            <div class="about-value-desc">No inflated claims. No medical promises. Accurate information only.</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<div class="disclaimer">
-  <p><strong>For Research Purposes Only.</strong> All products listed on this website are intended strictly for laboratory and in vitro research use only. These compounds are not approved by the Food and Drug Administration for human consumption and are not intended to diagnose, treat, cure, or prevent any disease or medical condition. By accessing this website and purchasing products, you confirm that you are a qualified researcher and agree to use all compounds solely for lawful, non-clinical research purposes. Not for human or veterinary use. Always consult a licensed medical professional. You must be 18 years of age or older to purchase.</p>
-</div>
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="section-inner">
+    <div class="faq-layout">
+      <div class="faq-left" data-reveal>
+        <span class="section-eyebrow">FAQ</span>
+        <h2 class="section-title" style="font-size:clamp(1.8rem,3vw,2.8rem);">Common<br><em>Questions.</em></h2>
+        <p class="section-sub" style="margin-top:1rem;font-size:.82rem;">If you have a question not listed here, contact our research team directly.</p>
+        <div style="margin-top:2.5rem;">
+          <a href="#" class="btn-ghost" style="display:inline-block;font-size:.7rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);border:1px solid rgba(79,172,254,.3);padding:.7rem 1.6rem;border-radius:2px;">Contact Research Team</a>
+        </div>
+      </div>
+      <div class="faq-list" data-reveal>
 
+        <div class="faq-item">
+          <button class="faq-q">
+            What are research peptides?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">Research peptides are short chains of amino acids synthesized for use in laboratory and scientific research settings. They are used by researchers to study biological mechanisms, signaling pathways, and molecular interactions. They are not approved for human consumption and are not intended for any clinical, therapeutic, or veterinary use.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">
+            Are these products approved for human use?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">No. All products offered by Timeless Research are strictly for laboratory and in vitro research purposes only. They are not approved by the FDA or any regulatory agency for human or animal consumption, and are not intended to diagnose, treat, cure, or prevent any disease or condition. Researchers are responsible for compliance with all applicable laws in their jurisdiction.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">
+            Where can I find the Certificate of Analysis?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">A Certificate of Analysis is available for every product in our catalog. COAs can be requested by contacting our team with the product name and lot number. We maintain documentation for all production lots and provide this information promptly upon request. Every COA includes HPLC purity data and mass spectrometry identity confirmation.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">
+            How are products tested?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">Every production lot is tested using High-Performance Liquid Chromatography (HPLC) for purity quantification and Mass Spectrometry (MS) for molecular identity confirmation. Compounds must meet a minimum purity threshold before receiving a lot number and being released. Lots failing to meet specifications are rejected.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">
+            How should research materials be stored?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">Lyophilized peptides should be stored in a cool, dry environment, away from direct light and moisture. We recommend refrigeration at 2–8°C for short-term storage, or −20°C for extended storage. Reconstituted compounds should be used promptly or stored at −20°C in small aliquots to minimize freeze-thaw cycles. Specific storage guidance is included with each order.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">
+            Do you ship internationally?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">We ship to most countries, subject to applicable import/export regulations. Researchers are responsible for understanding the regulations governing research compounds in their jurisdiction. We provide all necessary documentation to support customs clearance. Contact us with your country of destination prior to ordering for specific information.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">
+            What documentation is provided with orders?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">Each order is accompanied by a product specification sheet, lot number, and available Certificate of Analysis. COAs include compound name, CAS number, molecular weight, HPLC purity result, MS confirmation, lot number, and test date. Additional documentation can be provided on request to support research program requirements.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
 <footer>
   <div class="footer-inner">
-    <div>
-      <div class="f-logo">TIMELESS <em>RESEARCH</em></div>
-      <p class="f-tag">Premium research compounds — independently tested, discreetly shipped. 60+ compounds across 9 research categories.</p>
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand-logo">TIMELESS <em>RESEARCH</em></div>
+        <p class="footer-brand-tag">Advancing the Future<br>of Peptide Research.</p>
+        <div class="footer-disclaimer">
+          <p>Research Use Only<br>Not for Human Consumption<br>Not for Veterinary Use</p>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Research</h5>
+        <ul>
+          <li><a href="#research">Product Catalog</a></li>
+          <li><a href="#research">Peptide Library</a></li>
+          <li><a href="#">COA Database</a></li>
+          <li><a href="#">Batch Search</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Science</h5>
+        <ul>
+          <li><a href="#science">What Are Peptides</a></li>
+          <li><a href="#science">Testing Methods</a></li>
+          <li><a href="#quality">Quality Process</a></li>
+          <li><a href="#about">About Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Information</h5>
+        <ul>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Shipping Info</a></li>
+          <li><a href="#">Research Resources</a></li>
+        </ul>
+      </div>
     </div>
-    <div class="footer-col"><h5>Shop</h5><ul><li><a href="#cat-glp1">Weight Loss</a></li><li><a href="#cat-gh">Growth Hormone</a></li><li><a href="#cat-recovery">Recovery</a></li><li><a href="#cat-brain">Nootropics</a></li><li><a href="#cat-aging">Anti-Aging</a></li></ul></div>
-    <div class="footer-col"><h5>More</h5><ul><li><a href="#cat-hormones">Hormones & PCT</a></li><li><a href="#injectables">Injectables</a></li><li><a href="#cat-orals">Oral Compounds</a></li><li><a href="#bundles">Bundles</a></li></ul></div>
-    <div class="footer-col"><h5>Info</h5><ul><li><a href="#how">How to Order</a></li><li><a href="#faq">FAQ</a></li><li><a href="#">COA / Lab Testing</a></li><li><a href="#">Contact Us</a></li></ul></div>
-  </div>
-  <div class="footer-bottom">
-    <p>&copy; 2026 Timeless Research. All rights reserved. For research purposes only. Not for human consumption.</p>
-    <p>support@timelessresearch.com</p>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Timeless Research. All rights reserved. Products are for research use only.</p>
+      <div class="footer-bottom-links">
+        <a href="#">Terms</a>
+        <a href="#">Privacy</a>
+        <a href="#">Research Disclaimer</a>
+      </div>
+    </div>
   </div>
 </footer>
 
+<script>
+  /* === NAV SCROLL === */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  }, { passive: true });
+
+  /* === PARTICLE CANVAS === */
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [], mouse = { x: -999, y: -999 }, animFrame;
+
+  function resizeCanvas() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+
+  function createParticles() {
+    const count = Math.min(Math.floor((canvas.width * canvas.height) / 14000), 80);
+    particles = [];
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: (Math.random() - 0.5) * 0.25,
+        r: Math.random() * 1.5 + 0.4,
+        a: Math.random() * 0.4 + 0.1
+      });
+    }
+  }
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const maxDist = 140;
+
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+
+      // Mouse repel
+      const mx = mouse.x - p.x, my = mouse.y - p.y;
+      const md = Math.sqrt(mx * mx + my * my);
+      if (md < 100) { p.vx -= (mx / md) * 0.015; p.vy -= (my / md) * 0.015; }
+
+      p.vx *= 0.992; p.vy *= 0.992;
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
+      if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
+
+      // Connections
+      for (let j = i + 1; j < particles.length; j++) {
+        const q = particles[j];
+        const dx = p.x - q.x, dy = p.y - q.y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < maxDist) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(79,172,254,${(1 - d / maxDist) * 0.12})`;
+          ctx.lineWidth = 0.5;
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.stroke();
+        }
+      }
+
+      // Dot
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(79,172,254,${p.a})`;
+      ctx.fill();
+    }
+
+    animFrame = requestAnimationFrame(drawParticles);
+  }
+
+  resizeCanvas(); createParticles(); drawParticles();
+  window.addEventListener('resize', () => { resizeCanvas(); createParticles(); }, { passive: true });
+  canvas.addEventListener('mousemove', e => {
+    const r = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
+  });
+  canvas.addEventListener('mouseleave', () => { mouse.x = -999; mouse.y = -999; });
+
+  /* === SCROLL REVEAL === */
+  const revealObs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('[data-reveal]').forEach(el => revealObs.observe(el));
+
+  /* === NUMBER COUNTER === */
+  const countObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      const target = parseInt(el.dataset.count);
+      const suffix = el.dataset.suffix || '';
+      let start = 0;
+      const step = target / 60;
+      const tick = () => {
+        start = Math.min(start + step, target);
+        el.textContent = Math.floor(start) + suffix;
+        if (start < target) requestAnimationFrame(tick);
+        else el.textContent = target + suffix;
+      };
+      requestAnimationFrame(tick);
+      countObs.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('[data-count]').forEach(el => countObs.observe(el));
+
+  /* === FAQ ACCORDION === */
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+
+  /* === PROCESS STEP HOVER === */
+  document.querySelectorAll('.process-step').forEach((step, i) => {
+    step.addEventListener('mouseenter', () => step.classList.add('active'));
+    step.addEventListener('mouseleave', () => step.classList.remove('active'));
+  });
+</script>
 </body>
 </html>
