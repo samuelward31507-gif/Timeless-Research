@@ -8,16 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --bg:#020202;--s1:#070707;--s2:#0c0c0c;--s3:#111;--s4:#161616;
-      --brd:rgba(255,255,255,.055);--brdm:rgba(255,255,255,.1);
-      --bl:#4FACFE;
-      --wh:#F2F4F8;--w60:rgba(242,244,248,.6);--w40:rgba(242,244,248,.4);
-      --w20:rgba(242,244,248,.2);
-      --fd:'Cormorant Garamond',Georgia,serif;
-      --fu:'Inter',system-ui,sans-serif;
-      --fm:'SF Mono','Fira Code','Courier New',monospace;
-    }
+    :root{--bg:#020202;--s1:#070707;--s2:#0c0c0c;--s3:#111;--s4:#161616;--brd:rgba(255,255,255,.055);--brdm:rgba(255,255,255,.1);--bl:#4FACFE;--wh:#F2F4F8;--w60:rgba(242,244,248,.6);--w40:rgba(242,244,248,.4);--w20:rgba(242,244,248,.2);--fd:'Cormorant Garamond',Georgia,serif;--fu:'Inter',system-ui,sans-serif;--fm:'SF Mono','Fira Code','Courier New',monospace;}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{background:var(--bg);color:var(--wh);font-family:var(--fu);overflow-x:hidden;-webkit-font-smoothing:antialiased}
@@ -95,272 +86,13 @@
     .vial-frame{position:relative;display:inline-block;transition:transform .45s cubic-bezier(.34,1.56,.64,1),filter .35s ease;filter:drop-shadow(0 8px 28px rgba(0,0,0,.8));z-index:2}
     .cc:hover .vial-frame{transform:translateY(-10px) scale(1.06);filter:drop-shadow(0 22px 40px rgba(0,0,0,.7)) drop-shadow(0 0 36px rgba(79,172,254,.28))}
     .vial-img{display:block;height:310px;width:auto}
-   ```css
-/* =========================================================
-   REALISTIC TIMELESS RESEARCH VIAL LABEL
-   Matches the generated reference image
-========================================================= */
-
-.vial-lbl{
-  position:absolute;
-  top:37%;
-  left:12.5%;
-  right:12.5%;
-  height:34%;
-
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-
-  background:#fff;
-
-  color:#111;
-  text-align:center;
-
-  font-family:Arial, Helvetica, sans-serif;
-
-  padding:7px 5px 6px;
-
-  gap:0;
-
-  overflow:hidden;
-
-  /*
-    Makes the label feel physically attached
-    to the curved vial rather than floating.
-  */
-  border-radius:1px;
-
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.9),
-    inset 0 -1px 0 rgba(0,0,0,.05);
-
-  transform:perspective(500px) rotateY(0deg);
-
-  pointer-events:none;
-
-  z-index:5;
-}
-
-
-/* ---------------------------------------------------------
-   TIMeless RESEARCH LOGO
---------------------------------------------------------- */
-
-.vial-lbl .bl-logo{
-  display:block;
-
-  font-family:Arial, Helvetica, sans-serif;
-
-  font-size:20px;
-  line-height:18px;
-
-  font-weight:900;
-
-  letter-spacing:-5px;
-
-  color:#111;
-
-  transform:scaleX(1.05);
-
-  margin:0 0 1px 0;
-}
-
-
-/* ---------------------------------------------------------
-   BRAND NAME
---------------------------------------------------------- */
-
-.vial-lbl .bl-name{
-  display:block;
-
-  font-family:Arial, Helvetica, sans-serif;
-
-  font-size:6.7px;
-  line-height:8px;
-
-  font-weight:600;
-
-  letter-spacing:2px;
-
-  color:#171717;
-
-  white-space:nowrap;
-
-  margin:0 0 4px 0;
-}
-
-
-/* ---------------------------------------------------------
-   HORIZONTAL DIVIDER
---------------------------------------------------------- */
-
-.vial-lbl .bl-line{
-  display:block;
-
-  width:84%;
-
-  height:1px;
-
-  min-height:1px;
-
-  background:#202020;
-
-  margin:1px 0 5px 0;
-}
-
-
-/* ---------------------------------------------------------
-   PRODUCT NAME
---------------------------------------------------------- */
-
-.vial-lbl .bl-product{
-  display:block;
-
-  font-family:Arial, Helvetica, sans-serif;
-
-  font-weight:900;
-
-  color:#111;
-
-  letter-spacing:-.4px;
-
-  line-height:1;
-
-  white-space:nowrap;
-
-  max-width:100%;
-
-  overflow:hidden;
-
-  text-overflow:ellipsis;
-
-  margin:0;
-
-  padding:0 2px;
-}
-
-
-/* ---------------------------------------------------------
-   DOSAGE BOX
---------------------------------------------------------- */
-
-.vial-lbl .bl-dose{
-  display:inline-flex;
-
-  align-items:center;
-  justify-content:center;
-
-  background:#202020;
-
-  color:#fff;
-
-  font-family:Arial, Helvetica, sans-serif;
-
-  font-size:9px;
-  line-height:11px;
-
-  font-weight:700;
-
-  letter-spacing:1px;
-
-  min-width:52px;
-
-  height:18px;
-
-  padding:0 11px;
-
-  margin:5px 0 4px;
-
-  white-space:nowrap;
-}
-
-
-/* ---------------------------------------------------------
-   BOTTOM DIVIDER
---------------------------------------------------------- */
-
-.vial-lbl .bl-line:last-of-type{
-  width:84%;
-
-  height:1px;
-
-  margin:0 0 4px 0;
-}
-
-
-/* ---------------------------------------------------------
-   RESEARCH DISCLAIMER
---------------------------------------------------------- */
-
-.vial-lbl .bl-disclaimer{
-  display:block;
-
-  font-family:Arial, Helvetica, sans-serif;
-
-  font-size:5px;
-
-  line-height:6px;
-
-  font-weight:600;
-
-  letter-spacing:1px;
-
-  color:#333;
-
-  white-space:nowrap;
-
-  margin:0;
-}
-
-
-/* ---------------------------------------------------------
-   VIAL IMAGE
---------------------------------------------------------- */
-
-.vial-frame{
-  position:relative;
-
-  display:inline-block;
-
-  height:310px;
-
-  transition:
-    transform .45s cubic-bezier(.34,1.56,.64,1),
-    filter .35s ease;
-
-  filter:
-    drop-shadow(0 8px 28px rgba(0,0,0,.8));
-
-  z-index:2;
-}
-
-.vial-img{
-  display:block;
-
-  height:310px;
-  width:auto;
-
-  object-fit:contain;
-}
-
-
-/* ---------------------------------------------------------
-   VIAL HOVER
---------------------------------------------------------- */
-
-.cc:hover .vial-frame{
-  transform:
-    translateY(-10px)
-    scale(1.06);
-
-  filter:
-    drop-shadow(0 22px 40px rgba(0,0,0,.7))
-    drop-shadow(0 0 36px rgba(79,172,254,.28));
-}
-```
-
+    .vial-lbl{position:absolute;top:37%;left:13%;right:13%;height:34%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;font-family:Arial,Helvetica,sans-serif;color:#171717;pointer-events:none;overflow:hidden;padding:3px 0}
+    .vial-lbl .bl-logo{font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:19px;line-height:21px;margin:0;letter-spacing:-4px;transform:scaleX(1.05);color:#111;display:block}
+    .vial-lbl .bl-name{font-size:6.5px;font-weight:600;letter-spacing:2px;margin:0;color:#171717;display:block}
+    .vial-lbl .bl-line{width:84%;height:1.5px;background:#202020;margin:0;display:block}
+    .vial-lbl .bl-product{font-weight:900;letter-spacing:-0.5px;line-height:1.1;padding:0 4px;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#111;display:block}
+    .vial-lbl .bl-dose{display:inline-block;margin:0;padding:2px 14px;background:#202020;color:#fff;font-size:9px;font-weight:700;letter-spacing:1px;font-family:Arial,Helvetica,sans-serif}
+    .vial-lbl .bl-disclaimer{font-size:5px;font-weight:600;letter-spacing:1px;white-space:nowrap;margin:0;color:#333;display:block}
     .csg{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--brd);border:1px solid var(--brd)}
     @media(max-width:1200px){.csg{grid-template-columns:repeat(4,1fr)}}
     @media(max-width:780px){.csg{grid-template-columns:repeat(3,1fr)}}
@@ -639,127 +371,25 @@ const CATS = [
   {k:'orals',l:'Orals & Ancillaries'},{k:'supplies',l:'Supplies'},
 ];
 function nameFs(n){const l=n.length;return l<=4?'22px':l<=6?'19px':l<=9?'16px':l<=12?'12px':l<=16?'9.5px':l<=20?'8px':'6.5px'}
-```javascript
-function nameFs(n){
-
-  const length = n.length;
-
-  if(length <= 4)  return '23px';
-  if(length <= 6)  return '20px';
-  if(length <= 9)  return '17px';
-  if(length <= 12) return '14px';
-  if(length <= 16) return '11px';
-  if(length <= 20) return '9px';
-
-  return '7px';
-}
-
-
 function card(p){
-
-  const nm =
-    p[1].length > 20
-      ? p[1].slice(0,19) + '…'
-      : p[1];
-
-  const dose =
-    p[2] + (p[3] ? ' · ' + p[3] : '');
-
-  return `
-  <div class="cc">
-
-    <div class="cc-v">
-
-      <div class="vial-frame">
-
-        <!-- VIAL -->
-        <img
-          src="./vial.png"
-          class="vial-img"
-          alt="${p[1]} Timeless Research vial"
-        >
-
-        <!-- PHYSICAL-STYLE LABEL -->
-        <div class="vial-lbl">
-
-          <!-- T LOGO -->
-          <span class="bl-logo">T</span>
-
-          <!-- BRAND -->
-          <span class="bl-name">
-            TIMELESS RESEARCH
-          </span>
-
-          <!-- TOP LINE -->
-          <span class="bl-line"></span>
-
-          <!-- PRODUCT -->
-          <span
-            class="bl-product"
-            style="font-size:${nameFs(p[1])}"
-          >
-            ${p[1].toUpperCase()}
-          </span>
-
-          <!-- DOSAGE -->
-          <span class="bl-dose">
-            ${p[2].toUpperCase()}
-          </span>
-
-          <!-- BOTTOM LINE -->
-          <span
-            class="bl-line"
-            style="margin-bottom:4px"
-          ></span>
-
-          <!-- DISCLAIMER -->
-          <span class="bl-disclaimer">
-            FOR RESEARCH USE ONLY
-          </span>
-
-        </div>
-
+  const nm=p[1].length>20?p[1].slice(0,19)+'…':p[1];
+  const dose=p[2]+(p[3]?' · '+p[3]:'');
+  return `<div class="cc">
+  <div class="cc-v">
+    <div class="vial-frame">
+      <img src="./vial.png" class="vial-img" alt="${p[1]}">
+      <div class="vial-lbl">
+        <span class="bl-logo">T</span>
+        <span class="bl-name">TIMELESS RESEARCH</span>
+        <span class="bl-line"></span>
+        <span class="bl-product" style="font-size:${nameFs(p[1])}">${p[1].toUpperCase()}</span>
+        <span class="bl-dose">${p[2].toUpperCase()}</span>
+        <span class="bl-line"></span>
+        <span class="bl-disclaimer">FOR RESEARCH USE ONLY</span>
       </div>
-
-      <div class="cc-gw"></div>
-
     </div>
-
-
-    <!-- PRODUCT INFORMATION -->
-
-    <div class="cc-inf">
-
-      <div class="cc-id">
-        ${p[0]}
-      </div>
-
-      <div class="cc-nm">
-        ${nm}
-      </div>
-
-      <div class="cc-ds">
-        ${p[6]}
-      </div>
-
-      <div class="cc-bot">
-
-        <span class="cc-do">
-          ${dose}
-        </span>
-
-        <span class="cc-pr">
-          $${p[4]}
-        </span>
-
-      </div>
-
-    </div>
-
-  </div>`;
-}
-```
-
+    <div class="cc-gw"></div>
+  </div>
   <div class="cc-inf">
     <div class="cc-id">${p[0]}</div>
     <div class="cc-nm">${nm}</div>
