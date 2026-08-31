@@ -8,71 +8,166 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#020202;--s1:#070707;--s2:#0c0c0c;--s3:#111;--s4:#161616;--brd:rgba(255,255,255,.055);--brdm:rgba(255,255,255,.1);--bl:#4FACFE;--wh:#F2F4F8;--w60:rgba(242,244,248,.6);--w40:rgba(242,244,248,.4);--w20:rgba(242,244,248,.2);--fd:'Cormorant Garamond',Georgia,serif;--fu:'Inter',system-ui,sans-serif;--fm:'SF Mono','Fira Code','Courier New',monospace}
+    :root{
+      --bg:#020202;--s1:#070707;--s2:#0c0c0c;--s3:#111;--s4:#161616;
+      --brd:rgba(255,255,255,.055);--brdm:rgba(255,255,255,.1);
+      --bl:#4FACFE;
+      --wh:#F2F4F8;--w60:rgba(242,244,248,.6);--w40:rgba(242,244,248,.4);
+      --w20:rgba(242,244,248,.2);
+      --fd:'Cormorant Garamond',Georgia,serif;
+      --fu:'Inter',system-ui,sans-serif;
+      --fm:'SF Mono','Fira Code','Courier New',monospace;
+    }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{background:var(--bg);color:var(--wh);font-family:var(--fu);overflow-x:hidden;-webkit-font-smoothing:antialiased}
     a{text-decoration:none;color:inherit}
     ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--s4);border-radius:2px}
-    [data-r]{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}[data-r].in{opacity:1;transform:translateY(0)}
+    [data-r]{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+    [data-r].in{opacity:1;transform:translateY(0)}
     [data-d="1"]{transition-delay:.1s}[data-d="2"]{transition-delay:.2s}[data-d="3"]{transition-delay:.3s}[data-d="4"]{transition-delay:.4s}
     .abar{background:var(--s2);border-bottom:1px solid var(--brd);padding:.5rem 2rem;display:flex;gap:2.5rem;justify-content:center;flex-wrap:wrap;position:sticky;top:0;z-index:400}
-    .abar span{font-size:.63rem;color:var(--w40);letter-spacing:.3px;display:flex;align-items:center;gap:.35rem}.abar em{color:var(--bl);font-style:normal}
+    .abar span{font-size:.63rem;color:var(--w40);letter-spacing:.3px;display:flex;align-items:center;gap:.35rem}
+    .abar em{color:var(--bl);font-style:normal}
     @media(max-width:600px){.abar span:last-child{display:none}}
     .nav{position:sticky;top:31px;z-index:300;display:flex;align-items:center;justify-content:space-between;padding:1.75rem 4rem;transition:all .4s ease;border-bottom:1px solid transparent}
     .nav.scrolled{padding:1.1rem 4rem;background:rgba(2,2,2,.92);backdrop-filter:blur(28px) saturate(180%);border-color:var(--brd)}
-    .nav-logo{font-size:.76rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase}.nav-logo em{color:var(--bl);font-style:normal}
-    .nav-links{display:flex;gap:2.5rem;list-style:none}.nav-links a{font-size:.76rem;font-weight:400;color:var(--w60);transition:color .2s}.nav-links a:hover{color:var(--wh)}
-    .nav-cta{font-size:.7rem;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:var(--bl);border:1px solid rgba(79,172,254,.3);padding:.5rem 1.3rem;border-radius:2px;transition:background .2s,border-color .2s}.nav-cta:hover{background:rgba(79,172,254,.08);border-color:rgba(79,172,254,.6)}
+    .nav-logo{font-size:.76rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase}
+    .nav-logo em{color:var(--bl);font-style:normal}
+    .nav-links{display:flex;gap:2.5rem;list-style:none}
+    .nav-links a{font-size:.76rem;font-weight:400;color:var(--w60);transition:color .2s}
+    .nav-links a:hover{color:var(--wh)}
+    .nav-cta{font-size:.7rem;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:var(--bl);border:1px solid rgba(79,172,254,.3);padding:.5rem 1.3rem;border-radius:2px;transition:background .2s,border-color .2s}
+    .nav-cta:hover{background:rgba(79,172,254,.08);border-color:rgba(79,172,254,.6)}
     @media(max-width:900px){.nav-links{display:none}.nav,.nav.scrolled{padding:1.2rem 2rem}}
     .hero{position:relative;width:100%;height:100vh;min-height:680px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--bg)}
     #pcvs{position:absolute;inset:0;width:100%;height:100%}
     .hgr{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(79,172,254,.045) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 50% 100%,rgba(79,172,254,.06) 0%,transparent 60%)}
     .hcnt{position:relative;z-index:2;text-align:center;max-width:860px;padding:0 2rem}
-    .htag{display:inline-flex;align-items:center;gap:1rem;font-family:var(--fm);font-size:.63rem;letter-spacing:3.5px;text-transform:uppercase;color:var(--bl);margin-bottom:2.5rem;opacity:0;animation:fup .8s ease .3s forwards}.htag::before,.htag::after{content:'';display:block;width:30px;height:1px;background:rgba(79,172,254,.4)}
-    .hero h1{font-family:var(--fd);font-size:clamp(2.8rem,7vw,6.5rem);font-weight:300;line-height:1.04;letter-spacing:-.5px;margin-bottom:1.75rem;opacity:0;animation:fup .9s ease .5s forwards}.hero h1 em{font-style:italic;color:var(--w60)}
+    .htag{display:inline-flex;align-items:center;gap:1rem;font-family:var(--fm);font-size:.63rem;letter-spacing:3.5px;text-transform:uppercase;color:var(--bl);margin-bottom:2.5rem;opacity:0;animation:fup .8s ease .3s forwards}
+    .htag::before,.htag::after{content:'';display:block;width:30px;height:1px;background:rgba(79,172,254,.4)}
+    .hero h1{font-family:var(--fd);font-size:clamp(2.8rem,7vw,6.5rem);font-weight:300;line-height:1.04;letter-spacing:-.5px;margin-bottom:1.75rem;opacity:0;animation:fup .9s ease .5s forwards}
+    .hero h1 em{font-style:italic;color:var(--w60)}
     .hsub{font-size:1rem;font-weight:300;line-height:1.75;color:var(--w40);max-width:520px;margin:0 auto 3rem;opacity:0;animation:fup .9s ease .7s forwards}
     .hbtns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;opacity:0;animation:fup .9s ease .9s forwards}
-    .bp{font-size:.74rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;background:var(--bl);color:#000;padding:.85rem 2.2rem;border-radius:2px;transition:opacity .2s,transform .2s}.bp:hover{opacity:.88;transform:translateY(-1px)}
-    .bg{font-size:.74rem;font-weight:400;letter-spacing:1.5px;text-transform:uppercase;color:var(--w60);border:1px solid var(--brdm);padding:.85rem 2.2rem;border-radius:2px;transition:border-color .2s,color .2s}.bg:hover{border-color:var(--w40);color:var(--wh)}
+    .bp{font-size:.74rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;background:var(--bl);color:#000;padding:.85rem 2.2rem;border-radius:2px;transition:opacity .2s,transform .2s}
+    .bp:hover{opacity:.88;transform:translateY(-1px)}
+    .bg{font-size:.74rem;font-weight:400;letter-spacing:1.5px;text-transform:uppercase;color:var(--w60);border:1px solid var(--brdm);padding:.85rem 2.2rem;border-radius:2px;transition:border-color .2s,color .2s}
+    .bg:hover{border-color:var(--w40);color:var(--wh)}
     .hscr{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.55rem;color:var(--w20);font-size:.6rem;letter-spacing:2px;text-transform:uppercase;animation:bnc 2.5s ease-in-out infinite}
     .hscr-l{width:1px;height:38px;background:linear-gradient(to bottom,var(--w20),transparent)}
-    @keyframes fup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes bnc{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
-    .trust{padding:4.5rem 4rem;border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);background:var(--s1)}.trust-i{max-width:1420px;margin:0 auto}
-    .tgr{display:grid;grid-template-columns:repeat(4,1fr)}.ti{padding:2rem 2.5rem;border-right:1px solid var(--brd)}.ti:last-child{border-right:none}
-    .tnum{font-family:var(--fm);font-size:.58rem;color:var(--bl);letter-spacing:2px;margin-bottom:.9rem;display:block}.ttl{font-family:var(--fd);font-size:1.3rem;font-weight:400;color:var(--wh);margin-bottom:.5rem;line-height:1.2}.tdsc{font-size:.78rem;font-weight:300;line-height:1.75;color:var(--w40)}
+    @keyframes fup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes bnc{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+    .trust{padding:4.5rem 4rem;border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);background:var(--s1)}
+    .trust-i{max-width:1420px;margin:0 auto}
+    .tgr{display:grid;grid-template-columns:repeat(4,1fr)}
+    .ti{padding:2rem 2.5rem;border-right:1px solid var(--brd)}.ti:last-child{border-right:none}
+    .tnum{font-family:var(--fm);font-size:.58rem;color:var(--bl);letter-spacing:2px;margin-bottom:.9rem;display:block}
+    .ttl{font-family:var(--fd);font-size:1.3rem;font-weight:400;color:var(--wh);margin-bottom:.5rem;line-height:1.2}
+    .tdsc{font-size:.78rem;font-weight:300;line-height:1.75;color:var(--w40)}
     @media(max-width:900px){.trust{padding:3rem 2rem}.tgr{grid-template-columns:1fr 1fr}.ti{border-right:none;border-bottom:1px solid var(--brd);padding:1.75rem}.ti:last-child{border-bottom:none}}
     .sec{padding:5.5rem 4rem}.sec.dk{background:var(--s1)}.si{max-width:1420px;margin:0 auto}
     .ey{font-family:var(--fm);font-size:.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--bl);margin-bottom:1.2rem;display:block}
-    .stl{font-family:var(--fd);font-size:clamp(2.2rem,4vw,3.8rem);font-weight:300;line-height:1.07;letter-spacing:-.3px;color:var(--wh);margin-bottom:1.2rem}.stl em{font-style:italic;color:var(--w60)}
+    .stl{font-family:var(--fd);font-size:clamp(2.2rem,4vw,3.8rem);font-weight:300;line-height:1.07;letter-spacing:-.3px;color:var(--wh);margin-bottom:1.2rem}
+    .stl em{font-style:italic;color:var(--w60)}
     .ssb{font-size:.88rem;font-weight:300;line-height:1.8;color:var(--w40);max-width:480px}
     @media(max-width:768px){.sec{padding:4rem 2rem}}
-    .ctabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--brd);margin-bottom:2.5rem;scrollbar-width:none;-ms-overflow-style:none}.ctabs::-webkit-scrollbar{display:none}
-    .ctab{flex-shrink:0;font-family:var(--fu);font-size:.72rem;font-weight:400;color:var(--w40);padding:.8rem 1.15rem;cursor:pointer;transition:color .2s;border-bottom:2px solid transparent;letter-spacing:.3px;user-select:none;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap}.ctab:hover{color:var(--w60)}.ctab.on{color:var(--bl);border-bottom-color:var(--bl)}
+    .ctabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--brd);margin-bottom:2.5rem;scrollbar-width:none;-ms-overflow-style:none}
+    .ctabs::-webkit-scrollbar{display:none}
+    .ctab{flex-shrink:0;font-family:var(--fu);font-size:.72rem;font-weight:400;color:var(--w40);padding:.8rem 1.15rem;cursor:pointer;transition:color .2s;border-bottom:2px solid transparent;letter-spacing:.3px;user-select:none;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap}
+    .ctab:hover{color:var(--w60)}.ctab.on{color:var(--bl);border-bottom-color:var(--bl)}
     .cgr{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--brd);border:1px solid var(--brd)}
-    @media(max-width:1200px){.cgr{grid-template-columns:repeat(4,1fr)}}@media(max-width:850px){.cgr{grid-template-columns:repeat(3,1fr)}}@media(max-width:560px){.cgr{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:1200px){.cgr{grid-template-columns:repeat(4,1fr)}}
+    @media(max-width:850px){.cgr{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:560px){.cgr{grid-template-columns:repeat(2,1fr)}}
     .cc{background:var(--s1);display:flex;flex-direction:column;transition:background .25s;cursor:pointer;position:relative;overflow:hidden}
-    .cc::before{content:'';position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 70% 50% at 50% 90%,rgba(79,172,254,.1),transparent);opacity:0;transition:opacity .4s;pointer-events:none}.cc:hover::before{opacity:1}.cc:hover{background:var(--s2)}
+    .cc::before{content:'';position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 70% 50% at 50% 90%,rgba(79,172,254,.1),transparent);opacity:0;transition:opacity .4s;pointer-events:none}
+    .cc:hover::before{opacity:1}.cc:hover{background:var(--s2)}
     .cc-v{height:400px;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--brd);background:radial-gradient(ellipse 60% 60% at 50% 65%,rgba(79,172,254,.05),transparent),#030303;overflow:hidden}
-    .cc-gw{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:160px;height:30px;z-index:1;background:radial-gradient(ellipse,rgba(79,172,254,.25),transparent 70%);filter:blur(12px)}
+    .cc-gw{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:120px;height:24px;z-index:1;background:radial-gradient(ellipse,rgba(79,172,254,.3),transparent 70%);filter:blur(10px)}
     .cc-inf{padding:1rem .9rem .9rem;flex:1;display:flex;flex-direction:column;position:relative;z-index:2}
     .cc-id{font-family:var(--fm);font-size:.5rem;color:var(--bl);letter-spacing:1.5px;margin-bottom:.22rem;opacity:.7}
     .cc-nm{font-family:var(--fd);font-size:1.05rem;font-weight:400;color:var(--wh);margin-bottom:.18rem;line-height:1.15}
     .cc-ds{font-size:.6rem;color:var(--w40);line-height:1.5;margin-bottom:.65rem;flex:1}
     .cc-bot{display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
-    .cc-do{font-family:var(--fm);font-size:.5rem;color:var(--w20);line-height:1.5}.cc-pr{font-family:var(--fu);font-size:1rem;font-weight:700;color:var(--wh)}
+    .cc-do{font-family:var(--fm);font-size:.5rem;color:var(--w20);line-height:1.5}
+    .cc-pr{font-family:var(--fu);font-size:1rem;font-weight:700;color:var(--wh)}
     .csg{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--brd);border:1px solid var(--brd)}
-    @media(max-width:1200px){.csg{grid-template-columns:repeat(4,1fr)}}@media(max-width:780px){.csg{grid-template-columns:repeat(3,1fr)}}@media(max-width:520px){.csg{grid-template-columns:repeat(2,1fr)}}
-    .csc{background:var(--s1);padding:.85rem;display:flex;flex-direction:column;gap:.3rem;opacity:.4}.csnm{font-family:var(--fd);font-size:.9rem;color:var(--wh)}.csdo{font-family:var(--fm);font-size:.48rem;color:var(--w40)}.cstg{font-family:var(--fm);font-size:.44rem;color:var(--bl);letter-spacing:1px;text-transform:uppercase;opacity:.6}
-    .sci-l{display:grid;grid-template-columns:1fr 1fr;gap:7rem;align-items:start}.sci-lft{position:sticky;top:7rem}.sci-sr{display:flex;gap:3rem;margin-top:3rem;padding-top:3rem;border-top:1px solid var(--brd)}.sci-st .sn{font-family:var(--fd);font-size:3rem;font-weight:300;color:var(--wh);line-height:1;margin-bottom:.3rem;letter-spacing:-1px}.sci-st .slb{font-size:.7rem;font-weight:300;color:var(--w40)}.sci-rt{display:flex;flex-direction:column;gap:3rem;padding-top:.5rem}.sn-{font-family:var(--fm);font-size:.57rem;color:var(--bl);letter-spacing:2px;margin-bottom:1rem;display:block}.sci-rt h3{font-family:var(--fd);font-size:1.5rem;font-weight:400;color:var(--wh);margin-bottom:.65rem}.sci-rt p{font-size:.86rem;font-weight:300;line-height:1.82;color:var(--w40)}.sdv{width:100%;height:1px;background:var(--brd)}
+    @media(max-width:1200px){.csg{grid-template-columns:repeat(4,1fr)}}
+    @media(max-width:780px){.csg{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:520px){.csg{grid-template-columns:repeat(2,1fr)}}
+    .csc{background:var(--s1);padding:.85rem;display:flex;flex-direction:column;gap:.3rem;opacity:.4}
+    .csnm{font-family:var(--fd);font-size:.9rem;color:var(--wh)}
+    .csdo{font-family:var(--fm);font-size:.48rem;color:var(--w40)}
+    .cstg{font-family:var(--fm);font-size:.44rem;color:var(--bl);letter-spacing:1px;text-transform:uppercase;opacity:.6}
+    .sci-l{display:grid;grid-template-columns:1fr 1fr;gap:7rem;align-items:start}
+    .sci-lft{position:sticky;top:7rem}
+    .sci-sr{display:flex;gap:3rem;margin-top:3rem;padding-top:3rem;border-top:1px solid var(--brd)}
+    .sci-st .sn{font-family:var(--fd);font-size:3rem;font-weight:300;color:var(--wh);line-height:1;margin-bottom:.3rem;letter-spacing:-1px}
+    .sci-st .slb{font-size:.7rem;font-weight:300;color:var(--w40)}
+    .sci-rt{display:flex;flex-direction:column;gap:3rem;padding-top:.5rem}
+    .sn-{font-family:var(--fm);font-size:.57rem;color:var(--bl);letter-spacing:2px;margin-bottom:1rem;display:block}
+    .sci-rt h3{font-family:var(--fd);font-size:1.5rem;font-weight:400;color:var(--wh);margin-bottom:.65rem}
+    .sci-rt p{font-size:.86rem;font-weight:300;line-height:1.82;color:var(--w40)}
+    .sdv{width:100%;height:1px;background:var(--brd)}
     @media(max-width:900px){.sci-l{grid-template-columns:1fr;gap:3rem}.sci-lft{position:static}}
-    .prhd{max-width:580px;margin-bottom:4.5rem}.prst{display:flex;flex-direction:column;max-width:720px}.prsp{display:grid;grid-template-columns:80px 1fr;gap:2rem;position:relative;padding-bottom:3rem}.prsp:last-child{padding-bottom:0}.prln{position:absolute;left:27px;top:38px;bottom:0;width:1px;background:var(--brd)}.prsp:last-child .prln{display:none}.prlft{display:flex;flex-direction:column;align-items:center}.prc{width:54px;height:54px;border-radius:50%;border:1px solid var(--brdm);background:var(--s2);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:.63rem;color:var(--bl);letter-spacing:1px;flex-shrink:0;transition:border-color .3s,background .3s}.prsp.on .prc{border-color:var(--bl);background:rgba(79,172,254,.08)}.prcnt{padding-top:.9rem}.prlbl{font-family:var(--fm);font-size:.56rem;color:var(--w20);letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem;display:block}.prtl{font-family:var(--fd);font-size:1.6rem;font-weight:400;color:var(--wh);margin-bottom:.65rem}.prds{font-size:.84rem;font-weight:300;line-height:1.82;color:var(--w40)}
-    .abl{display:grid;grid-template-columns:1fr 1fr;gap:7rem;align-items:center}.abv{height:480px;background:var(--s2);border:1px solid var(--brd);border-radius:4px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}.avi{display:flex;flex-direction:column;align-items:center;gap:1.5rem;opacity:.5}.avl{width:1px;height:80px;background:linear-gradient(to bottom,transparent,var(--bl),transparent)}.avn{width:8px;height:8px;border-radius:50%;background:var(--bl);box-shadow:0 0 20px rgba(79,172,254,.6)}.avr{position:absolute;border:1px solid rgba(79,172,254,.08);border-radius:50%;animation:pls 4s ease-in-out infinite}.avr:nth-child(1){width:150px;height:150px}.avr:nth-child(2){width:250px;height:250px;animation-delay:1s}.avr:nth-child(3){width:380px;height:380px;animation-delay:2s}@keyframes pls{0%,100%{opacity:.3}50%{opacity:.8}}.abt p{font-size:.88rem;font-weight:300;line-height:1.88;color:var(--w40);margin-bottom:1.5rem}.abvl{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem}.abvc{padding:1.1rem;border:1px solid var(--brd);border-radius:3px;background:var(--s2);transition:border-color .2s,background .2s}.abvc:hover{border-color:var(--brdm);background:var(--s3)}.abvt{font-size:.76rem;font-weight:600;color:var(--wh);margin-bottom:.22rem}.abvd{font-size:.7rem;font-weight:300;color:var(--w40);line-height:1.6}
+    .prhd{max-width:580px;margin-bottom:4.5rem}
+    .prst{display:flex;flex-direction:column;max-width:720px}
+    .prsp{display:grid;grid-template-columns:80px 1fr;gap:2rem;position:relative;padding-bottom:3rem}
+    .prsp:last-child{padding-bottom:0}
+    .prln{position:absolute;left:27px;top:38px;bottom:0;width:1px;background:var(--brd)}
+    .prsp:last-child .prln{display:none}
+    .prlft{display:flex;flex-direction:column;align-items:center}
+    .prc{width:54px;height:54px;border-radius:50%;border:1px solid var(--brdm);background:var(--s2);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:.63rem;color:var(--bl);letter-spacing:1px;flex-shrink:0;transition:border-color .3s,background .3s}
+    .prsp.on .prc{border-color:var(--bl);background:rgba(79,172,254,.08)}
+    .prcnt{padding-top:.9rem}
+    .prlbl{font-family:var(--fm);font-size:.56rem;color:var(--w20);letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem;display:block}
+    .prtl{font-family:var(--fd);font-size:1.6rem;font-weight:400;color:var(--wh);margin-bottom:.65rem}
+    .prds{font-size:.84rem;font-weight:300;line-height:1.82;color:var(--w40)}
+    .abl{display:grid;grid-template-columns:1fr 1fr;gap:7rem;align-items:center}
+    .abv{height:480px;background:var(--s2);border:1px solid var(--brd);border-radius:4px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .avi{display:flex;flex-direction:column;align-items:center;gap:1.5rem;opacity:.5}
+    .avl{width:1px;height:80px;background:linear-gradient(to bottom,transparent,var(--bl),transparent)}
+    .avn{width:8px;height:8px;border-radius:50%;background:var(--bl);box-shadow:0 0 20px rgba(79,172,254,.6)}
+    .avr{position:absolute;border:1px solid rgba(79,172,254,.08);border-radius:50%;animation:pls 4s ease-in-out infinite}
+    .avr:nth-child(1){width:150px;height:150px}.avr:nth-child(2){width:250px;height:250px;animation-delay:1s}.avr:nth-child(3){width:380px;height:380px;animation-delay:2s}
+    @keyframes pls{0%,100%{opacity:.3}50%{opacity:.8}}
+    .abt p{font-size:.88rem;font-weight:300;line-height:1.88;color:var(--w40);margin-bottom:1.5rem}
+    .abvl{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem}
+    .abvc{padding:1.1rem;border:1px solid var(--brd);border-radius:3px;background:var(--s2);transition:border-color .2s,background .2s}
+    .abvc:hover{border-color:var(--brdm);background:var(--s3)}
+    .abvt{font-size:.76rem;font-weight:600;color:var(--wh);margin-bottom:.22rem}
+    .abvd{font-size:.7rem;font-weight:300;color:var(--w40);line-height:1.6}
     @media(max-width:900px){.abl{grid-template-columns:1fr;gap:3rem}.abv{height:260px}}
-    .fql{display:grid;grid-template-columns:380px 1fr;gap:6rem;align-items:start}.fqlft{position:sticky;top:7rem}.fqls{display:flex;flex-direction:column}.fqi{border-bottom:1px solid var(--brd)}.fqq{width:100%;background:none;border:none;color:var(--wh);font-family:var(--fu);font-size:.87rem;font-weight:400;text-align:left;padding:1.4rem 0;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;cursor:pointer;transition:color .2s;line-height:1.4}.fqq:hover{color:var(--w60)}.fqic{width:22px;height:22px;border-radius:50%;border:1px solid var(--brdm);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--w40);transition:border-color .2s,transform .3s,background .2s}.fqi.op .fqic{transform:rotate(45deg);border-color:var(--bl);color:var(--bl);background:rgba(79,172,254,.08)}.fqa{font-size:.83rem;font-weight:300;line-height:1.85;color:var(--w40);max-height:0;overflow:hidden;transition:max-height .45s ease,padding .3s ease}.fqi.op .fqa{max-height:300px;padding-bottom:1.5rem}
+    .fql{display:grid;grid-template-columns:380px 1fr;gap:6rem;align-items:start}
+    .fqlft{position:sticky;top:7rem}
+    .fqls{display:flex;flex-direction:column}
+    .fqi{border-bottom:1px solid var(--brd)}
+    .fqq{width:100%;background:none;border:none;color:var(--wh);font-family:var(--fu);font-size:.87rem;font-weight:400;text-align:left;padding:1.4rem 0;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;cursor:pointer;transition:color .2s;line-height:1.4}
+    .fqq:hover{color:var(--w60)}
+    .fqic{width:22px;height:22px;border-radius:50%;border:1px solid var(--brdm);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--w40);transition:border-color .2s,transform .3s,background .2s}
+    .fqi.op .fqic{transform:rotate(45deg);border-color:var(--bl);color:var(--bl);background:rgba(79,172,254,.08)}
+    .fqa{font-size:.83rem;font-weight:300;line-height:1.85;color:var(--w40);max-height:0;overflow:hidden;transition:max-height .45s ease,padding .3s ease}
+    .fqi.op .fqa{max-height:300px;padding-bottom:1.5rem}
     @media(max-width:900px){.fql{grid-template-columns:1fr;gap:3rem}.fqlft{position:static}}
-    footer{padding:5rem 4rem 3rem;border-top:1px solid var(--brd);background:var(--s1)}.fi{max-width:1420px;margin:0 auto}.ftp{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4rem;margin-bottom:4rem}.flog{font-family:var(--fu);font-size:.76rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--wh);margin-bottom:1rem}.flog em{color:var(--bl);font-style:normal}.ftg{font-family:var(--fd);font-size:1.1rem;font-weight:300;font-style:italic;color:var(--w40);line-height:1.5;margin-bottom:1.5rem}.fdis p{font-size:.65rem;color:var(--w20);line-height:1.85}.fc h5{font-size:.58rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--w20);margin-bottom:1.5rem}.fc ul{list-style:none;display:flex;flex-direction:column;gap:.7rem}.fc ul a{font-size:.8rem;font-weight:300;color:var(--w40);transition:color .2s}.fc ul a:hover{color:var(--wh)}.fbt{border-top:1px solid var(--brd);padding-top:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}.fbt p{font-size:.66rem;font-weight:300;color:var(--w20)}.fbl{display:flex;gap:2rem}.fbl a{font-size:.66rem;color:var(--w20);transition:color .2s}.fbl a:hover{color:var(--w40)}
-    @media(max-width:900px){footer{padding:4rem 2rem 2rem}.ftp{grid-template-columns:1fr 1fr;gap:2.5rem}}@media(max-width:600px){.ftp{grid-template-columns:1fr}}
+    footer{padding:5rem 4rem 3rem;border-top:1px solid var(--brd);background:var(--s1)}
+    .fi{max-width:1420px;margin:0 auto}
+    .ftp{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4rem;margin-bottom:4rem}
+    .flog{font-family:var(--fu);font-size:.76rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--wh);margin-bottom:1rem}
+    .flog em{color:var(--bl);font-style:normal}
+    .ftg{font-family:var(--fd);font-size:1.1rem;font-weight:300;font-style:italic;color:var(--w40);line-height:1.5;margin-bottom:1.5rem}
+    .fdis p{font-size:.65rem;color:var(--w20);line-height:1.85}
+    .fc h5{font-size:.58rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--w20);margin-bottom:1.5rem}
+    .fc ul{list-style:none;display:flex;flex-direction:column;gap:.7rem}
+    .fc ul a{font-size:.8rem;font-weight:300;color:var(--w40);transition:color .2s}
+    .fc ul a:hover{color:var(--wh)}
+    .fbt{border-top:1px solid var(--brd);padding-top:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+    .fbt p{font-size:.66rem;font-weight:300;color:var(--w20)}
+    .fbl{display:flex;gap:2rem}
+    .fbl a{font-size:.66rem;color:var(--w20);transition:color .2s}
+    .fbl a:hover{color:var(--w40)}
+    @media(max-width:900px){footer{padding:4rem 2rem 2rem}.ftp{grid-template-columns:1fr 1fr;gap:2.5rem}}
+    @media(max-width:600px){.ftp{grid-template-columns:1fr}}
 
     /* ============================
        TIMELESS RESEARCH CSS VIAL
@@ -84,16 +179,14 @@
     .rubber-stopper{position:absolute;top:8px;left:14px;width:116px;height:28px;border-radius:5px;background:#3d3d3d;box-shadow:inset 0 4px 7px rgba(255,255,255,.12),0 2px 4px rgba(0,0,0,.2)}
     .vial-glass{position:absolute;top:105px;left:28px;width:244px;height:315px;border-radius:22px 22px 30px 30px;background:linear-gradient(90deg,rgba(255,255,255,.82) 0%,rgba(220,220,220,.22) 10%,rgba(255,255,255,.45) 23%,rgba(210,210,210,.16) 50%,rgba(255,255,255,.52) 76%,rgba(180,180,180,.25) 100%);border:3px solid rgba(255,255,255,.85);box-shadow:inset 8px 0 12px rgba(255,255,255,.75),inset -8px 0 12px rgba(0,0,0,.07),inset 0 -10px 18px rgba(0,0,0,.06),0 2px 5px rgba(0,0,0,.12);overflow:hidden}
     .peptide-powder{position:absolute;bottom:0;left:8px;right:8px;height:82px;background:radial-gradient(ellipse at center top,#fff 0%,#f1f1f1 45%,#dedede 100%);border-radius:50% 50% 0 0;box-shadow:inset 0 8px 10px rgba(255,255,255,.8),0 -3px 8px rgba(0,0,0,.05)}
-    .vial-label{position:absolute;top:88px;left:-1px;width:246px;height:178px;background:linear-gradient(180deg,#fff 0%,#fafafa 100%);box-shadow:0 2px 5px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.9);text-align:center;font-family:Arial,Helvetica,sans-serif;color:#171717;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0}
-    .brand-logo{font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:36px;line-height:1;letter-spacing:-6px;transform:scaleX(1.05);color:#111}
-    .brand-name{font-size:12px;font-weight:600;letter-spacing:3px;margin-top:1px;color:#111}
-    .label-line{width:82%;height:1.5px;background:#202020;margin:7px auto}
+    .vial-label{position:absolute;top:88px;left:-1px;width:246px;height:178px;background:linear-gradient(180deg,#fff 0%,#fafafa 100%);box-shadow:0 2px 5px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.9);text-align:center;font-family:Arial,Helvetica,sans-serif;color:#171717;z-index:3;padding-top:2px}
+    .brand-logo{font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:39px;line-height:40px;margin-top:9px;letter-spacing:-7px;transform:scaleX(1.05);color:#111}
+    .brand-name{font-size:13px;font-weight:500;letter-spacing:3px;margin-top:-2px;color:#171717}
+    .label-line{width:82%;height:1.5px;background:#202020;margin:10px auto 9px}
     .peptide-name{font-weight:900;letter-spacing:-1px;line-height:1.1;padding:0 6px;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-    .dosage{display:inline-block;margin-top:5px;padding:3px 18px 4px;background:#202020;color:#fff;font-size:16px;font-weight:700;letter-spacing:1px;font-family:Arial,Helvetica,sans-serif}
-    .research-only{font-size:8.5px;font-weight:600;letter-spacing:1.4px;white-space:nowrap;margin-top:4px;color:#444}
+    .dosage{display:inline-block;margin-top:7px;padding:4px 30px 5px;background:#202020;color:#fff;font-size:18px;font-weight:700;letter-spacing:1px;font-family:Arial,Helvetica,sans-serif}
+    .research-only{font-size:9.5px;font-weight:500;letter-spacing:1.4px;white-space:nowrap}
     .glass-reflection{position:absolute;top:14px;left:15px;width:20px;height:280px;border-radius:50%;background:linear-gradient(90deg,rgba(255,255,255,.75),rgba(255,255,255,.05));filter:blur(1px);z-index:10;pointer-events:none}
-
-    /* In-card: scale vial to fit */
     .cc-vial-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;pointer-events:none}
     .cc-vial-wrap .peptide-vial{pointer-events:auto;transform:scale(0.645);flex-shrink:0;transition:transform .4s cubic-bezier(.34,1.56,.64,1),filter .35s ease}
     .cc:hover .cc-vial-wrap .peptide-vial{transform:scale(0.645) translateY(-14px);filter:drop-shadow(0 35px 30px rgba(0,0,0,.25)) drop-shadow(0 0 40px rgba(79,172,254,.15))}
@@ -103,20 +196,30 @@
 <div class="abar">
   <span>🚚 <em>Free Shipping</em> on Orders $300+</span>
   <span>⏱ Delivery: <em>4–14 Days</em></span>
-  <span>👥 Buying with a Friend? Split — each pay <em>50%</em></span>
+  <span>🤝 Buying with a Friend? Split — each pay <em>50%</em></span>
 </div>
 <nav class="nav" id="nav">
   <a href="#" class="nav-logo">TIMELESS <em>RESEARCH</em></a>
-  <ul class="nav-links"><li><a href="#catalog">Catalog</a></li><li><a href="#science">Science</a></li><li><a href="#quality">Quality</a></li><li><a href="#about">About</a></li><li><a href="#faq">FAQ</a></li></ul>
+  <ul class="nav-links">
+    <li><a href="#catalog">Catalog</a></li>
+    <li><a href="#science">Science</a></li>
+    <li><a href="#quality">Quality</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
   <a href="#catalog" class="nav-cta">Order Now</a>
 </nav>
 <section class="hero" id="hero">
-  <canvas id="pcvs"></canvas><div class="hgr"></div>
+  <canvas id="pcvs"></canvas>
+  <div class="hgr"></div>
   <div class="hcnt">
     <div class="htag">Research-Grade Peptide Compounds</div>
     <h1>Precision. Purity.<br><em>Verified Results.</em></h1>
     <p class="hsub">60+ research compounds. 99% average purity. Full Certificate of Analysis on every lot.</p>
-    <div class="hbtns"><a href="#catalog" class="bp">Shop Catalog</a><a href="#quality" class="bg">Our Standards</a></div>
+    <div class="hbtns">
+      <a href="#catalog" class="bp">Shop Catalog</a>
+      <a href="#quality" class="bg">Our Standards</a>
+    </div>
   </div>
   <div class="hscr"><div class="hscr-l"></div>Scroll</div>
 </section>
@@ -130,16 +233,22 @@
   <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;margin-bottom:2.5rem;flex-wrap:wrap" data-r>
     <div><span class="ey">Full Product Catalog</span><h2 class="stl">Research Compounds</h2><p class="ssb">All products for research use only. Not for human or veterinary consumption.</p></div>
   </div>
-  <div class="ctabs" id="ctabs"></div><div class="cgr" id="cgr"></div>
+  <div class="ctabs" id="ctabs"></div>
+  <div class="cgr" id="cgr"></div>
 </div></section>
 <section class="sec dk" id="coming-soon"><div class="si">
   <div data-r><span class="ey">Expanding Catalog</span><h2 class="stl" style="font-size:clamp(1.8rem,3vw,2.8rem);margin-bottom:1rem;">Coming <em>Soon.</em></h2><p class="ssb" style="margin-bottom:2.5rem;">These compounds are in production or pending availability.</p></div>
   <div class="csg" id="csg"></div>
 </div></section>
 <section class="sec" id="science"><div class="si"><div class="sci-l">
-  <div class="sci-lft" data-r><span class="ey">The Science</span><h2 class="stl">Built Around<br><em>Better Research.</em></h2>
+  <div class="sci-lft" data-r>
+    <span class="ey">The Science</span><h2 class="stl">Built Around<br><em>Better Research.</em></h2>
     <p style="font-size:.87rem;font-weight:300;line-height:1.85;color:var(--w40);margin-top:1.2rem;max-width:380px;">Precisely manufactured compounds backed by rigorous documentation.</p>
-    <div class="sci-sr"><div class="sci-st"><div class="sn" data-count="99">0</div><div class="slb">Average purity %</div></div><div class="sci-st"><div class="sn" data-count="60">0</div><div class="slb">Active compounds</div></div><div class="sci-st"><div class="sn" data-count="100">0</div><div class="slb">% lots tested</div></div></div>
+    <div class="sci-sr">
+      <div class="sci-st"><div class="sn" data-count="99">0</div><div class="slb">Average purity %</div></div>
+      <div class="sci-st"><div class="sn" data-count="60">0</div><div class="slb">Active compounds</div></div>
+      <div class="sci-st"><div class="sn" data-count="100">0</div><div class="slb">% lots tested</div></div>
+    </div>
   </div>
   <div class="sci-rt">
     <div data-r><span class="sn-">01 — WHAT ARE PEPTIDES</span><h3>Chains of Amino Acids With Defined Research Utility</h3><p>Peptides are short chains of amino acids that play signaling roles throughout biological systems. Synthetic peptides allow scientists to study these pathways in controlled laboratory environments.</p></div>
@@ -154,48 +263,50 @@
 <section class="sec dk" id="quality"><div class="si">
   <div class="prhd" data-r><span class="ey">Quality & Testing</span><h2 class="stl">Our Standard<br><em>Process.</em></h2><p class="ssb" style="margin-top:1rem;">Every compound follows the same five-stage process before it reaches a researcher's hands.</p></div>
   <div class="prst">
-    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">01</div></div><div class="prcnt"><span class="prlbl">Source Material</span><h3 class="prtl">Pharmaceutical-Grade Raw Inputs</h3><p class="prds">Amino acid inputs sourced from validated pharmaceutical-grade suppliers with compliance checks before production.</p></div></div>
-    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">02</div></div><div class="prcnt"><span class="prlbl">Synthesis</span><h3 class="prtl">Solid-Phase Peptide Synthesis</h3><p class="prds">SPPS provides precise amino acid sequence control with intermediate purification throughout synthesis.</p></div></div>
-    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">03</div></div><div class="prcnt"><span class="prlbl">Analytical Testing</span><h3 class="prtl">HPLC Purity and Mass Spectrometry</h3><p class="prds">Every batch: HPLC (≥98% threshold) and mass spectrometry identity confirmation.</p></div></div>
-    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">04</div></div><div class="prcnt"><span class="prlbl">Batch Verification</span><h3 class="prtl">Independent Review Before Release</h3><p class="prds">Failing batches rejected. Lot numbers assigned only to batches meeting all specifications.</p></div></div>
-    <div class="prsp" data-r><div class="prlft"><div class="prc">05</div></div><div class="prcnt"><span class="prlbl">Documentation</span><h3 class="prtl">Certificate of Analysis — Every Lot</h3><p class="prds">COA per lot: purity, molecular weight, CAS number, lot ID, test date. Available on request.</p></div></div>
+    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">01</div></div><div class="prcnt"><span class="prlbl">Source Material</span><h3 class="prtl">Pharmaceutical-Grade Raw Inputs</h3><p class="prds">Amino acid inputs sourced from validated pharmaceutical-grade suppliers with certificate compliance checks before production.</p></div></div>
+    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">02</div></div><div class="prcnt"><span class="prlbl">Synthesis</span><h3 class="prtl">Solid-Phase Peptide Synthesis</h3><p class="prds">SPPS provides precise control over amino acid sequence with intermediate purification steps throughout synthesis.</p></div></div>
+    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">03</div></div><div class="prcnt"><span class="prlbl">Analytical Testing</span><h3 class="prtl">HPLC Purity and Mass Spectrometry</h3><p class="prds">Every batch undergoes HPLC analysis (≥98% threshold) and mass spectrometry for molecular identity confirmation.</p></div></div>
+    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">04</div></div><div class="prcnt"><span class="prlbl">Batch Verification</span><h3 class="prtl">Independent Review Before Release</h3><p class="prds">Batches failing purity thresholds are rejected. Lot numbers assigned only to batches meeting all specifications.</p></div></div>
+    <div class="prsp" data-r><div class="prlft"><div class="prc">05</div></div><div class="prcnt"><span class="prlbl">Documentation</span><h3 class="prtl">Certificate of Analysis — Every Lot</h3><p class="prds">COA issued per lot with purity data, molecular weight, CAS number, lot identifier, and test date. Available on request.</p></div></div>
   </div>
 </div></section>
 <section class="sec" id="about"><div class="si"><div class="abl">
   <div class="abv" data-r><div class="avr"></div><div class="avr"></div><div class="avr"></div><div class="avi"><div class="avl"></div><div class="avn"></div><div class="avl"></div></div></div>
-  <div class="abt" data-r><span class="ey">About</span><h2 class="stl" style="margin-bottom:1.75rem;">Precision.<br><em>Transparency.</em><br>Research.</h2>
+  <div class="abt" data-r>
+    <span class="ey">About</span><h2 class="stl" style="margin-bottom:1.75rem;">Precision.<br><em>Transparency.</em><br>Research.</h2>
     <p>Timeless Research provides the scientific community with consistently manufactured research peptides backed by complete, verifiable analytical documentation.</p>
     <p>We do not make medical claims. We supply precisely characterized research materials for legitimate laboratory use.</p>
-    <p>Every compound independently analyzed. Every lot documented. Every certificate available on demand.</p>
+    <p>Every compound is independently analyzed. Every lot has documentation. Every certificate is available on demand.</p>
     <div class="abvl">
-      <div class="abvc" data-r><div class="abvt">Precision</div><div class="abvd">Exact specs every production run.</div></div>
-      <div class="abvc" data-r data-d="1"><div class="abvt">Transparency</div><div class="abvd">Full analytical documentation every compound.</div></div>
-      <div class="abvc" data-r data-d="2"><div class="abvt">Responsibility</div><div class="abvd">Not for human or veterinary use.</div></div>
+      <div class="abvc" data-r><div class="abvt">Precision</div><div class="abvd">Exact specs applied to every production run.</div></div>
+      <div class="abvc" data-r data-d="1"><div class="abvt">Transparency</div><div class="abvd">Full analytical documentation for every compound.</div></div>
+      <div class="abvc" data-r data-d="2"><div class="abvt">Responsibility</div><div class="abvd">Products not for human or veterinary use.</div></div>
       <div class="abvc" data-r data-d="3"><div class="abvt">Integrity</div><div class="abvd">No inflated claims. Accurate information only.</div></div>
     </div>
   </div>
 </div></div></section>
 <section class="sec dk" id="faq"><div class="si"><div class="fql">
-  <div class="fqlft" data-r><span class="ey">FAQ</span><h2 class="stl" style="font-size:clamp(1.8rem,3vw,2.8rem);">Common<br><em>Questions.</em></h2>
+  <div class="fqlft" data-r>
+    <span class="ey">FAQ</span><h2 class="stl" style="font-size:clamp(1.8rem,3vw,2.8rem);">Common<br><em>Questions.</em></h2>
     <p class="ssb" style="margin-top:1rem;font-size:.82rem;">Have a question? Contact our research team.</p>
     <div style="margin-top:2.5rem;"><a href="#" style="display:inline-block;font-size:.7rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--bl);border:1px solid rgba(79,172,254,.3);padding:.7rem 1.6rem;border-radius:2px;">Contact Research Team</a></div>
   </div>
   <div class="fqls" data-r>
-    <div class="fqi"><button class="fqq">What are research peptides?<span class="fqic">+</span></button><div class="fqa">Research peptides are short amino acid chains for laboratory research. Not approved for human consumption or any clinical, therapeutic, or veterinary use.</div></div>
-    <div class="fqi"><button class="fqq">Are these approved for human use?<span class="fqic">+</span></button><div class="fqa">No. Strictly for in vitro laboratory research. Not FDA-approved. Researchers responsible for compliance with all applicable laws.</div></div>
-    <div class="fqi"><button class="fqq">Where can I find the Certificate of Analysis?<span class="fqic">+</span></button><div class="fqa">COAs available for every product. Contact our team with product name and lot number.</div></div>
-    <div class="fqi"><button class="fqq">How should research materials be stored?<span class="fqic">+</span></button><div class="fqa">Lyophilized: 2–8°C short-term, −20°C extended. Reconstituted: −20°C in small aliquots.</div></div>
-    <div class="fqi"><button class="fqq">Can two people split an order?<span class="fqic">+</span></button><div class="fqa">Yes — each party pays 50%. Contact us before submitting split orders.</div></div>
-    <div class="fqi"><button class="fqq">Do you ship internationally?<span class="fqic">+</span></button><div class="fqa">We ship to most countries. Full documentation provided for customs clearance.</div></div>
-    <div class="fqi"><button class="fqq">What does "30 caps" mean?<span class="fqic">+</span></button><div class="fqa">Dose listed is per capsule. 30 capsules per package. Total = dose × 30.</div></div>
+    <div class="fqi"><button class="fqq">What are research peptides?<span class="fqic">+</span></button><div class="fqa">Research peptides are short chains of amino acids for laboratory and scientific research. Not approved for human consumption or any clinical, therapeutic, or veterinary use.</div></div>
+    <div class="fqi"><button class="fqq">Are these products approved for human use?<span class="fqic">+</span></button><div class="fqa">No. All products are strictly for in vitro laboratory research. Not approved by the FDA for human or animal consumption. Researchers are responsible for compliance with all applicable laws.</div></div>
+    <div class="fqi"><button class="fqq">Where can I find the Certificate of Analysis?<span class="fqic">+</span></button><div class="fqa">COAs are available for every product. Contact our team with the product name and lot number. Every COA includes HPLC purity data and mass spectrometry identity confirmation.</div></div>
+    <div class="fqi"><button class="fqq">How should research materials be stored?<span class="fqic">+</span></button><div class="fqa">Lyophilized peptides: 2–8°C short-term, −20°C extended storage. Reconstituted compounds: −20°C in small aliquots to minimize freeze-thaw cycles.</div></div>
+    <div class="fqi"><button class="fqq">Can two people split an order?<span class="fqic">+</span></button><div class="fqa">Yes — each party pays 50%. Contact us with questions about split orders before submitting.</div></div>
+    <div class="fqi"><button class="fqq">Do you ship internationally?<span class="fqic">+</span></button><div class="fqa">We ship to most countries subject to applicable regulations. Full documentation provided to support customs clearance.</div></div>
+    <div class="fqi"><button class="fqq">What does "30 caps" mean?<span class="fqic">+</span></button><div class="fqa">The listed amount is the dose per capsule. Each package contains 30 capsules/pills. Total active ingredient = dose × 30.</div></div>
   </div>
 </div></div></section>
 <footer><div class="fi">
   <div class="ftp">
-    <div><div class="flog">TIMELESS <em>RESEARCH</em></div><p class="ftg">Advancing the Future<br>of Peptide Research.</p><div class="fdis"><p>Research Use Only · Not for Human Consumption · Free Shipping $300+</p></div></div>
-    <div class="fc"><h5>Catalog</h5><ul><li><a href="#catalog">All Products</a></li><li><a href="#catalog">Weight Management</a></li><li><a href="#catalog">Healing & Recovery</a></li><li><a href="#catalog">Growth Hormones</a></li></ul></div>
-    <div class="fc"><h5>Science</h5><ul><li><a href="#science">What Are Peptides</a></li><li><a href="#quality">Quality Process</a></li><li><a href="#about">About Us</a></li></ul></div>
-    <div class="fc"><h5>Info</h5><ul><li><a href="#faq">FAQ</a></li><li><a href="#">Contact</a></li><li><a href="#">COA Request</a></li><li><a href="#coming-soon">Coming Soon</a></li></ul></div>
+    <div><div class="flog">TIMELESS <em>RESEARCH</em></div><p class="ftg">Advancing the Future<br>of Peptide Research.</p><div class="fdis"><p>Research Use Only · Not for Human Consumption<br>Not for Veterinary Use · Free Shipping Orders $300+</p></div></div>
+    <div class="fc"><h5>Catalog</h5><ul><li><a href="#catalog">All Products</a></li><li><a href="#catalog">Weight Management</a></li><li><a href="#catalog">Healing & Recovery</a></li><li><a href="#catalog">Growth Hormones</a></li><li><a href="#catalog">Longevity</a></li></ul></div>
+    <div class="fc"><h5>Science</h5><ul><li><a href="#science">What Are Peptides</a></li><li><a href="#science">Testing Methods</a></li><li><a href="#quality">Quality Process</a></li><li><a href="#about">About Us</a></li></ul></div>
+    <div class="fc"><h5>Information</h5><ul><li><a href="#faq">FAQ</a></li><li><a href="#">Contact</a></li><li><a href="#">Shipping Info</a></li><li><a href="#">COA Request</a></li><li><a href="#coming-soon">Coming Soon</a></li></ul></div>
   </div>
   <div class="fbt"><p>&copy; 2026 Timeless Research. All rights reserved. Products are for research use only.</p><div class="fbl"><a href="#">Terms</a><a href="#">Privacy</a><a href="#">Research Disclaimer</a></div></div>
 </div></footer>
@@ -264,7 +375,6 @@ const P = [
   ['WA10','Sterile Water','10mL','',15,'supplies','No Benzyl Alcohol'],
   ['BAC10','BAC Water','10mL','',15,'supplies','0.9% Benzyl Alcohol'],
 ];
-
 const CS = [
   ['SS-31','10mg'],['SS-31','50mg'],['AHK-CU','100mg'],['AICAR','50mg'],
   ['AOD 9604','10mg'],['Cagrilintide','10mg'],['Thymosin Alpha-1','10mg'],
@@ -275,7 +385,6 @@ const CS = [
   ['GHRP-2','10mg'],['GHRP-6 Acetate','10mg'],['Pinealon','20mg'],
   ['Cerebroprotein','60mg'],['Adamax','10mg'],['Cartilax','20mg'],['P021','20mg'],
 ];
-
 const CATS = [
   {k:'all',l:'All Products'},{k:'weight',l:'Weight Management'},
   {k:'healing',l:'Healing & Recovery'},{k:'growth',l:'Growth Hormones'},
@@ -283,15 +392,10 @@ const CATS = [
   {k:'sexual',l:'Sexual Health'},{k:'injectable',l:'Injectables'},
   {k:'orals',l:'Orals & Ancillaries'},{k:'supplies',l:'Supplies'},
 ];
-
-function nameFs(n){
-  const l=n.length;
-  return l<=4?'32px':l<=6?'28px':l<=9?'23px':l<=12?'18px':l<=16?'14px':l<=20?'11px':'9px';
-}
-
+function nameFs(n){const l=n.length;return l<=4?'32px':l<=6?'28px':l<=9?'23px':l<=12?'18px':l<=16?'14px':l<=20?'11px':'9px'}
 function card(p){
-  const nm=p[1].length>20?p[1].slice(0,19)+'\u2026':p[1];
-  const dose=p[2]+(p[3]?' \u00B7 '+p[3]:'');
+  const nm=p[1].length>20?p[1].slice(0,19)+'…':p[1];
+  const dose=p[2]+(p[3]?' · '+p[3]:'');
   return `<div class="cc">
   <div class="cc-v">
     <div class="cc-vial-wrap">
@@ -306,7 +410,7 @@ function card(p){
             <div class="label-line"></div>
             <div class="peptide-name" style="font-size:${nameFs(p[1])}">${p[1].toUpperCase()}</div>
             <div class="dosage">${p[2].toUpperCase()}</div>
-            <div class="label-line" style="margin-bottom:2px"></div>
+            <div class="label-line" style="margin-bottom:0"></div>
             <div class="research-only">FOR RESEARCH USE ONLY</div>
           </div>
           <div class="glass-reflection"></div>
@@ -321,25 +425,14 @@ function card(p){
     <div class="cc-ds">${p[6]}</div>
     <div class="cc-bot"><span class="cc-do">${dose}</span><span class="cc-pr">$${p[4]}</span></div>
   </div>
-</div>`;
-}
-
+</div>`;}
 function render(cat){return(cat==='all'?P:P.filter(p=>p[5]===cat)).map(card).join('')}
-
 const tabs=document.getElementById('ctabs'),grid=document.getElementById('cgr');
-CATS.forEach((c,i)=>{
-  const b=document.createElement('button');
-  b.className='ctab'+(i===0?' on':'');b.textContent=c.l;b.dataset.k=c.k;
-  b.addEventListener('click',()=>{document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));b.classList.add('on');grid.innerHTML=render(c.k)});
-  tabs.appendChild(b);
-});
+CATS.forEach((c,i)=>{const b=document.createElement('button');b.className='ctab'+(i===0?' on':'');b.textContent=c.l;b.dataset.k=c.k;b.addEventListener('click',()=>{document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));b.classList.add('on');grid.innerHTML=render(c.k)});tabs.appendChild(b);});
 grid.innerHTML=render('all');
-
 document.getElementById('csg').innerHTML=CS.map(c=>`<div class="csc"><div class="cstg">COMING SOON</div><div class="csnm">${c[0]}</div><div class="csdo">${c[1]}</div></div>`).join('');
-
 const nav=document.getElementById('nav');
 window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>80),{passive:true});
-
 const cv=document.getElementById('pcvs'),cx=cv.getContext('2d');
 let pts=[],ms={x:-999,y:-999};
 const rsz=()=>{cv.width=cv.offsetWidth;cv.height=cv.offsetHeight};
@@ -349,13 +442,10 @@ rsz();mkP();drw();
 window.addEventListener('resize',()=>{rsz();mkP()},{passive:true});
 cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();ms.x=e.clientX-r.left;ms.y=e.clientY-r.top});
 cv.addEventListener('mouseleave',()=>{ms.x=-999;ms.y=-999});
-
 const rvo=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')})},{threshold:.08,rootMargin:'0px 0px -40px 0px'});
 document.querySelectorAll('[data-r]').forEach(el=>rvo.observe(el));
-
 const cto=new IntersectionObserver(es=>{es.forEach(e=>{if(!e.isIntersecting)return;const el=e.target,tg=parseInt(el.dataset.count);let s=0;const st=tg/60;const tick=()=>{s=Math.min(s+st,tg);el.textContent=Math.floor(s);if(s<tg)requestAnimationFrame(tick);else el.textContent=tg};requestAnimationFrame(tick);cto.unobserve(el)})},{threshold:.5});
 document.querySelectorAll('[data-count]').forEach(el=>cto.observe(el));
-
 document.querySelectorAll('.fqq').forEach(q=>{q.addEventListener('click',()=>{const it=q.closest('.fqi'),op=it.classList.contains('op');document.querySelectorAll('.fqi.op').forEach(i=>i.classList.remove('op'));if(!op)it.classList.add('op')})});
 document.querySelectorAll('.prsp').forEach(s=>{s.addEventListener('mouseenter',()=>s.classList.add('on'));s.addEventListener('mouseleave',()=>s.classList.remove('on'))});
 </script>
