@@ -83,8 +83,6 @@
     @media(max-width:1200px){.cgr{grid-template-columns:repeat(4,1fr)}}
     @media(max-width:850px){.cgr{grid-template-columns:repeat(3,1fr)}}
     @media(max-width:560px){.cgr{grid-template-columns:repeat(2,1fr)}}
-
-    /* PRODUCT CARD */
     .cc{background:var(--s1);display:flex;flex-direction:column;transition:background .25s;cursor:pointer;position:relative;overflow:hidden}
     .cc::before{content:'';position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 70% 50% at 50% 90%,rgba(79,172,254,.1),transparent);opacity:0;transition:opacity .4s;pointer-events:none}
     .cc:hover::before{opacity:1}
@@ -97,10 +95,7 @@
     .cc:hover .cc-wrap{
       transform:translateY(-10px) scale(1.06);
       filter:drop-shadow(0 22px 40px rgba(0,0,0,.6)) drop-shadow(0 4px 10px rgba(0,0,0,.45)) drop-shadow(0 0 32px rgba(79,172,254,.25))}
-
-    /* Canvas — 2x retina, displayed at 190x285 */
     .cc-cnv{display:block;width:190px;height:285px;border-radius:4px 4px 14px 14px}
-
     .cc-gw{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:120px;height:24px;z-index:1;background:radial-gradient(ellipse,rgba(79,172,254,.3),transparent 70%);filter:blur(10px)}
     .cc-inf{padding:1rem .9rem .9rem;flex:1;display:flex;flex-direction:column;position:relative;z-index:2}
     .cc-id{font-family:var(--fm);font-size:.5rem;color:var(--bl);letter-spacing:1.5px;margin-bottom:.22rem;opacity:.7}
@@ -109,7 +104,6 @@
     .cc-bot{display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
     .cc-do{font-family:var(--fm);font-size:.5rem;color:var(--w20);line-height:1.5}
     .cc-pr{font-family:var(--fu);font-size:1rem;font-weight:700;color:var(--wh)}
-
     .csg{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--brd);border:1px solid var(--brd)}
     @media(max-width:1200px){.csg{grid-template-columns:repeat(4,1fr)}}
     @media(max-width:780px){.csg{grid-template-columns:repeat(3,1fr)}}
@@ -320,14 +314,12 @@
 
 <script>
 const VIAL_SRC = 'https://storage.googleapis.com/crm-conversations-ai-production/ask-ai-images/1788145927937/622555e5-f330-47fc-8f93-096b88243bbf.png';
-
 const CW = 190, CH = 285;
 const DPR = Math.min(window.devicePixelRatio || 1, 2);
 const PW  = CW * DPR;
 const PH  = CH * DPR;
-
 const vialImg = new Image();
-let imgReady  = false;
+let imgReady = false;
 
 function drawVial(canvas) {
   if (!imgReady) return;
@@ -345,37 +337,56 @@ function drawVial(canvas) {
   ctx.textAlign    = 'center';
   ctx.textBaseline = 'middle';
 
-  ctx.font      = '700 8px Inter, system-ui, sans-serif';
-  ctx.fillStyle = 'rgba(0,0,0,0.9)';
-  ctx.fillText('TIMELESS RESEARCH', lcx, lcy - 41);
+  /* 1. BRAND NAME — top of label */
+  ctx.font      = '700 6.5px Inter, system-ui, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.75)';
+  ctx.fillText('TIMELESS  RESEARCH', lcx, lcy - 78);
 
-  ctx.font      = '800 16px Inter, system-ui, sans-serif';
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText(name.toUpperCase(), lcx, lcy - 18);
-
-  ctx.strokeStyle = 'rgba(79,172,254,0.85)';
-  ctx.lineWidth   = 1.1;
+  /* 2. BLUE PRODUCT-NAME BAND */
+  const bandW = 128, bandH = 46;
+  const bandX = lcx - bandW / 2;
+  const bandY = lcy - 60;
+  ctx.fillStyle = '#4FACFE';
   ctx.beginPath();
-  ctx.moveTo(lcx - 63, lcy - 6);
-  ctx.lineTo(lcx + 63, lcy - 6);
-  ctx.stroke();
+  if (ctx.roundRect) {
+    ctx.roundRect(bandX, bandY, bandW, bandH, 4);
+  } else {
+    ctx.rect(bandX, bandY, bandW, bandH);
+  }
+  ctx.fill();
 
-  ctx.font      = '600 11px "Courier New", Courier, monospace';
-  ctx.fillStyle = 'rgba(255,255,255,0.93)';
-  ctx.fillText(dose, lcx, lcy + 12);
+  /* Product name — auto-shrink to fit band */
+  let fs = 14;
+  ctx.font = `800 ${fs}px Inter, system-ui, sans-serif`;
+  while (ctx.measureText(name.toUpperCase()).width > bandW - 12 && fs > 7) {
+    fs -= 0.5;
+    ctx.font = `800 ${fs}px Inter, system-ui, sans-serif`;
+  }
+  ctx.fillStyle = '#000000';
+  ctx.fillText(name.toUpperCase(), lcx, bandY + bandH / 2);
 
-  ctx.font      = '600 8px "Courier New", Courier, monospace';
-  ctx.fillStyle = 'rgba(79,172,254,0.95)';
-  ctx.fillText('\u226599% Purity \u00B7 HPLC', lcx, lcy + 30);
+  /* 3. DOSE BOX — outlined */
+  const boxW = 70, boxH = 24;
+  const boxX = lcx - boxW / 2;
+  const boxY = lcy + 10;
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+  ctx.lineWidth   = 0.9;
+  ctx.strokeRect(boxX, boxY, boxW, boxH);
+  ctx.font      = '600 10px "Courier New", Courier, monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  ctx.fillText(dose, lcx, boxY + boxH / 2);
+
+  /* 4. DISCLAIMER */
+  ctx.font      = '500 5.5px Inter, system-ui, sans-serif';
+  ctx.fillStyle = 'rgba(255,80,80,0.85)';
+  ctx.fillText('Research Purposes Only', lcx, lcy + 52);
 
   ctx.restore();
 }
 
-function drawAll() {
-  document.querySelectorAll('.cc-cnv').forEach(drawVial);
-}
+function drawAll() { document.querySelectorAll('.cc-cnv').forEach(drawVial); }
 
-vialImg.onload = function () {
+vialImg.onload = function() {
   imgReady = true;
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(drawAll);
 };
@@ -465,16 +476,16 @@ const CATS = [
 ];
 
 function card(p) {
-  const nm   = p[1].length > 16 ? p[1].slice(0, 15) + '\u2026' : p[1];
+  const nm   = p[1].length > 20 ? p[1].slice(0, 19) + '\u2026' : p[1];
   const dose = p[2] + (p[3] ? ' \u00B7 ' + p[3] : '');
   return `<div class="cc">
   <div class="cc-v"><div class="cc-wrap">
     <canvas class="cc-cnv" width="${PW}" height="${PH}"
-      data-name="${nm}" data-dose="${p[2]}"></canvas>
+      data-name="${p[1]}" data-dose="${p[2]}"></canvas>
   </div><div class="cc-gw"></div></div>
   <div class="cc-inf">
     <div class="cc-id">${p[0]}</div>
-    <div class="cc-nm">${p[1]}</div>
+    <div class="cc-nm">${nm}</div>
     <div class="cc-ds">${p[6]}</div>
     <div class="cc-bot"><span class="cc-do">${dose}</span><span class="cc-pr">$${p[4]}</span></div>
   </div>
