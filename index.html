@@ -77,8 +77,6 @@
     @media(max-width:1200px){.cgr{grid-template-columns:repeat(4,1fr)}}
     @media(max-width:850px){.cgr{grid-template-columns:repeat(3,1fr)}}
     @media(max-width:560px){.cgr{grid-template-columns:repeat(2,1fr)}}
-
-    /* ── PRODUCT CARD ── */
     .cc{background:var(--s1);display:flex;flex-direction:column;transition:background .25s;cursor:pointer;position:relative;overflow:hidden}
     .cc::before{content:'';position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 70% 50% at 50% 90%,rgba(79,172,254,.1),transparent);opacity:0;transition:opacity .4s;pointer-events:none}
     .cc:hover::before{opacity:1}.cc:hover{background:var(--s2)}
@@ -90,56 +88,54 @@
       filter:drop-shadow(0 22px 40px rgba(0,0,0,.6)) drop-shadow(0 4px 10px rgba(0,0,0,.45)) drop-shadow(0 0 32px rgba(79,172,254,.25))}
 
     /* ── VIAL LABEL OVERLAY ──
-       Image 800×1200px displayed at 190×285px (same 2:3 ratio, no crop)
-       Label zones measured from image:
-         Top blue stripe : 37.4% – 42.5%
-         Black body      : 43.3% – 78.5%
-         Bottom stripe   : 79.3% – 80.4%
+       Image 800x1200 shown at 190x285px (2:3 = no crop).
+       Label: top blue stripe 37.4-42.5% | black body 43.3-78.5%
+       Reference layout: tiny brand → BIG name band → dose box → disclaimer
     */
     .vw{position:relative;display:inline-block;line-height:0}
     .vi{display:block;width:190px;height:285px;object-fit:cover;border-radius:2px}
-
-    /* TIMELESS RESEARCH — vertically centered on top blue stripe */
+    /* TIMELESS RESEARCH — tiny, faint, top of black body */
     .vbr{
-      position:absolute;top:40%;left:50%;
+      position:absolute;top:44.5%;left:50%;
       transform:translate(-50%,-50%);
-      font-size:5px;font-weight:800;letter-spacing:2.5px;
-      color:#fff;white-space:nowrap;
-      font-family:var(--fu);pointer-events:none;line-height:1;
-      text-shadow:0 1px 3px rgba(0,0,0,.6);
+      font-size:4.5px;font-weight:700;letter-spacing:2px;
+      color:rgba(255,255,255,.55);
+      white-space:nowrap;font-family:var(--fu);pointer-events:none;line-height:1;
     }
-    /* Product name — blue band in upper black body */
+    /* Product name — BIG dominant blue band */
     .vlb{
-      position:absolute;top:48%;left:50%;
+      position:absolute;top:49%;left:50%;
       transform:translateX(-50%);
-      width:68%;background:#4FACFE;border-radius:2px;
-      text-align:center;padding:5px 3px;pointer-events:none;line-height:1;
+      width:74%;background:#4FACFE;border-radius:3px;
+      text-align:center;padding:10px 4px;pointer-events:none;line-height:1;
     }
     .vln{
       font-family:var(--fu);font-weight:900;color:#000;
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
       max-width:100%;display:block;line-height:1.1;
     }
-    /* Dose — mid black body */
+    /* Dose — styled glowing box */
     .vdo{
-      position:absolute;top:62%;left:50%;
+      position:absolute;top:66%;left:50%;
       transform:translateX(-50%);
-      font-size:8px;font-weight:700;
-      color:rgba(255,255,255,.92);
-      font-family:var(--fm);white-space:nowrap;
-      pointer-events:none;line-height:1;letter-spacing:.5px;
+      font-size:7.5px;font-weight:700;
+      color:rgba(255,255,255,.88);
+      font-family:var(--fm);white-space:nowrap;pointer-events:none;
+      line-height:1;letter-spacing:1px;
+      background:rgba(79,172,254,.12);
+      border:1px solid rgba(79,172,254,.35);
+      border-radius:2px;padding:2px 6px;
     }
-    /* Disclaimer — lower black body */
+    /* FOR RESEARCH USE ONLY */
     .vdi{
-      position:absolute;top:72%;left:50%;
+      position:absolute;top:74.5%;left:50%;
       transform:translateX(-50%);
       font-size:4px;font-weight:700;
-      color:rgba(255,70,70,.95);
+      color:rgba(255,70,70,.88);
       white-space:nowrap;font-family:var(--fu);
       letter-spacing:.6px;text-transform:uppercase;
       pointer-events:none;line-height:1;
     }
-
     .cc-gw{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:120px;height:24px;z-index:1;background:radial-gradient(ellipse,rgba(79,172,254,.3),transparent 70%);filter:blur(10px)}
     .cc-inf{padding:1rem .9rem .9rem;flex:1;display:flex;flex-direction:column;position:relative;z-index:2}
     .cc-id{font-family:var(--fm);font-size:.5rem;color:var(--bl);letter-spacing:1.5px;margin-bottom:.22rem;opacity:.7}
@@ -148,7 +144,6 @@
     .cc-bot{display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
     .cc-do{font-family:var(--fm);font-size:.5rem;color:var(--w20);line-height:1.5}
     .cc-pr{font-family:var(--fu);font-size:1rem;font-weight:700;color:var(--wh)}
-
     .csg{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--brd);border:1px solid var(--brd)}
     @media(max-width:1200px){.csg{grid-template-columns:repeat(4,1fr)}}
     @media(max-width:780px){.csg{grid-template-columns:repeat(3,1fr)}}
@@ -232,7 +227,7 @@
 <div class="abar">
   <span>🚚 <em>Free Shipping</em> on Orders $300+</span>
   <span>⏱ Delivery: <em>4–14 Days</em></span>
-  <span>👥 Buying with a Friend? Split — each pay <em>50%</em></span>
+  <span>🤝 Buying with a Friend? Split — each pay <em>50%</em></span>
 </div>
 
 <nav class="nav" id="nav">
@@ -444,8 +439,8 @@ const CATS = [
 ];
 
 function bandFs(n){
-  const l = n.length;
-  return l<=5?'13px':l<=8?'11px':l<=12?'9px':l<=16?'7.5px':'6.5px';
+  const l=n.length;
+  return l<=4?'18px':l<=7?'15px':l<=10?'12px':l<=14?'9.5px':l<=18?'7.5px':'6px';
 }
 
 function card(p) {
@@ -525,9 +520,9 @@ const drw = () => {
   requestAnimationFrame(drw);
 };
 rsz(); mkP(); drw();
-window.addEventListener('resize', ()=>{rsz();mkP();}, {passive:true});
-cv.addEventListener('mousemove', e=>{const r=cv.getBoundingClientRect();ms.x=e.clientX-r.left;ms.y=e.clientY-r.top;});
-cv.addEventListener('mouseleave', ()=>{ms.x=-999;ms.y=-999;});
+window.addEventListener('resize',()=>{rsz();mkP();},{passive:true});
+cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();ms.x=e.clientX-r.left;ms.y=e.clientY-r.top;});
+cv.addEventListener('mouseleave',()=>{ms.x=-999;ms.y=-999;});
 
 const rvo = new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.08,rootMargin:'0px 0px -40px 0px'});
 document.querySelectorAll('[data-r]').forEach(el=>rvo.observe(el));
