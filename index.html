@@ -369,7 +369,7 @@ function openModal(sku){
   document.getElementById('modal-type').textContent=p[6];
   document.getElementById('modal-desc').textContent=CAT_DESC[p[5]]||'';
   document.getElementById('modal-dose').textContent=p[2];
-  document.getElementById('modal-format').textContent=p[3]||'—';
+  document.getElementById('modal-format').textContent=p[2];
   document.getElementById('modal-price').textContent='$'+p[4];
   document.getElementById('modal-vial-wrap').innerHTML=vialHTML(p,280);
   const btn=document.getElementById('modal-buy');
