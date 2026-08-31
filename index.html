@@ -87,16 +87,16 @@
     .cc::before{content:'';position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 70% 50% at 50% 90%,rgba(79,172,254,.1),transparent);opacity:0;transition:opacity .4s;pointer-events:none}
     .cc:hover::before{opacity:1}
     .cc:hover{background:var(--s2)}
-    .cc-v{height:400px;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--brd);background:radial-gradient(ellipse 60% 60% at 50% 65%,rgba(79,172,254,.05),transparent),#030303;overflow:hidden}
+    .cc-v{height:400px;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--brd);background:radial-gradient(ellipse 60% 60% at 50% 65%,rgba(79,172,254,.04),transparent),#0a0a0a;overflow:hidden}
     .cc-wrap{position:relative;display:inline-block;flex-shrink:0;
       transition:transform .45s cubic-bezier(.34,1.56,.64,1);
-      filter:drop-shadow(0 8px 24px rgba(0,0,0,.65)) drop-shadow(0 2px 6px rgba(0,0,0,.5));
+      filter:drop-shadow(0 8px 24px rgba(0,0,0,.55)) drop-shadow(0 2px 6px rgba(0,0,0,.4));
       z-index:2}
     .cc:hover .cc-wrap{
       transform:translateY(-10px) scale(1.06);
-      filter:drop-shadow(0 22px 40px rgba(0,0,0,.6)) drop-shadow(0 4px 10px rgba(0,0,0,.45)) drop-shadow(0 0 32px rgba(79,172,254,.25))}
-    .cc-cnv{display:block;width:190px;height:285px;border-radius:4px 4px 14px 14px}
-    .cc-gw{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:120px;height:24px;z-index:1;background:radial-gradient(ellipse,rgba(79,172,254,.3),transparent 70%);filter:blur(10px)}
+      filter:drop-shadow(0 22px 40px rgba(0,0,0,.5)) drop-shadow(0 4px 10px rgba(0,0,0,.35)) drop-shadow(0 0 28px rgba(79,172,254,.2))}
+    .cc-cnv{display:block;width:190px;height:285px;border-radius:2px}
+    .cc-gw{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:100px;height:18px;z-index:1;background:radial-gradient(ellipse,rgba(79,172,254,.25),transparent 70%);filter:blur(8px)}
     .cc-inf{padding:1rem .9rem .9rem;flex:1;display:flex;flex-direction:column;position:relative;z-index:2}
     .cc-id{font-family:var(--fm);font-size:.5rem;color:var(--bl);letter-spacing:1.5px;margin-bottom:.22rem;opacity:.7}
     .cc-nm{font-family:var(--fd);font-size:1.05rem;font-weight:400;color:var(--wh);margin-bottom:.18rem;line-height:1.15}
@@ -313,13 +313,16 @@
 </div></footer>
 
 <script>
-const VIAL_SRC = 'https://storage.googleapis.com/crm-conversations-ai-production/ask-ai-images/1788145927937/622555e5-f330-47fc-8f93-096b88243bbf.png';
+/* ─── VIAL: blank white-label pharmaceutical vial ─── */
+const VIAL_SRC = 'https://storage.googleapis.com/crm-conversations-ai-production/ask-ai-images/1788148067649/66adb662-fca1-443d-b12a-1efa43e492d1.png';
+
 const CW = 190, CH = 285;
 const DPR = Math.min(window.devicePixelRatio || 1, 2);
 const PW  = CW * DPR;
 const PH  = CH * DPR;
+
 const vialImg = new Image();
-let imgReady = false;
+let imgReady  = false;
 
 function drawVial(canvas) {
   if (!imgReady) return;
@@ -327,59 +330,71 @@ function drawVial(canvas) {
   ctx.clearRect(0, 0, PW, PH);
   ctx.save();
   ctx.scale(DPR, DPR);
+
+  /* Draw blank-label vial */
   ctx.drawImage(vialImg, 0, 0, CW, CH);
 
   const name = canvas.dataset.name || '';
   const dose = canvas.dataset.dose || '';
-  const lcx  = CW / 2;
-  const lcy  = CH * 0.55;
+  const lcx  = CW / 2;       /* 95  */
+  const lcy  = CH * 0.54;    /* 153.9 — white label center (30%–78% of vial) */
 
   ctx.textAlign    = 'center';
   ctx.textBaseline = 'middle';
 
-  /* 1. BRAND NAME — top of label */
-  ctx.font      = '700 6.5px Inter, system-ui, sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.75)';
-  ctx.fillText('TIMELESS  RESEARCH', lcx, lcy - 78);
+  /* 1. TIMELESS RESEARCH — blue, top of label */
+  ctx.font      = '700 6px Inter, system-ui, sans-serif';
+  ctx.fillStyle = '#4FACFE';
+  ctx.fillText('TIMELESS RESEARCH', lcx, lcy - 50);
 
-  /* 2. BLUE PRODUCT-NAME BAND */
-  const bandW = 128, bandH = 46;
+  /* thin rule */
+  ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+  ctx.lineWidth   = 0.6;
+  ctx.beginPath();
+  ctx.moveTo(lcx - 54, lcy - 41);
+  ctx.lineTo(lcx + 54, lcy - 41);
+  ctx.stroke();
+
+  /* 2. Blue band — product name */
+  const bandW = 118, bandH = 40;
   const bandX = lcx - bandW / 2;
-  const bandY = lcy - 60;
+  const bandY = lcy - 40;
   ctx.fillStyle = '#4FACFE';
   ctx.beginPath();
   if (ctx.roundRect) {
-    ctx.roundRect(bandX, bandY, bandW, bandH, 4);
+    ctx.roundRect(bandX, bandY, bandW, bandH, 3);
   } else {
     ctx.rect(bandX, bandY, bandW, bandH);
   }
   ctx.fill();
 
-  /* Product name — auto-shrink to fit band */
-  let fs = 14;
+  /* Product name — white, auto-shrink to fit */
+  let fs = 13;
   ctx.font = `800 ${fs}px Inter, system-ui, sans-serif`;
-  while (ctx.measureText(name.toUpperCase()).width > bandW - 12 && fs > 7) {
+  while (ctx.measureText(name.toUpperCase()).width > bandW - 10 && fs > 6.5) {
     fs -= 0.5;
     ctx.font = `800 ${fs}px Inter, system-ui, sans-serif`;
   }
-  ctx.fillStyle = '#000000';
+  ctx.fillStyle = '#ffffff';
   ctx.fillText(name.toUpperCase(), lcx, bandY + bandH / 2);
 
-  /* 3. DOSE BOX — outlined */
-  const boxW = 70, boxH = 24;
-  const boxX = lcx - boxW / 2;
-  const boxY = lcy + 10;
-  ctx.strokeStyle = 'rgba(255,255,255,0.55)';
-  ctx.lineWidth   = 0.9;
-  ctx.strokeRect(boxX, boxY, boxW, boxH);
+  /* 3. Dose — dark text on white label */
   ctx.font      = '600 10px "Courier New", Courier, monospace';
-  ctx.fillStyle = 'rgba(255,255,255,0.92)';
-  ctx.fillText(dose, lcx, boxY + boxH / 2);
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fillText(dose, lcx, lcy + 17);
 
-  /* 4. DISCLAIMER */
-  ctx.font      = '500 5.5px Inter, system-ui, sans-serif';
-  ctx.fillStyle = 'rgba(255,80,80,0.85)';
-  ctx.fillText('Research Purposes Only', lcx, lcy + 52);
+  /* thin rule */
+  ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+  ctx.lineWidth   = 0.6;
+  ctx.beginPath();
+  ctx.moveTo(lcx - 54, lcy + 30);
+  ctx.lineTo(lcx + 54, lcy + 30);
+  ctx.stroke();
+
+  /* 4. FOR RESEARCH USE ONLY — red, bottom */
+  ctx.font      = '500 5px Inter, system-ui, sans-serif';
+  ctx.fillStyle = 'rgba(180,30,30,0.85)';
+  ctx.fillText('FOR RESEARCH USE ONLY', lcx, lcy + 40);
 
   ctx.restore();
 }
@@ -476,7 +491,7 @@ const CATS = [
 ];
 
 function card(p) {
-  const nm   = p[1].length > 20 ? p[1].slice(0, 19) + '\u2026' : p[1];
+  const nm   = p[1].length > 20 ? p[1].slice(0,19) + '\u2026' : p[1];
   const dose = p[2] + (p[3] ? ' \u00B7 ' + p[3] : '');
   return `<div class="cc">
   <div class="cc-v"><div class="cc-wrap">
@@ -516,49 +531,44 @@ document.getElementById('csg').innerHTML = CS.map(c =>
 ).join('');
 
 const nav = document.getElementById('nav');
-window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 80), { passive: true });
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 80), {passive:true});
 
 const cv = document.getElementById('pcvs'), cx = cv.getContext('2d');
-let pts = [], ms = { x: -999, y: -999 };
-const rsz = () => { cv.width = cv.offsetWidth; cv.height = cv.offsetHeight; };
+let pts = [], ms = {x:-999,y:-999};
+const rsz = () => {cv.width=cv.offsetWidth;cv.height=cv.offsetHeight};
 const mkP = () => {
-  const n = Math.min(Math.floor(cv.width * cv.height / 14000), 80);
-  pts = Array.from({ length: n }, () => ({
-    x: Math.random() * cv.width, y: Math.random() * cv.height,
-    vx: (Math.random() - .5) * .25, vy: (Math.random() - .5) * .25,
-    r: Math.random() * 1.5 + .4, a: Math.random() * .4 + .1
-  }));
+  const n = Math.min(Math.floor(cv.width*cv.height/14000),80);
+  pts = Array.from({length:n},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:Math.random()*1.5+.4,a:Math.random()*.4+.1}));
 };
 const drw = () => {
-  cx.clearRect(0, 0, cv.width, cv.height); const md = 140;
-  pts.forEach((p, i) => {
-    const dx = ms.x - p.x, dy = ms.y - p.y, d = Math.sqrt(dx * dx + dy * dy);
-    if (d < 100) { p.vx -= (dx / d) * .015; p.vy -= (dy / d) * .015; }
-    p.vx *= .992; p.vy *= .992; p.x += p.vx; p.y += p.vy;
-    if (p.x < 0) p.x = cv.width; if (p.x > cv.width) p.x = 0;
-    if (p.y < 0) p.y = cv.height; if (p.y > cv.height) p.y = 0;
-    for (let j = i + 1; j < pts.length; j++) {
-      const q = pts[j], ex = p.x - q.x, ey = p.y - q.y, ed = Math.sqrt(ex * ex + ey * ey);
-      if (ed < md) { cx.beginPath(); cx.strokeStyle = `rgba(79,172,254,${(1 - ed / md) * .12})`; cx.lineWidth = .5; cx.moveTo(p.x, p.y); cx.lineTo(q.x, q.y); cx.stroke(); }
+  cx.clearRect(0,0,cv.width,cv.height);const md=140;
+  pts.forEach((p,i)=>{
+    const dx=ms.x-p.x,dy=ms.y-p.y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<100){p.vx-=(dx/d)*.015;p.vy-=(dy/d)*.015}
+    p.vx*=.992;p.vy*=.992;p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;
+    if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;
+    for(let j=i+1;j<pts.length;j++){
+      const q=pts[j],ex=p.x-q.x,ey=p.y-q.y,ed=Math.sqrt(ex*ex+ey*ey);
+      if(ed<md){cx.beginPath();cx.strokeStyle=`rgba(79,172,254,${(1-ed/md)*.12})`;cx.lineWidth=.5;cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.stroke()}
     }
-    cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    cx.fillStyle = `rgba(79,172,254,${p.a})`; cx.fill();
+    cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle=`rgba(79,172,254,${p.a})`;cx.fill();
   });
   requestAnimationFrame(drw);
 };
-rsz(); mkP(); drw();
-window.addEventListener('resize', () => { rsz(); mkP(); }, { passive: true });
-cv.addEventListener('mousemove', e => { const r = cv.getBoundingClientRect(); ms.x = e.clientX - r.left; ms.y = e.clientY - r.top; });
-cv.addEventListener('mouseleave', () => { ms.x = -999; ms.y = -999; });
+rsz();mkP();drw();
+window.addEventListener('resize',()=>{rsz();mkP()},{passive:true});
+cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();ms.x=e.clientX-r.left;ms.y=e.clientY-r.top});
+cv.addEventListener('mouseleave',()=>{ms.x=-999;ms.y=-999});
 
-const rvo = new IntersectionObserver(es => { es.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }); }, { threshold: .08, rootMargin: '0px 0px -40px 0px' });
-document.querySelectorAll('[data-r]').forEach(el => rvo.observe(el));
+const rvo = new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')})},{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('[data-r]').forEach(el=>rvo.observe(el));
 
-const cto = new IntersectionObserver(es => { es.forEach(e => { if (!e.isIntersecting) return; const el = e.target, tg = parseInt(el.dataset.count); let s = 0; const st = tg / 60; const tick = () => { s = Math.min(s + st, tg); el.textContent = Math.floor(s); if (s < tg) requestAnimationFrame(tick); else el.textContent = tg; }; requestAnimationFrame(tick); cto.unobserve(el); }); }, { threshold: .5 });
-document.querySelectorAll('[data-count]').forEach(el => cto.observe(el));
+const cto = new IntersectionObserver(es=>{es.forEach(e=>{if(!e.isIntersecting)return;const el=e.target,tg=parseInt(el.dataset.count);let s=0;const st=tg/60;const tick=()=>{s=Math.min(s+st,tg);el.textContent=Math.floor(s);if(s<tg)requestAnimationFrame(tick);else el.textContent=tg};requestAnimationFrame(tick);cto.unobserve(el)})},{threshold:.5});
+document.querySelectorAll('[data-count]').forEach(el=>cto.observe(el));
 
-document.querySelectorAll('.fqq').forEach(q => { q.addEventListener('click', () => { const it = q.closest('.fqi'), op = it.classList.contains('op'); document.querySelectorAll('.fqi.op').forEach(i => i.classList.remove('op')); if (!op) it.classList.add('op'); }); });
-document.querySelectorAll('.prsp').forEach(s => { s.addEventListener('mouseenter', () => s.classList.add('on')); s.addEventListener('mouseleave', () => s.classList.remove('on')); });
+document.querySelectorAll('.fqq').forEach(q=>{q.addEventListener('click',()=>{const it=q.closest('.fqi'),op=it.classList.contains('op');document.querySelectorAll('.fqi.op').forEach(i=>i.classList.remove('op'));if(!op)it.classList.add('op')})});
+document.querySelectorAll('.prsp').forEach(s=>{s.addEventListener('mouseenter',()=>s.classList.add('on'));s.addEventListener('mouseleave',()=>s.classList.remove('on'))});
 </script>
 </body>
 </html>
