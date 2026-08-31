@@ -87,15 +87,14 @@
     .cc:hover .vial-frame{transform:translateY(-10px) scale(1.06);filter:drop-shadow(0 22px 40px rgba(0,0,0,.7)) drop-shadow(0 0 36px rgba(79,172,254,.28))}
     .vial-img{display:block;height:310px;width:auto;object-fit:contain}
     .vial-lbl{
-      position:absolute;top:40%;left:29%;right:29%;height:34%;
+      position:absolute;top:40%;left:28%;right:28%;height:34%;
       background:linear-gradient(90deg,#bebebe 0%,#fff 22%,#fff 78%,#bebebe 100%);
       display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
       font-family:Arial,Helvetica,sans-serif;color:#111;
       overflow:hidden;pointer-events:none;z-index:5;
       box-shadow:0 3px 10px rgba(0,0,0,.5),0 -2px 7px rgba(0,0,0,.35),inset 10px 0 14px rgba(0,0,0,.15),inset -10px 0 14px rgba(0,0,0,.15);
     }
-    .vial-lbl::before{content:''}
-    .vial-lbl::after{content:''}
+    .vial-lbl::before{content:''}.vial-lbl::after{content:''}
     .lbl-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;padding:7px 4px;gap:0}
     .bl-logo-svg{display:block;width:22px;height:17px;margin:0 auto 2px;flex-shrink:0}
     .bl-name{display:block;font-size:5.5px;line-height:7px;font-weight:700;letter-spacing:1.5px;color:#1a1a1a;white-space:nowrap;margin:0 0 3px 0}
@@ -155,6 +154,34 @@
     .fbt p{font-size:.66rem;font-weight:300;color:var(--w20)}.fbl{display:flex;gap:2rem}.fbl a{font-size:.66rem;color:var(--w20);transition:color .2s}.fbl a:hover{color:var(--w40)}
     @media(max-width:900px){footer{padding:4rem 2rem 2rem}.ftp{grid-template-columns:1fr 1fr;gap:2.5rem}}
     @media(max-width:600px){.ftp{grid-template-columns:1fr}}
+    /* ── MODAL ── */
+    #modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(10px)}
+    #modal-overlay.open{display:flex}
+    .modal-box{background:var(--s2);border:1px solid var(--brdm);max-width:940px;width:100%;max-height:92vh;overflow-y:auto;position:relative;border-radius:3px;animation:mslide .3s ease}
+    @keyframes mslide{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .modal-close{position:absolute;top:1rem;right:1rem;background:var(--s3);border:1px solid var(--brd);color:var(--w40);font-size:1rem;cursor:pointer;z-index:10;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:color .2s,background .2s,border-color .2s}
+    .modal-close:hover{color:var(--wh);background:var(--s4);border-color:var(--brdm)}
+    .modal-inner{display:grid;grid-template-columns:300px 1fr;min-height:520px}
+    .modal-left{background:radial-gradient(ellipse 60% 60% at 50% 65%,rgba(79,172,254,.07),transparent),#030303;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.5rem 2rem;border-right:1px solid var(--brd);gap:1.5rem}
+    .modal-left .vial-frame{height:280px;filter:drop-shadow(0 10px 30px rgba(0,0,0,.9))}
+    .modal-left .vial-frame:hover{transform:none;filter:drop-shadow(0 10px 30px rgba(0,0,0,.9))}
+    .modal-left .vial-img{height:280px}
+    .modal-badge{font-family:var(--fm);font-size:.48rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--bl);background:rgba(79,172,254,.08);border:1px solid rgba(79,172,254,.2);padding:.35rem .85rem;border-radius:20px}
+    .modal-right{padding:2.5rem}
+    .modal-sku{font-family:var(--fm);font-size:.52rem;color:var(--bl);letter-spacing:2px;margin-bottom:.3rem}
+    .modal-cat{font-family:var(--fm);font-size:.48rem;color:var(--w20);letter-spacing:2px;text-transform:uppercase;margin-bottom:.85rem}
+    .modal-name{font-family:var(--fd);font-size:2.5rem;font-weight:300;color:var(--wh);line-height:1.08;margin-bottom:.5rem}
+    .modal-type{font-size:.75rem;color:var(--bl);margin-bottom:1.5rem;font-weight:500;letter-spacing:.3px}
+    .modal-desc{font-size:.84rem;font-weight:300;line-height:1.88;color:var(--w40);margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid var(--brd)}
+    .modal-specs{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;margin-bottom:2rem}
+    .mspec{padding:.9rem 1rem;background:var(--s3);border:1px solid var(--brd);border-radius:2px}
+    .mspec-lbl{display:block;font-family:var(--fm);font-size:.46rem;color:var(--w20);letter-spacing:2px;text-transform:uppercase;margin-bottom:.45rem}
+    .mspec-val{display:block;font-size:.88rem;font-weight:600;color:var(--wh);line-height:1.2}
+    .mspec-val.price{color:var(--bl);font-size:1.4rem}
+    .modal-buy{display:block;text-align:center;background:var(--bl);color:#000;font-family:var(--fu);font-size:.75rem;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;padding:1.1rem 2rem;border-radius:2px;margin-bottom:.85rem;transition:opacity .2s,transform .2s;cursor:pointer}
+    .modal-buy:hover{opacity:.88;transform:translateY(-2px)}
+    .modal-disclaimer{font-size:.58rem;color:var(--w20);text-align:center;line-height:1.7;letter-spacing:.3px}
+    @media(max-width:720px){.modal-inner{grid-template-columns:1fr}.modal-left{border-right:none;border-bottom:1px solid var(--brd);padding:2rem 1.5rem}.modal-right{padding:1.5rem}.modal-name{font-size:1.9rem}.modal-specs{grid-template-columns:repeat(2,1fr)}}
   </style>
 </head>
 <body>
@@ -186,7 +213,7 @@
 </div></div></div>
 <section class="sec" id="catalog"><div class="si">
   <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;margin-bottom:2.5rem;flex-wrap:wrap" data-r>
-    <div><span class="ey">Full Product Catalog</span><h2 class="stl">Research Compounds</h2><p class="ssb">All products for research use only. Not for human or veterinary consumption.</p></div>
+    <div><span class="ey">Full Product Catalog</span><h2 class="stl">Research Compounds</h2><p class="ssb">Click any vial for details and pricing. All products for research use only.</p></div>
   </div>
   <div class="ctabs" id="ctabs"></div><div class="cgr" id="cgr"></div>
 </div></section>
@@ -205,23 +232,23 @@
     </div>
   </div>
   <div class="sci-rt">
-    <div data-r><span class="sn-">01 — WHAT ARE PEPTIDES</span><h3>Chains of Amino Acids With Defined Research Utility</h3><p>Peptides are short chains of amino acids that play signaling roles throughout biological systems.</p></div>
+    <div data-r><span class="sn-">01 — WHAT ARE PEPTIDES</span><h3>Chains of Amino Acids With Defined Research Utility</h3><p>Peptides are short chains of amino acids that play signaling roles throughout biological systems. Synthetic peptides allow scientists to study these pathways in controlled laboratory environments.</p></div>
     <div class="sdv"></div>
     <div data-r><span class="sn-">02 — ANALYTICAL TESTING</span><h3>HPLC Purity Analysis and Mass Spectrometry</h3><p>Every production lot is analyzed using HPLC to verify purity and mass spectrometry to confirm molecular identity.</p></div>
     <div class="sdv"></div>
-    <div data-r><span class="sn-">03 — STORAGE & HANDLING</span><h3>Lyophilization for Long-Term Research Stability</h3><p>Lyophilized peptides provide superior stability compared to liquid formulations.</p></div>
+    <div data-r><span class="sn-">03 — STORAGE & HANDLING</span><h3>Lyophilization for Long-Term Research Stability</h3><p>Lyophilized peptides provide superior stability compared to liquid formulations, retaining integrity throughout extended research programs.</p></div>
     <div class="sdv"></div>
-    <div data-r><span class="sn-">04 — DOCUMENTATION</span><h3>Research Reproducibility Depends on Material Consistency</h3><p>Batch documentation allows researchers to account for material variables and replicate results accurately.</p></div>
+    <div data-r><span class="sn-">04 — DOCUMENTATION</span><h3>Research Reproducibility Depends on Material Consistency</h3><p>Batch documentation allows researchers to account for material variables and replicate results accurately across studies.</p></div>
   </div>
 </div></div></section>
 <section class="sec dk" id="quality"><div class="si">
   <div class="prhd" data-r><span class="ey">Quality & Testing</span><h2 class="stl">Our Standard<br><em>Process.</em></h2><p class="ssb" style="margin-top:1rem;">Every compound follows the same five-stage process before it reaches a researcher's hands.</p></div>
   <div class="prst">
-    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">01</div></div><div class="prcnt"><span class="prlbl">Source Material</span><h3 class="prtl">Pharmaceutical-Grade Raw Inputs</h3><p class="prds">Amino acid inputs sourced from validated pharmaceutical-grade suppliers.</p></div></div>
-    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">02</div></div><div class="prcnt"><span class="prlbl">Synthesis</span><h3 class="prtl">Solid-Phase Peptide Synthesis</h3><p class="prds">SPPS provides precise control over amino acid sequence with intermediate purification steps.</p></div></div>
+    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">01</div></div><div class="prcnt"><span class="prlbl">Source Material</span><h3 class="prtl">Pharmaceutical-Grade Raw Inputs</h3><p class="prds">Amino acid inputs sourced from validated pharmaceutical-grade suppliers with certificate compliance checks before production.</p></div></div>
+    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">02</div></div><div class="prcnt"><span class="prlbl">Synthesis</span><h3 class="prtl">Solid-Phase Peptide Synthesis</h3><p class="prds">SPPS provides precise control over amino acid sequence with intermediate purification steps throughout synthesis.</p></div></div>
     <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">03</div></div><div class="prcnt"><span class="prlbl">Analytical Testing</span><h3 class="prtl">HPLC Purity and Mass Spectrometry</h3><p class="prds">Every batch undergoes HPLC analysis (≥98% threshold) and mass spectrometry for molecular identity confirmation.</p></div></div>
-    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">04</div></div><div class="prcnt"><span class="prlbl">Batch Verification</span><h3 class="prtl">Independent Review Before Release</h3><p class="prds">Batches failing purity thresholds are rejected. Lot numbers assigned only to passing batches.</p></div></div>
-    <div class="prsp" data-r><div class="prlft"><div class="prc">05</div></div><div class="prcnt"><span class="prlbl">Documentation</span><h3 class="prtl">Certificate of Analysis — Every Lot</h3><p class="prds">COA issued per lot with purity data, molecular weight, CAS number, lot identifier, and test date.</p></div></div>
+    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">04</div></div><div class="prcnt"><span class="prlbl">Batch Verification</span><h3 class="prtl">Independent Review Before Release</h3><p class="prds">Batches failing purity thresholds are rejected. Lot numbers assigned only to batches meeting all specifications.</p></div></div>
+    <div class="prsp" data-r><div class="prlft"><div class="prc">05</div></div><div class="prcnt"><span class="prlbl">Documentation</span><h3 class="prtl">Certificate of Analysis — Every Lot</h3><p class="prds">COA issued per lot with purity data, molecular weight, CAS number, lot identifier, and test date. Available on request.</p></div></div>
   </div>
 </div></section>
 <section class="sec" id="about"><div class="si"><div class="abl">
@@ -264,18 +291,96 @@
   </div>
   <div class="fbt"><p>&copy; 2026 Timeless Research. All rights reserved. Products are for research use only.</p><div class="fbl"><a href="#">Terms</a><a href="#">Privacy</a><a href="#">Research Disclaimer</a></div></div>
 </div></footer>
+<!-- ── PRODUCT MODAL ── -->
+<div id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-inner">
+      <div class="modal-left">
+        <div id="modal-vial-wrap"></div>
+        <div class="modal-badge" id="modal-badge">RESEARCH USE ONLY</div>
+      </div>
+      <div class="modal-right">
+        <div class="modal-sku" id="modal-sku"></div>
+        <div class="modal-cat" id="modal-cat"></div>
+        <h2 class="modal-name" id="modal-name"></h2>
+        <div class="modal-type" id="modal-type"></div>
+        <p class="modal-desc" id="modal-desc"></p>
+        <div class="modal-specs">
+          <div class="mspec"><span class="mspec-lbl">Dose</span><span class="mspec-val" id="modal-dose"></span></div>
+          <div class="mspec"><span class="mspec-lbl">Format</span><span class="mspec-val" id="modal-format"></span></div>
+          <div class="mspec"><span class="mspec-lbl">Price</span><span class="mspec-val price" id="modal-price"></span></div>
+        </div>
+        <a class="modal-buy" id="modal-buy" href="#" target="_blank">Buy Now</a>
+        <p class="modal-disclaimer">For research use only. Not for human or veterinary consumption.<br>Certificate of Analysis available on request.</p>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
 const P=[['RT30','Retatrutide','30mg','30 caps',300,'weight','GLP-1/GIP/Glucagon Agonist'],['RT60','Retatrutide','60mg','30 caps',450,'weight','GLP-1/GIP/Glucagon Agonist'],['RT90','Retatrutide','90mg','30 caps',550,'weight','GLP-1/GIP/Glucagon Agonist'],['RT300','Retatrutide','300mg','30 caps',800,'weight','GLP-1/GIP/Glucagon Agonist'],['TR100','Tirzepatide','100mg','30 caps',375,'weight','Dual GIP/GLP-1 Agonist'],['SM30','Semaglutide','30mg','30 caps',180,'weight','GLP-1 Receptor Agonist'],['T3','T3 Thyroid','25mcg','30 pills',45,'weight','Thyroid Hormone Analog'],['BPC60','BPC-157','2mg','30 caps',80,'healing','Body Protection Compound'],['TB30','TB-500','1mg','30 caps',180,'healing','Thymosin Beta-4 Analog'],['BPCTB60','Wolverine Blend','2mg','30 caps',245,'healing','BPC-157 + TB-500'],['GLOW210','GLOW Blend','7mg','30 caps',245,'healing','TB + BPC + GHK-CU'],['KLOW240','KLOW Blend','8mg','30 caps',265,'healing','GHK-CU + TB + BPC + KPV'],['HGH360','HGH','360 IU','',300,'growth','Human Growth Hormone'],['CJCDAC15','CJC-1295 DAC','0.5mg','30 caps',200,'growth','GHRH Analog With DAC'],['CJC30','CJC-1295','1mg','30 caps',180,'growth','GHRH Analog — No DAC'],['IP30','Ipamorelin','1mg','30 caps',80,'growth','Selective GHRP'],['TESA60','Tesamorelin','2mg','30 caps',385,'growth','GHRH Analog'],['MOTS120','MOTS-C','4mg','30 caps',285,'growth','Mitochondrial Peptide'],['IGF3','IGF-1 LR3','100mcg','30 caps',220,'growth','Insulin-like Growth Factor'],['NAD3K','NAD+','100mg','30 caps',155,'longevity','Nicotinamide Adenine Dinucleotide'],['EPIT150','Epithalon','5mg','30 caps',165,'longevity','Telomerase Activating Peptide'],['FOX30','FOXO4-DRI','1mg','30 caps',365,'longevity','Senolytic Peptide'],['GHK300','GHK-CU','10mg','30 caps',70,'longevity','Copper Peptide Complex'],['GLUTA','Glutathione','150mg','30 caps',150,'longevity','Master Antioxidant'],['SEL30','Selank','1mg','30 caps',105,'cognitive','Anxiolytic Heptapeptide'],['SEM30','Semax','1mg','30 caps',105,'cognitive','Nootropic Heptapeptide'],['DIHEX20','Dihexa','667mcg','30 caps',145,'cognitive','Cognitive Enhancement'],['DSIP30','DSIP','1mg','30 caps',100,'cognitive','Delta Sleep-Inducing Peptide'],['KPV30','KPV','1mg','30 caps',80,'cognitive','Anti-Inflammatory Tripeptide'],['MT1','MT-1','667mcg','30 caps',65,'sexual','Melanotan I'],['MT2','MT-2','667mcg','30 caps',65,'sexual','Melanotan II Acetate'],['HCG30K','HCG','1000 IU','30 caps',180,'sexual','Human Chorionic Gonadotropin'],['KP30','Kisspeptin-10','1mg','30 caps',125,'sexual','GnRH Signaling Peptide'],['OXY30','Oxytocin','1mg','30 caps',100,'sexual','Oxytocin Acetate'],['CIALIS','Tadalafil','20mg','30 pills',30,'sexual','PDE5 Inhibitor'],['SILDEN','Sildenafil','100mg','30 pills',30,'sexual','PDE5 Inhibitor'],['TESTE','Test E','250mg/mL','10mL',75,'injectable','Testosterone Enanthate'],['TESTC','Test C','250mg/mL','10mL',75,'injectable','Testosterone Cypionate'],['TESTP','Test P','200mg/mL','10mL',75,'injectable','Testosterone Propionate'],['TRENA','Tren A','100mg/mL','10mL',90,'injectable','Trenbolone Acetate'],['TRENE','Tren E','200mg/mL','10mL',140,'injectable','Trenbolone Enanthate'],['NPP','NPP','200mg/mL','10mL',75,'injectable','Nandrolone Phenylpropionate'],['EQ300','EQ 300','300mg/mL','10mL',90,'injectable','Boldenone Undecylenate'],['EQ600','EQ 600','600mg/mL','10mL',120,'injectable','Boldenone Undecylenate'],['MASTP','Mast P','100mg/mL','10mL',120,'injectable','Drostanolone Propionate'],['MASTE','Mast E','200mg/mL','10mL',180,'injectable','Drostanolone Enanthate'],['PRIMO','Primobolan','200mg/mL','10mL',160,'injectable','Methenolone Enanthate'],['SUPER','Superdrol','50mg','',100,'orals','Methyldrostanolone'],['ANADR','Anadrol','50mg','30 pills',40,'orals','Oxymetholone'],['CLEN','Clenbuterol','40mcg','30 pills',40,'orals','Beta-2 Adrenergic Agonist'],['DIANA','Dianabol','50mg','30 pills',60,'orals','Methandrostenolone'],['WIN','Winstrol','10mg','30 pills',40,'orals','Stanozolol'],['TURINA','Turinabol','50mg','30 pills',70,'orals','Chlorodehydromethyltestosterone'],['HALO','Halotestin','10mg','30 pills',40,'orals','Fluoxymesterone'],['VAR50','Anavar','50mg','30 pills',70,'orals','Oxandrolone'],['ARIM3','Arimidex','1mg','30 pills',40,'orals','Anastrozole / AI'],['LETRO','Letrozole','2.5mg','30 pills',40,'orals','Aromatase Inhibitor'],['TAMOX','Tamoxifen','20mg','30 pills',30,'orals','SERM — Nolvadex'],['PROV','Proviron','25mg','30 pills',40,'orals','Mesterolone'],['WA10','Sterile Water','10mL','',15,'supplies','No Benzyl Alcohol'],['BAC10','BAC Water','10mL','',15,'supplies','0.9% Benzyl Alcohol']];
 const CS=[['SS-31','10mg'],['SS-31','50mg'],['AHK-CU','100mg'],['AICAR','50mg'],['AOD 9604','10mg'],['Cagrilintide','10mg'],['Thymosin Alpha-1','10mg'],['Adipotide','5mg'],['SNAP-8','10mg'],['Thymalin','10mg'],['LL-37','5mg'],['Survodutide','10mg'],['Ara-290','10mg'],['VIP','10mg'],['5-Amino-1MQ','50mg'],['HMG','75 IU'],['Vitamin B12','1mg/mL'],['Lemon Bottle','10mL'],['L-Carnitine','600mg/mL'],['Acetic Acid Water','0.6%'],['GHRP-2','10mg'],['GHRP-6 Acetate','10mg'],['Pinealon','20mg'],['Cerebroprotein','60mg'],['Adamax','10mg'],['Cartilax','20mg'],['P021','20mg']];
 const CATS=[{k:'all',l:'All Products'},{k:'weight',l:'Weight Management'},{k:'healing',l:'Healing & Recovery'},{k:'growth',l:'Growth Hormones'},{k:'longevity',l:'Longevity'},{k:'cognitive',l:'Cognitive'},{k:'sexual',l:'Sexual Health'},{k:'injectable',l:'Injectables'},{k:'orals',l:'Orals & Ancillaries'},{k:'supplies',l:'Supplies'}];
+/* ── STRIPE LINKS ──────────────────────────────────────────────────────
+   Replace each '' with your Stripe product payment link.
+   e.g. RT30: 'https://buy.stripe.com/xxxxxxxxxxxx'
+   Products without a link will show a mailto order button instead.
+──────────────────────────────────────────────────────────────────────── */
+const STRIPE={
+  RT30:'',RT60:'',RT90:'',RT300:'',TR100:'',SM30:'',T3:'',
+  BPC60:'',TB30:'',BPCTB60:'',GLOW210:'',KLOW240:'',
+  HGH360:'',CJCDAC15:'',CJC30:'',IP30:'',TESA60:'',MOTS120:'',IGF3:'',
+  NAD3K:'',EPIT150:'',FOX30:'',GHK300:'',GLUTA:'',
+  SEL30:'',SEM30:'',DIHEX20:'',DSIP30:'',KPV30:'',
+  MT1:'',MT2:'',HCG30K:'',KP30:'',OXY30:'',CIALIS:'',SILDEN:'',
+  TESTE:'',TESTC:'',TESTP:'',TRENA:'',TRENE:'',NPP:'',EQ300:'',EQ600:'',MASTP:'',MASTE:'',PRIMO:'',
+  SUPER:'',ANADR:'',CLEN:'',DIANA:'',WIN:'',TURINA:'',HALO:'',VAR50:'',ARIM3:'',LETRO:'',TAMOX:'',PROV:'',
+  WA10:'',BAC10:''
+};
+const CAT_DESC={
+  weight:'A weight management research compound studied for its effects on metabolic signaling, appetite regulation, and hormonal pathways. Analyzed via HPLC with ≥98% purity threshold. For controlled laboratory research use only.',
+  healing:'A healing and recovery research peptide studied for tissue repair, anti-inflammatory effects, and angiogenesis in preclinical laboratory models. Lyophilized for extended stability. For research use only.',
+  growth:'A growth hormone axis research compound studied for GH secretion, IGF-1 signaling, and metabolic regulation in laboratory settings. HPLC-verified purity. For controlled research use only.',
+  longevity:'A longevity and cellular health research compound studied for senescent cell biology, oxidative stress pathways, and telomere dynamics. Certificate of Analysis available per lot. For research use only.',
+  cognitive:'A cognitive research peptide studied for neuroprotection, anxiety modulation, BDNF signaling, and memory consolidation in preclinical models. Verified by mass spectrometry. For research use only.',
+  sexual:'A sexual health research compound studied for hormonal signaling, reproductive biology, and related physiological pathways in laboratory settings. Analytically verified. For research use only.',
+  injectable:'A sterile injectable research compound prepared in oil or aqueous base. Produced under controlled conditions for laboratory administration research. COA available per lot. For research use only.',
+  orals:'An oral research compound formulated for convenient preclinical laboratory dosing and metabolic pathway research. HPLC purity verified. For controlled research use only.',
+  supplies:'A laboratory research supply used for reconstitution and preparation of lyophilized peptide and hormone compounds. Essential for proper research-grade compound preparation.'
+};
+const CAT_LABELS={weight:'Weight Management',healing:'Healing & Recovery',growth:'Growth Hormones',longevity:'Longevity',cognitive:'Cognitive',sexual:'Sexual Health',injectable:'Injectables',orals:'Orals & Ancillaries',supplies:'Supplies'};
+const PMAP={};
+P.forEach(p=>PMAP[p[0]]=p);
 const T_SVG=`<svg class="bl-logo-svg" viewBox="0 0 40 30" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="40" height="6" fill="#111"/><rect x="15" y="6" width="10" height="24" fill="#111"/></svg>`;
 function nameFs(n){const l=n.length;if(l<=4)return'18px';if(l<=6)return'15px';if(l<=9)return'12px';if(l<=12)return'9px';if(l<=16)return'7px';if(l<=20)return'6px';return'5px'}
-function card(p){const nm=p[1].length>20?p[1].slice(0,19)+'…':p[1];const dose=p[2]+(p[3]?' · '+p[3]:'');return`<div class="cc"><div class="cc-v"><div class="vial-frame"><img src="./vial.png" class="vial-img" alt="${p[1]} vial"><div class="vial-lbl"><div class="lbl-inner">${T_SVG}<span class="bl-name">TIMELESS RESEARCH</span><span class="bl-divider"></span><span class="bl-product" style="font-size:${nameFs(p[1])}">${p[1].toUpperCase()}</span><span class="bl-dose">${p[2].toUpperCase()}</span><span class="bl-disclaimer">FOR RESEARCH USE ONLY</span></div></div></div><div class="cc-gw"></div></div><div class="cc-inf"><div class="cc-id">${p[0]}</div><div class="cc-nm">${nm}</div><div class="cc-ds">${p[6]}</div><div class="cc-bot"><span class="cc-do">${dose}</span><span class="cc-pr">$${p[4]}</span></div></div></div>`;}
+function vialHTML(p,h){return`<div class="vial-frame" style="height:${h}px"><img src="./vial.png" class="vial-img" style="height:${h}px" alt="${p[1]}"><div class="vial-lbl"><div class="lbl-inner">${T_SVG}<span class="bl-name">TIMELESS RESEARCH</span><span class="bl-divider"></span><span class="bl-product" style="font-size:${nameFs(p[1])}">${p[1].toUpperCase()}</span><span class="bl-dose">${p[2].toUpperCase()}</span><span class="bl-disclaimer">FOR RESEARCH USE ONLY</span></div></div></div>`;}
+function card(p){const nm=p[1].length>20?p[1].slice(0,19)+'…':p[1];const dose=p[2]+(p[3]?' · '+p[3]:'');return`<div class="cc" onclick="openModal('${p[0]}')"><div class="cc-v">${vialHTML(p,310)}<div class="cc-gw"></div></div><div class="cc-inf"><div class="cc-id">${p[0]}</div><div class="cc-nm">${nm}</div><div class="cc-ds">${p[6]}</div><div class="cc-bot"><span class="cc-do">${dose}</span><span class="cc-pr">$${p[4]}</span></div></div></div>`;}
 function render(cat){return(cat==='all'?P:P.filter(p=>p[5]===cat)).map(card).join('')}
 const tabs=document.getElementById('ctabs'),grid=document.getElementById('cgr');
 CATS.forEach((c,i)=>{const b=document.createElement('button');b.className='ctab'+(i===0?' on':'');b.textContent=c.l;b.dataset.k=c.k;b.addEventListener('click',()=>{document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));b.classList.add('on');grid.innerHTML=render(c.k)});tabs.appendChild(b)});
 grid.innerHTML=render('all');
 document.getElementById('csg').innerHTML=CS.map(c=>`<div class="csc"><div class="cstg">COMING SOON</div><div class="csnm">${c[0]}</div><div class="csdo">${c[1]}</div></div>`).join('');
+/* ── MODAL ── */
+function openModal(sku){
+  const p=PMAP[sku];if(!p)return;
+  document.getElementById('modal-sku').textContent=sku;
+  document.getElementById('modal-cat').textContent=CAT_LABELS[p[5]]||p[5];
+  document.getElementById('modal-name').textContent=p[1];
+  document.getElementById('modal-type').textContent=p[6];
+  document.getElementById('modal-desc').textContent=CAT_DESC[p[5]]||'';
+  document.getElementById('modal-dose').textContent=p[2];
+  document.getElementById('modal-format').textContent=p[3]||'—';
+  document.getElementById('modal-price').textContent='$'+p[4];
+  document.getElementById('modal-vial-wrap').innerHTML=vialHTML(p,280);
+  const btn=document.getElementById('modal-buy');
+  const url=STRIPE[sku];
+  if(url){btn.href=url;btn.textContent='Buy Now — $'+p[4];}
+  else{btn.href='mailto:order@timelessresearch.com?subject=Order: '+encodeURIComponent(p[1]+' '+p[2])+'&body='+encodeURIComponent("I'd like to order:\n\nProduct: "+p[1]+"\nDose: "+p[2]+"\nFormat: "+(p[3]||'N/A')+"\nPrice: $"+p[4]+"\n\nPlease confirm availability and payment details.");btn.textContent='Place Order — $'+p[4];}
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 const nav=document.getElementById('nav');window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>80),{passive:true});
 const cv=document.getElementById('pcvs'),cx=cv.getContext('2d');let pts=[],ms={x:-999,y:-999};
 const rsz=()=>{cv.width=cv.offsetWidth;cv.height=cv.offsetHeight};
