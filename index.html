@@ -86,15 +86,8 @@
     .vial-frame{position:relative;display:inline-block;height:310px;transition:transform .45s cubic-bezier(.34,1.56,.64,1),filter .35s ease;filter:drop-shadow(0 8px 28px rgba(0,0,0,.85));z-index:2}
     .cc:hover .vial-frame{transform:translateY(-10px) scale(1.06);filter:drop-shadow(0 22px 40px rgba(0,0,0,.7)) drop-shadow(0 0 36px rgba(79,172,254,.28))}
     .vial-img{display:block;height:310px;width:auto;object-fit:contain}
-
-    /* KEY FIX: left/right pulled in to match the glass edge of the vial.
-       If label still bleeds past the vial, increase both values by 2% at a time. */
     .vial-lbl{
-      position:absolute;
-      top:37%;
-      left:29%;
-      right:29%;
-      height:34%;
+      position:absolute;top:37%;left:33%;right:33%;height:34%;
       background:linear-gradient(90deg,rgba(190,190,190,.8) 0%,#fff 22%,#fff 78%,rgba(190,190,190,.8) 100%);
       display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
       font-family:Arial,Helvetica,sans-serif;color:#111;
@@ -104,13 +97,12 @@
     .vial-lbl::before{content:''}
     .vial-lbl::after{content:''}
     .lbl-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;padding:7px 4px;gap:0}
-    .bl-logo-svg{display:block;width:26px;height:20px;margin:0 auto 2px;flex-shrink:0}
-    .bl-name{display:block;font-size:5.5px;line-height:8px;font-weight:700;letter-spacing:2px;color:#1a1a1a;white-space:nowrap;margin:0 0 4px 0}
-    .bl-divider{display:block;width:78%;height:1px;background:#222;margin:0 0 5px 0}
-    .bl-product{display:block;font-weight:900;color:#111;letter-spacing:-.3px;line-height:1;white-space:nowrap;width:90%;overflow:hidden;text-overflow:ellipsis;margin:0 0 5px 0}
-    .bl-dose{display:inline-flex;align-items:center;justify-content:center;background:#111;color:#fff;font-size:8.5px;line-height:10px;font-weight:700;letter-spacing:1px;min-width:46px;height:15px;padding:0 9px;margin:0 0 5px 0;white-space:nowrap}
-    .bl-disclaimer{display:block;font-size:4.8px;line-height:6px;font-weight:700;letter-spacing:1.2px;color:#555;white-space:nowrap;margin:0}
-
+    .bl-logo-svg{display:block;width:22px;height:17px;margin:0 auto 2px;flex-shrink:0}
+    .bl-name{display:block;font-size:5.5px;line-height:7px;font-weight:700;letter-spacing:1.5px;color:#1a1a1a;white-space:nowrap;margin:0 0 3px 0}
+    .bl-divider{display:block;width:78%;height:1px;background:#222;margin:0 0 4px 0}
+    .bl-product{display:block;font-weight:900;color:#111;letter-spacing:-.3px;line-height:1;white-space:nowrap;width:90%;overflow:hidden;text-overflow:ellipsis;margin:0 0 4px 0}
+    .bl-dose{display:inline-flex;align-items:center;justify-content:center;background:#111;color:#fff;font-size:7.5px;line-height:9px;font-weight:700;letter-spacing:1px;min-width:40px;height:13px;padding:0 7px;margin:0 0 4px 0;white-space:nowrap}
+    .bl-disclaimer{display:block;font-size:4.5px;line-height:6px;font-weight:700;letter-spacing:1px;color:#555;white-space:nowrap;margin:0}
     .csg{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--brd);border:1px solid var(--brd)}
     @media(max-width:1200px){.csg{grid-template-columns:repeat(4,1fr)}}
     @media(max-width:780px){.csg{grid-template-columns:repeat(3,1fr)}}
@@ -217,9 +209,9 @@
     <div class="sdv"></div>
     <div data-r><span class="sn-">02 — ANALYTICAL TESTING</span><h3>HPLC Purity Analysis and Mass Spectrometry</h3><p>Every production lot is analyzed using HPLC to verify purity and mass spectrometry to confirm molecular identity.</p></div>
     <div class="sdv"></div>
-    <div data-r><span class="sn-">03 — STORAGE & HANDLING</span><h3>Lyophilization for Long-Term Research Stability</h3><p>Lyophilized peptides provide superior stability compared to liquid formulations, retaining integrity throughout extended research programs.</p></div>
+    <div data-r><span class="sn-">03 — STORAGE & HANDLING</span><h3>Lyophilization for Long-Term Research Stability</h3><p>Lyophilized peptides provide superior stability compared to liquid formulations.</p></div>
     <div class="sdv"></div>
-    <div data-r><span class="sn-">04 — DOCUMENTATION</span><h3>Research Reproducibility Depends on Material Consistency</h3><p>Batch documentation allows researchers to account for material variables and replicate results accurately across studies.</p></div>
+    <div data-r><span class="sn-">04 — DOCUMENTATION</span><h3>Research Reproducibility Depends on Material Consistency</h3><p>Batch documentation allows researchers to account for material variables and replicate results accurately.</p></div>
   </div>
 </div></div></section>
 <section class="sec dk" id="quality"><div class="si">
@@ -277,7 +269,7 @@ const P=[['RT30','Retatrutide','30mg','30 caps',300,'weight','GLP-1/GIP/Glucagon
 const CS=[['SS-31','10mg'],['SS-31','50mg'],['AHK-CU','100mg'],['AICAR','50mg'],['AOD 9604','10mg'],['Cagrilintide','10mg'],['Thymosin Alpha-1','10mg'],['Adipotide','5mg'],['SNAP-8','10mg'],['Thymalin','10mg'],['LL-37','5mg'],['Survodutide','10mg'],['Ara-290','10mg'],['VIP','10mg'],['5-Amino-1MQ','50mg'],['HMG','75 IU'],['Vitamin B12','1mg/mL'],['Lemon Bottle','10mL'],['L-Carnitine','600mg/mL'],['Acetic Acid Water','0.6%'],['GHRP-2','10mg'],['GHRP-6 Acetate','10mg'],['Pinealon','20mg'],['Cerebroprotein','60mg'],['Adamax','10mg'],['Cartilax','20mg'],['P021','20mg']];
 const CATS=[{k:'all',l:'All Products'},{k:'weight',l:'Weight Management'},{k:'healing',l:'Healing & Recovery'},{k:'growth',l:'Growth Hormones'},{k:'longevity',l:'Longevity'},{k:'cognitive',l:'Cognitive'},{k:'sexual',l:'Sexual Health'},{k:'injectable',l:'Injectables'},{k:'orals',l:'Orals & Ancillaries'},{k:'supplies',l:'Supplies'}];
 const T_SVG=`<svg class="bl-logo-svg" viewBox="0 0 40 30" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="40" height="6" fill="#111"/><rect x="15" y="6" width="10" height="24" fill="#111"/></svg>`;
-function nameFs(n){const l=n.length;if(l<=4)return'18px';if(l<=6)return'15px';if(l<=9)return'12px';if(l<=12)return'10px';if(l<=16)return'8px';if(l
+function nameFs(n){const l=n.length;if(l<=4)return'18px';if(l<=6)return'15px';if(l<=9)return'12px';if(l<=12)return'9px';if(l<=16)return'7px';if(l<=20)return'6px';return'5px'}
 function card(p){const nm=p[1].length>20?p[1].slice(0,19)+'…':p[1];const dose=p[2]+(p[3]?' · '+p[3]:'');return`<div class="cc"><div class="cc-v"><div class="vial-frame"><img src="./vial.png" class="vial-img" alt="${p[1]} vial"><div class="vial-lbl"><div class="lbl-inner">${T_SVG}<span class="bl-name">TIMELESS RESEARCH</span><span class="bl-divider"></span><span class="bl-product" style="font-size:${nameFs(p[1])}">${p[1].toUpperCase()}</span><span class="bl-dose">${p[2].toUpperCase()}</span><span class="bl-disclaimer">FOR RESEARCH USE ONLY</span></div></div></div><div class="cc-gw"></div></div><div class="cc-inf"><div class="cc-id">${p[0]}</div><div class="cc-nm">${nm}</div><div class="cc-ds">${p[6]}</div><div class="cc-bot"><span class="cc-do">${dose}</span><span class="cc-pr">$${p[4]}</span></div></div></div>`;}
 function render(cat){return(cat==='all'?P:P.filter(p=>p[5]===cat)).map(card).join('')}
 const tabs=document.getElementById('ctabs'),grid=document.getElementById('cgr');
