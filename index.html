@@ -83,7 +83,7 @@
     .cc{background:var(--s1);display:flex;flex-direction:column;transition:background .25s;cursor:pointer;position:relative;overflow:hidden}
     .cc::before{content:'';position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 70% 50% at 50% 90%,rgba(79,172,254,.1),transparent);opacity:0;transition:opacity .4s;pointer-events:none}
     .cc:hover::before{opacity:1}.cc:hover{background:var(--s2)}
-    .cc-v{height:400px;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--brd);background:radial-gradient(ellipse 60% 60% at 50% 65%,rgba(79,172,254,.05),transparent),#030303;overflow:hidden}
+    .cc-v{height:360px;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--brd);background:radial-gradient(ellipse 60% 60% at 50% 65%,rgba(79,172,254,.05),transparent),#030303;overflow:hidden}
     .cc-gw{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:120px;height:24px;z-index:1;background:radial-gradient(ellipse,rgba(79,172,254,.3),transparent 70%);filter:blur(10px)}
     .cc-inf{padding:1rem .9rem .9rem;flex:1;display:flex;flex-direction:column;position:relative;z-index:2}
     .cc-id{font-family:var(--fm);font-size:.5rem;color:var(--bl);letter-spacing:1.5px;margin-bottom:.22rem;opacity:.7}
@@ -92,6 +92,16 @@
     .cc-bot{display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
     .cc-do{font-family:var(--fm);font-size:.5rem;color:var(--w20);line-height:1.5}
     .cc-pr{font-family:var(--fu);font-size:1rem;font-weight:700;color:var(--wh)}
+    .vial-frame{position:relative;display:inline-block;transition:transform .45s cubic-bezier(.34,1.56,.64,1),filter .35s ease;filter:drop-shadow(0 8px 28px rgba(0,0,0,.8));z-index:2}
+    .cc:hover .vial-frame{transform:translateY(-10px) scale(1.06);filter:drop-shadow(0 22px 40px rgba(0,0,0,.7)) drop-shadow(0 0 36px rgba(79,172,254,.28))}
+    .vial-img{display:block;height:310px;width:auto}
+    .vial-lbl{position:absolute;top:27%;left:16%;right:16%;height:37%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;font-family:Arial,Helvetica,sans-serif;color:#171717;pointer-events:none;overflow:hidden;padding-top:3px}
+    .vial-lbl .bl-logo{font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:24px;line-height:26px;margin-top:5px;letter-spacing:-5px;transform:scaleX(1.05);color:#111;display:block}
+    .vial-lbl .bl-name{font-size:8.5px;font-weight:600;letter-spacing:2.5px;margin-top:-1px;color:#171717;display:block}
+    .vial-lbl .bl-line{width:84%;height:1.5px;background:#202020;margin:6px auto 5px;display:block}
+    .vial-lbl .bl-product{font-weight:900;letter-spacing:-0.5px;line-height:1.1;padding:0 4px;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#111;display:block}
+    .vial-lbl .bl-dose{display:inline-block;margin-top:5px;padding:3px 18px 3px;background:#202020;color:#fff;font-size:11px;font-weight:700;letter-spacing:1px;font-family:Arial,Helvetica,sans-serif}
+    .vial-lbl .bl-disclaimer{font-size:6px;font-weight:600;letter-spacing:1.2px;white-space:nowrap;margin-top:3px;color:#333;display:block}
     .csg{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--brd);border:1px solid var(--brd)}
     @media(max-width:1200px){.csg{grid-template-columns:repeat(4,1fr)}}
     @media(max-width:780px){.csg{grid-template-columns:repeat(3,1fr)}}
@@ -168,35 +178,13 @@
     .fbl a:hover{color:var(--w40)}
     @media(max-width:900px){footer{padding:4rem 2rem 2rem}.ftp{grid-template-columns:1fr 1fr;gap:2.5rem}}
     @media(max-width:600px){.ftp{grid-template-columns:1fr}}
-
-    /* ============================
-       TIMELESS RESEARCH CSS VIAL
-    ============================ */
-    .peptide-vial{position:relative;width:300px;height:440px;margin:0 auto;filter:drop-shadow(0 25px 25px rgba(0,0,0,.18));transition:transform .35s ease,filter .35s ease}
-    .vial-cap{position:absolute;top:0;left:35px;width:230px;height:72px;border-radius:18px 18px 12px 12px;background:linear-gradient(90deg,#8d8d8d 0%,#e7e7e7 18%,#a8a8a8 42%,#f4f4f4 62%,#999 85%,#d8d8d8 100%);box-shadow:inset 0 2px 4px rgba(255,255,255,.8),inset 0 -5px 10px rgba(0,0,0,.15),0 4px 7px rgba(0,0,0,.2);z-index:5}
-    .cap-highlight{position:absolute;top:7px;left:20px;right:20px;height:12px;border-radius:50%;background:rgba(255,255,255,.28)}
-    .vial-neck{position:absolute;top:62px;left:76px;width:148px;height:65px;border-left:4px solid rgba(255,255,255,.8);border-right:4px solid rgba(255,255,255,.8);background:linear-gradient(90deg,rgba(150,150,150,.25),rgba(255,255,255,.7),rgba(130,130,130,.18));z-index:4}
-    .rubber-stopper{position:absolute;top:8px;left:14px;width:116px;height:28px;border-radius:5px;background:#3d3d3d;box-shadow:inset 0 4px 7px rgba(255,255,255,.12),0 2px 4px rgba(0,0,0,.2)}
-    .vial-glass{position:absolute;top:105px;left:28px;width:244px;height:315px;border-radius:22px 22px 30px 30px;background:linear-gradient(90deg,rgba(255,255,255,.82) 0%,rgba(220,220,220,.22) 10%,rgba(255,255,255,.45) 23%,rgba(210,210,210,.16) 50%,rgba(255,255,255,.52) 76%,rgba(180,180,180,.25) 100%);border:3px solid rgba(255,255,255,.85);box-shadow:inset 8px 0 12px rgba(255,255,255,.75),inset -8px 0 12px rgba(0,0,0,.07),inset 0 -10px 18px rgba(0,0,0,.06),0 2px 5px rgba(0,0,0,.12);overflow:hidden}
-    .peptide-powder{position:absolute;bottom:0;left:8px;right:8px;height:82px;background:radial-gradient(ellipse at center top,#fff 0%,#f1f1f1 45%,#dedede 100%);border-radius:50% 50% 0 0;box-shadow:inset 0 8px 10px rgba(255,255,255,.8),0 -3px 8px rgba(0,0,0,.05)}
-    .vial-label{position:absolute;top:88px;left:-1px;width:246px;height:178px;background:linear-gradient(180deg,#fff 0%,#fafafa 100%);box-shadow:0 2px 5px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.9);text-align:center;font-family:Arial,Helvetica,sans-serif;color:#171717;z-index:3;padding-top:2px}
-    .brand-logo{font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:39px;line-height:40px;margin-top:9px;letter-spacing:-7px;transform:scaleX(1.05);color:#111}
-    .brand-name{font-size:13px;font-weight:500;letter-spacing:3px;margin-top:-2px;color:#171717}
-    .label-line{width:82%;height:1.5px;background:#202020;margin:10px auto 9px}
-    .peptide-name{font-weight:900;letter-spacing:-1px;line-height:1.1;padding:0 6px;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-    .dosage{display:inline-block;margin-top:7px;padding:4px 30px 5px;background:#202020;color:#fff;font-size:18px;font-weight:700;letter-spacing:1px;font-family:Arial,Helvetica,sans-serif}
-    .research-only{font-size:9.5px;font-weight:500;letter-spacing:1.4px;white-space:nowrap}
-    .glass-reflection{position:absolute;top:14px;left:15px;width:20px;height:280px;border-radius:50%;background:linear-gradient(90deg,rgba(255,255,255,.75),rgba(255,255,255,.05));filter:blur(1px);z-index:10;pointer-events:none}
-    .cc-vial-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;pointer-events:none}
-    .cc-vial-wrap .peptide-vial{pointer-events:auto;transform:scale(0.645);flex-shrink:0;transition:transform .4s cubic-bezier(.34,1.56,.64,1),filter .35s ease}
-    .cc:hover .cc-vial-wrap .peptide-vial{transform:scale(0.645) translateY(-14px);filter:drop-shadow(0 35px 30px rgba(0,0,0,.25)) drop-shadow(0 0 40px rgba(79,172,254,.15))}
   </style>
 </head>
 <body>
 <div class="abar">
   <span>🚚 <em>Free Shipping</em> on Orders $300+</span>
   <span>⏱ Delivery: <em>4–14 Days</em></span>
-  <span>🤝 Buying with a Friend? Split — each pay <em>50%</em></span>
+  <span>👥 Buying with a Friend? Split — each pay <em>50%</em></span>
 </div>
 <nav class="nav" id="nav">
   <a href="#" class="nav-logo">TIMELESS <em>RESEARCH</em></a>
@@ -310,7 +298,6 @@
   </div>
   <div class="fbt"><p>&copy; 2026 Timeless Research. All rights reserved. Products are for research use only.</p><div class="fbl"><a href="#">Terms</a><a href="#">Privacy</a><a href="#">Research Disclaimer</a></div></div>
 </div></footer>
-
 <script>
 const P = [
   ['RT30','Retatrutide','30mg','30 caps',300,'weight','GLP-1/GIP/Glucagon Agonist'],
@@ -392,29 +379,22 @@ const CATS = [
   {k:'sexual',l:'Sexual Health'},{k:'injectable',l:'Injectables'},
   {k:'orals',l:'Orals & Ancillaries'},{k:'supplies',l:'Supplies'},
 ];
-function nameFs(n){const l=n.length;return l<=4?'32px':l<=6?'28px':l<=9?'23px':l<=12?'18px':l<=16?'14px':l<=20?'11px':'9px'}
+function nameFs(n){const l=n.length;return l<=4?'22px':l<=6?'19px':l<=9?'16px':l<=12?'12px':l<=16?'9.5px':l<=20?'8px':'6.5px'}
 function card(p){
   const nm=p[1].length>20?p[1].slice(0,19)+'…':p[1];
   const dose=p[2]+(p[3]?' · '+p[3]:'');
   return `<div class="cc">
   <div class="cc-v">
-    <div class="cc-vial-wrap">
-      <div class="peptide-vial">
-        <div class="vial-cap"><div class="cap-highlight"></div></div>
-        <div class="vial-neck"><div class="rubber-stopper"></div></div>
-        <div class="vial-glass">
-          <div class="peptide-powder"></div>
-          <div class="vial-label">
-            <div class="brand-logo">T</div>
-            <div class="brand-name">TIMELESS RESEARCH</div>
-            <div class="label-line"></div>
-            <div class="peptide-name" style="font-size:${nameFs(p[1])}">${p[1].toUpperCase()}</div>
-            <div class="dosage">${p[2].toUpperCase()}</div>
-            <div class="label-line" style="margin-bottom:0"></div>
-            <div class="research-only">FOR RESEARCH USE ONLY</div>
-          </div>
-          <div class="glass-reflection"></div>
-        </div>
+    <div class="vial-frame">
+      <img src="./vial.png" class="vial-img" alt="${p[1]}">
+      <div class="vial-lbl">
+        <span class="bl-logo">T</span>
+        <span class="bl-name">TIMELESS RESEARCH</span>
+        <span class="bl-line"></span>
+        <span class="bl-product" style="font-size:${nameFs(p[1])}">${p[1].toUpperCase()}</span>
+        <span class="bl-dose">${p[2].toUpperCase()}</span>
+        <span class="bl-line" style="margin-bottom:0"></span>
+        <span class="bl-disclaimer">FOR RESEARCH USE ONLY</span>
       </div>
     </div>
     <div class="cc-gw"></div>
