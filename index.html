@@ -349,7 +349,7 @@ const CAT_DESC={
   supplies:'A laboratory research supply used for reconstitution and preparation of lyophilized peptide and hormone compounds. Essential for proper research-grade compound preparation.'
 };
 const CAT_LABELS={weight:'Weight Management',healing:'Healing & Recovery',growth:'Growth Hormones',longevity:'Longevity',cognitive:'Cognitive',sexual:'Sexual Health',injectable:'Injectables',orals:'Orals & Ancillaries',supplies:'Supplies'};
-const PMAP={};
+const CAT_TYPE={weight:'GLP-1 Peptide',healing:'Peptide',growth:'Peptide',longevity:'Peptide',cognitive:'Peptide',sexual:'Hormone',injectable:'Anabolic Steroid',orals:'Anabolic Steroid',supplies:'Supply'}; const PMAP={};
 P.forEach(p=>PMAP[p[0]]=p);
 const T_SVG=`<svg class="bl-logo-svg" viewBox="0 0 40 30" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="40" height="6" fill="#111"/><rect x="15" y="6" width="10" height="24" fill="#111"/></svg>`;
 function nameFs(n){const l=n.length;if(l<=4)return'18px';if(l<=6)return'15px';if(l<=9)return'12px';if(l<=12)return'9px';if(l<=16)return'7px';if(l<=20)return'6px';return'5px'}
@@ -369,7 +369,7 @@ function openModal(sku){
   document.getElementById('modal-type').textContent=p[6];
   document.getElementById('modal-desc').textContent=CAT_DESC[p[5]]||'';
   document.getElementById('modal-dose').textContent=p[2];
-  document.getElementById('modal-format').textContent=p[2];
+  document.getElementById('modal-format').textContent=CAT_TYPE[p[5]]||'Compound';
   document.getElementById('modal-price').textContent='$'+p[4];
   document.getElementById('modal-vial-wrap').innerHTML=vialHTML(p,280);
   const btn=document.getElementById('modal-buy');
