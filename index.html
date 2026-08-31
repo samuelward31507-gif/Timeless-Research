@@ -639,25 +639,127 @@ const CATS = [
   {k:'orals',l:'Orals & Ancillaries'},{k:'supplies',l:'Supplies'},
 ];
 function nameFs(n){const l=n.length;return l<=4?'22px':l<=6?'19px':l<=9?'16px':l<=12?'12px':l<=16?'9.5px':l<=20?'8px':'6.5px'}
+```javascript
+function nameFs(n){
+
+  const length = n.length;
+
+  if(length <= 4)  return '23px';
+  if(length <= 6)  return '20px';
+  if(length <= 9)  return '17px';
+  if(length <= 12) return '14px';
+  if(length <= 16) return '11px';
+  if(length <= 20) return '9px';
+
+  return '7px';
+}
+
+
 function card(p){
-  const nm=p[1].length>20?p[1].slice(0,19)+'…':p[1];
-  const dose=p[2]+(p[3]?' · '+p[3]:'');
-  return `<div class="cc">
-  <div class="cc-v">
-    <div class="vial-frame">
-      <img src="./vial.png" class="vial-img" alt="${p[1]}">
-      <div class="vial-lbl">
-        <span class="bl-logo">T</span>
-        <span class="bl-name">TIMELESS RESEARCH</span>
-        <span class="bl-line"></span>
-        <span class="bl-product" style="font-size:${nameFs(p[1])}">${p[1].toUpperCase()}</span>
-        <span class="bl-dose">${p[2].toUpperCase()}</span>
-        <span class="bl-line" style="margin-bottom:0"></span>
-        <span class="bl-disclaimer">FOR RESEARCH USE ONLY</span>
+
+  const nm =
+    p[1].length > 20
+      ? p[1].slice(0,19) + '…'
+      : p[1];
+
+  const dose =
+    p[2] + (p[3] ? ' · ' + p[3] : '');
+
+  return `
+  <div class="cc">
+
+    <div class="cc-v">
+
+      <div class="vial-frame">
+
+        <!-- VIAL -->
+        <img
+          src="./vial.png"
+          class="vial-img"
+          alt="${p[1]} Timeless Research vial"
+        >
+
+        <!-- PHYSICAL-STYLE LABEL -->
+        <div class="vial-lbl">
+
+          <!-- T LOGO -->
+          <span class="bl-logo">T</span>
+
+          <!-- BRAND -->
+          <span class="bl-name">
+            TIMELESS RESEARCH
+          </span>
+
+          <!-- TOP LINE -->
+          <span class="bl-line"></span>
+
+          <!-- PRODUCT -->
+          <span
+            class="bl-product"
+            style="font-size:${nameFs(p[1])}"
+          >
+            ${p[1].toUpperCase()}
+          </span>
+
+          <!-- DOSAGE -->
+          <span class="bl-dose">
+            ${p[2].toUpperCase()}
+          </span>
+
+          <!-- BOTTOM LINE -->
+          <span
+            class="bl-line"
+            style="margin-bottom:4px"
+          ></span>
+
+          <!-- DISCLAIMER -->
+          <span class="bl-disclaimer">
+            FOR RESEARCH USE ONLY
+          </span>
+
+        </div>
+
       </div>
+
+      <div class="cc-gw"></div>
+
     </div>
-    <div class="cc-gw"></div>
-  </div>
+
+
+    <!-- PRODUCT INFORMATION -->
+
+    <div class="cc-inf">
+
+      <div class="cc-id">
+        ${p[0]}
+      </div>
+
+      <div class="cc-nm">
+        ${nm}
+      </div>
+
+      <div class="cc-ds">
+        ${p[6]}
+      </div>
+
+      <div class="cc-bot">
+
+        <span class="cc-do">
+          ${dose}
+        </span>
+
+        <span class="cc-pr">
+          $${p[4]}
+        </span>
+
+      </div>
+
+    </div>
+
+  </div>`;
+}
+```
+
   <div class="cc-inf">
     <div class="cc-id">${p[0]}</div>
     <div class="cc-nm">${nm}</div>
