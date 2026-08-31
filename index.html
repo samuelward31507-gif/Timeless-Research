@@ -8,16 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --bg:#020202;--s1:#070707;--s2:#0c0c0c;--s3:#111;--s4:#161616;
-      --brd:rgba(255,255,255,.055);--brdm:rgba(255,255,255,.1);
-      --bl:#4FACFE;
-      --wh:#F2F4F8;--w60:rgba(242,244,248,.6);--w40:rgba(242,244,248,.4);
-      --w20:rgba(242,244,248,.2);
-      --fd:'Cormorant Garamond',Georgia,serif;
-      --fu:'Inter',system-ui,sans-serif;
-      --fm:'SF Mono','Fira Code','Courier New',monospace;
-    }
+    :root{--bg:#020202;--s1:#070707;--s2:#0c0c0c;--s3:#111;--s4:#161616;--brd:rgba(255,255,255,.055);--brdm:rgba(255,255,255,.1);--bl:#4FACFE;--wh:#F2F4F8;--w60:rgba(242,244,248,.6);--w40:rgba(242,244,248,.4);--w20:rgba(242,244,248,.2);--fd:'Cormorant Garamond',Georgia,serif;--fu:'Inter',system-ui,sans-serif;--fm:'SF Mono','Fira Code','Courier New',monospace;}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{background:var(--bg);color:var(--wh);font-family:var(--fu);overflow-x:hidden;-webkit-font-smoothing:antialiased}
@@ -92,185 +83,76 @@
     .cc-bot{display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
     .cc-do{font-family:var(--fm);font-size:.5rem;color:var(--w20);line-height:1.5}
     .cc-pr{font-family:var(--fu);font-size:1rem;font-weight:700;color:var(--wh)}
-    .vial-frame{
-      position:relative;
-      display:inline-block;
-      height:310px;
-      transition:transform .45s cubic-bezier(.34,1.56,.64,1),filter .35s ease;
-      filter:drop-shadow(0 8px 28px rgba(0,0,0,.8));
-      z-index:2;
-    }
-    .cc:hover .vial-frame{
-      transform:translateY(-10px) scale(1.06);
-      filter:drop-shadow(0 22px 40px rgba(0,0,0,.7)) drop-shadow(0 0 36px rgba(79,172,254,.28));
-    }
+    .vial-frame{position:relative;display:inline-block;height:310px;transition:transform .45s cubic-bezier(.34,1.56,.64,1),filter .35s ease;filter:drop-shadow(0 8px 28px rgba(0,0,0,.85));z-index:2;}
+    .cc:hover .vial-frame{transform:translateY(-10px) scale(1.06);filter:drop-shadow(0 22px 40px rgba(0,0,0,.7)) drop-shadow(0 0 36px rgba(79,172,254,.28));}
     .vial-img{display:block;height:310px;width:auto;object-fit:contain}
     .vial-lbl{
-      position:absolute;
-      top:37%;
-      left:0;
-      right:0;
-      height:34%;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      font-family:Arial,Helvetica,sans-serif;
-      color:#111;
-      padding:7px 5px 6px;
-      gap:0;
-      overflow:hidden;
-      pointer-events:none;
-      z-index:5;
-      background:linear-gradient(
-        90deg,
-        transparent                  0%,
-        rgba(170,170,170,.55)        8%,
-        rgba(238,238,238,.95)       17%,
-        #ffffff                     24%,
-        #ffffff                     76%,
-        rgba(238,238,238,.95)       83%,
-        rgba(170,170,170,.55)       92%,
-        transparent                 100%
-      );
-      box-shadow:
-        inset  26px 0 30px -10px rgba(0,0,0,.22),
-        inset -26px 0 30px -10px rgba(0,0,0,.22);
+      position:absolute;top:37%;left:8%;right:8%;height:34%;
+      background:#fff;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;text-align:center;
+      font-family:Arial,Helvetica,sans-serif;color:#111;
+      overflow:hidden;pointer-events:none;z-index:5;border-radius:1px;
+      box-shadow:0 2px 8px rgba(0,0,0,.45),0 -2px 6px rgba(0,0,0,.3),inset 4px 0 6px rgba(0,0,0,.07),inset -4px 0 6px rgba(0,0,0,.07);
     }
-    .vial-lbl::before{
-      content:'';
-      position:absolute;
-      top:0; left:20%; right:20%;
-      height:38%;
-      background:linear-gradient(to bottom,rgba(255,255,255,.55) 0%,transparent 100%);
-      pointer-events:none;
-    }
-    .vial-lbl::after{
-      content:'';
-      position:absolute;
-      inset:0;
-      background:
-        linear-gradient(90deg,
-          transparent 22.5%,
-          rgba(0,0,0,.09) 23%,
-          rgba(0,0,0,.09) 23.4%,
-          transparent 24%
-        ) no-repeat,
-        linear-gradient(90deg,
-          transparent 76%,
-          rgba(0,0,0,.09) 76.6%,
-          rgba(0,0,0,.09) 77%,
-          transparent 77.5%
-        ) no-repeat;
-      background-size:100% 100%;
-      pointer-events:none;
-    }
-    .bl-logo-svg{
-      display:block;width:28px;height:22px;margin:0 auto 2px;
-      flex-shrink:0;position:relative;z-index:2;
-    }
-    .vial-lbl .bl-name{
-      display:block;font-size:6.7px;line-height:8px;font-weight:600;
-      letter-spacing:2px;color:#171717;white-space:nowrap;
-      margin:0 0 4px 0;position:relative;z-index:2;
-    }
-    .vial-lbl .bl-line{
-      display:block;width:52%;height:1px;min-height:1px;
-      background:#202020;margin:1px 0 5px 0;position:relative;z-index:2;
-    }
-    .vial-lbl .bl-product{
-      display:block;font-weight:900;color:#111;letter-spacing:-.4px;
-      line-height:1;white-space:nowrap;max-width:58%;overflow:hidden;
-      text-overflow:ellipsis;margin:0;padding:0 2px;position:relative;z-index:2;
-    }
-    .vial-lbl .bl-dose{
-      display:inline-flex;align-items:center;justify-content:center;
-      background:#202020;color:#fff;font-size:9px;line-height:11px;
-      font-weight:700;letter-spacing:1px;min-width:52px;height:18px;
-      padding:0 11px;margin:5px 0 4px;white-space:nowrap;
-      position:relative;z-index:2;
-    }
-    .vial-lbl .bl-line-bot{width:52%;margin:0 0 4px 0;}
-    .vial-lbl .bl-disclaimer{
-      display:block;font-size:5px;line-height:6px;font-weight:600;
-      letter-spacing:1px;color:#333;white-space:nowrap;
-      margin:0;position:relative;z-index:2;
-    }
+    .vial-lbl::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:#111;}
+    .vial-lbl::after{content:'';position:absolute;bottom:0;left:0;right:0;height:5px;background:#111;}
+    .lbl-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;padding:8px 6px 8px;gap:0;}
+    .bl-logo-svg{display:block;width:26px;height:20px;margin:0 auto 2px;flex-shrink:0;}
+    .bl-name{display:block;font-family:Arial,Helvetica,sans-serif;font-size:6.5px;line-height:8px;font-weight:700;letter-spacing:2px;color:#1a1a1a;white-space:nowrap;margin:0 0 4px 0;}
+    .bl-divider{display:block;width:80%;height:1px;background:#222;margin:0 0 5px 0;}
+    .bl-product{display:block;font-family:Arial,Helvetica,sans-serif;font-weight:900;color:#111;letter-spacing:-.3px;line-height:1;white-space:nowrap;max-width:90%;overflow:hidden;text-overflow:ellipsis;margin:0 0 5px 0;}
+    .bl-dose{display:inline-flex;align-items:center;justify-content:center;background:#111;color:#fff;font-family:Arial,Helvetica,sans-serif;font-size:8.5px;line-height:10px;font-weight:700;letter-spacing:1px;min-width:48px;height:16px;padding:0 10px;margin:0 0 5px 0;white-space:nowrap;border-radius:1px;}
+    .bl-disclaimer{display:block;font-family:Arial,Helvetica,sans-serif;font-size:4.8px;line-height:6px;font-weight:700;letter-spacing:1.2px;color:#444;white-space:nowrap;margin:0;}
     .csg{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--brd);border:1px solid var(--brd)}
     @media(max-width:1200px){.csg{grid-template-columns:repeat(4,1fr)}}
     @media(max-width:780px){.csg{grid-template-columns:repeat(3,1fr)}}
     @media(max-width:520px){.csg{grid-template-columns:repeat(2,1fr)}}
     .csc{background:var(--s1);padding:.85rem;display:flex;flex-direction:column;gap:.3rem;opacity:.4}
-    .csnm{font-family:var(--fd);font-size:.9rem;color:var(--wh)}
-    .csdo{font-family:var(--fm);font-size:.48rem;color:var(--w40)}
-    .cstg{font-family:var(--fm);font-size:.44rem;color:var(--bl);letter-spacing:1px;text-transform:uppercase;opacity:.6}
-    .sci-l{display:grid;grid-template-columns:1fr 1fr;gap:7rem;align-items:start}
-    .sci-lft{position:sticky;top:7rem}
+    .csnm{font-family:var(--fd);font-size:.9rem;color:var(--wh)}.csdo{font-family:var(--fm);font-size:.48rem;color:var(--w40)}.cstg{font-family:var(--fm);font-size:.44rem;color:var(--bl);letter-spacing:1px;text-transform:uppercase;opacity:.6}
+    .sci-l{display:grid;grid-template-columns:1fr 1fr;gap:7rem;align-items:start}.sci-lft{position:sticky;top:7rem}
     .sci-sr{display:flex;gap:3rem;margin-top:3rem;padding-top:3rem;border-top:1px solid var(--brd)}
-    .sci-st .sn{font-family:var(--fd);font-size:3rem;font-weight:300;color:var(--wh);line-height:1;margin-bottom:.3rem;letter-spacing:-1px}
-    .sci-st .slb{font-size:.7rem;font-weight:300;color:var(--w40)}
-    .sci-rt{display:flex;flex-direction:column;gap:3rem;padding-top:.5rem}
-    .sn-{font-family:var(--fm);font-size:.57rem;color:var(--bl);letter-spacing:2px;margin-bottom:1rem;display:block}
-    .sci-rt h3{font-family:var(--fd);font-size:1.5rem;font-weight:400;color:var(--wh);margin-bottom:.65rem}
-    .sci-rt p{font-size:.86rem;font-weight:300;line-height:1.82;color:var(--w40)}
+    .sci-st .sn{font-family:var(--fd);font-size:3rem;font-weight:300;color:var(--wh);line-height:1;margin-bottom:.3rem;letter-spacing:-1px}.sci-st .slb{font-size:.7rem;font-weight:300;color:var(--w40)}
+    .sci-rt{display:flex;flex-direction:column;gap:3rem;padding-top:.5rem}.sn-{font-family:var(--fm);font-size:.57rem;color:var(--bl);letter-spacing:2px;margin-bottom:1rem;display:block}
+    .sci-rt h3{font-family:var(--fd);font-size:1.5rem;font-weight:400;color:var(--wh);margin-bottom:.65rem}.sci-rt p{font-size:.86rem;font-weight:300;line-height:1.82;color:var(--w40)}
     .sdv{width:100%;height:1px;background:var(--brd)}
     @media(max-width:900px){.sci-l{grid-template-columns:1fr;gap:3rem}.sci-lft{position:static}}
-    .prhd{max-width:580px;margin-bottom:4.5rem}
-    .prst{display:flex;flex-direction:column;max-width:720px}
-    .prsp{display:grid;grid-template-columns:80px 1fr;gap:2rem;position:relative;padding-bottom:3rem}
-    .prsp:last-child{padding-bottom:0}
-    .prln{position:absolute;left:27px;top:38px;bottom:0;width:1px;background:var(--brd)}
-    .prsp:last-child .prln{display:none}
+    .prhd{max-width:580px;margin-bottom:4.5rem}.prst{display:flex;flex-direction:column;max-width:720px}
+    .prsp{display:grid;grid-template-columns:80px 1fr;gap:2rem;position:relative;padding-bottom:3rem}.prsp:last-child{padding-bottom:0}
+    .prln{position:absolute;left:27px;top:38px;bottom:0;width:1px;background:var(--brd)}.prsp:last-child .prln{display:none}
     .prlft{display:flex;flex-direction:column;align-items:center}
     .prc{width:54px;height:54px;border-radius:50%;border:1px solid var(--brdm);background:var(--s2);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:.63rem;color:var(--bl);letter-spacing:1px;flex-shrink:0;transition:border-color .3s,background .3s}
-    .prsp.on .prc{border-color:var(--bl);background:rgba(79,172,254,.08)}
-    .prcnt{padding-top:.9rem}
+    .prsp.on .prc{border-color:var(--bl);background:rgba(79,172,254,.08)}.prcnt{padding-top:.9rem}
     .prlbl{font-family:var(--fm);font-size:.56rem;color:var(--w20);letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem;display:block}
-    .prtl{font-family:var(--fd);font-size:1.6rem;font-weight:400;color:var(--wh);margin-bottom:.65rem}
-    .prds{font-size:.84rem;font-weight:300;line-height:1.82;color:var(--w40)}
+    .prtl{font-family:var(--fd);font-size:1.6rem;font-weight:400;color:var(--wh);margin-bottom:.65rem}.prds{font-size:.84rem;font-weight:300;line-height:1.82;color:var(--w40)}
     .abl{display:grid;grid-template-columns:1fr 1fr;gap:7rem;align-items:center}
     .abv{height:480px;background:var(--s2);border:1px solid var(--brd);border-radius:4px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
     .avi{display:flex;flex-direction:column;align-items:center;gap:1.5rem;opacity:.5}
-    .avl{width:1px;height:80px;background:linear-gradient(to bottom,transparent,var(--bl),transparent)}
-    .avn{width:8px;height:8px;border-radius:50%;background:var(--bl);box-shadow:0 0 20px rgba(79,172,254,.6)}
+    .avl{width:1px;height:80px;background:linear-gradient(to bottom,transparent,var(--bl),transparent)}.avn{width:8px;height:8px;border-radius:50%;background:var(--bl);box-shadow:0 0 20px rgba(79,172,254,.6)}
     .avr{position:absolute;border:1px solid rgba(79,172,254,.08);border-radius:50%;animation:pls 4s ease-in-out infinite}
     .avr:nth-child(1){width:150px;height:150px}.avr:nth-child(2){width:250px;height:250px;animation-delay:1s}.avr:nth-child(3){width:380px;height:380px;animation-delay:2s}
     @keyframes pls{0%,100%{opacity:.3}50%{opacity:.8}}
     .abt p{font-size:.88rem;font-weight:300;line-height:1.88;color:var(--w40);margin-bottom:1.5rem}
     .abvl{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem}
     .abvc{padding:1.1rem;border:1px solid var(--brd);border-radius:3px;background:var(--s2);transition:border-color .2s,background .2s}
-    .abvc:hover{border-color:var(--brdm);background:var(--s3)}
-    .abvt{font-size:.76rem;font-weight:600;color:var(--wh);margin-bottom:.22rem}
-    .abvd{font-size:.7rem;font-weight:300;color:var(--w40);line-height:1.6}
+    .abvc:hover{border-color:var(--brdm);background:var(--s3)}.abvt{font-size:.76rem;font-weight:600;color:var(--wh);margin-bottom:.22rem}.abvd{font-size:.7rem;font-weight:300;color:var(--w40);line-height:1.6}
     @media(max-width:900px){.abl{grid-template-columns:1fr;gap:3rem}.abv{height:260px}}
-    .fql{display:grid;grid-template-columns:380px 1fr;gap:6rem;align-items:start}
-    .fqlft{position:sticky;top:7rem}
-    .fqls{display:flex;flex-direction:column}
+    .fql{display:grid;grid-template-columns:380px 1fr;gap:6rem;align-items:start}.fqlft{position:sticky;top:7rem}.fqls{display:flex;flex-direction:column}
     .fqi{border-bottom:1px solid var(--brd)}
     .fqq{width:100%;background:none;border:none;color:var(--wh);font-family:var(--fu);font-size:.87rem;font-weight:400;text-align:left;padding:1.4rem 0;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;cursor:pointer;transition:color .2s;line-height:1.4}
-    .fqq:hover{color:var(--w60)}
-    .fqic{width:22px;height:22px;border-radius:50%;border:1px solid var(--brdm);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--w40);transition:border-color .2s,transform .3s,background .2s}
+    .fqq:hover{color:var(--w60)}.fqic{width:22px;height:22px;border-radius:50%;border:1px solid var(--brdm);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--w40);transition:border-color .2s,transform .3s,background .2s}
     .fqi.op .fqic{transform:rotate(45deg);border-color:var(--bl);color:var(--bl);background:rgba(79,172,254,.08)}
     .fqa{font-size:.83rem;font-weight:300;line-height:1.85;color:var(--w40);max-height:0;overflow:hidden;transition:max-height .45s ease,padding .3s ease}
     .fqi.op .fqa{max-height:300px;padding-bottom:1.5rem}
     @media(max-width:900px){.fql{grid-template-columns:1fr;gap:3rem}.fqlft{position:static}}
-    footer{padding:5rem 4rem 3rem;border-top:1px solid var(--brd);background:var(--s1)}
-    .fi{max-width:1420px;margin:0 auto}
+    footer{padding:5rem 4rem 3rem;border-top:1px solid var(--brd);background:var(--s1)}.fi{max-width:1420px;margin:0 auto}
     .ftp{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4rem;margin-bottom:4rem}
-    .flog{font-family:var(--fu);font-size:.76rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--wh);margin-bottom:1rem}
-    .flog em{color:var(--bl);font-style:normal}
+    .flog{font-family:var(--fu);font-size:.76rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--wh);margin-bottom:1rem}.flog em{color:var(--bl);font-style:normal}
     .ftg{font-family:var(--fd);font-size:1.1rem;font-weight:300;font-style:italic;color:var(--w40);line-height:1.5;margin-bottom:1.5rem}
     .fdis p{font-size:.65rem;color:var(--w20);line-height:1.85}
     .fc h5{font-size:.58rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--w20);margin-bottom:1.5rem}
-    .fc ul{list-style:none;display:flex;flex-direction:column;gap:.7rem}
-    .fc ul a{font-size:.8rem;font-weight:300;color:var(--w40);transition:color .2s}
-    .fc ul a:hover{color:var(--wh)}
+    .fc ul{list-style:none;display:flex;flex-direction:column;gap:.7rem}.fc ul a{font-size:.8rem;font-weight:300;color:var(--w40);transition:color .2s}.fc ul a:hover{color:var(--wh)}
     .fbt{border-top:1px solid var(--brd);padding-top:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
-    .fbt p{font-size:.66rem;font-weight:300;color:var(--w20)}
-    .fbl{display:flex;gap:2rem}
-    .fbl a{font-size:.66rem;color:var(--w20);transition:color .2s}
-    .fbl a:hover{color:var(--w40)}
+    .fbt p{font-size:.66rem;font-weight:300;color:var(--w20)}.fbl{display:flex;gap:2rem}.fbl a{font-size:.66rem;color:var(--w20);transition:color .2s}.fbl a:hover{color:var(--w40)}
     @media(max-width:900px){footer{padding:4rem 2rem 2rem}.ftp{grid-template-columns:1fr 1fr;gap:2.5rem}}
     @media(max-width:600px){.ftp{grid-template-columns:1fr}}
   </style>
@@ -283,26 +165,16 @@
 </div>
 <nav class="nav" id="nav">
   <a href="#" class="nav-logo">TIMELESS <em>RESEARCH</em></a>
-  <ul class="nav-links">
-    <li><a href="#catalog">Catalog</a></li>
-    <li><a href="#science">Science</a></li>
-    <li><a href="#quality">Quality</a></li>
-    <li><a href="#about">About</a></li>
-    <li><a href="#faq">FAQ</a></li>
-  </ul>
+  <ul class="nav-links"><li><a href="#catalog">Catalog</a></li><li><a href="#science">Science</a></li><li><a href="#quality">Quality</a></li><li><a href="#about">About</a></li><li><a href="#faq">FAQ</a></li></ul>
   <a href="#catalog" class="nav-cta">Order Now</a>
 </nav>
 <section class="hero" id="hero">
-  <canvas id="pcvs"></canvas>
-  <div class="hgr"></div>
+  <canvas id="pcvs"></canvas><div class="hgr"></div>
   <div class="hcnt">
     <div class="htag">Research-Grade Peptide Compounds</div>
     <h1>Precision. Purity.<br><em>Verified Results.</em></h1>
     <p class="hsub">60+ research compounds. 99% average purity. Full Certificate of Analysis on every lot.</p>
-    <div class="hbtns">
-      <a href="#catalog" class="bp">Shop Catalog</a>
-      <a href="#quality" class="bg">Our Standards</a>
-    </div>
+    <div class="hbtns"><a href="#catalog" class="bp">Shop Catalog</a><a href="#quality" class="bg">Our Standards</a></div>
   </div>
   <div class="hscr"><div class="hscr-l"></div>Scroll</div>
 </section>
@@ -316,8 +188,7 @@
   <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;margin-bottom:2.5rem;flex-wrap:wrap" data-r>
     <div><span class="ey">Full Product Catalog</span><h2 class="stl">Research Compounds</h2><p class="ssb">All products for research use only. Not for human or veterinary consumption.</p></div>
   </div>
-  <div class="ctabs" id="ctabs"></div>
-  <div class="cgr" id="cgr"></div>
+  <div class="ctabs" id="ctabs"></div><div class="cgr" id="cgr"></div>
 </div></section>
 <section class="sec dk" id="coming-soon"><div class="si">
   <div data-r><span class="ey">Expanding Catalog</span><h2 class="stl" style="font-size:clamp(1.8rem,3vw,2.8rem);margin-bottom:1rem;">Coming <em>Soon.</em></h2><p class="ssb" style="margin-bottom:2.5rem;">These compounds are in production or pending availability.</p></div>
@@ -338,9 +209,9 @@
     <div class="sdv"></div>
     <div data-r><span class="sn-">02 — ANALYTICAL TESTING</span><h3>HPLC Purity Analysis and Mass Spectrometry</h3><p>Every production lot is analyzed using HPLC to verify purity and mass spectrometry to confirm molecular identity.</p></div>
     <div class="sdv"></div>
-    <div data-r><span class="sn-">03 — STORAGE & HANDLING</span><h3>Lyophilization for Long-Term Research Stability</h3><p>Lyophilized peptides provide superior stability compared to liquid formulations, retaining integrity throughout extended research programs.</p></div>
+    <div data-r><span class="sn-">03 — STORAGE & HANDLING</span><h3>Lyophilization for Long-Term Research Stability</h3><p>Lyophilized peptides provide superior stability compared to liquid formulations.</p></div>
     <div class="sdv"></div>
-    <div data-r><span class="sn-">04 — DOCUMENTATION</span><h3>Research Reproducibility Depends on Material Consistency</h3><p>Batch documentation allows researchers to account for material variables and replicate results accurately across studies.</p></div>
+    <div data-r><span class="sn-">04 — DOCUMENTATION</span><h3>Research Reproducibility Depends on Material Consistency</h3><p>Batch documentation allows researchers to account for material variables and replicate results accurately.</p></div>
   </div>
 </div></div></section>
 <section class="sec dk" id="quality"><div class="si">
@@ -349,7 +220,7 @@
     <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">01</div></div><div class="prcnt"><span class="prlbl">Source Material</span><h3 class="prtl">Pharmaceutical-Grade Raw Inputs</h3><p class="prds">Amino acid inputs sourced from validated pharmaceutical-grade suppliers.</p></div></div>
     <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">02</div></div><div class="prcnt"><span class="prlbl">Synthesis</span><h3 class="prtl">Solid-Phase Peptide Synthesis</h3><p class="prds">SPPS provides precise control over amino acid sequence with intermediate purification steps.</p></div></div>
     <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">03</div></div><div class="prcnt"><span class="prlbl">Analytical Testing</span><h3 class="prtl">HPLC Purity and Mass Spectrometry</h3><p class="prds">Every batch undergoes HPLC analysis (≥98% threshold) and mass spectrometry for molecular identity confirmation.</p></div></div>
-    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">04</div></div><div class="prcnt"><span class="prlbl">Batch Verification</span><h3 class="prtl">Independent Review Before Release</h3><p class="prds">Batches failing purity thresholds are rejected. Lot numbers assigned only to batches meeting all specifications.</p></div></div>
+    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">04</div></div><div class="prcnt"><span class="prlbl">Batch Verification</span><h3 class="prtl">Independent Review Before Release</h3><p class="prds">Batches failing purity thresholds are rejected. Lot numbers assigned only to passing batches.</p></div></div>
     <div class="prsp" data-r><div class="prlft"><div class="prc">05</div></div><div class="prcnt"><span class="prlbl">Documentation</span><h3 class="prtl">Certificate of Analysis — Every Lot</h3><p class="prds">COA issued per lot with purity data, molecular weight, CAS number, lot identifier, and test date.</p></div></div>
   </div>
 </div></section>
@@ -380,7 +251,7 @@
     <div class="fqi"><button class="fqq">Where can I find the Certificate of Analysis?<span class="fqic">+</span></button><div class="fqa">COAs are available for every product. Contact our team with the product name and lot number.</div></div>
     <div class="fqi"><button class="fqq">How should research materials be stored?<span class="fqic">+</span></button><div class="fqa">Lyophilized peptides: 2–8°C short-term, −20°C extended storage. Reconstituted compounds: −20°C in small aliquots to minimize freeze-thaw cycles.</div></div>
     <div class="fqi"><button class="fqq">Can two people split an order?<span class="fqic">+</span></button><div class="fqa">Yes — each party pays 50%. Contact us with questions about split orders before submitting.</div></div>
-    <div class="fqi"><button class="fqq">Do you ship internationally?<span class="fqic">+</span></button><div class="fqa">We ship to most countries subject to applicable regulations. Full documentation provided to support customs clearance.</div></div>
+    <div class="fqi"><button class="fqq">Do you ship internationally?<span class="fqic">+</span></button><div class="fqa">We ship to most countries subject to applicable regulations.</div></div>
     <div class="fqi"><button class="fqq">What does "30 caps" mean?<span class="fqic">+</span></button><div class="fqa">The listed amount is the dose per capsule. Each package contains 30 capsules/pills. Total active ingredient = dose × 30.</div></div>
   </div>
 </div></div></section>
@@ -398,8 +269,8 @@ const P=[['RT30','Retatrutide','30mg','30 caps',300,'weight','GLP-1/GIP/Glucagon
 const CS=[['SS-31','10mg'],['SS-31','50mg'],['AHK-CU','100mg'],['AICAR','50mg'],['AOD 9604','10mg'],['Cagrilintide','10mg'],['Thymosin Alpha-1','10mg'],['Adipotide','5mg'],['SNAP-8','10mg'],['Thymalin','10mg'],['LL-37','5mg'],['Survodutide','10mg'],['Ara-290','10mg'],['VIP','10mg'],['5-Amino-1MQ','50mg'],['HMG','75 IU'],['Vitamin B12','1mg/mL'],['Lemon Bottle','10mL'],['L-Carnitine','600mg/mL'],['Acetic Acid Water','0.6%'],['GHRP-2','10mg'],['GHRP-6 Acetate','10mg'],['Pinealon','20mg'],['Cerebroprotein','60mg'],['Adamax','10mg'],['Cartilax','20mg'],['P021','20mg']];
 const CATS=[{k:'all',l:'All Products'},{k:'weight',l:'Weight Management'},{k:'healing',l:'Healing & Recovery'},{k:'growth',l:'Growth Hormones'},{k:'longevity',l:'Longevity'},{k:'cognitive',l:'Cognitive'},{k:'sexual',l:'Sexual Health'},{k:'injectable',l:'Injectables'},{k:'orals',l:'Orals & Ancillaries'},{k:'supplies',l:'Supplies'}];
 const T_SVG=`<svg class="bl-logo-svg" viewBox="0 0 40 30" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="40" height="6" fill="#111"/><rect x="15" y="6" width="10" height="24" fill="#111"/></svg>`;
-function nameFs(n){const l=n.length;if(l<=4)return'23px';if(l<=6)return'20px';if(l<=9)return'17px';if(l<=12)return'14px';if(l<=16)return'11px';if(l<=20)return'9px';return'7px'}
-function card(p){const nm=p[1].length>20?p[1].slice(0,19)+'…':p[1];const dose=p[2]+(p[3]?' · '+p[3]:'');return`<div class="cc"><div class="cc-v"><div class="vial-frame"><img src="./vial.png" class="vial-img" alt="${p[1]} Timeless Research vial"><div class="vial-lbl">${T_SVG}<span class="bl-name">TIMELESS RESEARCH</span><span class="bl-line"></span><span class="bl-product" style="font-size:${nameFs(p[1])}">${p[1].toUpperCase()}</span><span class="bl-dose">${p[2].toUpperCase()}</span><span class="bl-line bl-line-bot"></span><span class="bl-disclaimer">FOR RESEARCH USE ONLY</span></div></div><div class="cc-gw"></div></div><div class="cc-inf"><div class="cc-id">${p[0]}</div><div class="cc-nm">${nm}</div><div class="cc-ds">${p[6]}</div><div class="cc-bot"><span class="cc-do">${dose}</span><span class="cc-pr">$${p[4]}</span></div></div></div>`;}
+function nameFs(n){const l=n.length;if(l<=4)return'22px';if(l<=6)return'19px';if(l<=9)return'16px';if(l<=12)return'13px';if(l<=16)return'10px';if(l<=20)return'8px';return'6.5px'}
+function card(p){const nm=p[1].length>20?p[1].slice(0,19)+'…':p[1];const dose=p[2]+(p[3]?' · '+p[3]:'');return`<div class="cc"><div class="cc-v"><div class="vial-frame"><img src="./vial.png" class="vial-img" alt="${p[1]} vial"><div class="vial-lbl"><div class="lbl-inner">${T_SVG}<span class="bl-name">TIMELESS RESEARCH</span><span class="bl-divider"></span><span class="bl-product" style="font-size:${nameFs(p[1])}">${p[1].toUpperCase()}</span><span class="bl-dose">${p[2].toUpperCase()}</span><span class="bl-disclaimer">FOR RESEARCH USE ONLY</span></div></div></div><div class="cc-gw"></div></div><div class="cc-inf"><div class="cc-id">${p[0]}</div><div class="cc-nm">${nm}</div><div class="cc-ds">${p[6]}</div><div class="cc-bot"><span class="cc-do">${dose}</span><span class="cc-pr">$${p[4]}</span></div></div></div>`;}
 function render(cat){return(cat==='all'?P:P.filter(p=>p[5]===cat)).map(card).join('')}
 const tabs=document.getElementById('ctabs'),grid=document.getElementById('cgr');
 CATS.forEach((c,i)=>{const b=document.createElement('button');b.className='ctab'+(i===0?' on':'');b.textContent=c.l;b.dataset.k=c.k;b.addEventListener('click',()=>{document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));b.classList.add('on');grid.innerHTML=render(c.k)});tabs.appendChild(b)});
@@ -407,8 +278,7 @@ grid.innerHTML=render('all');
 document.getElementById('csg').innerHTML=CS.map(c=>`<div class="csc"><div class="cstg">COMING SOON</div><div class="csnm">${c[0]}</div><div class="csdo">${c[1]}</div></div>`).join('');
 const nav=document.getElementById('nav');
 window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>80),{passive:true});
-const cv=document.getElementById('pcvs'),cx=cv.getContext('2d');
-let pts=[],ms={x:-999,y:-999};
+const cv=document.getElementById('pcvs'),cx=cv.getContext('2d');let pts=[],ms={x:-999,y:-999};
 const rsz=()=>{cv.width=cv.offsetWidth;cv.height=cv.offsetHeight};
 const mkP=()=>{const n=Math.min(Math.floor(cv.width*cv.height/14000),80);pts=Array.from({length:n},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:Math.random()*1.5+.4,a:Math.random()*.4+.1}))};
 const drw=()=>{cx.clearRect(0,0,cv.width,cv.height);const md=140;pts.forEach((p,i)=>{const dx=ms.x-p.x,dy=ms.y-p.y,d=Math.sqrt(dx*dx+dy*dy);if(d<100){p.vx-=(dx/d)*.015;p.vy-=(dy/d)*.015}p.vx*=.992;p.vy*=.992;p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;for(let j=i+1;j<pts.length;j++){const q=pts[j],ex=p.x-q.x,ey=p.y-q.y,ed=Math.sqrt(ex*ex+ey*ey);if(ed<md){cx.beginPath();cx.strokeStyle=`rgba(79,172,254,${(1-ed/md)*.12})`;cx.lineWidth=.5;cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.stroke()}}cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle=`rgba(79,172,254,${p.a})`;cx.fill()});requestAnimationFrame(drw)};
