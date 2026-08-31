@@ -8,7 +8,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#020202;--s1:#070707;--s2:#0c0c0c;--s3:#111;--s4:#161616;--brd:rgba(255,255,255,.055);--brdm:rgba(255,255,255,.1);--bl:#4FACFE;--wh:#F2F4F8;--w60:rgba(242,244,248,.6);--w40:rgba(242,244,248,.4);--w20:rgba(242,244,248,.2);--fd:'Cormorant Garamond',Georgia,serif;--fu:'Inter',system-ui,sans-serif;--fm:'SF Mono','Fira Code','Courier New',monospace;}
+    :root{
+      --bg:#020202;--s1:#070707;--s2:#0c0c0c;--s3:#111;--s4:#161616;
+      --brd:rgba(255,255,255,.055);--brdm:rgba(255,255,255,.1);
+      --bl:#4FACFE;
+      --wh:#F2F4F8;--w60:rgba(242,244,248,.6);--w40:rgba(242,244,248,.4);
+      --w20:rgba(242,244,248,.2);
+      --fd:'Cormorant Garamond',Georgia,serif;
+      --fu:'Inter',system-ui,sans-serif;
+      --fm:'SF Mono','Fira Code','Courier New',monospace;
+    }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{background:var(--bg);color:var(--wh);font-family:var(--fu);overflow-x:hidden;-webkit-font-smoothing:antialiased}
@@ -83,17 +92,111 @@
     .cc-bot{display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
     .cc-do{font-family:var(--fm);font-size:.5rem;color:var(--w20);line-height:1.5}
     .cc-pr{font-family:var(--fu);font-size:1rem;font-weight:700;color:var(--wh)}
-    .vial-frame{position:relative;display:inline-block;height:310px;transition:transform .45s cubic-bezier(.34,1.56,.64,1),filter .35s ease;filter:drop-shadow(0 8px 28px rgba(0,0,0,.8));z-index:2}
-    .cc:hover .vial-frame{transform:translateY(-10px) scale(1.06);filter:drop-shadow(0 22px 40px rgba(0,0,0,.7)) drop-shadow(0 0 36px rgba(79,172,254,.28))}
+    .vial-frame{
+      position:relative;
+      display:inline-block;
+      height:310px;
+      transition:transform .45s cubic-bezier(.34,1.56,.64,1),filter .35s ease;
+      filter:drop-shadow(0 8px 28px rgba(0,0,0,.8));
+      z-index:2;
+    }
+    .cc:hover .vial-frame{
+      transform:translateY(-10px) scale(1.06);
+      filter:drop-shadow(0 22px 40px rgba(0,0,0,.7)) drop-shadow(0 0 36px rgba(79,172,254,.28));
+    }
     .vial-img{display:block;height:310px;width:auto;object-fit:contain}
-    .vial-lbl{position:absolute;top:37%;left:12.5%;right:12.5%;height:34%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;color:#111;text-align:center;font-family:Arial,Helvetica,sans-serif;padding:7px 5px 6px;gap:0;overflow:hidden;border-radius:1px;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(0,0,0,.05);pointer-events:none;z-index:5}
-    .bl-logo-svg{display:block;width:28px;height:22px;margin:0 auto 2px;flex-shrink:0}
-    .vial-lbl .bl-name{display:block;font-family:Arial,Helvetica,sans-serif;font-size:6.7px;line-height:8px;font-weight:600;letter-spacing:2px;color:#171717;white-space:nowrap;margin:0 0 4px 0}
-    .vial-lbl .bl-line{display:block;width:84%;height:1px;min-height:1px;background:#202020;margin:1px 0 5px 0}
-    .vial-lbl .bl-product{display:block;font-family:Arial,Helvetica,sans-serif;font-weight:900;color:#111;letter-spacing:-.4px;line-height:1;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;margin:0;padding:0 2px}
-    .vial-lbl .bl-dose{display:inline-flex;align-items:center;justify-content:center;background:#202020;color:#fff;font-family:Arial,Helvetica,sans-serif;font-size:9px;line-height:11px;font-weight:700;letter-spacing:1px;min-width:52px;height:18px;padding:0 11px;margin:5px 0 4px;white-space:nowrap}
-    .vial-lbl .bl-line-bot{width:84%;height:1px;margin:0 0 4px 0}
-    .vial-lbl .bl-disclaimer{display:block;font-family:Arial,Helvetica,sans-serif;font-size:5px;line-height:6px;font-weight:600;letter-spacing:1px;color:#333;white-space:nowrap;margin:0}
+    .vial-lbl{
+      position:absolute;
+      top:37%;
+      left:0;
+      right:0;
+      height:34%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      font-family:Arial,Helvetica,sans-serif;
+      color:#111;
+      padding:7px 5px 6px;
+      gap:0;
+      overflow:hidden;
+      pointer-events:none;
+      z-index:5;
+      background:linear-gradient(
+        90deg,
+        transparent                  0%,
+        rgba(170,170,170,.55)        8%,
+        rgba(238,238,238,.95)       17%,
+        #ffffff                     24%,
+        #ffffff                     76%,
+        rgba(238,238,238,.95)       83%,
+        rgba(170,170,170,.55)       92%,
+        transparent                 100%
+      );
+      box-shadow:
+        inset  26px 0 30px -10px rgba(0,0,0,.22),
+        inset -26px 0 30px -10px rgba(0,0,0,.22);
+    }
+    .vial-lbl::before{
+      content:'';
+      position:absolute;
+      top:0; left:20%; right:20%;
+      height:38%;
+      background:linear-gradient(to bottom,rgba(255,255,255,.55) 0%,transparent 100%);
+      pointer-events:none;
+    }
+    .vial-lbl::after{
+      content:'';
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(90deg,
+          transparent 22.5%,
+          rgba(0,0,0,.09) 23%,
+          rgba(0,0,0,.09) 23.4%,
+          transparent 24%
+        ) no-repeat,
+        linear-gradient(90deg,
+          transparent 76%,
+          rgba(0,0,0,.09) 76.6%,
+          rgba(0,0,0,.09) 77%,
+          transparent 77.5%
+        ) no-repeat;
+      background-size:100% 100%;
+      pointer-events:none;
+    }
+    .bl-logo-svg{
+      display:block;width:28px;height:22px;margin:0 auto 2px;
+      flex-shrink:0;position:relative;z-index:2;
+    }
+    .vial-lbl .bl-name{
+      display:block;font-size:6.7px;line-height:8px;font-weight:600;
+      letter-spacing:2px;color:#171717;white-space:nowrap;
+      margin:0 0 4px 0;position:relative;z-index:2;
+    }
+    .vial-lbl .bl-line{
+      display:block;width:52%;height:1px;min-height:1px;
+      background:#202020;margin:1px 0 5px 0;position:relative;z-index:2;
+    }
+    .vial-lbl .bl-product{
+      display:block;font-weight:900;color:#111;letter-spacing:-.4px;
+      line-height:1;white-space:nowrap;max-width:58%;overflow:hidden;
+      text-overflow:ellipsis;margin:0;padding:0 2px;position:relative;z-index:2;
+    }
+    .vial-lbl .bl-dose{
+      display:inline-flex;align-items:center;justify-content:center;
+      background:#202020;color:#fff;font-size:9px;line-height:11px;
+      font-weight:700;letter-spacing:1px;min-width:52px;height:18px;
+      padding:0 11px;margin:5px 0 4px;white-space:nowrap;
+      position:relative;z-index:2;
+    }
+    .vial-lbl .bl-line-bot{width:52%;margin:0 0 4px 0;}
+    .vial-lbl .bl-disclaimer{
+      display:block;font-size:5px;line-height:6px;font-weight:600;
+      letter-spacing:1px;color:#333;white-space:nowrap;
+      margin:0;position:relative;z-index:2;
+    }
     .csg{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--brd);border:1px solid var(--brd)}
     @media(max-width:1200px){.csg{grid-template-columns:repeat(4,1fr)}}
     @media(max-width:780px){.csg{grid-template-columns:repeat(3,1fr)}}
@@ -231,7 +334,7 @@
     </div>
   </div>
   <div class="sci-rt">
-    <div data-r><span class="sn-">01 — WHAT ARE PEPTIDES</span><h3>Chains of Amino Acids With Defined Research Utility</h3><p>Peptides are short chains of amino acids that play signaling roles throughout biological systems. Synthetic peptides allow scientists to study these pathways in controlled laboratory environments.</p></div>
+    <div data-r><span class="sn-">01 — WHAT ARE PEPTIDES</span><h3>Chains of Amino Acids With Defined Research Utility</h3><p>Peptides are short chains of amino acids that play signaling roles throughout biological systems.</p></div>
     <div class="sdv"></div>
     <div data-r><span class="sn-">02 — ANALYTICAL TESTING</span><h3>HPLC Purity Analysis and Mass Spectrometry</h3><p>Every production lot is analyzed using HPLC to verify purity and mass spectrometry to confirm molecular identity.</p></div>
     <div class="sdv"></div>
@@ -243,11 +346,11 @@
 <section class="sec dk" id="quality"><div class="si">
   <div class="prhd" data-r><span class="ey">Quality & Testing</span><h2 class="stl">Our Standard<br><em>Process.</em></h2><p class="ssb" style="margin-top:1rem;">Every compound follows the same five-stage process before it reaches a researcher's hands.</p></div>
   <div class="prst">
-    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">01</div></div><div class="prcnt"><span class="prlbl">Source Material</span><h3 class="prtl">Pharmaceutical-Grade Raw Inputs</h3><p class="prds">Amino acid inputs sourced from validated pharmaceutical-grade suppliers with certificate compliance checks before production.</p></div></div>
-    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">02</div></div><div class="prcnt"><span class="prlbl">Synthesis</span><h3 class="prtl">Solid-Phase Peptide Synthesis</h3><p class="prds">SPPS provides precise control over amino acid sequence with intermediate purification steps throughout synthesis.</p></div></div>
+    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">01</div></div><div class="prcnt"><span class="prlbl">Source Material</span><h3 class="prtl">Pharmaceutical-Grade Raw Inputs</h3><p class="prds">Amino acid inputs sourced from validated pharmaceutical-grade suppliers.</p></div></div>
+    <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">02</div></div><div class="prcnt"><span class="prlbl">Synthesis</span><h3 class="prtl">Solid-Phase Peptide Synthesis</h3><p class="prds">SPPS provides precise control over amino acid sequence with intermediate purification steps.</p></div></div>
     <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">03</div></div><div class="prcnt"><span class="prlbl">Analytical Testing</span><h3 class="prtl">HPLC Purity and Mass Spectrometry</h3><p class="prds">Every batch undergoes HPLC analysis (≥98% threshold) and mass spectrometry for molecular identity confirmation.</p></div></div>
     <div class="prsp" data-r><div class="prln"></div><div class="prlft"><div class="prc">04</div></div><div class="prcnt"><span class="prlbl">Batch Verification</span><h3 class="prtl">Independent Review Before Release</h3><p class="prds">Batches failing purity thresholds are rejected. Lot numbers assigned only to batches meeting all specifications.</p></div></div>
-    <div class="prsp" data-r><div class="prlft"><div class="prc">05</div></div><div class="prcnt"><span class="prlbl">Documentation</span><h3 class="prtl">Certificate of Analysis — Every Lot</h3><p class="prds">COA issued per lot with purity data, molecular weight, CAS number, lot identifier, and test date. Available on request.</p></div></div>
+    <div class="prsp" data-r><div class="prlft"><div class="prc">05</div></div><div class="prcnt"><span class="prlbl">Documentation</span><h3 class="prtl">Certificate of Analysis — Every Lot</h3><p class="prds">COA issued per lot with purity data, molecular weight, CAS number, lot identifier, and test date.</p></div></div>
   </div>
 </div></section>
 <section class="sec" id="about"><div class="si"><div class="abl">
@@ -273,8 +376,8 @@
   </div>
   <div class="fqls" data-r>
     <div class="fqi"><button class="fqq">What are research peptides?<span class="fqic">+</span></button><div class="fqa">Research peptides are short chains of amino acids for laboratory and scientific research. Not approved for human consumption or any clinical, therapeutic, or veterinary use.</div></div>
-    <div class="fqi"><button class="fqq">Are these products approved for human use?<span class="fqic">+</span></button><div class="fqa">No. All products are strictly for in vitro laboratory research. Not approved by the FDA for human or animal consumption. Researchers are responsible for compliance with all applicable laws.</div></div>
-    <div class="fqi"><button class="fqq">Where can I find the Certificate of Analysis?<span class="fqic">+</span></button><div class="fqa">COAs are available for every product. Contact our team with the product name and lot number. Every COA includes HPLC purity data and mass spectrometry identity confirmation.</div></div>
+    <div class="fqi"><button class="fqq">Are these products approved for human use?<span class="fqic">+</span></button><div class="fqa">No. All products are strictly for in vitro laboratory research. Not approved by the FDA for human or animal consumption.</div></div>
+    <div class="fqi"><button class="fqq">Where can I find the Certificate of Analysis?<span class="fqic">+</span></button><div class="fqa">COAs are available for every product. Contact our team with the product name and lot number.</div></div>
     <div class="fqi"><button class="fqq">How should research materials be stored?<span class="fqic">+</span></button><div class="fqa">Lyophilized peptides: 2–8°C short-term, −20°C extended storage. Reconstituted compounds: −20°C in small aliquots to minimize freeze-thaw cycles.</div></div>
     <div class="fqi"><button class="fqq">Can two people split an order?<span class="fqic">+</span></button><div class="fqa">Yes — each party pays 50%. Contact us with questions about split orders before submitting.</div></div>
     <div class="fqi"><button class="fqq">Do you ship internationally?<span class="fqic">+</span></button><div class="fqa">We ship to most countries subject to applicable regulations. Full documentation provided to support customs clearance.</div></div>
@@ -291,117 +394,15 @@
   <div class="fbt"><p>&copy; 2026 Timeless Research. All rights reserved. Products are for research use only.</p><div class="fbl"><a href="#">Terms</a><a href="#">Privacy</a><a href="#">Research Disclaimer</a></div></div>
 </div></footer>
 <script>
-const P = [
-  ['RT30','Retatrutide','30mg','30 caps',300,'weight','GLP-1/GIP/Glucagon Agonist'],
-  ['RT60','Retatrutide','60mg','30 caps',450,'weight','GLP-1/GIP/Glucagon Agonist'],
-  ['RT90','Retatrutide','90mg','30 caps',550,'weight','GLP-1/GIP/Glucagon Agonist'],
-  ['RT300','Retatrutide','300mg','30 caps',800,'weight','GLP-1/GIP/Glucagon Agonist'],
-  ['TR100','Tirzepatide','100mg','30 caps',375,'weight','Dual GIP/GLP-1 Agonist'],
-  ['SM30','Semaglutide','30mg','30 caps',180,'weight','GLP-1 Receptor Agonist'],
-  ['T3','T3 Thyroid','25mcg','30 pills',45,'weight','Thyroid Hormone Analog'],
-  ['BPC60','BPC-157','2mg','30 caps',80,'healing','Body Protection Compound'],
-  ['TB30','TB-500','1mg','30 caps',180,'healing','Thymosin Beta-4 Analog'],
-  ['BPCTB60','Wolverine Blend','2mg','30 caps',245,'healing','BPC-157 + TB-500'],
-  ['GLOW210','GLOW Blend','7mg','30 caps',245,'healing','TB + BPC + GHK-CU'],
-  ['KLOW240','KLOW Blend','8mg','30 caps',265,'healing','GHK-CU + TB + BPC + KPV'],
-  ['HGH360','HGH','360 IU','',300,'growth','Human Growth Hormone'],
-  ['CJCDAC15','CJC-1295 DAC','0.5mg','30 caps',200,'growth','GHRH Analog With DAC'],
-  ['CJC30','CJC-1295','1mg','30 caps',180,'growth','GHRH Analog — No DAC'],
-  ['IP30','Ipamorelin','1mg','30 caps',80,'growth','Selective GHRP'],
-  ['TESA60','Tesamorelin','2mg','30 caps',385,'growth','GHRH Analog'],
-  ['MOTS120','MOTS-C','4mg','30 caps',285,'growth','Mitochondrial Peptide'],
-  ['IGF3','IGF-1 LR3','100mcg','30 caps',220,'growth','Insulin-like Growth Factor'],
-  ['NAD3K','NAD+','100mg','30 caps',155,'longevity','Nicotinamide Adenine Dinucleotide'],
-  ['EPIT150','Epithalon','5mg','30 caps',165,'longevity','Telomerase Activating Peptide'],
-  ['FOX30','FOXO4-DRI','1mg','30 caps',365,'longevity','Senolytic Peptide'],
-  ['GHK300','GHK-CU','10mg','30 caps',70,'longevity','Copper Peptide Complex'],
-  ['GLUTA','Glutathione','150mg','30 caps',150,'longevity','Master Antioxidant'],
-  ['SEL30','Selank','1mg','30 caps',105,'cognitive','Anxiolytic Heptapeptide'],
-  ['SEM30','Semax','1mg','30 caps',105,'cognitive','Nootropic Heptapeptide'],
-  ['DIHEX20','Dihexa','667mcg','30 caps',145,'cognitive','Cognitive Enhancement'],
-  ['DSIP30','DSIP','1mg','30 caps',100,'cognitive','Delta Sleep-Inducing Peptide'],
-  ['KPV30','KPV','1mg','30 caps',80,'cognitive','Anti-Inflammatory Tripeptide'],
-  ['MT1','MT-1','667mcg','30 caps',65,'sexual','Melanotan I'],
-  ['MT2','MT-2','667mcg','30 caps',65,'sexual','Melanotan II Acetate'],
-  ['HCG30K','HCG','1000 IU','30 caps',180,'sexual','Human Chorionic Gonadotropin'],
-  ['KP30','Kisspeptin-10','1mg','30 caps',125,'sexual','GnRH Signaling Peptide'],
-  ['OXY30','Oxytocin','1mg','30 caps',100,'sexual','Oxytocin Acetate'],
-  ['CIALIS','Tadalafil','20mg','30 pills',30,'sexual','PDE5 Inhibitor'],
-  ['SILDEN','Sildenafil','100mg','30 pills',30,'sexual','PDE5 Inhibitor'],
-  ['TESTE','Test E','250mg/mL','10mL',75,'injectable','Testosterone Enanthate'],
-  ['TESTC','Test C','250mg/mL','10mL',75,'injectable','Testosterone Cypionate'],
-  ['TESTP','Test P','200mg/mL','10mL',75,'injectable','Testosterone Propionate'],
-  ['TRENA','Tren A','100mg/mL','10mL',90,'injectable','Trenbolone Acetate'],
-  ['TRENE','Tren E','200mg/mL','10mL',140,'injectable','Trenbolone Enanthate'],
-  ['NPP','NPP','200mg/mL','10mL',75,'injectable','Nandrolone Phenylpropionate'],
-  ['EQ300','EQ 300','300mg/mL','10mL',90,'injectable','Boldenone Undecylenate'],
-  ['EQ600','EQ 600','600mg/mL','10mL',120,'injectable','Boldenone Undecylenate'],
-  ['MASTP','Mast P','100mg/mL','10mL',120,'injectable','Drostanolone Propionate'],
-  ['MASTE','Mast E','200mg/mL','10mL',180,'injectable','Drostanolone Enanthate'],
-  ['PRIMO','Primobolan','200mg/mL','10mL',160,'injectable','Methenolone Enanthate'],
-  ['SUPER','Superdrol','50mg','',100,'orals','Methyldrostanolone'],
-  ['ANADR','Anadrol','50mg','30 pills',40,'orals','Oxymetholone'],
-  ['CLEN','Clenbuterol','40mcg','30 pills',40,'orals','Beta-2 Adrenergic Agonist'],
-  ['DIANA','Dianabol','50mg','30 pills',60,'orals','Methandrostenolone'],
-  ['WIN','Winstrol','10mg','30 pills',40,'orals','Stanozolol'],
-  ['TURINA','Turinabol','50mg','30 pills',70,'orals','Chlorodehydromethyltestosterone'],
-  ['HALO','Halotestin','10mg','30 pills',40,'orals','Fluoxymesterone'],
-  ['VAR50','Anavar','50mg','30 pills',70,'orals','Oxandrolone'],
-  ['ARIM3','Arimidex','1mg','30 pills',40,'orals','Anastrozole / AI'],
-  ['LETRO','Letrozole','2.5mg','30 pills',40,'orals','Aromatase Inhibitor'],
-  ['TAMOX','Tamoxifen','20mg','30 pills',30,'orals','SERM — Nolvadex'],
-  ['PROV','Proviron','25mg','30 pills',40,'orals','Mesterolone'],
-  ['WA10','Sterile Water','10mL','',15,'supplies','No Benzyl Alcohol'],
-  ['BAC10','BAC Water','10mL','',15,'supplies','0.9% Benzyl Alcohol'],
-];
-const CS = [
-  ['SS-31','10mg'],['SS-31','50mg'],['AHK-CU','100mg'],['AICAR','50mg'],
-  ['AOD 9604','10mg'],['Cagrilintide','10mg'],['Thymosin Alpha-1','10mg'],
-  ['Adipotide','5mg'],['SNAP-8','10mg'],['Thymalin','10mg'],['LL-37','5mg'],
-  ['Survodutide','10mg'],['Ara-290','10mg'],['VIP','10mg'],['5-Amino-1MQ','50mg'],
-  ['HMG','75 IU'],['Vitamin B12','1mg/mL'],['Lemon Bottle','10mL'],
-  ['L-Carnitine','600mg/mL'],['Acetic Acid Water','0.6%'],
-  ['GHRP-2','10mg'],['GHRP-6 Acetate','10mg'],['Pinealon','20mg'],
-  ['Cerebroprotein','60mg'],['Adamax','10mg'],['Cartilax','20mg'],['P021','20mg'],
-];
-const CATS = [
-  {k:'all',l:'All Products'},{k:'weight',l:'Weight Management'},
-  {k:'healing',l:'Healing & Recovery'},{k:'growth',l:'Growth Hormones'},
-  {k:'longevity',l:'Longevity'},{k:'cognitive',l:'Cognitive'},
-  {k:'sexual',l:'Sexual Health'},{k:'injectable',l:'Injectables'},
-  {k:'orals',l:'Orals & Ancillaries'},{k:'supplies',l:'Supplies'},
-];
+const P=[['RT30','Retatrutide','30mg','30 caps',300,'weight','GLP-1/GIP/Glucagon Agonist'],['RT60','Retatrutide','60mg','30 caps',450,'weight','GLP-1/GIP/Glucagon Agonist'],['RT90','Retatrutide','90mg','30 caps',550,'weight','GLP-1/GIP/Glucagon Agonist'],['RT300','Retatrutide','300mg','30 caps',800,'weight','GLP-1/GIP/Glucagon Agonist'],['TR100','Tirzepatide','100mg','30 caps',375,'weight','Dual GIP/GLP-1 Agonist'],['SM30','Semaglutide','30mg','30 caps',180,'weight','GLP-1 Receptor Agonist'],['T3','T3 Thyroid','25mcg','30 pills',45,'weight','Thyroid Hormone Analog'],['BPC60','BPC-157','2mg','30 caps',80,'healing','Body Protection Compound'],['TB30','TB-500','1mg','30 caps',180,'healing','Thymosin Beta-4 Analog'],['BPCTB60','Wolverine Blend','2mg','30 caps',245,'healing','BPC-157 + TB-500'],['GLOW210','GLOW Blend','7mg','30 caps',245,'healing','TB + BPC + GHK-CU'],['KLOW240','KLOW Blend','8mg','30 caps',265,'healing','GHK-CU + TB + BPC + KPV'],['HGH360','HGH','360 IU','',300,'growth','Human Growth Hormone'],['CJCDAC15','CJC-1295 DAC','0.5mg','30 caps',200,'growth','GHRH Analog With DAC'],['CJC30','CJC-1295','1mg','30 caps',180,'growth','GHRH Analog — No DAC'],['IP30','Ipamorelin','1mg','30 caps',80,'growth','Selective GHRP'],['TESA60','Tesamorelin','2mg','30 caps',385,'growth','GHRH Analog'],['MOTS120','MOTS-C','4mg','30 caps',285,'growth','Mitochondrial Peptide'],['IGF3','IGF-1 LR3','100mcg','30 caps',220,'growth','Insulin-like Growth Factor'],['NAD3K','NAD+','100mg','30 caps',155,'longevity','Nicotinamide Adenine Dinucleotide'],['EPIT150','Epithalon','5mg','30 caps',165,'longevity','Telomerase Activating Peptide'],['FOX30','FOXO4-DRI','1mg','30 caps',365,'longevity','Senolytic Peptide'],['GHK300','GHK-CU','10mg','30 caps',70,'longevity','Copper Peptide Complex'],['GLUTA','Glutathione','150mg','30 caps',150,'longevity','Master Antioxidant'],['SEL30','Selank','1mg','30 caps',105,'cognitive','Anxiolytic Heptapeptide'],['SEM30','Semax','1mg','30 caps',105,'cognitive','Nootropic Heptapeptide'],['DIHEX20','Dihexa','667mcg','30 caps',145,'cognitive','Cognitive Enhancement'],['DSIP30','DSIP','1mg','30 caps',100,'cognitive','Delta Sleep-Inducing Peptide'],['KPV30','KPV','1mg','30 caps',80,'cognitive','Anti-Inflammatory Tripeptide'],['MT1','MT-1','667mcg','30 caps',65,'sexual','Melanotan I'],['MT2','MT-2','667mcg','30 caps',65,'sexual','Melanotan II Acetate'],['HCG30K','HCG','1000 IU','30 caps',180,'sexual','Human Chorionic Gonadotropin'],['KP30','Kisspeptin-10','1mg','30 caps',125,'sexual','GnRH Signaling Peptide'],['OXY30','Oxytocin','1mg','30 caps',100,'sexual','Oxytocin Acetate'],['CIALIS','Tadalafil','20mg','30 pills',30,'sexual','PDE5 Inhibitor'],['SILDEN','Sildenafil','100mg','30 pills',30,'sexual','PDE5 Inhibitor'],['TESTE','Test E','250mg/mL','10mL',75,'injectable','Testosterone Enanthate'],['TESTC','Test C','250mg/mL','10mL',75,'injectable','Testosterone Cypionate'],['TESTP','Test P','200mg/mL','10mL',75,'injectable','Testosterone Propionate'],['TRENA','Tren A','100mg/mL','10mL',90,'injectable','Trenbolone Acetate'],['TRENE','Tren E','200mg/mL','10mL',140,'injectable','Trenbolone Enanthate'],['NPP','NPP','200mg/mL','10mL',75,'injectable','Nandrolone Phenylpropionate'],['EQ300','EQ 300','300mg/mL','10mL',90,'injectable','Boldenone Undecylenate'],['EQ600','EQ 600','600mg/mL','10mL',120,'injectable','Boldenone Undecylenate'],['MASTP','Mast P','100mg/mL','10mL',120,'injectable','Drostanolone Propionate'],['MASTE','Mast E','200mg/mL','10mL',180,'injectable','Drostanolone Enanthate'],['PRIMO','Primobolan','200mg/mL','10mL',160,'injectable','Methenolone Enanthate'],['SUPER','Superdrol','50mg','',100,'orals','Methyldrostanolone'],['ANADR','Anadrol','50mg','30 pills',40,'orals','Oxymetholone'],['CLEN','Clenbuterol','40mcg','30 pills',40,'orals','Beta-2 Adrenergic Agonist'],['DIANA','Dianabol','50mg','30 pills',60,'orals','Methandrostenolone'],['WIN','Winstrol','10mg','30 pills',40,'orals','Stanozolol'],['TURINA','Turinabol','50mg','30 pills',70,'orals','Chlorodehydromethyltestosterone'],['HALO','Halotestin','10mg','30 pills',40,'orals','Fluoxymesterone'],['VAR50','Anavar','50mg','30 pills',70,'orals','Oxandrolone'],['ARIM3','Arimidex','1mg','30 pills',40,'orals','Anastrozole / AI'],['LETRO','Letrozole','2.5mg','30 pills',40,'orals','Aromatase Inhibitor'],['TAMOX','Tamoxifen','20mg','30 pills',30,'orals','SERM — Nolvadex'],['PROV','Proviron','25mg','30 pills',40,'orals','Mesterolone'],['WA10','Sterile Water','10mL','',15,'supplies','No Benzyl Alcohol'],['BAC10','BAC Water','10mL','',15,'supplies','0.9% Benzyl Alcohol']];
+const CS=[['SS-31','10mg'],['SS-31','50mg'],['AHK-CU','100mg'],['AICAR','50mg'],['AOD 9604','10mg'],['Cagrilintide','10mg'],['Thymosin Alpha-1','10mg'],['Adipotide','5mg'],['SNAP-8','10mg'],['Thymalin','10mg'],['LL-37','5mg'],['Survodutide','10mg'],['Ara-290','10mg'],['VIP','10mg'],['5-Amino-1MQ','50mg'],['HMG','75 IU'],['Vitamin B12','1mg/mL'],['Lemon Bottle','10mL'],['L-Carnitine','600mg/mL'],['Acetic Acid Water','0.6%'],['GHRP-2','10mg'],['GHRP-6 Acetate','10mg'],['Pinealon','20mg'],['Cerebroprotein','60mg'],['Adamax','10mg'],['Cartilax','20mg'],['P021','20mg']];
+const CATS=[{k:'all',l:'All Products'},{k:'weight',l:'Weight Management'},{k:'healing',l:'Healing & Recovery'},{k:'growth',l:'Growth Hormones'},{k:'longevity',l:'Longevity'},{k:'cognitive',l:'Cognitive'},{k:'sexual',l:'Sexual Health'},{k:'injectable',l:'Injectables'},{k:'orals',l:'Orals & Ancillaries'},{k:'supplies',l:'Supplies'}];
 const T_SVG=`<svg class="bl-logo-svg" viewBox="0 0 40 30" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="40" height="6" fill="#111"/><rect x="15" y="6" width="10" height="24" fill="#111"/></svg>`;
 function nameFs(n){const l=n.length;if(l<=4)return'23px';if(l<=6)return'20px';if(l<=9)return'17px';if(l<=12)return'14px';if(l<=16)return'11px';if(l<=20)return'9px';return'7px'}
-function card(p){
-  const nm=p[1].length>20?p[1].slice(0,19)+'…':p[1];
-  const dose=p[2]+(p[3]?' · '+p[3]:'');
-  return `<div class="cc">
-  <div class="cc-v">
-    <div class="vial-frame">
-      <img src="./vial.png" class="vial-img" alt="${p[1]} Timeless Research vial">
-      <div class="vial-lbl">
-        ${T_SVG}
-        <span class="bl-name">TIMELESS RESEARCH</span>
-        <span class="bl-line"></span>
-        <span class="bl-product" style="font-size:${nameFs(p[1])}">${p[1].toUpperCase()}</span>
-        <span class="bl-dose">${p[2].toUpperCase()}</span>
-        <span class="bl-line bl-line-bot"></span>
-        <span class="bl-disclaimer">FOR RESEARCH USE ONLY</span>
-      </div>
-    </div>
-    <div class="cc-gw"></div>
-  </div>
-  <div class="cc-inf">
-    <div class="cc-id">${p[0]}</div>
-    <div class="cc-nm">${nm}</div>
-    <div class="cc-ds">${p[6]}</div>
-    <div class="cc-bot"><span class="cc-do">${dose}</span><span class="cc-pr">$${p[4]}</span></div>
-  </div>
-</div>`;}
+function card(p){const nm=p[1].length>20?p[1].slice(0,19)+'…':p[1];const dose=p[2]+(p[3]?' · '+p[3]:'');return`<div class="cc"><div class="cc-v"><div class="vial-frame"><img src="./vial.png" class="vial-img" alt="${p[1]} Timeless Research vial"><div class="vial-lbl">${T_SVG}<span class="bl-name">TIMELESS RESEARCH</span><span class="bl-line"></span><span class="bl-product" style="font-size:${nameFs(p[1])}">${p[1].toUpperCase()}</span><span class="bl-dose">${p[2].toUpperCase()}</span><span class="bl-line bl-line-bot"></span><span class="bl-disclaimer">FOR RESEARCH USE ONLY</span></div></div><div class="cc-gw"></div></div><div class="cc-inf"><div class="cc-id">${p[0]}</div><div class="cc-nm">${nm}</div><div class="cc-ds">${p[6]}</div><div class="cc-bot"><span class="cc-do">${dose}</span><span class="cc-pr">$${p[4]}</span></div></div></div>`;}
 function render(cat){return(cat==='all'?P:P.filter(p=>p[5]===cat)).map(card).join('')}
 const tabs=document.getElementById('ctabs'),grid=document.getElementById('cgr');
-CATS.forEach((c,i)=>{const b=document.createElement('button');b.className='ctab'+(i===0?' on':'');b.textContent=c.l;b.dataset.k=c.k;b.addEventListener('click',()=>{document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));b.classList.add('on');grid.innerHTML=render(c.k)});tabs.appendChild(b);});
+CATS.forEach((c,i)=>{const b=document.createElement('button');b.className='ctab'+(i===0?' on':'');b.textContent=c.l;b.dataset.k=c.k;b.addEventListener('click',()=>{document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));b.classList.add('on');grid.innerHTML=render(c.k)});tabs.appendChild(b)});
 grid.innerHTML=render('all');
 document.getElementById('csg').innerHTML=CS.map(c=>`<div class="csc"><div class="cstg">COMING SOON</div><div class="csnm">${c[0]}</div><div class="csdo">${c[1]}</div></div>`).join('');
 const nav=document.getElementById('nav');
