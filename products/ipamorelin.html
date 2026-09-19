@@ -14,7 +14,7 @@
 <meta property="og:image" content="https://www.timelessresearch.com/vial.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="robots" content="index,follow">
-<meta name="theme-color" content="#020202">
+<meta name="theme-color" content="#FAF9F7">
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -64,18 +64,20 @@
 
     <div class="split">
       <div>
-        <div style="background:var(--surface-1);border:1px solid var(--line);border-radius:6px;padding:3rem 2rem;display:grid;place-items:center;background-image:radial-gradient(ellipse 60% 50% at 50% 45%,rgba(79,172,254,.06),transparent 70%)">
-          <div class="vial" style="height:300px">
-  <img src="../vial.png" alt="" aria-hidden="true" style="height:300px" loading="lazy" decoding="async" width="864" height="1184">
-  <div class="vial-label">
-    <svg viewBox="0 0 40 30" aria-hidden="true"><rect x="0" y="0" width="40" height="6" fill="#111"/><rect x="15" y="6" width="10" height="24" fill="#111"/></svg>
-    <span class="vial-brand">TIMELESS RESEARCH</span>
-    <span class="vial-hr"></span>
-    <span class="vial-name" style="font-size:7.5px">IPAMORELIN</span>
-    <span class="vial-dose">2 mg</span>
-    <span class="vial-ruo">RESEARCH USE ONLY</span>
-  </div>
-</div>
+        <div style="background:var(--tile);padding:3.5rem 2rem;display:grid;place-items:center">
+          <span class="vial" style="--vial-h:400px">
+  <picture>
+    <source srcset="../assets/img/vial.webp" type="image/webp">
+    <img src="../assets/img/vial.png" alt="Ipamorelin research vial, 2 mg" width="491" height="880" loading="lazy" decoding="async">
+  </picture>
+  <span class="vial-print" style="--vp-name:.88em" aria-hidden="true">
+    <span class="vp-brand">TIMELESS RESEARCH</span>
+    <span class="vp-rule"></span>
+    <span class="vp-name">IPAMORELIN</span>
+    <span class="vp-size">2 mg &middot; CAS 170851-70-4</span>
+    <span class="vp-ruo">FOR RESEARCH USE ONLY</span>
+  </span>
+</span>
         </div>
         <p class="muted" style="font-size:.7rem;margin-top:.75rem;text-align:center">Label shown for illustration. Supplied vial carries the lot number and release date.</p>
       </div>
@@ -93,12 +95,12 @@
           <span class="ruo-badge">Research use only</span>
         </div>
 
-        <div style="background:var(--surface-1);border:1px solid var(--line);border-radius:6px;padding:1.5rem;margin-bottom:2rem">
-          <label for="size-select" style="display:block;font-size:.78rem;color:var(--ink-2);margin-bottom:.5rem">Pack size</label>
-          <select id="size-select" data-size style="width:100%;background:var(--surface-2);border:1px solid var(--line-strong);border-radius:3px;padding:.7rem 1rem;font-family:var(--f-mono);font-size:.8rem;margin-bottom:1rem"><option value="2 mg">2 mg</option><option value="5 mg">5 mg</option><option value="10 mg">10 mg</option></select>
-          <button class="btn btn--primary btn--block" data-add="ipamorelin" data-name="Ipamorelin">Add to request list</button>
-          <p class="muted" style="font-size:.7rem;margin-top:.75rem;text-align:center">Pricing and lot availability confirmed by quotation.</p>
+        <div class="field" style="margin-bottom:1.5rem">
+          <label for="size-select">Pack size</label>
+          <select id="size-select" data-size><option value="2 mg">2 mg</option><option value="5 mg">5 mg</option><option value="10 mg">10 mg</option></select>
         </div>
+        <button class="btn btn--primary" data-add="ipamorelin" data-name="Ipamorelin">Add to request list</button>
+        <p class="muted" style="font-size:.72rem;margin:.9rem 0 2.5rem">Pricing and lot availability confirmed by quotation against a verified account.</p>
 
         <table class="spec">
           <caption>Specification</caption>

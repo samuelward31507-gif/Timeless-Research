@@ -35,13 +35,54 @@ products/<id>.html      34 generated specification pages
 legal/                  terms.html, privacy.html, shipping.html
 assets/
   css/main.css          Design tokens + all component styles
-  js/site.js            Nav, reveal, accordion, request list, drawer, hero canvas
+  js/site.js            Nav, reveal, accordion, request list, drawer
   js/catalog.js         Filtering and search
   js/contact.js         Form validation and submission
   data/products.json    Single source of truth for the catalog
+  img/vial.{png,webp}   Product photograph, matted (generated)
   img/favicon.svg       Generated
+vial.png                Original studio photograph (source for the above)
 tools/build.py          Static site generator
+tools/make_vial.py      Rebuilds the vial asset from the photograph
+tools/check.py          Structural / link / a11y-hygiene checks
 sitemap.xml, robots.txt Generated
+```
+
+## Design
+
+Editorial and minimal on warm off-white paper (`#FAF9F7`): no card chrome,
+hairline rules instead of boxes, large Cormorant Garamond display type over
+Inter, and monospace reserved for analytical data (CAS, MW, sequences).
+A single deep-blue accent (`#0A57B0`) carries links and emphasis.
+
+### The vials
+
+`vial.png` at the repo root is a real photograph of a crimp-top glass vial
+carrying a **blank paper label**, shot on black. Two things make it read as a
+genuine product shot on a light page:
+
+- **Translucent matte.** `tools/make_vial.py` derives alpha from luminance
+  inside the subject silhouette, so the cap and label stay opaque while the
+  glass becomes translucent and the page shows through it — which is what
+  light actually does through a vial. A plain cutout leaves the glass interior
+  black and reads as a dark blob pasted onto white. The baked studio shadow is
+  cut, since it belongs to the black backdrop.
+- **Type printed into the real label.** The label text is a DOM layer
+  positioned over the photographed label and blended with
+  `mix-blend-mode: multiply`, so it inherits the label's own curvature shading
+  and paper texture. The earlier version covered the real label with a flat
+  white rectangle, which is what made it look fake.
+
+Label geometry in `.vial-print` is measured from the asset, not eyeballed —
+`make_vial.py` prints the values to keep CSS and asset in sync. Below 260px the
+label drops the CAS and research-use lines, which would otherwise render under
+6px and read as a smudge.
+
+To regenerate after replacing the photograph:
+
+```bash
+pip install pillow numpy
+python3 tools/make_vial.py     # then sync .vial-print if the geometry changed
 ```
 
 ### Editing content
@@ -96,15 +137,16 @@ rest of the site is built on.
 
 Verified with Playwright + Chromium and axe-core (WCAG 2.1 A/AA):
 
-- Body text meets AA contrast on the near-black ground; the muted greys were
-  darkened from the original design, which failed at `rgba(242,244,248,.4)`.
+- Every ink tier is verified AA against every surface it is used on. The
+  original dark design failed here: its muted text sat at 3.5:1.
 - Keyboard: skip link, visible focus rings, focus trapped in the request-list
   drawer, `Escape` closes drawer and mobile menu.
-- `prefers-reduced-motion` disables the hero particle field and all reveals.
+- `prefers-reduced-motion` disables all reveal animation.
 - Reveal animations are progressive enhancement — with JavaScript disabled all
   content renders, and the full catalog is present in the HTML.
 - No horizontal overflow at 360 / 390 / 768 / 1024 / 1440 px.
-- The hero canvas stops painting when scrolled out of view or the tab is hidden.
+- Phones use a 2-up catalog grid with smaller vials; one column at full size
+  made the catalog ~23,000px tall.
 
 Re-run the structural checks at any time (no server or browser needed):
 
@@ -117,8 +159,9 @@ page has a title / description / canonical / `<main>` / skip link and exactly on
 `<h1>`, images carry `alt`, form controls are labelled, and the research-use
 notice is present on every key page. It exits non-zero, so it can gate a deploy.
 
-Audited separately with axe-core (WCAG 2.1 A/AA) across ten representative
-pages: **0 violations**.
+Audited with axe-core (WCAG 2.1 A/AA) across ten representative pages:
+**0 violations**. Twenty functional tests cover catalog filtering, CAS search,
+the request list, persistence, form validation, the accordion and mobile nav.
 
 ---
 

@@ -60,7 +60,7 @@ def head(title, desc, depth, canonical, extra=""):
 <meta property="og:image" content="{SITE}/vial.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="robots" content="index,follow">
-<meta name="theme-color" content="#020202">
+<meta name="theme-color" content="#FAF9F7">
 <link rel="icon" href="{p}assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -185,20 +185,43 @@ def page(path, title, desc, body, active="", extra_head="", extra_body=""):
 
 
 # --------------------------------------------------------------------------- pieces
-def vial(p_name, size_label, height=190):
+def vial(p_name, size_label, height=240, alt="", cas=None):
+    """Render the vial photograph with its label text printed into the real
+    paper label. The text is a DOM layer blended with `multiply`, so it picks
+    up the photographed label's own curvature shading and paper texture
+    instead of sitting on a flat synthetic rectangle.
+
+    Label geometry is measured from the asset's alpha channel:
+    left 11.20%, top 39.77%, width 82.69%, height 41.82%.
+
+    Below 260px the label drops to brand + name + size: at that scale the
+    CAS and research-use lines render under ~6px and read as a smudge, which
+    is what made the earlier treatment look fake."""
+    compact = height < 260
     n = len(p_name)
-    fs = "9px" if n <= 6 else "7.5px" if n <= 10 else "6px" if n <= 15 else "5px"
-    return f"""<div class="vial" style="height:{height}px">
-  <img src="{{PREFIX}}vial.png" alt="" aria-hidden="true" style="height:{height}px" loading="lazy" decoding="async" width="864" height="1184">
-  <div class="vial-label">
-    <svg viewBox="0 0 40 30" aria-hidden="true"><rect x="0" y="0" width="40" height="6" fill="#111"/><rect x="15" y="6" width="10" height="24" fill="#111"/></svg>
-    <span class="vial-brand">TIMELESS RESEARCH</span>
-    <span class="vial-hr"></span>
-    <span class="vial-name" style="font-size:{fs}">{E(p_name.upper())}</span>
-    <span class="vial-dose">{E(size_label)}</span>
-    <span class="vial-ruo">RESEARCH USE ONLY</span>
-  </div>
-</div>"""
+    if   n <= 7:  scale, wrap = "1.15em", ""
+    elif n <= 11: scale, wrap = ".88em",  ""
+    elif n <= 15: scale, wrap = ".66em",  ""
+    elif n <= 21: scale, wrap = ".54em",  " vp-name--wrap"
+    else:         scale, wrap = ".44em",  " vp-name--wrap"
+
+    detail = E(size_label)
+    if cas and not compact:
+        detail += f" &middot; CAS {E(cas)}"
+    ruo = "" if compact else '\n    <span class="vp-ruo">FOR RESEARCH USE ONLY</span>'
+
+    return f"""<span class="vial" style="--vial-h:{height}px">
+  <picture>
+    <source srcset="{{PREFIX}}assets/img/vial.webp" type="image/webp">
+    <img src="{{PREFIX}}assets/img/vial.png" alt="{E(alt) if alt else ''}" width="491" height="880" loading="lazy" decoding="async">
+  </picture>
+  <span class="vial-print" style="--vp-name:{scale}" aria-hidden="true">
+    <span class="vp-brand">TIMELESS RESEARCH</span>
+    <span class="vp-rule"></span>
+    <span class="vp-name{wrap}">{E(p_name.upper())}</span>
+    <span class="vp-size">{detail}</span>{ruo}
+  </span>
+</span>"""
 
 
 RUO_NOTICE = """<div class="notice">
@@ -250,27 +273,32 @@ def build_home():
     featured = [p for p in PRODUCTS if p["id"] in ("bpc-157", "ipamorelin", "ghk-cu", "epithalon", "mots-c", "ss-31")]
     feat_html = "".join(f"""
       <article class="product" data-reveal data-reveal-delay="{i % 3}">
-        <div class="product-media">{vial(p['name'], p['sizes'][0], 170)}</div>
+        <div class="product-media">{vial(p['name'], p['sizes'][0], 285, cas=p.get('cas'))}</div>
         <div class="product-body">
           <span class="product-cas">CAS {E(p['cas'] or '—')}</span>
           <h3 class="product-name"><a href="products/{p['id']}.html">{E(p['name'])}</a></h3>
           <p class="product-sub">{E(p['research'][:96])}…</p>
-          <div class="product-meta"><span class="chip chip--accent">{E(p['purity'])}</span><span class="chip">{E(p['form'])}</span></div>
-          <div class="product-foot"><a class="btn btn--ghost btn--sm btn--block" href="products/{p['id']}.html">Specification</a></div>
+          <div class="product-meta"><span>{E(p['purity'])} HPLC</span><span>{E(p['form'])}</span></div>
+          <div class="product-foot"><a class="link-action" href="products/{p['id']}.html">Specification</a></div>
         </div>
       </article>""" for i, p in enumerate(featured))
 
+    hero_vial = vial("BPC-157", "5 mg", 470, cas="137525-51-0",
+                     alt="A Timeless Research glass vial with crimp seal and printed label")
     body = f"""
 <section class="hero">
-  <canvas id="hero-canvas" aria-hidden="true"></canvas>
-  <div class="hero-veil"></div>
-  <div class="hero-inner">
-    <span class="rule-tag">Peptide reference material</span>
-    <h1 class="display h-hero">Characterised.<br><em>Documented. Released.</em></h1>
-    <p class="lede">Analytical-grade research peptides for institutional laboratories — each lot identity-confirmed by mass spectrometry, purity-assayed by HPLC, and released against a signed certificate of analysis.</p>
-    <div class="hero-actions">
-      <a class="btn btn--primary" href="catalog.html">Browse the catalog</a>
-      <a class="btn btn--ghost" href="contact.html">Open an account</a>
+  <div class="shell">
+    <div class="hero-grid">
+      <div>
+        <span class="rule-tag">Peptide reference material</span>
+        <h1 class="display h-hero">Characterised.<br><em>Documented. Released.</em></h1>
+        <p class="lede">Analytical-grade research peptides for institutional laboratories — each lot identity-confirmed by mass spectrometry, purity-assayed by HPLC, and released against a signed certificate of analysis.</p>
+        <div class="hero-actions">
+          <a class="btn btn--primary" href="catalog.html">Browse the catalog</a>
+          <a class="btn btn--ghost" href="contact.html">Open an account</a>
+        </div>
+      </div>
+      <div class="hero-figure">{hero_vial}</div>
     </div>
   </div>
 </section>
@@ -361,7 +389,7 @@ def build_catalog():
         sizes = "".join(f'<option value="{E(s)}">{E(s)}</option>' for s in p["sizes"])
         cards.append(f"""
         <article class="product" data-cat="{p['category']}" data-search="{E(hay)}">
-          <div class="product-media">{vial(p['name'], p['sizes'][0], 165)}
+          <div class="product-media">{vial(p['name'], p['sizes'][0], 285, cas=p.get('cas'))}
             {'<span class="ruo-badge" style="position:absolute;top:.75rem;right:.75rem">Restricted</span>' if p.get('restricted') else ''}
           </div>
           <div class="product-body">
@@ -369,13 +397,11 @@ def build_catalog():
             <h3 class="product-name"><a href="products/{p['id']}.html">{E(p['name'])}</a></h3>
             <p class="product-sub">{E((p.get('synonyms') or [CAT_LABEL[p['category']]])[0])}</p>
             <div class="product-meta">
-              <span class="chip chip--accent">{E(p['purity'])}</span>
-              <span class="chip">MW {E(p['mw'] or '—')}</span>
-              <span class="chip">{E(p['form'])}</span>
+              <span>{E(p['purity'])} HPLC</span><span>MW {E(p['mw'] or '—')}</span><span>{E(p['form'])}</span>
             </div>
             <div class="product-foot">
-              <select class="field-inline" aria-label="Pack size for {E(p['name'])}" data-size style="flex:1;background:var(--surface-2);border:1px solid var(--line-strong);border-radius:3px;padding:.45rem .6rem;font-size:.7rem;font-family:var(--f-mono)">{sizes}</select>
-              <button class="btn btn--ghost btn--sm" data-add="{p['id']}" data-name="{E(p['name'])}">Add</button>
+              <select aria-label="Pack size for {E(p['name'])}" data-size>{sizes}</select>
+              <button class="link-action" data-add="{p['id']}" data-name="{E(p['name'])}">Add to list</button>
             </div>
           </div>
         </article>""")
@@ -488,8 +514,8 @@ def build_products():
 
     <div class="split">
       <div>
-        <div style="background:var(--surface-1);border:1px solid var(--line);border-radius:6px;padding:3rem 2rem;display:grid;place-items:center;background-image:radial-gradient(ellipse 60% 50% at 50% 45%,rgba(79,172,254,.06),transparent 70%)">
-          {vial(p['name'], p['sizes'][0], 300)}
+        <div style="background:var(--tile);padding:3.5rem 2rem;display:grid;place-items:center">
+          {vial(p['name'], p['sizes'][0], 400, alt=f"{p['name']} research vial, {p['sizes'][0]}", cas=p.get('cas'))}
         </div>
         <p class="muted" style="font-size:.7rem;margin-top:.75rem;text-align:center">Label shown for illustration. Supplied vial carries the lot number and release date.</p>
       </div>
@@ -507,12 +533,12 @@ def build_products():
           <span class="ruo-badge">Research use only</span>
         </div>
 
-        <div style="background:var(--surface-1);border:1px solid var(--line);border-radius:6px;padding:1.5rem;margin-bottom:2rem">
-          <label for="size-select" style="display:block;font-size:.78rem;color:var(--ink-2);margin-bottom:.5rem">Pack size</label>
-          <select id="size-select" data-size style="width:100%;background:var(--surface-2);border:1px solid var(--line-strong);border-radius:3px;padding:.7rem 1rem;font-family:var(--f-mono);font-size:.8rem;margin-bottom:1rem">{sizes_opt}</select>
-          <button class="btn btn--primary btn--block" data-add="{p['id']}" data-name="{E(p['name'])}">Add to request list</button>
-          <p class="muted" style="font-size:.7rem;margin-top:.75rem;text-align:center">Pricing and lot availability confirmed by quotation.</p>
+        <div class="field" style="margin-bottom:1.5rem">
+          <label for="size-select">Pack size</label>
+          <select id="size-select" data-size>{sizes_opt}</select>
         </div>
+        <button class="btn btn--primary" data-add="{p['id']}" data-name="{E(p['name'])}">Add to request list</button>
+        <p class="muted" style="font-size:.72rem;margin:.9rem 0 2.5rem">Pricing and lot availability confirmed by quotation against a verified account.</p>
 
         <table class="spec">
           <caption>Specification</caption>
@@ -1020,9 +1046,9 @@ def build_meta(pages):
     (ROOT / "assets/img").mkdir(parents=True, exist_ok=True)
     (ROOT / "assets/img/favicon.svg").write_text(
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">'
-        '<rect width="40" height="40" fill="#020202"/>'
-        '<rect x="6" y="9" width="28" height="4.5" fill="#4FACFE"/>'
-        '<rect x="17" y="13.5" width="6" height="18" fill="#F2F4F8"/></svg>\n', encoding="utf-8")
+        '<rect width="40" height="40" fill="#FAF9F7"/>'
+        '<rect x="6" y="9" width="28" height="4.5" fill="#0A57B0"/>'
+        '<rect x="17" y="13.5" width="6" height="18" fill="#1C1A17"/></svg>\n', encoding="utf-8")
 
     urls = "".join(
         f"  <url><loc>{SITE}/{u}</loc><lastmod>{TODAY}</lastmod>"
