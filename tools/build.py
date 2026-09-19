@@ -404,13 +404,13 @@ def build_home():
     feat_html = "".join(f"""
       <article class="product" data-reveal data-reveal-delay="{i % 3}">
         <div class="product-media" style="--tint:{CAT_TINT[p['category']][0]};--tint-deep:{CAT_TINT[p['category']][1]}">
-          {vial(p['name'], p['sizes'][0], 285, purity=p.get('purity'))}
+          {vial(p.get('label') or p['name'], p['sizes'][0], 285, purity=p.get('purity'))}
           <span class="product-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 6 6L20 6"/></svg>{E(p['purity'])} HPLC</span>
         </div>
         <div class="product-body">
           <div class="product-head">
             <h3 class="product-name"><a href="products/{p['id']}.html">{E(p['name'])}</a></h3>
-            <span class="product-cas">CAS {E(p['cas'] or '—')}</span>
+            {f'<span class="product-cas">CAS {E(p["cas"])}</span>' if p.get('cas') else '<span class="product-cas">Blend</span>'}
           </div>
           <p class="product-sub">{E((p.get('synonyms') or [CAT_LABEL[p['category']]])[0])}</p>
           <a class="btn btn--primary btn--pill btn--block" href="products/{p['id']}.html">View</a>
@@ -455,7 +455,7 @@ def build_home():
     <div class="sec-head" data-reveal>
       <span class="eyebrow">Catalog</span>
       <h2 class="display h-sec">Organised by <em>research area.</em></h2>
-      <p class="lede">Thirty-four compounds across seven research areas. Every listing carries CAS number, molecular formula, sequence, storage conditions and the assay panel applied at release.</p>
+      <p class="lede">{len(PRODUCTS)} compounds across seven research areas. Every listing carries CAS number, molecular formula, sequence, storage conditions and the assay panel applied at release.</p>
     </div>
     <div class="grid-3">{cats}</div>
   </div>
@@ -525,14 +525,14 @@ def build_catalog():
         cards.append(f"""
         <article class="product" data-cat="{p['category']}" data-search="{E(hay)}">
           <div class="product-media" style="--tint:{tint};--tint-deep:{tint_deep}">
-            {vial(p['name'], p['sizes'][0], 285, purity=p.get('purity'))}
+            {vial(p.get('label') or p['name'], p['sizes'][0], 285, purity=p.get('purity'))}
             {'<span class="product-flag">Restricted</span>' if p.get('restricted') else ''}
             <span class="product-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 6 6L20 6"/></svg>{E(p['purity'])} HPLC</span>
           </div>
           <div class="product-body">
             <div class="product-head">
               <h3 class="product-name"><a href="products/{p['id']}.html">{E(p['name'])}</a></h3>
-              <span class="product-cas">CAS {E(p['cas'] or '—')}</span>
+              {f'<span class="product-cas">CAS {E(p["cas"])}</span>' if p.get('cas') else '<span class="product-cas">Blend</span>'}
             </div>
             <p class="product-sub">{E((p.get('synonyms') or [CAT_LABEL[p['category']]])[0])}</p>
             <div class="product-foot">
@@ -600,11 +600,19 @@ def build_products():
             <p>{E((q.get('synonyms') or ['Research compound'])[0])}</p>
           </a>""" for q in others)
 
-        rows = [
-            ("CAS number", p.get("cas") or "Not assigned", False),
-            ("Molecular formula", p.get("formula") or "—", False),
-            ("Molecular weight", f"{p['mw']} g/mol" if p.get("mw") else "—", False),
-            ("Sequence", p.get("sequence") or "Not applicable", False),
+        # A blend has no single CAS, formula, mass or sequence. Four rows of "—"
+        # read as missing data; naming the components states what a certificate
+        # for a mixture can actually report against.
+        if p.get("components"):
+            rows = [("Components", ", ".join(p["components"]), False)]
+        else:
+            rows = [
+                ("CAS number", p.get("cas") or "Not assigned", False),
+                ("Molecular formula", p.get("formula") or "—", False),
+                ("Molecular weight", f"{p['mw']} g/mol" if p.get("mw") else "—", False),
+                ("Sequence", p.get("sequence") or "Not applicable", False),
+            ]
+        rows += [
             ("Purity specification", p["purity"], False),
             ("Physical form", p["form"], False),
             ("Appearance", p["appearance"], False),
@@ -652,7 +660,7 @@ def build_products():
     <div class="split">
       <div>
         <div class="detail-media" style="--tint:{CAT_TINT[p['category']][0]};--tint-deep:{CAT_TINT[p['category']][1]}">
-          {vial(p['name'], p['sizes'][0], 400, alt=f"{p['name']} research vial, {p['sizes'][0]}", purity=p.get('purity'))}
+          {vial(p.get('label') or p['name'], p['sizes'][0], 400, alt=f"{p['name']} research vial, {p['sizes'][0]}", purity=p.get('purity'))}
         </div>
         <p class="muted" style="font-size:.7rem;margin-top:.75rem;text-align:center">Label shown for illustration. Supplied vial carries the lot number and release date.</p>
       </div>

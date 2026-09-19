@@ -35,7 +35,7 @@ faq.html                FAQ (with FAQPage structured data)
 contact.html            Account application + quotation request
 compliance.html         Research use policy
 404.html                Not found
-products/<id>.html      34 generated specification pages
+products/<id>.html      27 generated specification pages
 specimen-coa.html       Worked example of a certificate of analysis
 legal/                  terms.html, privacy.html, shipping.html
 assets/
@@ -120,7 +120,7 @@ word — "Bacteriostatic" — inside a line with margin. Spaces inside brackets 
 made non-breaking so a qualifier such as "(no DAC)" travels as a unit rather
 than breaking after "(no".
 
-Verified in-browser across all 34 catalog names: 30 set on one line, 4 on two,
+Verified in-browser across all 27 catalog names: most set on one line, the rest on two,
 none clipped and none overflowing.
 
 ### The mark
@@ -271,7 +271,7 @@ network.
 
 | Script | Produces | Run it when |
 |---|---|---|
-| `tools/build.py` | All 46 pages, sitemap, robots, config | Every change |
+| `tools/build.py` | All 39 pages, sitemap, robots, config | Every change |
 | `tools/dist.py` | `dist/` for deployment | Every deploy (Netlify does it) |
 | `tools/check.py` | Structural report, non-zero on failure | Before every push |
 | `tools/fetch_fonts.py` | Full faces into `tools/fonts-src/` | The type stack changes |

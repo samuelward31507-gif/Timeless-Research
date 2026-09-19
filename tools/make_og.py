@@ -314,7 +314,7 @@ def main() -> None:
             wrap(p["name"], 18),
             [(p.get("synonyms") or [p.get("form", "")])[0][:46],
              f"CAS {p['cas']}" if p.get("cas") else p.get("form", "")],
-            {"name": p["name"], "dose": p["sizes"][0].upper(),
+            {"name": p.get("label") or p["name"], "dose": p["sizes"][0].upper(),
              "purity": p.get("purity", "\u226598%")},
             ROOT / f"assets/img/og/{p['id']}.jpg")
         total += 1

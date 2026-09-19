@@ -72,10 +72,10 @@ The site states these as fact. They have not been verified against any supply
 chain — this site was built as a product, not operated. Either arrange the
 evidence or change the copy before you take an order.
 
-- **"COA issued with every lot."** On all 42 pages, with a six-stage release
+- **"COA issued with every lot."** On every page, with a six-stage release
   process described in detail on `quality.html`. If you cannot produce a
   lot-specific certificate when a customer asks, this has to come down.
-- **Purity.** 28 of the 34 compounds carry `≥98%` and three carry `≥95%`,
+- **Purity.** 24 of the 27 compounds carry `≥98%` and 1 carry `≥95%`,
   surfaced 210 times across cards, vial labels and specification tables.
   Source values are in `assets/data/products.json`.
 - **Storage and handling.** Cold chain, −20 °C storage and the packing
