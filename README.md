@@ -195,9 +195,22 @@ invent.
 
 | Item | Where | What is needed |
 |---|---|---|
-| Certificate data | `quality.html`, product pages | "COA issued with every lot" appears on all 42 pages and the site describes the COA process in detail. If a lot-specific certificate cannot be produced on request, that claim has to come down. |
-| Purity claims | `assets/data/products.json` | 28 of the 34 compounds carry `≥98%` (three carry `≥95%`), surfaced 210 times across cards, vial labels and spec tables. These are commercial claims; confirm each against your actual supplier and QC arrangements. |
+| Deployment | — | No host or domain yet, and `TR_FORM_ENDPOINT` is empty, so account applications fall through to the copy-and-email fallback instead of reaching an inbox. Set it at build time and point a domain at the output. |
+| Terms and privacy | — | Removed at the owner's request (see above). A privacy notice is required while the contact form collects personal data, and without terms of sale the research-use condition is a notice rather than a contract term. |
 | Account verification | — | The contact form collects name, email and phone only. Everything the research use policy requires for verification — institution, facility address, responsible investigator, institutional email, intended use — is gathered in the follow-up, so that step has to actually happen off-site. |
+
+### Claims confirmed by the owner
+
+The COA and purity claims below were reviewed and confirmed accurate by the
+site owner on 2026-09-19. They are recorded here because they are commercial
+claims that a regulator or a customer may ask to see substantiated; the
+supporting paperwork lives with the owner, not in this repository.
+
+- **"COA issued with every lot"** — stated on all 42 pages, with the release
+  process described in detail on `quality.html`.
+- **Purity** — 28 of the 34 compounds carry `≥98%` and three carry `≥95%`,
+  surfaced 210 times across cards, vial labels and spec tables. Source values
+  are in `assets/data/products.json`.
 
 ---
 
