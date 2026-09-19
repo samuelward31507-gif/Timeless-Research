@@ -176,6 +176,10 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .section + .section { border-top: 1px solid var(--line); }
 
 .sec-head { max-width: 60ch; margin-bottom: var(--s-8); }
+/* That bottom margin separates the head from what follows it. Where the head is
+   the last thing in its section it separates nothing, and stacks on the
+   section's own padding into a dead band twice the intended size. */
+.sec-head:last-child { margin-bottom: 0; }
 .sec-head .lede { margin-top: var(--s-5); }
 
 .split { display: grid; grid-template-columns: minmax(0,.82fr) minmax(0,1.18fr); gap: var(--s-8); align-items: start; }

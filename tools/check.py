@@ -50,8 +50,11 @@ for page in PAGES:
             fail(f"broken link  {page.relative_to(ROOT)} -> {ref}")
 
 # --------------------------------------------------------- per-page rules
-NEEDS_NOTICE = {"index.html", "catalog.html", "quality.html", "about.html",
-                "faq.html", "contact.html", "compliance.html"}
+# The full notice block sits on the home page. Every other page still carries
+# research-use-only wording in the announcement bar and the footer, so this
+# checks the standing wording site-wide and the block only where it belongs.
+NEEDS_NOTICE = {"index.html"}
+STANDING_RUO = "research use only"
 
 for page in PAGES:
     rel = page.relative_to(ROOT).as_posix()
@@ -95,6 +98,8 @@ for page in PAGES:
 
     if rel in NEEDS_NOTICE and "For laboratory research use only" not in txt:
         fail(f"compliance notice missing from {rel}")
+    if STANDING_RUO not in txt.lower():
+        fail(f"no research-use-only wording anywhere on {rel}")
 
 # ------------------------------------------------------- claims hygiene
 # The site must not publish dosing guidance or human-use framing.

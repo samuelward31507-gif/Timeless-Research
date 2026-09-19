@@ -552,7 +552,6 @@ def build_catalog():
       <h1 class="display h-sec">Research <em>compounds.</em></h1>
       <p class="lede">{len(PRODUCTS)} characterised compounds. Select pack sizes and build a request list — pricing and lot availability are confirmed by quotation against a verified account.</p>
     </div>
-    {RUO_NOTICE}
   </div>
 </section>
 
@@ -782,9 +781,6 @@ def build_quality():
   </div>
 </section>
 
-<section class="section section--alt">
-  <div class="shell">{RUO_NOTICE}</div>
-</section>
 """
     return page("quality.html", f"Analytical Programme — {BRAND}",
                 "How every lot is released: ESI-MS identity confirmation, RP-HPLC purity, Karl Fischer water content, acetate determination and a signed certificate of analysis.",
@@ -833,9 +829,6 @@ def build_about():
   </div>
 </section>
 
-<section class="section">
-  <div class="shell">{RUO_NOTICE}</div>
-</section>
 """
     return page("about.html", f"About — {BRAND}",
                 f"{BRAND} supplies characterised peptide reference material to institutional research laboratories. What we supply, what we refuse to supply, and why.",
@@ -895,7 +888,6 @@ def build_faq():
       <p class="lede">Eligibility, documentation, handling and the limits of what we will advise on.</p>
     </div>
     <div class="acc">{items}</div>
-    <div style="margin-top:3rem">{RUO_NOTICE}</div>
     <p style="margin-top:2rem" class="muted">Question not answered here? <a href="contact.html" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">Contact the technical team</a>.</p>
   </div>
 </section>
@@ -927,8 +919,7 @@ def build_contact():
           <h2 style="font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin-bottom:1rem">Your request list</h2>
           <div id="rfq-summary-body"></div>
         </div>
-        {RUO_NOTICE}
-        <div class="prose" style="margin-top:2rem">
+        <div class="prose">
           <h3>What happens next</h3>
           <ol>
             <li>We reply to arrange account verification.</li>
@@ -1000,8 +991,7 @@ def build_compliance():
       <h1 class="display h-sec">Research use <em>policy.</em></h1>
       <p class="lede">The conditions under which material is supplied, who may receive it, and what it may be used for. Last reviewed {TODAY}.</p>
     </div>
-    {RUO_NOTICE}
-    <div class="prose" style="margin-top:2.5rem">
+    <div class="prose">
       <h2>1. Intended use</h2>
       <p>All material supplied by {BRAND} is intended exclusively for <strong>in vitro</strong> laboratory research and analytical method development carried out by qualified professionals in an appropriate laboratory setting.</p>
       <p>Material supplied by {BRAND} is <strong>not</strong>: a medicinal product or drug; a dietary supplement; a cosmetic; a food or food ingredient; a medical device; or a veterinary product. It has not been evaluated by any regulatory authority for safety or efficacy in humans or animals, and it is not manufactured to pharmacopoeial or GMP standards unless the certificate of analysis for a specific lot expressly states otherwise.</p>
