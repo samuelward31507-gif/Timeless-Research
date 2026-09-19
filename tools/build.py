@@ -13,6 +13,7 @@ from __future__ import annotations
 import html
 import json
 import pathlib
+import re
 import shutil
 import datetime
 
@@ -187,43 +188,14 @@ def page(path, title, desc, body, active="", extra_head="", extra_body=""):
 
 
 # --------------------------------------------------------------------------- pieces
-# Advance widths for Barlow Semi Condensed 700 at the label's -0.012em
-# tracking, as a fraction of the font size. Measured in-browser per glyph
-# (tools/../scratchpad calibration) rather than estimated: switching the label
-# face silently broke the previous Inter-calibrated table, dropping fill from a
-# consistent 90-95% to 58-95%. Re-measure these if --f-label ever changes.
-_ADV = {"upper": 0.529, "lower": 0.475, "narrow": 0.270,
-        "wide": 0.706, "digit": 0.481, "space": 0.188}
-_ADV_NARROW = set("IiljtfrJ.,:;!|'()[]-1")
-_ADV_WIDE = set("mwMW@%")
-_ADV_SPECIAL = {"\u2265": 0.537, "\u207a": 0.516, "\u03b1": 0.603, "\u03b2": 0.520}
+def label_name(name: str) -> str:
+    """Keep parenthetical qualifiers on one line.
 
-
-def _advance(ch: str) -> float:
-    if ch == " ":            return _ADV["space"]
-    if ch in _ADV_SPECIAL:   return _ADV_SPECIAL[ch]
-    if ch in _ADV_WIDE:      return _ADV["wide"]
-    if ch in _ADV_NARROW:    return _ADV["narrow"]
-    if ch.isdigit():         return _ADV["digit"]
-    if ch.isupper():         return _ADV["upper"]
-    return _ADV["lower"]
-
-
-def name_scale(name: str) -> str:
-    """Size the compound so it fills the label rather than sitting in it.
-
-    A fixed size ladder left short names filling half the label and long ones
-    filling most of it. Estimating the string's width instead lets every name
-    land on the same target.
-
-    Usable text width — the label box less its padding and the vertical brand
-    strip — measures 6.03em of the label's base font size. TARGET_EM is held at
-    5.45 because the table runs about 3% under true width, so the rendered
-    result lands near 96% without any risk of overflow. The clamp stops a very
-    short name such as NAD+ from ballooning."""
-    TARGET_EM = 5.45
-    width = sum(_advance(c) for c in name) or 1.0
-    return f"{max(0.45, min(2.0, TARGET_EM / width)):.2f}em"
+    Plain wrapping breaks "CJC-1295 (no DAC)" after "(no", which reads as a
+    typo on a label. Spaces inside brackets become non-breaking so the
+    qualifier travels as a unit.
+    """
+    return re.sub(r"\(([^)]*)\)", lambda mo: "(" + mo.group(1).replace(" ", "\u00a0") + ")", name)
 
 
 def vial(p_name, size_label, height=240, alt="", purity=None):
@@ -244,10 +216,14 @@ def vial(p_name, size_label, height=240, alt="", purity=None):
     Label geometry is measured from the asset's alpha channel by
     tools/make_vial.py: left 11.45%, top 39.77%, width 82.41%, height 41.70%.
 
+    Every compound is set at one size regardless of length, as on real
+    packaging; a name too long for the line wraps to a second. The size is
+    fixed in CSS (.vp-name) at the largest value that keeps the catalog's
+    longest unbreakable word — "Bacteriostatic" — inside one line with margin.
+
     Below 260px the purity and research-use lines are dropped: at that scale
     they render under 6px and read as a smudge."""
     compact = height < 260
-    scale = name_scale(p_name)
 
     foot = ""
     if not compact:
@@ -260,8 +236,8 @@ def vial(p_name, size_label, height=240, alt="", purity=None):
     <source srcset="{{PREFIX}}assets/img/vial.webp" type="image/webp">
     <img src="{{PREFIX}}assets/img/vial.png" alt="{E(alt) if alt else ''}" width="489" height="880" loading="lazy" decoding="async">
   </picture>
-  <span class="vial-print" style="--vp-name:{scale}" aria-hidden="true">
-    <span class="vp-name">{E(p_name)}</span>
+  <span class="vial-print" aria-hidden="true">
+    <span class="vp-name">{E(label_name(p_name))}</span>
     <span class="vp-dose">{E(size_label)}</span>
     <span class="vp-side">
       <img class="vp-mark" src="{{PREFIX}}assets/img/mark.svg" alt="" width="100" height="206">

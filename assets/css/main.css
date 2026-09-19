@@ -458,8 +458,12 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 }
 .vp-name {
   display: block;
-  font-size: var(--vp-name, 1em); font-weight: 700;
-  letter-spacing: -.012em; line-height: .92; white-space: nowrap;
+  /* one size for every compound, as on real packaging; a name too long for
+     the line wraps to a second. Sized so the catalog's longest unbreakable
+     word ("Bacteriostatic", 5.5em of this size) clears the 6.12em line. */
+  font-size: 1em; font-weight: 700;
+  letter-spacing: -.012em; line-height: .95;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden;   /* a wider fallback clips at the reserve, never over the strip */
 }
 .vp-dose {

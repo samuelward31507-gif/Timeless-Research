@@ -108,36 +108,15 @@ sizing already accounts for them. The label also reserves the brand strip in
 padding and clips rather than overlapping, so even a wide fallback cannot
 collide.
 
-The compound is sized to fill the label rather than sit in it. A fixed size
-ladder left short names filling half the width and long ones filling most of
-it; `name_scale()` in `tools/build.py` estimates each string's rendered width
-from per-character advances — measured in-browser per glyph for the label face
-— and sizes it to a common target. Fill now lands at 90–95% across the
-catalog instead of 49–85%, and `tools/check.py`'s companion browser test
-asserts no label overflows its box.
+Every compound is set at **one size** regardless of length, as on real
+packaging; a name too long for the line wraps to a second. The size is fixed in
+`.vp-name` at the largest value that keeps the catalog's longest unbreakable
+word — "Bacteriostatic" — inside a line with margin. Spaces inside brackets are
+made non-breaking so a qualifier such as "(no DAC)" travels as a unit rather
+than breaking after "(no".
 
-Label geometry in `.vial-print` is measured from the asset, not eyeballed —
-`make_vial.py` prints the values to keep CSS and asset in sync. Below 260px the
-research-use line is dropped, since at that scale it renders under 6px and
-reads as a smudge. Compound names are not uppercased, so Greek characters
-(α, β) survive.
-
-**Despeckling.** The photographed glass carries fine white dust specks. On the
-original black backdrop they read as sparkle, but a luminance-derived alpha
-makes each speck *opaque* while the dark glass around it goes transparent — on
-a light page they turn into visible dirt, which is what made the vial look
-cheap. Alpha is therefore derived from a median-filtered copy (`DESPECKLE`)
-while the RGB stays sharp, so the cap's brushed metal and the label's paper
-texture are untouched. The glass curve was also steepened (`GLASS_GAMMA` above
-1) so mid-tones drop away and the glass reads clear rather than milky.
-
-The studio shadow is cut along with the black backdrop, so `.vial::after` draws
-a contact shadow — without it the vial floats above the tile.
-
-`make_vial.py` can also recolour the crimp cap (`CAP_TINT`) by remapping the
-cap's own luminance onto a colour ramp, which keeps the metal's specular and
-brushed texture rather than flat-filling it. It is set to `None` — bare
-aluminium, as photographed.
+Verified in-browser across all 34 catalog names: 30 set on one line, 4 on two,
+none clipped and none overflowing.
 
 ### The mark
 
