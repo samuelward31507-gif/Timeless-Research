@@ -40,10 +40,12 @@ assets/
   js/contact.js         Form validation and submission
   data/products.json    Single source of truth for the catalog
   img/vial.{png,webp}   Product photograph, matted (generated)
-  img/favicon.svg       Generated
+  img/mark.svg          Flame mark, redrawn as vector (generated)
+  img/favicon.svg       Generated from the mark
 vial.png                Original studio photograph (source for the above)
 tools/build.py          Static site generator
 tools/make_vial.py      Rebuilds the vial asset from the photograph
+tools/make_logo.py      Rebuilds the flame mark and favicon
 tools/check.py          Structural / link / a11y-hygiene checks
 sitemap.xml, robots.txt Generated
 ```
@@ -67,16 +69,37 @@ genuine product shot on a light page:
   light actually does through a vial. A plain cutout leaves the glass interior
   black and reads as a dark blob pasted onto white. The baked studio shadow is
   cut, since it belongs to the black backdrop.
-- **Type printed into the real label.** The label text is a DOM layer
-  positioned over the photographed label and blended with
-  `mix-blend-mode: multiply`, so it inherits the label's own curvature shading
-  and paper texture. The earlier version covered the real label with a flat
-  white rectangle, which is what made it look fake.
+- **Type printed into the real label.** The label is a DOM layer positioned
+  over the photographed label and blended with `mix-blend-mode: multiply`, so
+  it inherits the label's own curvature shading and paper texture. The earlier
+  version covered the real label with a flat white rectangle, which is what
+  made it look fake.
+
+Every vial carries the **same** label — the mark, TIMELESS / RESEARCH and the
+research-use line. The vials are a single branded presentation; the compound is
+identified by the page, not by the photograph.
 
 Label geometry in `.vial-print` is measured from the asset, not eyeballed —
 `make_vial.py` prints the values to keep CSS and asset in sync. Below 260px the
-label drops the CAS and research-use lines, which would otherwise render under
-6px and read as a smudge.
+research-use line is dropped, since at that scale it renders under 6px.
+
+### The mark
+
+The supplied logo raster is 128x106, with the flame itself only ~14x38px — far
+too small for a site header or a vial label. `tools/make_logo.py` redraws it as
+vector: two tapered ribbons on a sine centreline, related by 180-degree
+rotation, pointed at both tips and pinched where they cross. Colours are
+sampled from the original artwork. It also emits the favicon, so both come from
+one definition.
+
+Copper appears as two tokens. `--copper` (`#A87C52`) is the artwork value, used
+for the mark and the printed label. `--copper-text` (`#8A5F33`) is darkened to
+clear AA wherever copper carries real interface text — the artwork value sits
+at 3.5:1 and fails.
+
+```bash
+python3 tools/make_logo.py
+```
 
 To regenerate after replacing the photograph:
 

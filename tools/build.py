@@ -91,8 +91,8 @@ def header(depth, active):
 <header class="header" id="header">
   <div class="shell">
     <a class="brand" href="{p}index.html" aria-label="{BRAND} — home">
-      <svg class="brand-mark" viewBox="0 0 40 30" aria-hidden="true"><rect x="0" y="0" width="40" height="6"/><rect x="15" y="6" width="10" height="24"/></svg>
-      <span class="brand-text">Timeless<em>&nbsp;Research</em></span>
+      <img class="brand-mark" src="{p}assets/img/mark.svg" alt="" width="100" height="206">
+      <span class="brand-text">Timeless<em>Research</em></span>
     </a>
     <nav class="nav" id="nav" aria-label="Primary">{links}</nav>
     <div class="header-actions">
@@ -121,8 +121,8 @@ def footer(depth):
     <div class="footer-grid">
       <div>
         <a class="brand" href="{p}index.html">
-          <svg class="brand-mark" viewBox="0 0 40 30" aria-hidden="true"><rect x="0" y="0" width="40" height="6"/><rect x="15" y="6" width="10" height="24"/></svg>
-          <span class="brand-text">Timeless<em>&nbsp;Research</em></span>
+          <img class="brand-mark" src="{p}assets/img/mark.svg" alt="" width="100" height="206">
+          <span class="brand-text">Timeless<em>Research</em></span>
         </a>
         <p class="footer-note">Analytical-grade peptide reference material for institutional and qualified research programmes. Every lot ships with a certificate of analysis.</p>
       </div>
@@ -185,41 +185,33 @@ def page(path, title, desc, body, active="", extra_head="", extra_body=""):
 
 
 # --------------------------------------------------------------------------- pieces
-def vial(p_name, size_label, height=240, alt="", cas=None):
-    """Render the vial photograph with its label text printed into the real
-    paper label. The text is a DOM layer blended with `multiply`, so it picks
-    up the photographed label's own curvature shading and paper texture
-    instead of sitting on a flat synthetic rectangle.
+def vial(height=240, alt=""):
+    """Render the vial photograph with the brand lockup printed into the real
+    paper label.
 
-    Label geometry is measured from the asset's alpha channel:
+    Every vial carries the same label — the mark, TIMELESS / RESEARCH, and the
+    research-use line — because the vials are a single branded presentation;
+    the compound is identified by the page, not by the photograph.
+
+    The text is a DOM layer blended with `multiply`, so it picks up the
+    photographed label's own curvature shading and paper texture instead of
+    sitting on a flat synthetic rectangle. Label geometry is measured from the
+    asset's alpha channel by tools/make_vial.py:
     left 11.20%, top 39.77%, width 82.69%, height 41.82%.
 
-    Below 260px the label drops to brand + name + size: at that scale the
-    CAS and research-use lines render under ~6px and read as a smudge, which
-    is what made the earlier treatment look fake."""
+    Below 260px the research-use line is dropped: at that scale it renders
+    under 6px and reads as a smudge."""
     compact = height < 260
-    n = len(p_name)
-    if   n <= 7:  scale, wrap = "1.15em", ""
-    elif n <= 11: scale, wrap = ".88em",  ""
-    elif n <= 15: scale, wrap = ".66em",  ""
-    elif n <= 21: scale, wrap = ".54em",  " vp-name--wrap"
-    else:         scale, wrap = ".44em",  " vp-name--wrap"
-
-    detail = E(size_label)
-    if cas and not compact:
-        detail += f" &middot; CAS {E(cas)}"
     ruo = "" if compact else '\n    <span class="vp-ruo">FOR RESEARCH USE ONLY</span>'
-
     return f"""<span class="vial" style="--vial-h:{height}px">
   <picture>
     <source srcset="{{PREFIX}}assets/img/vial.webp" type="image/webp">
     <img src="{{PREFIX}}assets/img/vial.png" alt="{E(alt) if alt else ''}" width="491" height="880" loading="lazy" decoding="async">
   </picture>
-  <span class="vial-print" style="--vp-name:{scale}" aria-hidden="true">
-    <span class="vp-brand">TIMELESS RESEARCH</span>
-    <span class="vp-rule"></span>
-    <span class="vp-name{wrap}">{E(p_name.upper())}</span>
-    <span class="vp-size">{detail}</span>{ruo}
+  <span class="vial-print" aria-hidden="true">
+    <img class="vp-mark" src="{{PREFIX}}assets/img/mark.svg" alt="" width="100" height="206">
+    <span class="vp-name">TIMELESS</span>
+    <span class="vp-sub"><i></i>RESEARCH<i></i></span>{ruo}
   </span>
 </span>"""
 
@@ -273,7 +265,7 @@ def build_home():
     featured = [p for p in PRODUCTS if p["id"] in ("bpc-157", "ipamorelin", "ghk-cu", "epithalon", "mots-c", "ss-31")]
     feat_html = "".join(f"""
       <article class="product" data-reveal data-reveal-delay="{i % 3}">
-        <div class="product-media">{vial(p['name'], p['sizes'][0], 285, cas=p.get('cas'))}</div>
+        <div class="product-media">{vial(285)}</div>
         <div class="product-body">
           <span class="product-cas">CAS {E(p['cas'] or '—')}</span>
           <h3 class="product-name"><a href="products/{p['id']}.html">{E(p['name'])}</a></h3>
@@ -283,8 +275,7 @@ def build_home():
         </div>
       </article>""" for i, p in enumerate(featured))
 
-    hero_vial = vial("BPC-157", "5 mg", 470, cas="137525-51-0",
-                     alt="A Timeless Research glass vial with crimp seal and printed label")
+    hero_vial = vial(470, alt="A Timeless Research glass vial with crimp seal and printed label")
     body = f"""
 <section class="hero">
   <div class="shell">
@@ -389,7 +380,7 @@ def build_catalog():
         sizes = "".join(f'<option value="{E(s)}">{E(s)}</option>' for s in p["sizes"])
         cards.append(f"""
         <article class="product" data-cat="{p['category']}" data-search="{E(hay)}">
-          <div class="product-media">{vial(p['name'], p['sizes'][0], 285, cas=p.get('cas'))}
+          <div class="product-media">{vial(285)}
             {'<span class="ruo-badge" style="position:absolute;top:.75rem;right:.75rem">Restricted</span>' if p.get('restricted') else ''}
           </div>
           <div class="product-body">
@@ -515,7 +506,7 @@ def build_products():
     <div class="split">
       <div>
         <div style="background:var(--tile);padding:3.5rem 2rem;display:grid;place-items:center">
-          {vial(p['name'], p['sizes'][0], 400, alt=f"{p['name']} research vial, {p['sizes'][0]}", cas=p.get('cas'))}
+          {vial(400, alt=f"{p['name']} research vial, {p['sizes'][0]}")}
         </div>
         <p class="muted" style="font-size:.7rem;margin-top:.75rem;text-align:center">Label shown for illustration. Supplied vial carries the lot number and release date.</p>
       </div>
@@ -1044,11 +1035,7 @@ def build_404():
 # --------------------------------------------------------------------------- assets
 def build_meta(pages):
     (ROOT / "assets/img").mkdir(parents=True, exist_ok=True)
-    (ROOT / "assets/img/favicon.svg").write_text(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">'
-        '<rect width="40" height="40" fill="#FAF9F7"/>'
-        '<rect x="6" y="9" width="28" height="4.5" fill="#0A57B0"/>'
-        '<rect x="17" y="13.5" width="6" height="18" fill="#1C1A17"/></svg>\n', encoding="utf-8")
+    # assets/img/favicon.svg and mark.svg are produced by tools/make_logo.py
 
     urls = "".join(
         f"  <url><loc>{SITE}/{u}</loc><lastmod>{TODAY}</lastmod>"
@@ -1085,7 +1072,7 @@ def main():
     print(f"Built {len(pages)} pages:")
     for p in pages:
         print(f"  {p}")
-    print("  sitemap.xml\n  robots.txt\n  assets/img/favicon.svg")
+    print("  sitemap.xml\n  robots.txt")
 
 
 if __name__ == "__main__":

@@ -29,6 +29,13 @@
   --accent-deep: #084A97;
   --accent-soft: rgba(10,87,176,.055);
 
+  /* Brand copper, sampled from the logo artwork. --copper is the artwork
+     value, used for the mark and the printed label (decorative imagery).
+     --copper-text is darkened to clear AA wherever copper carries real text. */
+  --copper:      #A87C52;
+  --copper-text: #8A5F33;   /* 5.30 on paper, 4.90 on tile */
+  --copper-soft: #C9A57F;
+
   /* Status */
   --warn-ink:  #7A5600;
   --warn-bg:   #FBF3E0;
@@ -162,10 +169,18 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 }
 .header .shell { display: flex; align-items: center; justify-content: space-between; gap: var(--s-5); padding-block: var(--s-4); }
 .brand { display: flex; align-items: center; gap: var(--s-3); flex-shrink: 0; }
-.brand-mark { width: 22px; height: 17px; flex-shrink: 0; }
-.brand-mark rect { fill: var(--ink); }
-.brand-text { font-size: var(--t-xs); font-weight: 700; letter-spacing: .21em; text-transform: uppercase; white-space: nowrap; }
-.brand-text em { font-style: normal; color: var(--ink-4); }
+.brand-mark { height: 28px; width: auto; flex-shrink: 0; }
+.brand-text {
+  display: flex; flex-direction: column; align-items: flex-start;
+  font-family: var(--f-display); font-size: 1rem; font-weight: 500;
+  letter-spacing: .28em; text-indent: .28em; text-transform: uppercase;
+  line-height: 1; color: var(--ink); white-space: nowrap;
+}
+.brand-text em {
+  font-style: normal; font-family: var(--f-ui);
+  font-size: .5rem; font-weight: 600; letter-spacing: .34em; text-indent: .34em;
+  color: var(--copper-text); margin-top: 5px;
+}
 
 .nav { display: flex; align-items: center; gap: var(--s-6); }
 .nav a { font-size: var(--t-sm); color: var(--ink-3); transition: color var(--dur) var(--ease); position: relative; padding-block: var(--s-1); }
@@ -369,7 +384,8 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
    Geometry measured from the asset's alpha channel. */
 .vial { position: relative; display: block; height: var(--vial-h, 240px); width: auto; }
 .vial picture { display: block; height: 100%; }
-.vial img { height: 100%; width: auto; }
+/* scope to the photograph: .vial img would also catch the logo in the label */
+.vial > picture img { height: 100%; width: auto; }
 
 .vial-print {
   position: absolute;
@@ -384,12 +400,18 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
   font-size: calc(var(--vial-h, 240px) * .062);
   overflow: hidden;
 }
-.vp-brand { font-size: .34em; font-weight: 700; letter-spacing: .12em; white-space: nowrap; }
-.vp-rule  { width: 52%; height: 1px; background: currentColor; opacity: .34; margin: .26em 0; }
-.vp-name  { font-size: var(--vp-name, 1em); font-weight: 800; letter-spacing: -.022em; white-space: nowrap; }
-.vp-name--wrap { white-space: normal; line-height: 1.04; }
-.vp-size  { font-size: .38em; font-weight: 600; margin-top: .3em; letter-spacing: .01em; white-space: nowrap; }
-.vp-ruo   { font-size: .26em; font-weight: 700; letter-spacing: .08em; opacity: .7; margin-top: .5em; white-space: nowrap; }
+.vp-mark { height: 1.5em; width: auto; margin-bottom: .34em; }
+.vp-name {
+  font-family: var(--f-display); font-size: .6em; font-weight: 500;
+  letter-spacing: .32em; text-indent: .32em; white-space: nowrap; line-height: 1;
+}
+.vp-sub {
+  display: flex; align-items: center; gap: .5em;
+  font-size: .26em; font-weight: 600; letter-spacing: .38em; text-indent: .38em;
+  color: var(--copper); margin-top: .7em; white-space: nowrap;
+}
+.vp-sub i { display: block; width: 1.8em; height: 1px; background: currentColor; opacity: .65; text-indent: 0; }
+.vp-ruo { font-size: .24em; font-weight: 700; letter-spacing: .1em; opacity: .58; margin-top: 1em; white-space: nowrap; }
 
 /* --- Spec table --------------------------------------------------------- */
 .spec { width: 100%; border-collapse: collapse; font-size: var(--t-base); }
