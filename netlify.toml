@@ -24,7 +24,7 @@
   # the site is not trading, search engines are asked to stay away, and the
   # unfilled legal fields above become a warning instead of a build failure.
   # Remove it, or set it to "0", for the real thing.
-  TR_DEMO = "0"
+  TR_DEMO = "1"
 
 # Hashed filenames are not used, so pages must revalidate while the static
 # assets they reference can be cached hard.
