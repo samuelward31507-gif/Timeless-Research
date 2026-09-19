@@ -476,14 +476,14 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .vp-foot { position: absolute; left: 8.5%; bottom: 7%; }
 .vp-pill {
   display: inline-block;
-  padding: .14em .55em .18em;
+  padding: .16em .6em .2em;
   border: 1px solid currentColor; border-radius: 3em;
-  font-size: .26em; font-weight: 600; letter-spacing: .02em; white-space: nowrap;
+  font-size: .34em; font-weight: 600; letter-spacing: .02em; white-space: nowrap;
 }
 .vp-ruo {
   display: block; margin-top: .5em;
-  font-size: .24em; font-weight: 500; letter-spacing: .03em;
-  opacity: .72; white-space: nowrap;
+  font-size: .30em; font-weight: 500; letter-spacing: .03em;
+  opacity: .78; white-space: nowrap;
 }
 
 /* --- Spec table --------------------------------------------------------- */
