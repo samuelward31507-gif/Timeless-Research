@@ -125,9 +125,12 @@
       return;
     }
 
-    /* Netlify captures a form posted urlencoded back to its own page, keyed by
-       the form-name field. Anything else takes the JSON endpoint. */
-    var url = netlify ? window.location.pathname : ENDPOINT;
+    /* Netlify captures a form posted urlencoded to any HTML path on the site,
+       keyed by the form-name field. Post to the root rather than to
+       location.pathname: the same page is served at /contact, /contact.html and
+       /contact/ depending on how the visitor arrived, and the root is the one
+       path guaranteed to exist and to be HTML. */
+    var url = netlify ? '/' : ENDPOINT;
     var opts = netlify
       ? { method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

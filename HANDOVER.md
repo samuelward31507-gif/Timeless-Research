@@ -66,6 +66,36 @@ search index competes with the eventual live site. Set `TR_DEMO = "0"` in
 
 ---
 
+## 2c. If the form does not reach you
+
+The form's own markup and JavaScript are verified: the correct `form-name`,
+`data-netlify`, a honeypot, every field named, and the POST going to the site
+root, which is the one path Netlify always accepts. So when nothing arrives,
+the cause is almost always configuration rather than code. In order of
+likelihood:
+
+1. **Form detection is off.** Netlify does not enable it for new sites by
+   default. Site configuration → Forms → Form detection → **Enable**, then
+   **redeploy** — detection happens at deploy time, so enabling it alone does
+   nothing until the next build.
+2. **No notification is configured.** Submissions land in Forms →
+   account-application in the dashboard and nobody is told. Add an email
+   notification there.
+3. **The mailbox does not exist.** `TR_CONTACT_EMAIL` is
+   `accounts@timelessresearch.com`; if that address is not real and receiving,
+   the notification bounces and the manual fallback on the page sends people
+   into a void.
+4. **Checking the wrong deploy.** Forms are registered per deploy. A submission
+   tested against an old deploy preview will not appear under the production
+   site.
+
+To confirm which: submit the form and open the browser console. A POST to `/`
+returning 200 means Netlify accepted it and the problem is notification or
+mailbox. A 404 means form detection is off. If the POST fails entirely, the
+page shows the enquiry with a copy button, so the lead is not lost either way.
+
+---
+
 ## 3. Claims you are taking on
 
 The site states these as fact. They have not been verified against any supply
