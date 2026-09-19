@@ -208,12 +208,17 @@ framing. Removing them is four lines in the JSON and a rebuild. Keeping them
 should be a decision you make deliberately, ideally having taken advice.
 
 **Account verification.** The whole legal posture of this site rests on supply
-being restricted to verified institutional accounts. The contact form collects
-a name, email and phone; everything verification actually requires —
-institution, facility address, responsible investigator, institutional email,
-intended research use — is gathered in your follow-up. If that follow-up does
-not genuinely happen, the research-use framing is decorative and will not
-protect you.
+being restricted to verified institutional accounts. The form now does most of
+the work: it collects the institution, an address at it and one line on the
+intended research use, and refuses consumer mail providers inline with a
+specific message, so an application that reaches you has already cleared the
+cheap checks.
+
+What is left is yours and cannot be automated away: read the intended use, and
+either approve or come back with one question. Approving every application
+unread is the same as having no verification at all, and at that point the
+research-use framing is decorative and will not protect you. The filter is a
+convenience, not the check.
 
 **Legal review.** `legal/terms.html`, `legal/privacy.html` and
 `legal/shipping.html` were written for a US sole proprietorship selling

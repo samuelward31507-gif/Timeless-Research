@@ -85,8 +85,8 @@
         <div class="prose">
           <h3>What happens next</h3>
           <ol>
-            <li>We reply to arrange account verification.</li>
-            <li>Verification covers the institution and its research facility address, the responsible investigator, an institutional email address, and the intended research use.</li>
+            <li>We check the details above. Most applications from a recognisable institutional address are approved the same working day.</li>
+            <li>Where anything is unclear we come back with one question rather than a form.</li>
             <li>Once the account is open we issue a written quotation against your request list.</li>
             <li>On acceptance we invoice through Stripe; payment is by card or bank transfer from the invoice. <a href="pay.html">How payment works</a>.</li>
           </ol>
@@ -111,15 +111,31 @@
           </div>
 
           <div class="field">
-            <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
+            <label for="f-institution">Institution or company <span class="req" aria-hidden="true">*</span></label>
+            <input id="f-institution" name="institution" type="text" required autocomplete="organization">
+            <p class="field-hint">University, hospital or government research unit, CRO, or commercial R&amp;D laboratory.</p>
+            <p class="field-error">Please tell us which institution you are enquiring for.</p>
+          </div>
+
+          <div class="field">
+            <label for="f-email">Institutional email <span class="req" aria-hidden="true">*</span></label>
             <input id="f-email" name="email" type="email" required autocomplete="email">
+            <p class="field-hint">Your address at that institution. We cannot verify an account from a personal email provider.</p>
             <p class="field-error">Please enter a valid email address.</p>
+            <p class="field-error field-error--freemail">That is a personal email provider. Please use your address at the institution — we cannot verify an account without one.</p>
           </div>
 
           <div class="field">
             <label for="f-phone">Phone number <span class="req" aria-hidden="true">*</span></label>
             <input id="f-phone" name="phone" type="tel" required autocomplete="tel" inputmode="tel">
             <p class="field-error">Please enter a phone number.</p>
+          </div>
+
+          <div class="field">
+            <label for="f-use">Intended research use <span class="req" aria-hidden="true">*</span></label>
+            <textarea id="f-use" name="use" rows="3" required></textarea>
+            <p class="field-hint">One line is enough — the assay or model the material is for.</p>
+            <p class="field-error">Please describe the intended research use.</p>
           </div>
 
           <div class="field">

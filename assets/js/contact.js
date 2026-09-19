@@ -37,13 +37,39 @@
   }
 
   /* ---- validation ------------------------------------------------------- */
+  /* Consumer mail providers. An account cannot be verified from one of these:
+     the address proves nothing about the institution, which is the whole point
+     of the check. Rejecting it inline turns a day of back-and-forth into an
+     immediate correction, and keeps the applications that do arrive worth
+     reading. Deliberately a list of the common consumer hosts rather than a
+     guess at what looks institutional — plenty of small CROs use a bare
+     company domain, and those must pass. */
+  var FREE_MAIL = ('gmail.com googlemail.com yahoo.com yahoo.co.uk ymail.com ' +
+    'hotmail.com hotmail.co.uk outlook.com live.com msn.com aol.com icloud.com ' +
+    'me.com mac.com proton.me protonmail.com pm.me gmx.com gmx.net mail.com ' +
+    'yandex.com yandex.ru inbox.com fastmail.com hushmail.com tutanota.com ' +
+    'qq.com 163.com 126.com naver.com daum.net rediffmail.com').split(' ');
+
+  function isFreeMail(addr) {
+    var at = String(addr).lastIndexOf('@');
+    if (at === -1) return false;
+    var domain = addr.slice(at + 1).trim().toLowerCase();
+    return FREE_MAIL.indexOf(domain) !== -1;
+  }
+
   function fieldOf(el) { return el.closest('.field'); }
 
   function validate() {
     var ok = true;
     form.querySelectorAll('[required]').forEach(function (el) {
       var valid = el.type === 'checkbox' ? el.checked : el.value.trim() !== '';
-      if (valid && el.type === 'email') valid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(el.value.trim());
+      var freeMail = false;
+      if (valid && el.type === 'email') {
+        valid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(el.value.trim());
+        if (valid && isFreeMail(el.value)) { valid = false; freeMail = true; }
+      }
+      var f0 = fieldOf(el);
+      if (f0) f0.classList.toggle('is-freemail', freeMail);
       // accept any international format, but require enough digits to be a real number
       if (valid && el.type === 'tel') valid = (el.value.replace(/\D/g, '').length >= 7);
       var f = fieldOf(el);
@@ -70,8 +96,10 @@
 
     var lines = [
       'Name: ' + (data.name || ''),
+      'Institution: ' + (data.institution || ''),
       'Email: ' + (data.email || ''),
       'Phone: ' + (data.phone || ''),
+      'Intended research use: ' + (data.use || ''),
       '',
       'Confirmed in vitro research use only: yes'
     ];
