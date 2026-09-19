@@ -1,4 +1,21 @@
-# YouTube scheduled upload
+# YouTube upload
+
+## Uploading by hand? Skip all of this.
+
+Manual upload through YouTube Studio does **not** require the compliance audit
+below — that restriction only applies to `videos.insert` via the API. Studio
+uploads publish normally, and Studio's own **Schedule** option gives the same
+one-per-day result. For a batch this size that is usually the faster path.
+
+Generate copy-paste metadata for a manual run:
+
+```bash
+python youtube/sheet.py youtube/config.json ../tracks.tsv ../out > upload_sheet.txt
+```
+
+The rest of this document is for the scripted path.
+
+# Scheduled upload via the API
 
 Uploads every track once, as **private with a `publishAt` timestamp**. YouTube
 publishes each one itself at the scheduled time.
