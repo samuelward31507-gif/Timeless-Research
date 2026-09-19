@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Resonance Screen</title>
+<link rel="stylesheet" href="gf-local.css">
+<style>
+  :root{
+    --bg:#020202; --bl:#4FACFE; --wh:#F2F4F8;
+    --w60:rgba(242,244,248,.6); --w40:rgba(242,244,248,.38); --w20:rgba(242,244,248,.30);
+    --fd:'Cormorant Garamond',Georgia,serif;
+    --fu:'Inter',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+  body{font-family:var(--fu);-webkit-font-smoothing:antialiased}
+
+  .stage{position:relative;width:1920px;height:1080px;background:var(--bg);overflow:hidden}
+
+  /* deep vignette + brand wash */
+  .wash{position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse 58% 52% at 50% 50%, rgba(79,172,254,.10) 0%, rgba(79,172,254,.035) 38%, transparent 70%),
+      radial-gradient(ellipse 100% 80% at 50% 50%, #050608 0%, #020202 68%);
+  }
+  .vig{position:absolute;inset:0;
+    background:radial-gradient(ellipse 72% 68% at 50% 46%, transparent 40%, rgba(0,0,0,.55) 100%);}
+
+  /* concentric resonance rings */
+  .rings{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:1400px;height:1400px}
+  .rings span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    border-radius:50%;border:1px solid rgba(79,172,254,.10)}
+
+  /* core glow */
+  .core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:760px;height:760px;border-radius:50%;
+    background:radial-gradient(circle at 50% 50%,
+      rgba(140,200,255,.22) 0%,
+      rgba(79,172,254,.13) 26%,
+      rgba(79,172,254,.05) 48%,
+      transparent 70%);
+    filter:blur(26px)}
+  .core2{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:250px;height:250px;border-radius:50%;
+    background:radial-gradient(circle at 50% 50%, rgba(205,232,255,.30) 0%, rgba(79,172,254,.14) 45%, transparent 72%);
+    filter:blur(30px)}
+
+  /* starfield */
+  .stars{position:absolute;inset:0}
+  .stars i{position:absolute;background:#9fc7ea;border-radius:50%;display:block}
+
+  /* hairline grid accents */
+  .fr{position:absolute;background:rgba(255,255,255,.05)}
+  .fr.t{left:96px;right:96px;top:74px;height:1px}
+  .fr.b{left:96px;right:96px;bottom:74px;height:1px}
+
+  /* wordmark */
+  .mark{position:absolute;top:44px;left:96px;
+    font-size:19px;font-weight:700;letter-spacing:.34em;color:var(--wh)}
+  .mark b{color:var(--bl);font-weight:700}
+  .idx{position:absolute;top:44px;right:96px;
+    font-size:15px;font-weight:500;letter-spacing:.3em;color:var(--w40);
+    font-variant-numeric:tabular-nums}
+
+  /* center stack */
+  .center{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;align-items:center}
+  .kicker{font-size:15px;font-weight:500;letter-spacing:.44em;color:var(--bl);
+    opacity:.82;margin-bottom:34px}
+  .note{font-family:var(--fd);font-weight:300;font-size:250px;line-height:.86;
+    color:var(--wh);letter-spacing:.01em;
+    text-shadow:0 0 90px rgba(79,172,254,.30)}
+  .chord{font-family:var(--fd);font-style:italic;font-weight:300;
+    font-size:64px;line-height:1;color:var(--w60);margin-top:24px;letter-spacing:.015em}
+  .rule{width:132px;height:1px;background:linear-gradient(90deg,transparent,rgba(79,172,254,.70),transparent);
+    margin:44px 0 26px}
+  .meta{font-size:16px;font-weight:400;letter-spacing:.34em;color:var(--w40);text-transform:uppercase}
+
+  /* bottom line */
+  .foot{position:absolute;bottom:40px;left:96px;right:96px;
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:14px;font-weight:400;letter-spacing:.3em;color:var(--w20);text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="wash"></div>
+  <div class="stars" id="stars"></div>
+  <div class="rings" id="rings"></div>
+  <div class="core"></div>
+  <div class="core2"></div>
+  <div class="vig"></div>
+
+  <div class="fr t"></div>
+  <div class="fr b"></div>
+
+  <div class="mark">TIMELESS <b>RESEARCH</b></div>
+  <div class="idx" id="idx">No. 02</div>
+
+  <div class="center">
+    <div class="kicker" id="kicker">432 HZ TUNING</div>
+    <div class="note" id="note">B2</div>
+    <div class="chord" id="chord">minor triad</div>
+    <div class="rule"></div>
+    <div class="meta" id="meta">Wood &nbsp;·&nbsp; 2:00</div>
+  </div>
+
+  <div class="foot">
+    <span>Resonance Series</span>
+    <span id="footr">A = 432 Hz</span>
+  </div>
+</div>
+
+<script>
+  const q = new URLSearchParams(location.search);
+  const set = (id,v)=>{ if(v!==null && v!==undefined) document.getElementById(id).innerHTML = v; };
+  set('note',  q.get('note'));
+  set('chord', q.get('chord'));
+  set('idx',   q.get('idx') ? 'No. '+q.get('idx') : null);
+  if(q.get('texture') || q.get('dur')){
+    const t = (q.get('texture')||'').trim();
+    const d = (q.get('dur')||'2:00').trim();
+    set('meta', t ? t+' &nbsp;·&nbsp; '+d : d);
+  }
+
+  // concentric rings — even spacing, fading outward
+  const rw = document.getElementById('rings');
+  const N = 7;
+  for(let i=1;i<=N;i++){
+    const s = document.createElement('span');
+    const d = 300 + i*152;
+    s.style.width = d+'px'; s.style.height = d+'px';
+    s.style.borderColor = 'rgba(79,172,254,'+(0.16 - i*0.015).toFixed(3)+')';
+    rw.appendChild(s);
+  }
+
+  // deterministic starfield (seeded) so every render matches
+  let seed = 20250919;
+  const rnd = ()=> (seed = (seed*1664525 + 1013904223) % 4294967296) / 4294967296;
+  const sf = document.getElementById('stars');
+  for(let i=0;i<150;i++){
+    const el = document.createElement('i');
+    const sz = rnd()<0.86 ? 1 : 2;
+    el.style.width = sz+'px'; el.style.height = sz+'px';
+    el.style.left = (rnd()*1920).toFixed(1)+'px';
+    el.style.top  = (rnd()*1080).toFixed(1)+'px';
+    el.style.opacity = (0.06 + rnd()*0.30).toFixed(2);
+    sf.appendChild(el);
+  }
+  // breathing pulse: phase in [0,1) drives one full, seamless inhale/exhale
+  const phase = parseFloat(q.get('phase') || '0');
+  const e = 0.5 - 0.5*Math.cos(2*Math.PI*phase);   // 0 -> 1 -> 0, smooth at the seam
+  const core  = document.querySelector('.core');
+  const core2 = document.querySelector('.core2');
+  core.style.transform  = 'translate(-50%,-50%) scale('+(1 + 0.085*e).toFixed(4)+')';
+  core.style.opacity    = (0.80 + 0.20*e).toFixed(3);
+  core2.style.transform = 'translate(-50%,-50%) scale('+(1 + 0.13*e).toFixed(4)+')';
+  core2.style.opacity   = (0.76 + 0.24*e).toFixed(3);
+  document.querySelector('.note').style.textShadow =
+    '0 0 '+(80 + 30*e).toFixed(0)+'px rgba(79,172,254,'+(0.24 + 0.14*e).toFixed(3)+')';
+  document.getElementById('rings').style.opacity = (0.82 + 0.18*e).toFixed(3);
+
+  document.documentElement.setAttribute('data-ready','1');
+</script>
+</body>
+</html>
