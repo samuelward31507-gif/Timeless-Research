@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Resonance Scene</title>
+<link rel="stylesheet" href="gf-local.css">
+<style>
+  :root{
+    --wh:#F5F3EE;
+    --w70:rgba(245,243,238,.72); --w45:rgba(245,243,238,.46);
+    --fd:'Cormorant Garamond',Georgia,serif;
+    --fu:'Inter',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;background:#000}
+  body{font-family:var(--fu);-webkit-font-smoothing:antialiased}
+  .stage{position:relative;width:1920px;height:1080px;overflow:hidden}
+  canvas{position:absolute;inset:0;display:block}
+
+  /* legibility scrim — keeps type readable over any scene */
+  .scrim{position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse 46% 40% at 50% 50%, rgba(0,0,0,.50) 0%, rgba(0,0,0,.22) 45%, transparent 72%),
+      radial-gradient(ellipse 85% 75% at 50% 50%, transparent 42%, rgba(0,0,0,.42) 100%);}
+
+  .center{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;align-items:center;text-align:center}
+  .kicker{font-size:15px;font-weight:500;letter-spacing:.44em;color:var(--w70);
+    margin-bottom:34px;text-shadow:0 2px 20px rgba(0,0,0,.8)}
+  .note{font-family:var(--fd);font-weight:300;font-size:250px;line-height:.86;
+    color:var(--wh);letter-spacing:.01em;
+    text-shadow:0 4px 60px rgba(0,0,0,.75), 0 0 120px rgba(0,0,0,.5)}
+  .chord{font-family:var(--fd);font-style:italic;font-weight:300;
+    font-size:64px;line-height:1;color:var(--w70);margin-top:24px;letter-spacing:.015em;
+    text-shadow:0 2px 34px rgba(0,0,0,.8)}
+  .rule{width:132px;height:1px;margin:44px 0 26px;
+    background:linear-gradient(90deg,transparent,rgba(245,243,238,.55),transparent)}
+  .meta{font-size:16px;font-weight:400;letter-spacing:.34em;color:var(--w45);
+    text-transform:uppercase;text-shadow:0 2px 18px rgba(0,0,0,.8)}
+</style>
+</head>
+<body>
+<div class="stage">
+  <canvas id="c" width="1920" height="1080"></canvas>
+  <div class="scrim"></div>
+  <div class="center">
+    <div class="kicker" id="kicker">432 HZ TUNING</div>
+    <div class="note" id="note">B2</div>
+    <div class="chord" id="chord">minor triad</div>
+    <div class="rule"></div>
+    <div class="meta" id="meta">Wood &nbsp;·&nbsp; 2:00</div>
+  </div>
+</div>
+
+<script>
+const q = new URLSearchParams(location.search);
+const W = 1920, H = 1080;
+const phase = parseFloat(q.get('phase') || '0');      // [0,1) — seamless loop
+const sceneName = q.get('scene') || 'forest';
+
+const set=(id,v)=>{ if(v!==null&&v!==undefined) document.getElementById(id).innerHTML=v; };
+set('note', q.get('note')); set('chord', q.get('chord'));
+if(q.get('texture')||q.get('dur')){
+  const t=(q.get('texture')||'').trim(), d=(q.get('dur')||'2:00').trim();
+  set('meta', t ? t+' &nbsp;·&nbsp; '+d : d);
+}
+
+/* ---------- deterministic noise ---------- */
+function mkRand(seed){ let s=seed>>>0; return ()=> (s=(s*1664525+1013904223)>>>0)/4294967296; }
+function mkNoise1D(seed){
+  const r=mkRand(seed), N=512, g=new Float64Array(N);
+  for(let i=0;i<N;i++) g[i]=r();
+  return x=>{
+    const i=Math.floor(x), f=x-i;
+    const a=g[((i%N)+N)%N], b=g[(((i+1)%N)+N)%N];
+    const u=f*f*(3-2*f);                       // smoothstep
+    return a*(1-u)+b*u;
+  };
+}
+function fbm1(noise,x,oct=5){
+  let v=0,amp=.5,fr=1,norm=0;
+  for(let i=0;i<oct;i++){ v+=noise(x*fr)*amp; norm+=amp; amp*=.5; fr*=2; }
+  return v/norm;
+}
+
+/* ---------- scene definitions ---------- */
+const SCENES = {
+  // wood — misty conifer forest at blue hour
+  forest:{
+    sky:[[0,'#080f0d'],[.45,'#0e1a16'],[.72,'#16261f'],[1,'#1d2f25']],
+    glow:{x:.62,y:.60,r:520,c:'rgba(150,190,160,.20)'},
+    ridges:[
+      {y:.60,amp:46,fr:.0016,c:'#16241d',haze:.55,oct:4},
+      {y:.70,amp:60,fr:.0021,c:'#101a15',haze:.35,oct:5},
+      {y:.82,amp:74,fr:.0027,c:'#0a110e',haze:.16,oct:5}
+    ],
+    trees:[{y:.620,h:140,step:34,c:'#13211a',haze:.45},
+           {y:.730,h:215,step:52,c:'#0b1410',haze:.24},
+           {y:.870,h:300,step:74,c:'#050908',haze:0}],
+    fog:'rgba(190,215,200,.055)', fogY:.66, stars:0,
+    ground:{y:.885,c1:'#070d0a',c2:'#030605'}
+  },
+  // breath — dawn over soft hills
+  dawn:{
+    sky:[[0,'#191226'],[.34,'#3a2340'],[.58,'#7d3f47'],[.78,'#c4713f'],[1,'#e0a05c']],
+    glow:{x:.50,y:.78,r:620,c:'rgba(255,190,110,.30)'},
+    ridges:[
+      {y:.74,amp:40,fr:.0014,c:'#5b3540',haze:.50,oct:4},
+      {y:.82,amp:52,fr:.0019,c:'#38202c',haze:.30,oct:5},
+      {y:.90,amp:60,fr:.0025,c:'#1c1018',haze:.12,oct:5}
+    ],
+    trees:[], fog:'rgba(255,205,160,.075)', fogY:.78, stars:70
+  },
+  // bowed — cold alpine peaks
+  alpine:{
+    sky:[[0,'#070d1a'],[.40,'#0e1a30'],[.70,'#1b3050'],[1,'#33506e']],
+    glow:{x:.34,y:.52,r:460,c:'rgba(160,200,255,.20)'},
+    ridges:[
+      {y:.56,amp:112,fr:.0022,c:'#27405c',haze:.52,oct:3,jag:true},
+      {y:.68,amp:130,fr:.0028,c:'#182a40',haze:.32,oct:3,jag:true},
+      {y:.81,amp:112,fr:.0035,c:'#0d1826',haze:.14,oct:4,jag:true}
+    ],
+    trees:[], fog:'rgba(190,220,255,.06)', fogY:.70, stars:150
+  },
+  // bell — still water, low horizon
+  ocean:{
+    sky:[[0,'#050b14'],[.42,'#0a1728'],[.66,'#123350'],[1,'#20536e']],
+    glow:{x:.50,y:.63,r:400,c:'rgba(180,225,255,.24)'},
+    ridges:[{y:.665,amp:9,fr:.0011,c:'#0c2036',haze:.30,oct:3}],
+    trees:[], fog:'rgba(190,225,255,.05)', fogY:.63, stars:190,
+    water:{y:.665,c1:'#0b1d30',c2:'#050c15',glint:'rgba(180,225,255,.5)'}
+  },
+  // hollow — desert dunes at dusk
+  dunes:{
+    sky:[[0,'#120a16'],[.38,'#2a1324'],[.66,'#5c2a2c'],[1,'#94503a']],
+    glow:{x:.70,y:.70,r:520,c:'rgba(255,165,105,.24)'},
+    ridges:[
+      {y:.70,amp:56,fr:.0013,c:'#5e3730',haze:.48,oct:3,dune:true},
+      {y:.79,amp:70,fr:.0018,c:'#3c2220',haze:.28,oct:3,dune:true},
+      {y:.89,amp:80,fr:.0024,c:'#1d1113',haze:.10,oct:3,dune:true}
+    ],
+    trees:[], fog:'rgba(255,190,150,.05)', fogY:.74, stars:110
+  }
+};
+const S = SCENES[sceneName] || SCENES.forest;
+
+const ctx = document.getElementById('c').getContext('2d');
+const breath = 0.5 - 0.5*Math.cos(2*Math.PI*phase);   // 0..1..0, smooth at the seam
+const drift  = phase;                                  // full wrap over the cycle
+
+/* sky */
+const sky = ctx.createLinearGradient(0,0,0,H);
+S.sky.forEach(([p,c])=>sky.addColorStop(p,c));
+ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+
+/* stars, fading with the breath */
+if(S.stars){
+  const r=mkRand(9931);
+  for(let i=0;i<S.stars;i++){
+    const x=r()*W, y=r()*H*0.62, a=(0.10+r()*0.55)*(0.80+0.20*breath);
+    ctx.fillStyle=`rgba(255,255,255,${a.toFixed(3)})`;
+    ctx.fillRect(x,y,r()<0.85?1:2,r()<0.85?1:2);
+  }
+}
+
+/* celestial glow */
+if(S.glow){
+  const g=S.glow, rad=g.r*(1+0.05*breath);
+  const rg=ctx.createRadialGradient(g.x*W,g.y*H,0,g.x*W,g.y*H,rad);
+  rg.addColorStop(0,g.c); rg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=rg; ctx.fillRect(0,0,W,H);
+}
+
+/* still water: mirror band + glint path */
+if(S.water){
+  const w=S.water, y0=w.y*H;
+  const wg=ctx.createLinearGradient(0,y0,0,H);
+  wg.addColorStop(0,w.c1); wg.addColorStop(1,w.c2);
+  ctx.fillStyle=wg; ctx.fillRect(0,y0,W,H-y0);
+  const gx=(S.glow?S.glow.x:0.5)*W;
+  for(let y=y0; y<H; y+=3){
+    const d=(y-y0)/(H-y0);
+    const wob=Math.sin(y*0.09 + drift*Math.PI*2)*(6+34*d);
+    const a=(1-d)*0.16*(0.75+0.25*breath);
+    ctx.fillStyle=w.glint.replace(/,[\d.]+\)$/,`,${a.toFixed(3)})`);
+    ctx.fillRect(gx-70-Math.abs(wob)+wob*0.4, y, 140+Math.abs(wob)*2.2, 1.6);
+  }
+}
+
+/* ridge silhouettes, back to front, with atmospheric haze.
+   L.fr is cycles-per-pixel: ~0.0015 gives ~3 undulations across 1920px. */
+function ridgeY(n,x,L){
+  let v = fbm1(n, x*L.fr, L.oct||5);
+  if(L.jag){                                  // sharpen into peaks, add a second ridge line
+    v = Math.pow(v, 1.45);
+    v = v*0.80 + 0.20*Math.pow(fbm1(n,(x+740)*L.fr*2.1,2),1.8);
+  }
+  if(L.dune){                                 // asymmetric crest: soft windward, steep lee
+    const t = Math.max(0,Math.min(1,v));
+    v = t*t*(3-2*t);
+    v = v*0.85 + 0.15*fbm1(n,(x+311)*L.fr*0.6,2);
+  }
+  return L.y*H + (v-0.5)*2*L.amp;
+}
+S.ridges.forEach((L,li)=>{
+  const n=mkNoise1D(1000+li*137);
+  ctx.beginPath(); ctx.moveTo(0,H);
+  for(let x=0;x<=W;x+=2) ctx.lineTo(x, ridgeY(n,x,L));
+  ctx.lineTo(W,H); ctx.closePath();
+  ctx.fillStyle=L.c; ctx.fill();
+  if(L.haze>0){                                  // distance haze over the layer
+    ctx.save(); ctx.clip();
+    const hz=ctx.createLinearGradient(0,L.y*H-L.amp,0,L.y*H+L.amp*2.4);
+    hz.addColorStop(0,`rgba(180,205,225,${(L.haze*0.30).toFixed(3)})`);
+    hz.addColorStop(1,'rgba(180,205,225,0)');
+    ctx.fillStyle=hz; ctx.fillRect(0,0,W,H); ctx.restore();
+  }
+});
+
+/* conifer silhouettes — layered boughs, not bare spikes */
+function conifer(x, base, h, w, col){
+  ctx.fillStyle = col;
+  const tiers = 4;
+  for(let t=0; t<tiers; t++){
+    const f  = t/tiers;                         // 0 at crown, 1 at the skirt
+    const topY  = base - h + (h*0.88)*f*0.78;
+    const botY  = topY + h*0.36;
+    const halfW = (w*0.5) * (0.30 + 0.78*f);
+    ctx.beginPath();
+    ctx.moveTo(x, topY);
+    ctx.lineTo(x + halfW, botY);
+    ctx.lineTo(x + halfW*0.42, botY - h*0.045);
+    ctx.lineTo(x - halfW*0.42, botY - h*0.045);
+    ctx.lineTo(x - halfW, botY);
+    ctx.closePath(); ctx.fill();
+  }
+}
+(S.trees||[]).forEach((T,ti)=>{
+  const n=mkNoise1D(4200+ti*71), r=mkRand(77+ti*13);
+  ctx.save();
+  const bandTop = T.y*H - T.h*1.7;
+  for(let x=-60; x<W+60; x+=T.step){
+    const jit  = (r()-0.5)*T.step*1.5;
+    const base = T.y*H + (fbm1(n, x*0.0014, 4)-0.5)*2*30;
+    const h    = T.h*(0.55+r()*0.85);           // wide height variance breaks the "waveform" look
+    const w    = h*(0.34+r()*0.16);
+    conifer(x+jit, base, h, w, T.c);
+  }
+  if(T.haze>0){                                 // haze as a soft gradient, never a hard rect
+    const hz=ctx.createLinearGradient(0,bandTop,0,T.y*H+T.h*0.3);
+    hz.addColorStop(0,'rgba(185,210,228,0)');
+    hz.addColorStop(.55,`rgba(185,210,228,${(T.haze*0.22).toFixed(3)})`);
+    hz.addColorStop(1,'rgba(185,210,228,0)');
+    ctx.fillStyle=hz; ctx.fillRect(0,bandTop,W,(T.y*H+T.h*0.3)-bandTop);
+  }
+  ctx.restore();
+});
+
+/* ground plane beneath the front stand */
+if(S.ground){
+  const gy=S.ground.y*H;
+  const gg=ctx.createLinearGradient(0,gy,0,H);
+  gg.addColorStop(0,S.ground.c1); gg.addColorStop(1,S.ground.c2);
+  ctx.fillStyle=gg; ctx.fillRect(0,gy,W,H-gy);
+}
+
+/* drifting fog bands */
+if(S.fog){
+  for(let i=0;i<4;i++){
+    const yy=(S.fogY+i*0.055)*H + Math.sin((drift+i*0.23)*Math.PI*2)*12;
+    const hh=48+i*30;
+    const fg=ctx.createLinearGradient(0,yy-hh,0,yy+hh);
+    fg.addColorStop(0,'rgba(0,0,0,0)');
+    fg.addColorStop(.5,S.fog);
+    fg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=fg;
+    ctx.globalAlpha=0.55+0.45*Math.sin((drift+i*0.17)*Math.PI*2)*0.5+0.22*breath;
+    ctx.fillRect(0,yy-hh,W,hh*2);
+    ctx.globalAlpha=1;
+  }
+}
+
+/* Static dither — breaks up gradient banding without costing bitrate.
+   The seed must NOT vary with phase: per-frame noise is incompressible and
+   blew the encode up to ~376MB for a single 2-minute track. */
+(function(){
+  const r=mkRand(5150);
+  const img=ctx.getImageData(0,0,W,H), d=img.data;
+  for(let i=0;i<d.length;i+=4){
+    const g=(r()-0.5)*6;
+    d[i]+=g; d[i+1]+=g; d[i+2]+=g;
+  }
+  ctx.putImageData(img,0,0);
+})();
+
+document.documentElement.setAttribute('data-ready','1');
+</script>
+</body>
+</html>

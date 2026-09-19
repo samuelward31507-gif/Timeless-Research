@@ -20,20 +20,20 @@ NFRAMES=$((FPS * CYCLE))
 mkdir -p "$OUT"
 urlenc() { python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1]))" "$1"; }
 
-while IFS=$'\t' read -r idx note chord texture dur src; do
+while IFS=$'\t' read -r idx note chord texture dur scene src; do
   [ -z "${idx:-}" ] && continue
   SRC="$SRCDIR/$src"
   if [ ! -f "$SRC" ]; then echo "SKIP $idx — missing $src"; continue; fi
 
   FRAMES="$OUT/.frames_$idx"; rm -rf "$FRAMES"; mkdir -p "$FRAMES"
-  base="note=$(urlenc "$note")&chord=$(urlenc "$chord")&texture=$(urlenc "$texture")&dur=$(urlenc "$dur")&idx=$(urlenc "$idx")"
+  base="note=$(urlenc "$note")&chord=$(urlenc "$chord")&texture=$(urlenc "$texture")&dur=$(urlenc "$dur")&scene=$(urlenc "$scene")"
 
   for ((i=0; i<NFRAMES; i++)); do
     p=$(python3 -c "print($i/$NFRAMES)")
     raw="$FRAMES/.raw.png"
     "$CHROME" --headless --disable-gpu --no-sandbox --hide-scrollbars \
       --force-device-scale-factor=1 --window-size=1920,$WIN_H --virtual-time-budget=1500 \
-      --screenshot="$raw" "file://$DIR/screen.html?$base&phase=$p" </dev/null >/dev/null 2>&1
+      --screenshot="$raw" "file://$DIR/scene.html?$base&phase=$p" </dev/null >/dev/null 2>&1
     ffmpeg -nostdin -v error -i "$raw" -vf "crop=1920:1080:0:0" \
       "$(printf "%s/f_%04d.png" "$FRAMES" "$i")" -y
   done
@@ -47,7 +47,7 @@ while IFS=$'\t' read -r idx note chord texture dur src; do
     -i "$SRC" \
     -map 0:v -map 1:a \
     -t "$DUR" \
-    -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p -r $FPS -g $((FPS*2)) \
+    -c:v libx264 -preset slow -crf 20 -pix_fmt yuv420p -r $FPS -g $((FPS*2)) \
     -c:a copy \
     -movflags +faststart \
     "$OUT/TR_${idx}_$(echo "$note" | tr -d ' ').mp4" -y

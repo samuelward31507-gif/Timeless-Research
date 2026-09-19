@@ -14,13 +14,13 @@ mkdir -p "$OUT"
 
 urlenc() { python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1]))" "$1"; }
 
-while IFS=$'\t' read -r idx note chord texture dur src; do
+while IFS=$'\t' read -r idx note chord texture dur scene src; do
   [ -z "${idx:-}" ] && continue
-  q="note=$(urlenc "$note")&chord=$(urlenc "$chord")&texture=$(urlenc "$texture")&dur=$(urlenc "$dur")&idx=$(urlenc "$idx")"
+  q="note=$(urlenc "$note")&chord=$(urlenc "$chord")&texture=$(urlenc "$texture")&dur=$(urlenc "$dur")&scene=$(urlenc "$scene")"
   raw="$OUT/.raw_$idx.png"
   "$CHROME" --headless --disable-gpu --no-sandbox --hide-scrollbars \
     --force-device-scale-factor=1 --window-size=1920,$WIN_H --virtual-time-budget=4000 \
-    --screenshot="$raw" "file://$DIR/screen.html?$q" >/dev/null 2>&1 </dev/null
+    --screenshot="$raw" "file://$DIR/scene.html?$q" >/dev/null 2>&1 </dev/null
   ffmpeg -nostdin -v error -i "$raw" -vf "crop=1920:1080:0:0" "$OUT/screen_$idx.png" -y
   rm -f "$raw"
   echo "rendered screen_$idx.png  ($note · $chord · $texture)"

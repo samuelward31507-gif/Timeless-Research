@@ -1,14 +1,18 @@
-# Resonance Series — video screen pipeline
+# 432 Hz video background pipeline
 
-Rebuilds the 432 Hz track videos with the Timeless Research screen, replacing the
+Rebuilds the 432 Hz track videos over generated nature scenes, replacing the
 original background while leaving the source audio **bit-for-bit untouched**.
+
+Backgrounds are drawn procedurally (canvas: layered noise ridges, atmospheric
+haze, drifting fog, star fields). Nothing is stock footage, so there is no
+licensing exposure and no Content ID risk on the visuals.
 
 ## Files
 
 | File | Purpose |
 |---|---|
-| `screen.html` | The 1920×1080 screen. Driven entirely by query params. |
-| `tracks.tsv` | One row per video: `idx · note · chord · texture · duration · source filename` |
+| `scene.html` | The 1920×1080 screen + scene engine. Driven entirely by query params. |
+| `tracks.tsv` | One row per video: `idx · note · chord · texture · duration · scene · source filename` |
 | `render_screens.sh` | Renders a still PNG per track (thumbnails, stills, review). |
 | `build_videos.sh` | Full rebuild: animated screen + original audio → MP4. |
 | `fonts/`, `gf-local.css` | Inter + Cormorant Garamond, vendored so renders are deterministic offline. |
@@ -24,24 +28,37 @@ To add the remaining tracks, append rows to `tracks.tsv` and re-run. Nothing els
 
 ## Screen parameters
 
-`screen.html?note=B2&chord=minor%20triad&texture=Wood&dur=2:00&idx=02&phase=0`
+`scene.html?scene=forest&note=B2&chord=minor%20triad&texture=Wood&dur=2:00&phase=0`
+
+Scenes: `forest` · `dawn` · `alpine` · `ocean` · `dunes`. Add more by appending a
+palette + ridge/tree spec to the `SCENES` map — no other code changes needed.
 
 `phase` is `[0,1)` and drives one full breath cycle of the core glow. `build_videos.sh`
 renders 80 frames across that range and loops them, so the animation is seamless at the
 join (verified: luminance at `phase=0` and the loop seam match to within 0.01).
 
-## Two things that will bite you
+## Three things that will bite you
 
 1. **Headless Chrome reserves 87px of window height for browser chrome.** `--window-size=1920,1080`
    yields a *993px* viewport, silently cutting everything anchored to the bottom of the page.
    Use `--window-size=1920,1167` and crop back to 1080 — which is what these scripts do.
 
-2. **`ffmpeg` reads stdin one byte at a time.** Inside a `while read` loop it eats characters
+2. **Per-frame noise destroys the encode.** Seeding the dither from the animation
+   phase makes every frame unique, which h.264 cannot exploit — one 2-minute track
+   came out at **376 MB**. The dither seed is deliberately constant; keep it that way.
+   With a fixed seed the same track is ~39 MB.
+
+3. **`ffmpeg` reads stdin one byte at a time.** Inside a `while read` loop it eats characters
    from the loop's input (it was swallowing the leading `0` of each `NN` index). Every `ffmpeg`
    call here passes `-nostdin`; keep it that way if you edit these scripts.
 
 ## Encoding
 
-H.264, CRF 18, `preset slow`, yuv420p, 10 fps, `+faststart`, audio stream-copied.
-CRF 18 is deliberately generous — the near-black gradients band badly at lower bitrates,
-and YouTube re-encodes anyway, so the upload should be the best available source.
+H.264, CRF 20, `preset slow`, yuv420p, 10 fps, `+faststart`, audio stream-copied.
+CRF 20 with a static dither keeps the dark gradients free of banding at roughly
+39 MB per 2-minute track (~1.2 GB for all 30). YouTube re-encodes on upload, so the
+source should stay as clean as is practical.
+
+Ridge frequency (`fr`) is **cycles per pixel** — around `0.0015` gives ~3 undulations
+across the frame. Values a couple of orders of magnitude higher turn terrain into
+what looks like an audio waveform.
