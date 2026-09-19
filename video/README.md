@@ -74,3 +74,31 @@ source should stay as clean as is practical.
 Ridge frequency (`fr`) is **cycles per pixel** — around `0.0015` gives ~3 undulations
 across the frame. Values a couple of orders of magnitude higher turn terrain into
 what looks like an audio waveform.
+
+## Channel art
+
+`brand.html` renders the YouTube banner and avatar from the same scene engine
+as the videos, so the channel reads as one thing.
+
+```bash
+# banner — 2560x1440 window must be 1440+87 tall (chrome's reserve)
+chrome --headless --window-size=2560,1527 --screenshot=banner.png \
+  "file://$PWD/brand.html?mode=banner&scene=dawn&name=Two+Minute+Tones"
+# then crop back: ffmpeg -i banner.png -vf crop=2560:1440:0:0 out.png
+
+# avatar — 800x800
+chrome --headless --window-size=800,887 --screenshot=pfp.png \
+  "file://$PWD/brand.html?mode=pfp&scene=alpine"
+```
+
+Params: `mode` (banner|pfp), `scene` (dawn|alpine|ocean|forest|dunes),
+`name`, `tag`, `guides=1` to overlay the safe-area boxes.
+
+**YouTube's banner sizing is the thing to get right.** Upload is 2560x1440,
+but only the centred **1546x423** is visible on every device — TV shows the
+whole 2560x1440, desktop shows a 2560x423 strip, phones show just the safe box.
+All type sits inside 1546x423. `banner_guides.png` shows the boxes.
+
+The avatar is cropped to a **circle** at display time and renders as small as
+48px in comments, so it carries one word ("432") and nothing that dies when
+shrunk. `brand/` has renders at 48/88/800 to check.

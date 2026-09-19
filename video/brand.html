@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Channel art</title>
+<link rel="stylesheet" href="gf-local.css">
+<style>
+  html,body{margin:0;padding:0;background:#000;overflow:hidden}
+  #stage{position:relative;overflow:hidden}
+  canvas{position:absolute;inset:0;display:block}
+  .layer{position:absolute;inset:0}
+  .fd{font-family:'Cormorant Garamond',Georgia,serif}
+  .fu{font-family:'Inter',system-ui,sans-serif}
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="c"></canvas><div class="layer" id="txt"></div></div>
+
+<script>
+const q = new URLSearchParams(location.search);
+const MODE   = q.get('mode') || 'banner';           // banner | pfp
+const SCENE  = q.get('scene') || 'dawn';
+const NAME   = q.get('name') || 'Two Minute Tones';
+const TAG    = q.get('tag')  || 'One chord. Two minutes. 432 Hz.';
+const GUIDES = q.get('guides') === '1';
+
+// YouTube: banner uploads at 2560x1440; only the centred 1546x423 is visible
+// on every device (TV shows all of it, mobile shows only the safe box).
+// Avatar uploads at 800x800 and is cropped to a circle.
+const W = MODE === 'pfp' ? 800 : 2560;
+const H = MODE === 'pfp' ? 800 : 1440;
+const SAFE_W = 1546, SAFE_H = 423;
+
+const stage = document.getElementById('stage');
+stage.style.width = W + 'px';
+stage.style.height = H + 'px';
+document.body.style.width = W + 'px';
+document.body.style.height = H + 'px';
+const cv = document.getElementById('c');
+cv.width = W; cv.height = H;
+const ctx = cv.getContext('2d');
+
+/* ---------- noise (same generator as the video scenes) ---------- */
+function mkRand(seed){ let s=seed>>>0; return ()=> (s=(s*1664525+1013904223)>>>0)/4294967296; }
+function mkNoise1D(seed){
+  const r=mkRand(seed), N=512, g=new Float64Array(N);
+  for(let i=0;i<N;i++) g[i]=r();
+  return x=>{ const i=Math.floor(x), f=x-i;
+    const a=g[((i%N)+N)%N], b=g[(((i+1)%N)+N)%N];
+    const u=f*f*(3-2*f); return a*(1-u)+b*u; };
+}
+function fbm1(n,x,oct=5){ let v=0,a=.5,fr=1,s=0;
+  for(let i=0;i<oct;i++){ v+=n(x*fr)*a; s+=a; a*=.5; fr*=2; } return v/s; }
+
+const SCENES = {
+  dawn:{ sky:[[0,'#191226'],[.34,'#3a2340'],[.58,'#7d3f47'],[.78,'#c4713f'],[1,'#e0a05c']],
+    glow:{x:.50,y:.86,r:.52,c:'rgba(255,190,110,.30)'},
+    ridges:[{y:.80,amp:.036,fr:.0014,c:'#5b3540',haze:.50,oct:4},
+            {y:.88,amp:.046,fr:.0019,c:'#38202c',haze:.30,oct:5},
+            {y:.96,amp:.052,fr:.0025,c:'#1c1018',haze:.12,oct:5}], stars:90 },
+  alpine:{ sky:[[0,'#070d1a'],[.40,'#0e1a30'],[.70,'#1b3050'],[1,'#33506e']],
+    glow:{x:.30,y:.60,r:.40,c:'rgba(160,200,255,.20)'},
+    ridges:[{y:.62,amp:.10,fr:.0022,c:'#27405c',haze:.52,oct:3,jag:true},
+            {y:.76,amp:.11,fr:.0028,c:'#182a40',haze:.32,oct:3,jag:true},
+            {y:.90,amp:.10,fr:.0035,c:'#0d1826',haze:.14,oct:4,jag:true}], stars:220 },
+  forest:{ sky:[[0,'#080f0d'],[.45,'#0e1a16'],[.72,'#16261f'],[1,'#1d2f25']],
+    glow:{x:.62,y:.66,r:.45,c:'rgba(150,190,160,.20)'},
+    ridges:[{y:.70,amp:.042,fr:.0016,c:'#16241d',haze:.55,oct:4},
+            {y:.82,amp:.055,fr:.0021,c:'#101a15',haze:.35,oct:5},
+            {y:.94,amp:.068,fr:.0027,c:'#0a110e',haze:.16,oct:5}], stars:0 },
+  dunes:{ sky:[[0,'#120a16'],[.38,'#2a1324'],[.66,'#5c2a2c'],[1,'#94503a']],
+    glow:{x:.70,y:.78,r:.46,c:'rgba(255,165,105,.24)'},
+    ridges:[{y:.78,amp:.05,fr:.0013,c:'#5e3730',haze:.48,oct:3,dune:true},
+            {y:.87,amp:.062,fr:.0018,c:'#3c2220',haze:.28,oct:3,dune:true},
+            {y:.96,amp:.070,fr:.0024,c:'#1d1113',haze:.10,oct:3,dune:true}], stars:140 },
+  ocean:{ sky:[[0,'#050b14'],[.42,'#0a1728'],[.66,'#123350'],[1,'#20536e']],
+    glow:{x:.50,y:.70,r:.34,c:'rgba(180,225,255,.24)'},
+    ridges:[{y:.745,amp:.008,fr:.0011,c:'#0c2036',haze:.30,oct:3}], stars:230,
+    water:{y:.745,c1:'#0b1d30',c2:'#050c15',glint:'rgba(180,225,255,.5)'} }
+};
+const S = SCENES[SCENE] || SCENES.dawn;
+
+// ridge frequency is cycles-per-pixel tuned at 1920 wide; rescale so the
+// composition holds at 2560 (banner) and 800 (avatar) instead of getting busier.
+const FRS = 1920 / W;
+
+/* sky */
+const sky = ctx.createLinearGradient(0,0,0,H);
+S.sky.forEach(([p,c])=>sky.addColorStop(p,c));
+ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+
+/* stars */
+if(S.stars){
+  const r=mkRand(9931);
+  for(let i=0;i<S.stars;i++){
+    const x=r()*W, y=r()*H*0.70;
+    ctx.fillStyle=`rgba(255,255,255,${(0.10+r()*0.55).toFixed(3)})`;
+    const sz=r()<0.86?1:2; ctx.fillRect(x,y,sz,sz);
+  }
+}
+
+/* glow */
+if(S.glow){
+  const g=S.glow, rad=g.r*W;
+  const rg=ctx.createRadialGradient(g.x*W,g.y*H,0,g.x*W,g.y*H,rad);
+  rg.addColorStop(0,g.c); rg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=rg; ctx.fillRect(0,0,W,H);
+}
+
+/* water */
+if(S.water){
+  const w=S.water, y0=w.y*H;
+  const wg=ctx.createLinearGradient(0,y0,0,H);
+  wg.addColorStop(0,w.c1); wg.addColorStop(1,w.c2);
+  ctx.fillStyle=wg; ctx.fillRect(0,y0,W,H-y0);
+}
+
+/* ridges */
+function ridgeY(n,x,L){
+  let v=fbm1(n, x*L.fr*FRS, L.oct||5);
+  if(L.jag){ v=Math.pow(v,1.45); v=v*0.80+0.20*Math.pow(fbm1(n,(x+740)*L.fr*FRS*2.1,2),1.8); }
+  if(L.dune){ const t=Math.max(0,Math.min(1,v)); v=t*t*(3-2*t);
+              v=v*0.85+0.15*fbm1(n,(x+311)*L.fr*FRS*0.6,2); }
+  return L.y*H + (v-0.5)*2*(L.amp*H);
+}
+(S.ridges||[]).forEach((L,li)=>{
+  const n=mkNoise1D(1000+li*137);
+  ctx.beginPath(); ctx.moveTo(0,H);
+  for(let x=0;x<=W;x+=2) ctx.lineTo(x, ridgeY(n,x,L));
+  ctx.lineTo(W,H); ctx.closePath();
+  ctx.fillStyle=L.c; ctx.fill();
+  if(L.haze>0){
+    ctx.save(); ctx.clip();
+    const hz=ctx.createLinearGradient(0,L.y*H-L.amp*H,0,L.y*H+L.amp*H*2.4);
+    hz.addColorStop(0,`rgba(180,205,225,${(L.haze*0.30).toFixed(3)})`);
+    hz.addColorStop(1,'rgba(180,205,225,0)');
+    ctx.fillStyle=hz; ctx.fillRect(0,0,W,H); ctx.restore();
+  }
+});
+
+/* scrim so type always clears the art */
+if(MODE==='banner'){
+  const sc=ctx.createRadialGradient(W/2,H*0.50,0,W/2,H*0.50,W*0.42);
+  sc.addColorStop(0,'rgba(0,0,0,.62)'); sc.addColorStop(.6,'rgba(0,0,0,.34)');
+  sc.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=sc; ctx.fillRect(0,0,W,H);
+} else {
+  const sc=ctx.createRadialGradient(W/2,H*0.46,0,W/2,H*0.46,W*0.60);
+  sc.addColorStop(0,'rgba(0,0,0,.50)'); sc.addColorStop(1,'rgba(0,0,0,.10)');
+  ctx.fillStyle=sc; ctx.fillRect(0,0,W,H);
+}
+
+/* concentric rings — the series mark */
+(function(){
+  const cx=W/2, cy=MODE==='pfp'? H*0.50 : H*0.50;
+  const base=MODE==='pfp'? W*0.17 : W*0.075;
+  for(let i=1;i<=(MODE==='pfp'?4:6);i++){
+    ctx.beginPath();
+    ctx.arc(cx,cy,base+i*(MODE==='pfp'?W*0.085:W*0.055),0,6.2832);
+    ctx.strokeStyle=`rgba(245,243,238,${(0.13-i*0.017).toFixed(3)})`;
+    ctx.lineWidth=MODE==='pfp'?2:2.2; ctx.stroke();
+  }
+})();
+
+/* static dither */
+(function(){
+  const r=mkRand(5150);
+  const img=ctx.getImageData(0,0,W,H), d=img.data;
+  for(let i=0;i<d.length;i+=4){ const g=(r()-0.5)*6; d[i]+=g; d[i+1]+=g; d[i+2]+=g; }
+  ctx.putImageData(img,0,0);
+})();
+
+/* ---------- type ---------- */
+const t = document.getElementById('txt');
+if(MODE==='banner'){
+  const sx=(W-SAFE_W)/2, sy=(H-SAFE_H)/2;
+  t.innerHTML = `
+    <div style="position:absolute;left:${sx}px;top:${sy}px;width:${SAFE_W}px;height:${SAFE_H}px;
+                display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+      <div class="fu" style="font-size:19px;font-weight:500;letter-spacing:.52em;
+           color:rgba(245,243,238,.66);margin-bottom:26px;text-shadow:0 2px 18px rgba(0,0,0,.9)">
+        432 HZ TUNING</div>
+      <div class="fd" style="font-size:118px;font-weight:300;line-height:.95;color:#F5F3EE;
+           letter-spacing:.012em;text-shadow:0 4px 48px rgba(0,0,0,.8)">${NAME}</div>
+      <div style="width:150px;height:1px;margin:30px 0 24px;
+           background:linear-gradient(90deg,transparent,rgba(245,243,238,.6),transparent)"></div>
+      <div class="fu" style="font-size:21px;font-weight:400;letter-spacing:.20em;
+           color:rgba(245,243,238,.62);text-shadow:0 2px 16px rgba(0,0,0,.9)">${TAG}</div>
+    </div>`;
+  if(GUIDES){
+    t.innerHTML += `
+      <div style="position:absolute;left:${sx}px;top:${sy}px;width:${SAFE_W}px;height:${SAFE_H}px;
+                  outline:3px dashed rgba(90,220,140,.95)"></div>
+      <div style="position:absolute;left:0;top:${(H-423)/2}px;width:${W}px;height:423px;
+                  outline:3px dashed rgba(255,190,80,.75)"></div>
+      <div class="fu" style="position:absolute;left:${sx+8}px;top:${sy-34}px;font-size:19px;
+                  color:rgba(90,220,140,.95);letter-spacing:.1em">SAFE 1546×423 — all devices</div>
+      <div class="fu" style="position:absolute;left:14px;top:${(H-423)/2-34}px;font-size:19px;
+                  color:rgba(255,190,80,.85);letter-spacing:.1em">DESKTOP 2560×423</div>`;
+  }
+} else {
+  t.innerHTML = `
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;
+                align-items:center;justify-content:center;text-align:center">
+      <div class="fd" style="font-size:300px;font-weight:300;line-height:.84;color:#F5F3EE;
+           letter-spacing:.005em;text-shadow:0 6px 60px rgba(0,0,0,.75)">432</div>
+      <div class="fu" style="font-size:31px;font-weight:500;letter-spacing:.42em;
+           color:rgba(245,243,238,.66);margin-top:16px;text-shadow:0 2px 16px rgba(0,0,0,.9)">HZ</div>
+    </div>`;
+  if(GUIDES){
+    t.innerHTML += `<div style="position:absolute;inset:0;border-radius:50%;
+                    outline:4px dashed rgba(90,220,140,.95);outline-offset:-4px"></div>`;
+  }
+}
+document.documentElement.setAttribute('data-ready','1');
+</script>
+</body>
+</html>
