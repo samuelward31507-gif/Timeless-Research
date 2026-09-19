@@ -443,7 +443,7 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
   position: absolute;
   left: 11.45%; top: 39.77%;
   width: 82.41%; height: 41.70%;
-  padding: 8% 6% 7% 8.5%;
+  padding: 6.5% 6% 6% 8.5%;
   color: #1B1814;
   mix-blend-mode: multiply;
   text-align: left;
@@ -456,34 +456,33 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
   font-size: var(--vp-name, 1em); font-weight: 800;
   letter-spacing: -.035em; line-height: .92; white-space: nowrap;
 }
-.vp-name--wrap { white-space: normal; line-height: 1; }
 .vp-dose {
   display: inline-block; margin-top: .45em;
-  padding: .16em .58em .2em;
+  padding: .18em .62em .22em;
   border: 1px solid currentColor; border-radius: 3em;
-  font-size: .3em; font-weight: 700; letter-spacing: .07em;
+  font-size: .34em; font-weight: 700; letter-spacing: .07em;
   text-transform: uppercase; white-space: nowrap;
 }
 .vp-side {
   position: absolute; right: 5%; top: 7%;
   display: flex; flex-direction: column-reverse; align-items: center; gap: .55em;
 }
-.vp-mark { height: .85em; width: auto; }
+.vp-mark { height: .98em; width: auto; }
 .vp-brand {
   writing-mode: vertical-rl; transform: rotate(180deg);
-  font-size: .235em; font-weight: 700; letter-spacing: .3em; text-indent: .3em;
+  font-size: .255em; font-weight: 700; letter-spacing: .3em; text-indent: .3em;
   white-space: nowrap;
 }
 .vp-foot { position: absolute; left: 8.5%; bottom: 7%; }
 .vp-pill {
   display: inline-block;
-  padding: .12em .5em .16em;
+  padding: .14em .55em .18em;
   border: 1px solid currentColor; border-radius: 3em;
-  font-size: .235em; font-weight: 600; letter-spacing: .02em; white-space: nowrap;
+  font-size: .26em; font-weight: 600; letter-spacing: .02em; white-space: nowrap;
 }
 .vp-ruo {
   display: block; margin-top: .5em;
-  font-size: .215em; font-weight: 500; letter-spacing: .03em;
+  font-size: .24em; font-weight: 500; letter-spacing: .03em;
   opacity: .72; white-space: nowrap;
 }
 

@@ -92,6 +92,14 @@ Multiply can only darken, so the pills are outlined rather than filled —
 knocked-out light text inside a dark pill is not reachable through that blend
 mode.
 
+The compound is sized to fill the label rather than sit in it. A fixed size
+ladder left short names filling half the width and long ones filling most of
+it; `name_scale()` in `tools/build.py` estimates each string's rendered width
+from per-character advances (calibrated against measured renders, accurate to
+~5%) and sizes it to a common target. Fill now lands at 90–95% across the
+catalog instead of 49–85%, and `tools/check.py`'s companion browser test
+asserts no label overflows its box.
+
 Label geometry in `.vial-print` is measured from the asset, not eyeballed —
 `make_vial.py` prints the values to keep CSS and asset in sync. Below 260px the
 research-use line is dropped, since at that scale it renders under 6px and

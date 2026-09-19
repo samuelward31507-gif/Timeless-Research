@@ -186,6 +186,35 @@ def page(path, title, desc, body, active="", extra_head="", extra_body=""):
 
 
 # --------------------------------------------------------------------------- pieces
+# Advance widths for Inter 800, as a fraction of the font size. Calibrated
+# against rendered measurements of eight catalog names; accurate to ~5%.
+_ADV_NARROW = set("iljtfrI.,:;!|'()[]-1 ")
+_ADV_WIDE = set("mwMW@")
+
+
+def _advance(ch: str) -> float:
+    if ch == " ":        return 0.26
+    if ch in _ADV_WIDE:  return 0.88
+    if ch in _ADV_NARROW: return 0.34
+    if ch.isupper():     return 0.72
+    if ch.isdigit():     return 0.60
+    return 0.55
+
+
+def name_scale(name: str) -> str:
+    """Size the compound so it fills the label rather than sitting in it.
+
+    A fixed size ladder left short names filling half the label and long ones
+    filling most of it. Estimating the string's width instead lets every name
+    land on the same target. TARGET_EM is the usable text width — the label
+    box less its padding and the vertical brand strip — measured at 6.13em of
+    the label's base font size, held back to 5.7em so a 5% estimation error
+    still cannot overflow."""
+    TARGET_EM = 5.7
+    width = sum(_advance(c) for c in name) or 1.0
+    return f"{max(0.45, min(1.6, TARGET_EM / width)):.2f}em"
+
+
 def vial(p_name, size_label, height=240, alt="", purity=None):
     """Render the vial photograph with a per-compound label printed into the
     real paper label.
@@ -207,12 +236,7 @@ def vial(p_name, size_label, height=240, alt="", purity=None):
     Below 260px the purity and research-use lines are dropped: at that scale
     they render under 6px and read as a smudge."""
     compact = height < 260
-    n = len(p_name)
-    if   n <= 7:  scale, wrap = "1.15em", ""
-    elif n <= 11: scale, wrap = ".88em",  ""
-    elif n <= 15: scale, wrap = ".66em",  ""
-    elif n <= 21: scale, wrap = ".52em",  " vp-name--wrap"
-    else:         scale, wrap = ".43em",  " vp-name--wrap"
+    scale = name_scale(p_name)
 
     foot = ""
     if not compact:
@@ -226,7 +250,7 @@ def vial(p_name, size_label, height=240, alt="", purity=None):
     <img src="{{PREFIX}}assets/img/vial.png" alt="{E(alt) if alt else ''}" width="489" height="880" loading="lazy" decoding="async">
   </picture>
   <span class="vial-print" style="--vp-name:{scale}" aria-hidden="true">
-    <span class="vp-name{wrap}">{E(p_name)}</span>
+    <span class="vp-name">{E(p_name)}</span>
     <span class="vp-dose">{E(size_label)}</span>
     <span class="vp-side">
       <img class="vp-mark" src="{{PREFIX}}assets/img/mark.svg" alt="" width="100" height="206">
