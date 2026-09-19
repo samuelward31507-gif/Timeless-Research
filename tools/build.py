@@ -250,6 +250,7 @@ def footer(depth):
           <li><a href="{p}faq.html">FAQ</a></li>
           <li><a href="{p}contact.html">Contact</a></li>
           <li><a href="{p}pay.html">Payment</a></li>
+          <li><a href="{p}reorder.html">Reorder</a></li>
         </ul>
       </div>
       <div>
@@ -278,6 +279,7 @@ def footer(depth):
   <div class="drawer-body" id="rfq-body"></div>
   <div class="drawer-foot" id="rfq-foot" hidden>
     <a class="btn btn--primary btn--block" href="{p}contact.html?rfq=1" id="rfq-submit">Continue to quote request</a>
+    <a class="btn btn--ghost btn--sm btn--block" href="{p}reorder.html" style="margin-top:.5rem">Existing account? Reorder</a>
     <button class="btn btn--quiet btn--sm btn--block" id="rfq-clear" style="margin-top:.5rem">Clear list</button>
   </div>
 </aside>
@@ -1547,7 +1549,7 @@ def build_pay():
     <ol class="pay-steps">
       <li>
         <h2>Request</h2>
-        <p>Build a request list from the catalogue and send it with your account application. Prices on the catalogue are list prices; they exclude shipping and tax.</p>
+        <p>Build a request list from the catalogue and send it with your account application. Prices on the catalogue are list prices; they exclude shipping and tax. <strong>Already have an account?</strong> Skip to <a href="reorder.html">reorder</a> — steps 2 and 3 are already done and you go straight to a payment link.</p>
       </li>
       <li>
         <h2>Verification</h2>
@@ -1597,6 +1599,94 @@ def build_pay():
     return page("pay.html", f"Paying for an Order — {BRAND}",
                 "How orders are paid: account verification, written quotation, then a Stripe invoice by email. No checkout, and nothing ships against an unverified account.",
                 body, "")
+
+
+# --------------------------------------------------------------------------- reorder
+# An account that has already been verified should not be verified again. This
+# form carries only what identifies the account and what they want; it lands as
+# a separate Netlify form so a reorder is never mixed in with new applications
+# waiting on a check. The operator matches it and sends a payment link.
+
+
+def build_reorder():
+    body = f"""
+<section class="section section--tight">
+  <div class="shell-n">
+    <nav class="crumb" aria-label="Breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>Reorder</span></nav>
+    <div class="sec-head">
+      <span class="eyebrow">Existing accounts</span>
+      <h1 class="display h-sec">Reorder on an <em>open account.</em></h1>
+      <p class="lede">Your account is already verified, so there is nothing to check again. Send the list and we return a payment link — usually within the working day.</p>
+    </div>
+
+    <div class="split">
+      <div class="prose">
+        <h3>What happens</h3>
+        <ol>
+          <li>Send your account reference and the compounds you want.</li>
+          <li>We confirm lot availability and reply with a Stripe payment link for the exact total.</li>
+          <li>Material is released once payment clears; the certificate of analysis for the supplied lot travels with it.</li>
+        </ol>
+        <h3>No account yet?</h3>
+        <p><a href="contact.html">Apply for one</a>. It is one form, and most applications from a recognisable institutional address are approved the same working day.</p>
+        <h3>Changed institution or address?</h3>
+        <p>Tell us in the notes below. A change of shipping address or responsible investigator needs checking before the next release, so it is quicker to say so than to have us notice.</p>
+      </div>
+
+      <div>
+        <div id="rfq-summary" hidden style="background:var(--tile);border:1px solid var(--line);border-radius:6px;padding:1.5rem;margin-bottom:1.5rem">
+          <h2 style="font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin-bottom:1rem">Your request list</h2>
+          <div id="rfq-summary-body"></div>
+        </div>
+
+        <form id="reorder-form" name="reorder" method="POST"
+              data-netlify="true" data-netlify-honeypot="bot-field" novalidate>
+          <input type="hidden" name="form-name" value="reorder">
+          <input type="hidden" name="request_list" id="f-request-list">
+          <p hidden><label>Leave this field empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+
+          <div class="field">
+            <label for="r-account">Account reference <span class="req" aria-hidden="true">*</span></label>
+            <input id="r-account" name="account" type="text" required autocomplete="off">
+            <p class="field-hint">On your last quotation and invoice. If you cannot find it, your institutional email is enough.</p>
+            <p class="field-error">Please give your account reference or institutional email.</p>
+          </div>
+
+          <div class="field">
+            <label for="r-email">Institutional email <span class="req" aria-hidden="true">*</span></label>
+            <input id="r-email" name="email" type="email" required autocomplete="email">
+            <p class="field-error">Please enter a valid email address.</p>
+            <p class="field-error field-error--freemail">That is a personal email provider. Please use the address the account was opened with.</p>
+          </div>
+
+          <div class="field">
+            <label for="r-notes">Notes</label>
+            <textarea id="r-notes" name="notes" rows="3"></textarea>
+            <p class="field-hint">Anything we should know — a PO reference, a delivery deadline, a change of address.</p>
+          </div>
+
+          <div class="field">
+            <label class="check">
+              <input type="checkbox" id="r-confirm" name="confirm" required>
+              <span>I confirm this order is for the account named above, and that the material will be used solely for <strong>in vitro</strong> laboratory research. <span class="req" aria-hidden="true">*</span></span>
+            </label>
+            <p class="field-error">This confirmation is required.</p>
+          </div>
+
+          <button class="btn btn--primary btn--block" type="submit">Send reorder</button>
+          <p class="muted" style="font-size:.7rem;margin-top:1rem;text-align:center">You will receive a payment link by email. We never ask for card details by phone or email — see <a href="pay.html" style="color:var(--accent);text-decoration:underline">how payment works</a>.</p>
+          <div id="form-status" role="status" aria-live="polite" style="margin-top:1rem"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+"""
+    # Without this the form natively POSTs and the page navigates away: the
+    # handler lives in contact.js and serves both forms.
+    return page("reorder.html", f"Reorder — {BRAND}",
+                "Reorder on an account already verified: send your account reference and request list, and we return a Stripe payment link for the exact total.",
+                body, "", extra_body='<script src="assets/js/contact.js" defer></script>')
 
 
 # --------------------------------------------------------------------------- 404
@@ -1656,7 +1746,7 @@ def main():
             shutil.rmtree(p)
 
     pages = [build_home(), build_catalog(), build_quality(), build_about(),
-             build_faq(), build_contact(), build_compliance(), build_coa(), build_pay(), build_404()]
+             build_faq(), build_contact(), build_compliance(), build_coa(), build_pay(), build_reorder(), build_404()]
     pages += build_products()
     pages += build_legal()
 

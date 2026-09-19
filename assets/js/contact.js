@@ -1,5 +1,8 @@
-/* Account application form: client-side validation, request-list summary, and
-   submission.
+/* The site's two forms — a new account application and a reorder against an
+   account already approved — share this handler. They differ only in which
+   fields they carry, which is why the composed fallback below is derived from
+   the form's own labelled fields rather than a fixed list: a hardcoded list
+   went stale the first time a field was added.
 
    Submission is chosen by TR_FORM_PROVIDER at build time:
      netlify   POST the form urlencoded to its own page; Netlify captures it.
@@ -17,7 +20,8 @@
   var ENDPOINT = CFG.formEndpoint || null;
   var CONTACT_EMAIL = CFG.contactEmail || 'accounts@timelessresearch.com';
 
-  var form = document.getElementById('account-form');
+  var form = document.getElementById('account-form') ||
+             document.getElementById('reorder-form');
   if (!form) return;
 
   var status = document.getElementById('form-status');
@@ -94,20 +98,28 @@
     new FormData(form).forEach(function (v, k) { data[k] = v; });
     data.request_list = requested;
 
-    var lines = [
-      'Name: ' + (data.name || ''),
-      'Institution: ' + (data.institution || ''),
-      'Email: ' + (data.email || ''),
-      'Phone: ' + (data.phone || ''),
-      'Intended research use: ' + (data.use || ''),
-      '',
-      'Confirmed in vitro research use only: yes'
-    ];
+    /* Read the summary off the form itself: every visible named control, under
+       the label the visitor actually saw. Adding a field to the markup carries
+       it into the fallback with no change here. */
+    var lines = [];
+    form.querySelectorAll('input, select, textarea').forEach(function (el) {
+      if (!el.name || el.type === 'hidden' || el.name === 'bot-field') return;
+      var f = el.closest('.field');
+      if (!f || f.hidden) return;
+      var label = f.querySelector('label');
+      var text = label ? label.textContent.replace(/\*/g, '').trim() : el.name;
+      if (el.type === 'checkbox') {
+        lines.push(text.slice(0, 80) + (text.length > 80 ? '…' : '') + ': ' + (el.checked ? 'yes' : 'no'));
+      } else if (el.value.trim()) {
+        lines.push(text + ': ' + el.value.trim());
+      }
+    });
     if (data.request_list.length) {
       lines.push('', 'Request list:', data.request_list.join('\n'));
     }
     var body = lines.join('\n');
-    var subject = 'Enquiry \u2014 ' + (data.name || '');
+    var subject = (form.id === 'reorder-form' ? 'Reorder \u2014 ' : 'Enquiry \u2014 ') +
+                  (data.name || data.account || data.email || '');
 
     /* No endpoint, or the POST failed: show the enquiry so the visitor can copy
        or email it. A bare mailto: redirect silently does nothing when no mail

@@ -170,6 +170,21 @@ with a hold on the balance. Find out before you depend on it:
 Nothing in the site depends on Stripe specifically — `pay.html` names it, and
 that is the only place to change if you invoice some other way.
 
+### Repeat orders
+
+An account verified once should not be verified again. `reorder.html` carries
+only the account reference, the institutional email, notes and the request
+list, and lands as its own Netlify form (**reorder**) so it never sits in the
+queue behind new applications waiting on a check.
+
+Give every approved account a reference — `TR-0041` and upward is fine — and
+put it on their quotation and invoice. That reference is what makes a reorder
+a thirty-second job: match it, confirm lot availability, send the payment link.
+
+Watch the notes field. A change of shipping address or responsible investigator
+is the one thing that does need re-checking before release, and the page asks
+customers to mention it there.
+
 ### Issuing an invoice
 
 1. **Customer** — create it once per verified account, under the institution's
