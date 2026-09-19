@@ -39,6 +39,8 @@ assets/
   js/catalog.js         Filtering and search
   js/contact.js         Form validation and submission
   data/products.json    Single source of truth for the catalog
+  fonts/                Self-hosted Barlow Semi Condensed (label face)
+  css/fonts.css         @font-face rules for the above (generated)
   img/vial.{png,webp}   Product photograph, matted (generated)
   img/mark.svg          Flame mark, redrawn as vector (generated)
   img/favicon.svg       Generated from the mark
@@ -92,11 +94,25 @@ Multiply can only darken, so the pills are outlined rather than filled —
 knocked-out light text inside a dark pill is not reachable through that blend
 mode.
 
+The label is set in **Barlow Semi Condensed**, a DIN-derived condensed
+grotesque — printed matter, not screen type, and what pharmaceutical and
+laboratory packaging actually uses. It is **self-hosted** (`assets/fonts/`,
+67 KB, latin subset): the type sizing is calibrated to this face's metrics, so
+a failed webfont load does not merely look different, a wider fallback overruns
+the label. Serving it from our own origin removes that failure mode and one
+third-party request per page.
+
+Alpha, superscript-plus and greater-or-equal are not in Barlow and fall back
+per glyph; the advance table was measured with that fallback in place, so the
+sizing already accounts for them. The label also reserves the brand strip in
+padding and clips rather than overlapping, so even a wide fallback cannot
+collide.
+
 The compound is sized to fill the label rather than sit in it. A fixed size
 ladder left short names filling half the width and long ones filling most of
 it; `name_scale()` in `tools/build.py` estimates each string's rendered width
-from per-character advances (calibrated against measured renders, accurate to
-~5%) and sizes it to a common target. Fill now lands at 90–95% across the
+from per-character advances — measured in-browser per glyph for the label face
+— and sizes it to a common target. Fill now lands at 90–95% across the
 catalog instead of 49–85%, and `tools/check.py`'s companion browser test
 asserts no label overflows its box.
 

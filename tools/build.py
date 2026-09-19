@@ -67,6 +67,7 @@ def head(title, desc, depth, canonical, extra=""):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script>document.documentElement.className+=" js";</script>
+<link rel="stylesheet" href="{p}assets/css/fonts.css">
 <link rel="stylesheet" href="{p}assets/css/main.css">
 <script src="{p}assets/js/site.js" defer></script>
 {extra}</head>
@@ -186,19 +187,26 @@ def page(path, title, desc, body, active="", extra_head="", extra_body=""):
 
 
 # --------------------------------------------------------------------------- pieces
-# Advance widths for Inter 800, as a fraction of the font size. Calibrated
-# against rendered measurements of eight catalog names; accurate to ~5%.
-_ADV_NARROW = set("iljtfrI.,:;!|'()[]-1 ")
-_ADV_WIDE = set("mwMW@")
+# Advance widths for Barlow Semi Condensed 700 at the label's -0.012em
+# tracking, as a fraction of the font size. Measured in-browser per glyph
+# (tools/../scratchpad calibration) rather than estimated: switching the label
+# face silently broke the previous Inter-calibrated table, dropping fill from a
+# consistent 90-95% to 58-95%. Re-measure these if --f-label ever changes.
+_ADV = {"upper": 0.529, "lower": 0.475, "narrow": 0.270,
+        "wide": 0.706, "digit": 0.481, "space": 0.188}
+_ADV_NARROW = set("IiljtfrJ.,:;!|'()[]-1")
+_ADV_WIDE = set("mwMW@%")
+_ADV_SPECIAL = {"\u2265": 0.537, "\u207a": 0.516, "\u03b1": 0.603, "\u03b2": 0.520}
 
 
 def _advance(ch: str) -> float:
-    if ch == " ":        return 0.26
-    if ch in _ADV_WIDE:  return 0.88
-    if ch in _ADV_NARROW: return 0.34
-    if ch.isupper():     return 0.72
-    if ch.isdigit():     return 0.60
-    return 0.55
+    if ch == " ":            return _ADV["space"]
+    if ch in _ADV_SPECIAL:   return _ADV_SPECIAL[ch]
+    if ch in _ADV_WIDE:      return _ADV["wide"]
+    if ch in _ADV_NARROW:    return _ADV["narrow"]
+    if ch.isdigit():         return _ADV["digit"]
+    if ch.isupper():         return _ADV["upper"]
+    return _ADV["lower"]
 
 
 def name_scale(name: str) -> str:
@@ -206,13 +214,16 @@ def name_scale(name: str) -> str:
 
     A fixed size ladder left short names filling half the label and long ones
     filling most of it. Estimating the string's width instead lets every name
-    land on the same target. TARGET_EM is the usable text width — the label
-    box less its padding and the vertical brand strip — measured at 6.13em of
-    the label's base font size, held back to 5.7em so a 5% estimation error
-    still cannot overflow."""
-    TARGET_EM = 5.7
+    land on the same target.
+
+    Usable text width — the label box less its padding and the vertical brand
+    strip — measures 6.03em of the label's base font size. TARGET_EM is held at
+    5.45 because the table runs about 3% under true width, so the rendered
+    result lands near 96% without any risk of overflow. The clamp stops a very
+    short name such as NAD+ from ballooning."""
+    TARGET_EM = 5.45
     width = sum(_advance(c) for c in name) or 1.0
-    return f"{max(0.45, min(1.6, TARGET_EM / width)):.2f}em"
+    return f"{max(0.45, min(2.0, TARGET_EM / width)):.2f}em"
 
 
 def vial(p_name, size_label, height=240, alt="", purity=None):

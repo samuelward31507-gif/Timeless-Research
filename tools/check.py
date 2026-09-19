@@ -110,7 +110,8 @@ for page in PAGES:
 # ------------------------------------------------------------- generated
 for extra in ("sitemap.xml", "robots.txt", "assets/img/favicon.svg",
               "assets/data/products.json", "assets/css/main.css",
-              "assets/js/site.js", "assets/js/catalog.js", "assets/js/contact.js"):
+              "assets/js/site.js", "assets/js/catalog.js", "assets/js/contact.js",
+              "assets/css/fonts.css"):
     if not (ROOT / extra).exists():
         fail(f"missing generated asset: {extra}")
 
