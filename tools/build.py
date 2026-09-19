@@ -185,33 +185,62 @@ def page(path, title, desc, body, active="", extra_head="", extra_body=""):
 
 
 # --------------------------------------------------------------------------- pieces
-def vial(height=240, alt=""):
-    """Render the vial photograph with the brand lockup printed into the real
-    paper label.
+def vial(p_name, size_label, height=240, alt="", cas=None, sub=None, purity=None):
+    """Render the vial photograph with a per-compound label printed into the
+    real paper label.
 
-    Every vial carries the same label — the mark, TIMELESS / RESEARCH, and the
-    research-use line — because the vials are a single branded presentation;
-    the compound is identified by the page, not by the photograph.
+    Layout follows the supplied reference: a dark label carrying a
+    left-aligned compound / sub-name / dose stack, the purity and research
+    lines along the bottom, and the brand lockup running vertically up the
+    right edge.
 
-    The text is a DOM layer blended with `multiply`, so it picks up the
-    photographed label's own curvature shading and paper texture instead of
-    sitting on a flat synthetic rectangle. Label geometry is measured from the
-    asset's alpha channel by tools/make_vial.py:
-    left 11.20%, top 39.77%, width 82.69%, height 41.82%.
+    Two blend layers do the work. `.vl-ink` multiplies a near-black over the
+    photographed white paper, which turns the label dark while preserving the
+    label's own curvature shading — a flat filled rectangle would read as a
+    sticker. The text sits above it at normal blend, masked with a horizontal
+    gradient so it dims toward the curved edges like real print on a cylinder.
 
-    Below 260px the research-use line is dropped: at that scale it renders
-    under 6px and reads as a smudge."""
+    Label geometry is measured from the asset's alpha channel by
+    tools/make_vial.py: left 11.20%, top 39.77%, width 82.69%, height 41.82%.
+
+    Below 260px the purity and research lines are dropped: at that scale they
+    render under 6px and read as a smudge."""
     compact = height < 260
-    ruo = "" if compact else '\n    <span class="vp-ruo">FOR RESEARCH USE ONLY</span>'
+    n = len(p_name)
+    if   n <= 7:  scale = "1.05em"
+    elif n <= 11: scale = ".82em"
+    elif n <= 15: scale = ".64em"
+    elif n <= 21: scale = ".50em"
+    else:         scale = ".42em"
+
+    sub_line = (f'\n        <span class="vl-sub">{E(sub)}</span>'
+                if sub and not compact else "")
+    dose = E(size_label)
+    foot = ""
+    if not compact:
+        bits = []
+        if purity:
+            bits.append(f'<span>{E(purity)} Purity</span>')
+        bits.append('<span>Research Use Only</span>')
+        foot = '\n        <span class="vl-foot">' + "".join(bits) + '</span>'
+
     return f"""<span class="vial" style="--vial-h:{height}px">
   <picture>
     <source srcset="{{PREFIX}}assets/img/vial.webp" type="image/webp">
     <img src="{{PREFIX}}assets/img/vial.png" alt="{E(alt) if alt else ''}" width="491" height="880" loading="lazy" decoding="async">
   </picture>
-  <span class="vial-print" aria-hidden="true">
-    <img class="vp-mark" src="{{PREFIX}}assets/img/mark.svg" alt="" width="100" height="206">
-    <span class="vp-name">TIMELESS</span>
-    <span class="vp-sub"><i></i>RESEARCH<i></i></span>{ruo}
+  <span class="vial-label" aria-hidden="true">
+    <span class="vl-ink"></span>
+    <span class="vl-text" style="--vp-name:{scale}">
+      <span class="vl-main">
+        <span class="vl-name">{E(p_name)}</span>{sub_line}
+        <span class="vl-dose">{dose}</span>
+      </span>{foot}
+      <span class="vl-side">
+        <img class="vl-mark" src="{{PREFIX}}assets/img/mark.svg" alt="" width="100" height="206">
+        <span class="vl-side-text">TIMELESS RESEARCH</span>
+      </span>
+    </span>
   </span>
 </span>"""
 
@@ -265,7 +294,7 @@ def build_home():
     featured = [p for p in PRODUCTS if p["id"] in ("bpc-157", "ipamorelin", "ghk-cu", "epithalon", "mots-c", "ss-31")]
     feat_html = "".join(f"""
       <article class="product" data-reveal data-reveal-delay="{i % 3}">
-        <div class="product-media">{vial(285)}</div>
+        <div class="product-media">{vial(p['name'], p['sizes'][0], 285, cas=p.get('cas'), purity=p.get('purity'))}</div>
         <div class="product-body">
           <span class="product-cas">CAS {E(p['cas'] or '—')}</span>
           <h3 class="product-name"><a href="products/{p['id']}.html">{E(p['name'])}</a></h3>
@@ -275,7 +304,9 @@ def build_home():
         </div>
       </article>""" for i, p in enumerate(featured))
 
-    hero_vial = vial(470, alt="A Timeless Research glass vial with crimp seal and printed label")
+    hero_vial = vial("BPC-157", "5 mg", 470, cas="137525-51-0",
+                     sub="Pentadecapeptide BPC 157", purity="\u226598%",
+                     alt="A Timeless Research vial of BPC-157, 5 mg")
     body = f"""
 <section class="hero">
   <div class="shell">
@@ -380,7 +411,7 @@ def build_catalog():
         sizes = "".join(f'<option value="{E(s)}">{E(s)}</option>' for s in p["sizes"])
         cards.append(f"""
         <article class="product" data-cat="{p['category']}" data-search="{E(hay)}">
-          <div class="product-media">{vial(285)}
+          <div class="product-media">{vial(p['name'], p['sizes'][0], 285, cas=p.get('cas'), purity=p.get('purity'))}
             {'<span class="ruo-badge" style="position:absolute;top:.75rem;right:.75rem">Restricted</span>' if p.get('restricted') else ''}
           </div>
           <div class="product-body">
@@ -506,7 +537,7 @@ def build_products():
     <div class="split">
       <div>
         <div style="background:var(--tile);padding:3.5rem 2rem;display:grid;place-items:center">
-          {vial(400, alt=f"{p['name']} research vial, {p['sizes'][0]}")}
+          {vial(p['name'], p['sizes'][0], 400, alt=f"{p['name']} research vial, {p['sizes'][0]}", cas=p.get('cas'), sub=(p.get('synonyms') or [None])[0], purity=p.get('purity'))}
         </div>
         <p class="muted" style="font-size:.7rem;margin-top:.75rem;text-align:center">Label shown for illustration. Supplied vial carries the lot number and release date.</p>
       </div>
