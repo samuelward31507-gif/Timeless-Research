@@ -149,6 +149,21 @@ for page in PAGES:
         msg = f"{rel} still needs {m} (set TR_LEGAL_* at build time)"
         notes.append("demo build: " + msg) if DEMO else fail(msg)
 
+# ------------------------------------------------------- price coverage
+# A pack size offered without a price renders an empty price line and puts a
+# priceless item in the request list, which then quietly drops out of the
+# subtotal. Cheaper to refuse the build.
+import json as _json
+_data = _json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8"))
+for _p in _data.get("products", []):
+    _prices = _p.get("prices") or {}
+    for _s in _p.get("sizes", []):
+        if _s not in _prices:
+            fail(f"{_p['id']}: pack size {_s!r} has no price")
+    for _s in _prices:
+        if _s not in _p.get("sizes", []):
+            fail(f"{_p['id']}: price for {_s!r}, which is not an offered size")
+
 # ------------------------------------------------------------- generated
 for extra in ("sitemap.xml", "robots.txt", "assets/img/favicon.svg",
               "assets/data/products.json", "assets/css/main.css",

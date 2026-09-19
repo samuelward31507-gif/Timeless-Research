@@ -78,7 +78,10 @@
         "ESI-MS",
         "Karl Fischer",
         "Acetate content"
-      ]
+      ],
+      "prices": {
+        "10 mg": 60
+      }
     },
     {
       "id": "cjc-1295-dac",
@@ -105,7 +108,10 @@
         "RP-HPLC",
         "ESI-MS",
         "Karl Fischer"
-      ]
+      ],
+      "prices": {
+        "5 mg": 65
+      }
     },
     {
       "id": "igf-1-lr3",
@@ -132,7 +138,10 @@
         "SDS-PAGE",
         "ESI-MS",
         "Endotoxin"
-      ]
+      ],
+      "prices": {
+        "1 mg": 85
+      }
     },
     {
       "id": "ipamorelin",
@@ -159,7 +168,10 @@
         "ESI-MS",
         "Karl Fischer",
         "Acetate content"
-      ]
+      ],
+      "prices": {
+        "10 mg": 45
+      }
     },
     {
       "id": "mots-c",
@@ -185,7 +197,10 @@
         "RP-HPLC",
         "ESI-MS",
         "Karl Fischer"
-      ]
+      ],
+      "prices": {
+        "10 mg": 25
+      }
     },
     {
       "id": "tesamorelin",
@@ -212,7 +227,10 @@
         "ESI-MS",
         "Karl Fischer",
         "Acetate content"
-      ]
+      ],
+      "prices": {
+        "20 mg": 190
+      }
     },
     {
       "id": "epithalon",
@@ -240,7 +258,10 @@
         "ESI-MS",
         "Karl Fischer",
         "Acetate content"
-      ]
+      ],
+      "prices": {
+        "50 mg": 80
+      }
     },
     {
       "id": "ghk-cu",
@@ -268,7 +289,10 @@
         "ESI-MS",
         "ICP-MS (copper)",
         "Karl Fischer"
-      ]
+      ],
+      "prices": {
+        "100 mg": 25
+      }
     },
     {
       "id": "glutathione",
@@ -295,7 +319,10 @@
         "RP-HPLC",
         "Titration (free thiol)",
         "Karl Fischer"
-      ]
+      ],
+      "prices": {
+        "1500 mg": 85
+      }
     },
     {
       "id": "nad",
@@ -321,7 +348,10 @@
         "RP-HPLC",
         "UV/Vis",
         "Karl Fischer"
-      ]
+      ],
+      "prices": {
+        "1000 mg": 100
+      }
     },
     {
       "id": "retatrutide",
@@ -351,7 +381,13 @@
         "ESI-MS",
         "Karl Fischer"
       ],
-      "restricted": true
+      "restricted": true,
+      "prices": {
+        "30 mg": 150,
+        "60 mg": 240,
+        "90 mg": 360,
+        "300 mg": 600
+      }
     },
     {
       "id": "tirzepatide",
@@ -379,7 +415,10 @@
         "Karl Fischer",
         "Acetate content"
       ],
-      "restricted": true
+      "restricted": true,
+      "prices": {
+        "100 mg": 180
+      }
     },
     {
       "id": "dsip",
@@ -405,7 +444,10 @@
         "RP-HPLC",
         "ESI-MS",
         "Karl Fischer"
-      ]
+      ],
+      "prices": {
+        "10 mg": 50
+      }
     },
     {
       "id": "kpv",
@@ -432,7 +474,10 @@
         "RP-HPLC",
         "ESI-MS",
         "Karl Fischer"
-      ]
+      ],
+      "prices": {
+        "10 mg": 26
+      }
     },
     {
       "id": "selank",
@@ -459,7 +504,10 @@
         "ESI-MS",
         "Karl Fischer",
         "Acetate content"
-      ]
+      ],
+      "prices": {
+        "10 mg": 55
+      }
     },
     {
       "id": "semax",
@@ -486,7 +534,10 @@
         "ESI-MS",
         "Karl Fischer",
         "Acetate content"
-      ]
+      ],
+      "prices": {
+        "10 mg": 55
+      }
     },
     {
       "id": "bac-water",
@@ -512,7 +563,10 @@
         "Sterility",
         "Endotoxin",
         "pH"
-      ]
+      ],
+      "prices": {
+        "3 mL x 3 vials": 15
+      }
     },
     {
       "id": "sterile-water",
@@ -538,7 +592,10 @@
         "Sterility",
         "Endotoxin",
         "Conductivity"
-      ]
+      ],
+      "prices": {
+        "10 mL": 15
+      }
     },
     {
       "id": "bpc-157",
@@ -566,7 +623,10 @@
         "ESI-MS",
         "Karl Fischer",
         "Acetate content"
-      ]
+      ],
+      "prices": {
+        "10 mg": 26
+      }
     },
     {
       "id": "bpc-157-tb-500-blend",
@@ -597,7 +657,10 @@
         "ESI-MS",
         "Karl Fischer"
       ],
-      "label": "BPC-157 / TB-500"
+      "label": "BPC-157 / TB-500",
+      "prices": {
+        "60 mg": 245
+      }
     },
     {
       "id": "ghk-cu-tb-bpc-kpv-blend",
@@ -630,7 +693,10 @@
         "ESI-MS",
         "Karl Fischer"
       ],
-      "label": "GHK-Cu / TB / BPC / KPV"
+      "label": "GHK-Cu / TB / BPC / KPV",
+      "prices": {
+        "80 mg": 140
+      }
     },
     {
       "id": "ghk-cu-tb-bpc-blend",
@@ -662,7 +728,10 @@
         "ESI-MS",
         "Karl Fischer"
       ],
-      "label": "GHK-Cu / TB / BPC"
+      "label": "GHK-Cu / TB / BPC",
+      "prices": {
+        "70 mg": 120
+      }
     },
     {
       "id": "tb-500",
@@ -690,7 +759,10 @@
         "ESI-MS",
         "Karl Fischer",
         "Acetate content"
-      ]
+      ],
+      "prices": {
+        "30 mg": 180
+      }
     },
     {
       "id": "kisspeptin-10",
@@ -718,7 +790,10 @@
         "ESI-MS",
         "Karl Fischer",
         "Acetate content"
-      ]
+      ],
+      "prices": {
+        "10 mg": 55
+      }
     },
     {
       "id": "melanotan-1",
@@ -745,7 +820,10 @@
         "RP-HPLC",
         "ESI-MS",
         "Karl Fischer"
-      ]
+      ],
+      "prices": {
+        "10 mg": 32
+      }
     },
     {
       "id": "melanotan-2",
@@ -771,7 +849,10 @@
         "RP-HPLC",
         "ESI-MS",
         "Karl Fischer"
-      ]
+      ],
+      "prices": {
+        "10 mg": 32
+      }
     },
     {
       "id": "oxytocin",
@@ -799,7 +880,11 @@
         "Karl Fischer",
         "Acetate content"
       ],
-      "restricted": true
+      "restricted": true,
+      "prices": {
+        "10 mg": 55
+      }
     }
-  ]
+  ],
+  "currency": "USD"
 }

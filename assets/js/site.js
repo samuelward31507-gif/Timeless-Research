@@ -68,10 +68,11 @@
 
   var RFQ = {
     all: read,
-    add: function (id, name, size) {
+    add: function (id, name, size, price) {
       var list = read();
       var hit = list.filter(function (i) { return i.id === id && i.size === size; })[0];
-      if (hit) { hit.qty += 1; } else { list.push({ id: id, name: name, size: size, qty: 1 }); }
+      if (hit) { hit.qty += 1; hit.price = price; }
+      else { list.push({ id: id, name: name, size: size, qty: 1, price: price }); }
       write(list); sync(); toast(name + ' · ' + size + ' added to request list');
     },
     setQty: function (idx, delta) {
@@ -107,13 +108,25 @@
     body.innerHTML = list.map(function (i, idx) {
       return '<div class="rfq-line">' +
         '<div class="rfq-line-main"><div class="rfq-line-name">' + esc(i.name) + '</div>' +
-        '<div class="rfq-line-size">' + esc(i.size) + '</div></div>' +
+        '<div class="rfq-line-size">' + esc(i.size) +
+        (i.price != null ? ' &middot; ' + money(i.price) : '') + '</div></div>' +
         '<div class="qty"><button type="button" data-q="-1" data-i="' + idx + '" aria-label="Decrease quantity">−</button>' +
         '<span>' + i.qty + '</span>' +
         '<button type="button" data-q="1" data-i="' + idx + '" aria-label="Increase quantity">+</button></div>' +
         '<button class="rfq-remove" type="button" data-rm="' + idx + '" aria-label="Remove ' + esc(i.name) + '">✕</button>' +
         '</div>';
     }).join('');
+
+    /* An indicative subtotal, labelled as such: shipping, tax and any quantity
+       break are settled on the quotation, so this is not an invoice total. */
+    var priced = list.filter(function (i) { return i.price != null; });
+    if (priced.length) {
+      var sum = priced.reduce(function (t, i) { return t + i.price * i.qty; }, 0);
+      var partial = priced.length < list.length;
+      body.innerHTML += '<div class="rfq-total"><span>Indicative subtotal' +
+        (partial ? ' (priced items)' : '') + '</span><strong>' + money(sum) + '</strong></div>' +
+        '<p class="rfq-total-note">Excludes shipping and tax. Lot availability and any quantity break are confirmed on the quotation.</p>';
+    }
     if (foot) foot.hidden = false;
   }
 
@@ -189,11 +202,26 @@
     return el.closest('.product') || el.closest('.split') || document;
   }
 
+  function priceOf(sel) {
+    var opt = sel.options[sel.selectedIndex];
+    return opt && opt.dataset.price ? Number(opt.dataset.price) : null;
+  }
+
+  function money(v) {
+    return '$' + (v % 1 === 0 ? v.toLocaleString('en-US')
+                              : v.toLocaleString('en-US', { minimumFractionDigits: 2 }));
+  }
+  window.TR_money = money;
+
   document.addEventListener('change', function (e) {
     var sel = e.target.closest ? e.target.closest('[data-size]') : null;
     if (!sel) return;
-    var dose = scopeOf(sel).querySelector('.vp-dose');
+    var scope = scopeOf(sel);
+    var dose = scope.querySelector('.vp-dose');
     if (dose) dose.textContent = sel.value;
+    var price = priceOf(sel);
+    var out = scope.querySelector('[data-price-display]');
+    if (out && price !== null) out.textContent = money(price);
   });
 
   /* --------------------------------------------------- add-to-list delegation */
@@ -202,7 +230,8 @@
     if (!btn) return;
     var scope = btn.closest('.product') || btn.closest('form') || btn.closest('.split') || document;
     var sel = scope.querySelector('[data-size]');
-    RFQ.add(btn.dataset.add, btn.dataset.name, sel ? sel.value : 'Standard');
+    RFQ.add(btn.dataset.add, btn.dataset.name, sel ? sel.value : 'Standard',
+            sel ? priceOf(sel) : null);
   });
 
   function esc(s) {

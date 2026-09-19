@@ -185,6 +185,21 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .split { display: grid; grid-template-columns: minmax(0,.82fr) minmax(0,1.18fr); gap: var(--s-8); align-items: start; }
 @media (max-width: 900px) { .split { grid-template-columns: 1fr; gap: var(--s-6); } }
 
+/* --- Price ---------------------------------------------------------------- */
+.product-price { font-family: var(--f-mono); font-size: var(--t-lg); color: var(--ink);
+                 margin: var(--s-3) 0 var(--s-2); font-variant-numeric: tabular-nums; }
+.detail-price { margin: var(--s-5) 0 var(--s-5); }
+.detail-price span { display: block; font-family: var(--f-mono); font-size: 1.75rem;
+                     color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.detail-price small { display: block; margin-top: .3rem; font-size: var(--t-xs); color: var(--ink-3); }
+
+.rfq-total { display: flex; justify-content: space-between; align-items: baseline;
+             gap: var(--s-4); padding: var(--s-4) 0 var(--s-2); margin-top: var(--s-3);
+             border-top: 1px solid var(--line-strong); }
+.rfq-total span { font-size: var(--t-sm); color: var(--ink-2); }
+.rfq-total strong { font-family: var(--f-mono); font-size: var(--t-lg); font-variant-numeric: tabular-nums; }
+.rfq-total-note { font-size: var(--t-xs); color: var(--ink-3); line-height: 1.6; }
+
 /* --- Certificate of analysis -------------------------------------------- */
 /* Deliberately not styled like the rest of the site: a laboratory document is
    a dense, ruled, monospaced-data artefact, and making it look like a web page

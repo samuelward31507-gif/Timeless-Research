@@ -295,6 +295,34 @@ def page(path, title, desc, body, active="", extra_head="", extra_body=""):
 
 
 # --------------------------------------------------------------------------- pieces
+def money(v) -> str:
+    """Whole dollars: every list price is a round figure, and ".00" on a
+    catalogue of thirty is noise."""
+    return f"${v:,.0f}" if float(v) == int(v) else f"${v:,.2f}"
+
+
+def size_options(p) -> str:
+    """Pack-size options carrying their own price, so the displayed price can
+    follow the selection without a lookup table in the page."""
+    out = []
+    for s in p["sizes"]:
+        price = (p.get("prices") or {}).get(s)
+        attr = f' data-price="{price}"' if price is not None else ""
+        label = f"{s} — {money(price)}" if price is not None else s
+        out.append(f'<option value="{E(s)}"{attr}>{E(label)}</option>')
+    return "".join(out)
+
+
+def initial_price(p) -> str:
+    """The price of the pack size the selector starts on.
+
+    Not a "from" figure: a size is always selected, and the JS replaces this
+    with the selected size's price on change, so the two must agree at load.
+    """
+    price = (p.get("prices") or {}).get(p["sizes"][0])
+    return money(price) if price is not None else ""
+
+
 def label_name(name: str) -> str:
     """Keep parenthetical qualifiers on one line.
 
@@ -494,7 +522,7 @@ def build_home():
       <div class="prose" data-reveal data-reveal-delay="1">
         <p>Ordering is restricted to verified institutional and qualified-research accounts — universities, hospital and government research units, contract research organisations, and commercial R&amp;D laboratories with a documented research purpose.</p>
         <p>Account applications are reviewed individually. We ask for the institution, the responsible investigator, a shipping address at the research facility, and a short description of the intended research use. We do not sell to individuals for personal use, and we do not ship to residential addresses.</p>
-        <p>Pricing is issued by quotation against a confirmed account, so that lot availability, quantity breaks and shipping conditions are agreed in writing before an order is placed.</p>
+        <p>List prices are published against every pack size. Orders are still supplied against a verified account, so that lot availability, quantity breaks and shipping conditions are agreed in writing before material ships.</p>
         <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:2rem">
           <a class="btn btn--primary" href="contact.html">Apply for an account</a>
           <a class="btn btn--ghost" href="compliance.html">Research use policy</a>
@@ -520,7 +548,7 @@ def build_catalog():
     for p in PRODUCTS:
         hay = " ".join(filter(None, [p["name"], p.get("cas") or "", " ".join(p.get("synonyms") or []),
                                      CAT_LABEL[p["category"]], p["research"]])).lower()
-        sizes = "".join(f'<option value="{E(s)}">{E(s)}</option>' for s in p["sizes"])
+        sizes = size_options(p)
         tint, tint_deep = CAT_TINT[p['category']]
         cards.append(f"""
         <article class="product" data-cat="{p['category']}" data-search="{E(hay)}">
@@ -535,6 +563,7 @@ def build_catalog():
               {f'<span class="product-cas">CAS {E(p["cas"])}</span>' if p.get('cas') else '<span class="product-cas">Blend</span>'}
             </div>
             <p class="product-sub">{E((p.get('synonyms') or [CAT_LABEL[p['category']]])[0])}</p>
+            <div class="product-price"><span data-price-display>{initial_price(p)}</span></div>
             <div class="product-foot">
               <select aria-label="Pack size for {E(p['name'])}" data-size>{sizes}</select>
               <button class="link-action" data-add="{p['id']}" data-name="{E(p['name'])}">Add to list</button>
@@ -550,7 +579,7 @@ def build_catalog():
     <div class="sec-head">
       <span class="eyebrow">Catalog</span>
       <h1 class="display h-sec">Research <em>compounds.</em></h1>
-      <p class="lede">{len(PRODUCTS)} characterised compounds. Select pack sizes and build a request list — pricing and lot availability are confirmed by quotation against a verified account.</p>
+      <p class="lede">{len(PRODUCTS)} characterised compounds, priced by pack size. Build a request list and we confirm lot availability and shipping on the quotation; material is supplied against a verified account.</p>
     </div>
   </div>
 </section>
@@ -626,7 +655,7 @@ def build_products():
             for k, v, pr in rows)
         assay_rows = "".join(f'<li>{E(a)}</li>' for a in p["assays"])
         syn = ", ".join(p.get("synonyms") or []) or "—"
-        sizes_opt = "".join(f'<option value="{E(s)}">{E(s)}</option>' for s in p["sizes"])
+        sizes_opt = size_options(p)
 
         restricted = ""
         if p.get("restricted"):
@@ -677,12 +706,14 @@ def build_products():
           <span class="ruo-badge">Research use only</span>
         </div>
 
+        <div class="detail-price"><span data-price-display>{initial_price(p)}</span><small>per vial, excluding shipping and tax</small></div>
+
         <div class="field no-print" style="margin-bottom:1.5rem">
           <label for="size-select">Pack size</label>
           <select id="size-select" data-size>{sizes_opt}</select>
         </div>
         <button class="btn btn--primary" data-add="{p['id']}" data-name="{E(p['name'])}">Add to request list</button>
-        <p class="muted no-print" style="font-size:.72rem;margin:.9rem 0 2.5rem">Pricing and lot availability confirmed by quotation against a verified account.</p>
+        <p class="muted no-print" style="font-size:.72rem;margin:.9rem 0 2.5rem">List price shown. Orders are supplied against a verified account; lot availability and any quantity break are confirmed on the quotation.</p>
 
         <table class="spec">
           <caption>Specification</caption>
@@ -840,7 +871,7 @@ FAQ = [
     ("Who is eligible to order?",
      "Ordering is limited to verified institutional and qualified-research accounts: universities, hospital and government research units, contract research organisations, and commercial R&D laboratories with a documented research purpose. We review each application individually and we do not supply individuals for personal use."),
     ("Why can I not simply check out with a card?",
-     "Because we need to know who the material is going to and what it is for before it ships. Pricing is issued by quotation against a verified account so that lot availability, quantity and shipping conditions are agreed in writing first. Building a request list on this site starts that process; it is not a purchase."),
+     "Because we need to know who the material is going to and what it is for before it ships. List prices are published, but the order itself is confirmed by quotation against a verified account, so lot availability, quantity and shipping conditions are agreed in writing first. Building a request list on this site starts that process; it is not a purchase."),
     ("What does “research use only” actually mean here?",
      "It means the material is intended exclusively for in vitro laboratory research and analytical method development by qualified professionals. It is not a drug, supplement, cosmetic or medical device; it has not been evaluated for safety or efficacy in humans or animals; and it must not be administered to either. This is a statement about what the material is, not a disclaimer that unlocks another use."),
     ("Will you advise on dosing or administration?",

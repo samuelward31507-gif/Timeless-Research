@@ -86,6 +86,24 @@ expects a seller to be able to substantiate.
 
 ---
 
+## 3b. Prices
+
+List prices live in `assets/data/products.json`, one per pack size, under
+`prices`, with `currency` at the top of the file. Change a number there and
+rebuild — the catalogue card, the product page, the pack-size dropdown, the
+request list and the subtotal all read from that one place.
+
+`tools/check.py` fails if a listed pack size has no price, so a size cannot be
+offered without one.
+
+Prices are shown as list prices excluding shipping and tax. The site still
+routes orders through the request list and a written quotation against a
+verified account, which is where lot availability and any quantity break are
+settled. The subtotal in the request drawer is labelled indicative for that
+reason — it is not an invoice, and there is no checkout.
+
+---
+
 ## 4. Decisions only you can make
 
 **The four restricted compounds.** Semaglutide, Tirzepatide, Retatrutide and
