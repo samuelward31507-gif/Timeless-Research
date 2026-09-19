@@ -7,6 +7,10 @@ No framework, no build toolchain, no runtime dependencies. Pages are generated
 from a single Python script so that shared chrome and compliance language can
 never drift between pages.
 
+**Taking this site over? Start with [HANDOVER.md](HANDOVER.md)** — it lists
+everything an operator has to supply, deploy and decide, in order. This file
+covers how the site is built.
+
 ---
 
 ## Quick start
@@ -226,27 +230,14 @@ and DKIM on the sending domain or the notifications will land in spam.
 
 ## Before this goes live
 
-These need your information or a professional's review — not a placeholder I
-invent.
+Everything an operator must supply, deploy or decide is in
+**[HANDOVER.md](HANDOVER.md)**: the build variables that `check.py` refuses to
+deploy without, the Netlify steps, the commercial claims the copy makes, and
+the decisions — the four restricted compounds, account verification, legal
+review — that are not the builder's to make.
 
-| Item | Where | What is needed |
-|---|---|---|
-| Deployment | `netlify.toml` | Configured for Netlify and form capture is wired. Still needs you to connect the repository in Netlify, attach a domain, set `TR_SITE` to it, and switch on the form notification email. |
-| Legal details | `tools/build.py` | The documents are written; two facts are still missing. Set `TR_LEGAL_ADDRESS` and `TR_LEGAL_STATE` (see *Legal documents* below). `check.py` fails until you do. |
-| Account verification | — | The contact form collects name, email and phone only. Everything the research use policy requires for verification — institution, facility address, responsible investigator, institutional email, intended use — is gathered in the follow-up, so that step has to actually happen off-site. |
-
-### Claims confirmed by the owner
-
-The COA and purity claims below were reviewed and confirmed accurate by the
-site owner on 2026-09-19. They are recorded here because they are commercial
-claims that a regulator or a customer may ask to see substantiated; the
-supporting paperwork lives with the owner, not in this repository.
-
-- **"COA issued with every lot"** — stated on all 42 pages, with the release
-  process described in detail on `quality.html`.
-- **Purity** — 28 of the 34 compounds carry `≥98%` and three carry `≥95%`,
-  surfaced 210 times across cards, vial labels and spec tables. Source values
-  are in `assets/data/products.json`.
+`tools/check.py` fails while any legal document still carries an unfilled
+field, so an unconfigured site cannot reach production by accident.
 
 ---
 

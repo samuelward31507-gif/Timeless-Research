@@ -57,7 +57,12 @@ LEGAL_EMAIL = os.environ.get("TR_LEGAL_EMAIL", "") or CONTACT_EMAIL
 
 
 def fill(value: str, label: str) -> str:
-    """A configured legal detail, or a visible marker where one is still needed."""
+    """A configured legal detail, or a template field where one is still needed.
+
+    Reads as a field the operator fills, not as a fault, because the site is
+    shown to prospective operators before it is configured. tools/check.py is
+    what actually stops an unconfigured document reaching production.
+    """
     return E(value) if value else f'<mark class="fill-me">{E(label)}</mark>'
 
 
@@ -982,9 +987,9 @@ def legal_page(slug, title, eyebrow, heading, lede, prose):
 
 
 def build_legal():
-    entity = fill(LEGAL_ENTITY, "your trading name")
-    address = fill(LEGAL_ADDRESS, "your business address")
-    state = fill(LEGAL_STATE, "your state")
+    entity = fill(LEGAL_ENTITY, "operator trading name")
+    address = fill(LEGAL_ADDRESS, "operator business address")
+    state = fill(LEGAL_STATE, "operator state")
     email = E(LEGAL_EMAIL)
     out = []
 
