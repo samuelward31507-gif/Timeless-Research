@@ -225,7 +225,64 @@ const SCENES = {
     fog:'rgba(190,240,255,.065)', fogY:.74
   }
 };
-const S = SCENES[sceneName] || SCENES.forest;
+
+/* ---------- variant: same world, different day ----------
+   A "volume" shares an environment family; the variant shifts time of day,
+   light direction and terrain so the group reads as siblings, not copies.
+   Five identical frames in a channel grid look mass-produced; five related
+   ones look curated. */
+function hex2rgb(h){ const n=parseInt(h.slice(1),16);
+  return [(n>>16)&255,(n>>8)&255,n&255]; }
+function rgb2hex(r,g,b){ const c=v=>Math.max(0,Math.min(255,Math.round(v)))
+  .toString(16).padStart(2,'0'); return '#'+c(r)+c(g)+c(b); }
+function rgb2hsl(r,g,b){ r/=255;g/=255;b/=255;
+  const mx=Math.max(r,g,b), mn=Math.min(r,g,b), d=mx-mn; let h=0;
+  if(d){ if(mx===r) h=((g-b)/d)%6; else if(mx===g) h=(b-r)/d+2; else h=(r-g)/d+4; }
+  h*=60; if(h<0) h+=360;
+  const l=(mx+mn)/2, sat=d? d/(1-Math.abs(2*l-1)) : 0;
+  return [h,sat,l]; }
+function hsl2rgb(h,s,l){ const c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs((h/60)%2-1)), m=l-c/2;
+  let r,g,b;
+  if(h<60)[r,g,b]=[c,x,0]; else if(h<120)[r,g,b]=[x,c,0]; else if(h<180)[r,g,b]=[0,c,x];
+  else if(h<240)[r,g,b]=[0,x,c]; else if(h<300)[r,g,b]=[x,0,c]; else [r,g,b]=[c,0,x];
+  return [(r+m)*255,(g+m)*255,(b+m)*255]; }
+function shiftHex(hex, dh, ms, ml){
+  const [r,g,b]=hex2rgb(hex); let [h,s,l]=rgb2hsl(r,g,b);
+  h=(h+dh+360)%360; s=Math.max(0,Math.min(1,s*ms)); l=Math.max(0,Math.min(1,l*ml));
+  return rgb2hex(...hsl2rgb(h,s,l));
+}
+const VARIANTS = [
+  // Hue moves only a little — past ~15 degrees the family identity breaks and
+  // an alpine volume starts reading as two different places. Time of day is
+  // carried mostly by lightness and saturation instead.
+  {dh:-9, ms:0.84, ml:0.76, gx:0.24, gy:-0.04, ry:-0.022, ra:1.16, star:1.5, fog:1.30},
+  {dh:-4, ms:0.92, ml:0.88, gx:0.38, gy:-0.02, ry:-0.011, ra:1.07, star:1.2, fog:1.14},
+  {dh:0,  ms:1.00, ml:1.00, gx:0.50, gy:0.00,  ry:0.000,  ra:1.00, star:1.0, fog:1.00},
+  {dh:5,  ms:1.07, ml:1.12, gx:0.64, gy:0.02,  ry:0.012,  ra:0.93, star:0.7, fog:0.86},
+  {dh:11, ms:1.13, ml:1.24, gx:0.78, gy:0.04,  ry:0.023,  ra:0.86, star:0.45,fog:0.74},
+];
+function applyVariant(S, v){
+  if(v===null || v===undefined || !VARIANTS[v]) return S;
+  const V = VARIANTS[v];
+  const C = JSON.parse(JSON.stringify(S));
+  C.sky = C.sky.map(([p,c])=>[p, shiftHex(c, V.dh, V.ms, V.ml)]);
+  if(C.glow){ C.glow.x = V.gx; C.glow.y = Math.max(0.2, Math.min(0.95, C.glow.y + V.gy)); }
+  (C.ridges||[]).forEach(L=>{ L.y += V.ry; L.amp *= V.ra;
+                              L.c = shiftHex(L.c, V.dh, V.ms, V.ml); });
+  (C.trees||[]).forEach(T=>{ T.y += V.ry; T.c = shiftHex(T.c, V.dh, V.ms, V.ml); });
+  if(C.water){ C.water.y += V.ry*0.5;
+               C.water.c1 = shiftHex(C.water.c1, V.dh, V.ms, V.ml);
+               C.water.c2 = shiftHex(C.water.c2, V.dh, V.ms, V.ml); }
+  if(C.mirror) C.mirror.y += V.ry*0.5;
+  if(C.ground){ C.ground.c1 = shiftHex(C.ground.c1, V.dh, V.ms, V.ml);
+                C.ground.c2 = shiftHex(C.ground.c2, V.dh, V.ms, V.ml); }
+  if(C.stars) C.stars = Math.round(C.stars * V.star);
+  if(C.fogY!==undefined) C.fogY += V.ry;
+  return C;
+}
+const VARIANT = q.get('variant')!==null ? parseInt(q.get('variant')) : null;
+
+const S = applyVariant(SCENES[sceneName] || SCENES.forest, VARIANT);
 
 const ctx = document.getElementById('c').getContext('2d');
 const breath = 0.5 - 0.5*Math.cos(2*Math.PI*phase);   // 0..1..0, smooth at the seam

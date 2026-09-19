@@ -1,0 +1,31 @@
+idx	volume	note	chord	texture	dur	scene	variant	src
+01	1	G2	minor triad	Bowed	2:00	alpine	0	A01.m4a
+02	1	G2	sus2	Bowed	2:00	alpine	1	A02.m4a
+03	1	G2	minor seventh	Bowed	2:00	alpine	2	A03.m4a
+04	1	G2	sus4	Bowed	2:00	alpine	3	A04.m4a
+05	1	G2	major triad	Bowed	2:00	alpine	4	A05.m4a
+06	2	C3	open fifth	Bell	2:00	marsh	0	A06.m4a
+07	2	C3	sus4	Bell	2:00	marsh	1	A07.m4a
+08	2	C3	minor ninth	Bell	2:00	marsh	2	A08.m4a
+09	2	C3	add9	Bell	2:00	marsh	3	A09.m4a
+10	2	C3	major seventh	Bell	2:00	marsh	4	A10.m4a
+11	3	A2	quartal	Wood	2:00	forest	0	A11.m4a
+12	3	A2	sus2	Wood	2:00	forest	1	A12.m4a
+13	3	A2	minor triad	Wood	2:00	forest	2	A13.m4a
+14	3	A2	sixth	Wood	2:00	forest	3	A14.m4a
+15	3	A2	major triad	Wood	2:00	forest	4	A15.m4a
+16	4	E3	diminished	Breath	2:00	cloudsea	0	A16.m4a
+17	4	E3	minor seventh	Breath	2:00	cloudsea	1	A17.m4a
+18	4	E3	sus4	Breath	2:00	cloudsea	2	A18.m4a
+19	4	E3	add9	Breath	2:00	cloudsea	3	A19.m4a
+20	4	E3	major seventh	Breath	2:00	cloudsea	4	A20.m4a
+21	5	D3	minor triad	Hollow	2:00	dunes	0	A21.m4a
+22	5	D3	sus2	Hollow	2:00	dunes	1	A22.m4a
+23	5	D3	minor seventh	Hollow	2:00	dunes	2	A23.m4a
+24	5	D3	sus4	Hollow	2:00	dunes	3	A24.m4a
+25	5	D3	major triad	Hollow	2:00	dunes	4	A25.m4a
+26	6	F3	open fifth	Bell	2:00	lake	0	A26.m4a
+27	6	F3	sus4	Bell	2:00	lake	1	A27.m4a
+28	6	F3	minor ninth	Bell	2:00	lake	2	A28.m4a
+29	6	F3	add9	Bell	2:00	lake	3	A29.m4a
+30	6	F3	major seventh	Bell	2:00	lake	4	A30.m4a

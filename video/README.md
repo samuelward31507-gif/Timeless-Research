@@ -102,3 +102,33 @@ All type sits inside 1546x423. `banner_guides.png` shows the boxes.
 The avatar is cropped to a **circle** at display time and renders as small as
 48px in comments, so it carries one word ("432") and nothing that dies when
 shrunk. `brand/` has renders at 48/88/800 to check.
+
+
+## Month structure
+
+30 videos a month as **6 volumes of 5**. A volume is one place and one tonic;
+the five tracks in it share a root note and an environment, moving through
+variants 0-4 — the same location as light crosses the evening.
+
+```bash
+python plan_month.py --month 1 --tsv month01.tsv
+```
+
+Month N rotates 6 of the 15 environments, so families don't repeat for about
+two and a half months. Roots and chord sets rotate independently, so no two
+volumes open the same way. The planner asserts that all 30 note/chord/texture
+combinations in a month are unique.
+
+**Why variants rather than one look per volume.** Five identical frames sit in
+the channel grid as one row of clones, which is the visual signature of
+mass-produced content. Five variants of the same family read as a series. The
+`variant` param shifts time of day, light direction, terrain height, fog and
+star density.
+
+Hue moves only about 10 degrees between variants. A wider range was tried first
+and broke family identity — variant 0 went green while variant 4 went purple,
+and they stopped looking like the same place. Lightness and saturation carry
+the time-of-day change instead.
+
+`brand/month_grid.png` is a full month rendered as the channel grid would show
+it.
