@@ -50,10 +50,10 @@ tail -n +2 "$DIR/tracks.tsv" | while IFS=$'\t' read -r idx vol note chord textur
     -c:v libx264 -preset slow -crf 20 -pix_fmt yuv420p -r $FPS -g $((FPS*2)) \
     -c:a copy \
     -movflags +faststart \
-    "$OUT/TR_${idx}_$(echo "$note" | tr -d ' ').mp4" -y
+    "$OUT/TR_${idx}_$(echo "$note" | tr -d ' ' | tr '#' 's').mp4" -y
 
   rm -rf "$FRAMES"
-  echo "built $OUT/TR_${idx}_$(echo "$note" | tr -d ' ').mp4"
+  echo "built $OUT/TR_${idx}_$(echo "$note" | tr -d ' ' | tr '#' 's').mp4"
 done
 
 echo "--- done -> $OUT ---"
