@@ -196,26 +196,23 @@ def print_label(card: Image.Image, vx: int, vy: int, vw: int, vh: int,
         size -= 1
     draw_text(draw, (x, y), name, load_font(700, size), INK, round(size * 0.92))
 
-    # pack size, in an outlined pill
-    f_dose = load_font(600, round(base * 0.34))
-    dy = y + base * 1.15
-    tw = draw.textlength(dose, font=f_dose)
-    draw.rounded_rectangle([x, dy, x + tw + base * 0.42, dy + base * 0.52],
-                           radius=base * 0.26, outline=INK, width=1)
-    draw.text((x + base * 0.21, dy + base * 0.1), dose, font=f_dose, fill=INK)
+    # Strength: plain and large under the name, matching the site. It used to be
+    # drawn in a rounded outline chip; no pharmaceutical vial prints a strength
+    # that way, and the card must not disagree with the page it links to.
+    f_dose = load_font(700, round(base * 0.82))
+    draw.text((x, y + base * 1.02), dose, font=f_dose, fill=INK)
 
-    # purity pill and research line along the bottom
-    f_pill = load_font(500, round(base * 0.34))
-    by = ly + lh - base * 1.5
+    # release block along the bottom, under a hairline as on the site
+    by = ly + lh - base * 1.42
+    rule_w = lw * 0.62
+    draw.line([(x, by), (x + rule_w, by)], fill=INK_3, width=1)
+
+    f_pill = load_font(600, round(base * 0.45))
     pt = f"Purity {purity}"
-    fb_size = round(base * 0.30)
-    probe = Image.new("RGB", (1, 1))
-    pw = draw_text(ImageDraw.Draw(probe), (0, 0), pt, f_pill, INK, fb_size)
-    draw.rounded_rectangle([x, by, x + pw + base * 0.42, by + base * 0.52],
-                           radius=base * 0.26, outline=INK, width=1)
-    draw_text(draw, (x + base * 0.21, by + base * 0.1), pt, f_pill, INK, fb_size)
-    draw.text((x, by + base * 0.72), "Research Use Only",
-              font=load_font(500, round(base * 0.3)), fill=INK_3)
+    fb_size = round(base * 0.40)
+    draw_text(draw, (x, by + base * 0.16), pt, f_pill, INK, fb_size)
+    draw.text((x, by + base * 0.74), "Research Use Only",
+              font=load_font(500, round(base * 0.41)), fill=INK_3)
 
     # brand lockup running up the right edge
     f_side = load_font(600, round(base * 0.255))
