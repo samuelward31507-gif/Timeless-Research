@@ -128,11 +128,10 @@ change — it can cost you the protection.
   privacy policy currently states that no analytics cookies are set. Update
   section 2 and 4 of the policy if you add one. `TR_ANALYTICS_HEAD` injects
   the tag.
-- **Google Fonts.** Pages load typefaces from Google, so visitor IP addresses
-  reach Google on every page load. This is disclosed in privacy policy §4.
-  Self-hosting the two families removes the disclosure and speeds up first
-  paint; the machinery is already there — `assets/css/fonts.css` self-hosts the
-  vial label font the same way.
+- **Fonts are self-hosted**, so a page load contacts no third party at all.
+  Regenerate them with `tools/fetch_fonts.py` then `tools/subset_fonts.py` if
+  you change the type stack — and if you do, update privacy policy §4, which
+  currently states that nothing but your host is contacted.
 - **Email deliverability.** Netlify sends the form notifications, so no DNS work
   is needed. If you move to your own handler, set SPF and DKIM or the
   notifications will land in spam.

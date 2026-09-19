@@ -36,6 +36,7 @@ contact.html            Account application + quotation request
 compliance.html         Research use policy
 404.html                Not found
 products/<id>.html      34 generated specification pages
+specimen-coa.html       Worked example of a certificate of analysis
 legal/                  terms.html, privacy.html, shipping.html
 assets/
   css/main.css          Design tokens + all component styles
@@ -260,6 +261,41 @@ substances, a criminal one) that a website cannot paper over — and the
 research-use framing only holds up if the commercial mechanics actually match
 it. Re-adding a cart or those SKUs would undermine the compliance posture the
 rest of the site is built on.
+
+---
+
+## Assets and tooling
+
+Every asset is generated and committed; a build and a deploy never touch the
+network.
+
+| Script | Produces | Run it when |
+|---|---|---|
+| `tools/build.py` | All 46 pages, sitemap, robots, config | Every change |
+| `tools/dist.py` | `dist/` for deployment | Every deploy (Netlify does it) |
+| `tools/check.py` | Structural report, non-zero on failure | Before every push |
+| `tools/fetch_fonts.py` | Full faces into `tools/fonts-src/` | The type stack changes |
+| `tools/subset_fonts.py` | Served fonts in `assets/fonts/` | After fetching, or new glyphs |
+| `tools/make_og.py` | 42 social cards | Product names or copy change |
+| `tools/make_vial.py` | `assets/img/vial.{png,webp}` | The photograph is replaced |
+| `tools/make_logo.py` | `assets/img/mark.svg`, `favicon.svg` | The mark changes |
+
+**Fonts are self-hosted and subset.** Inter and Cormorant Garamond are variable
+faces, so one file covers a weight range instead of five static cuts; Barlow
+Semi Condensed has no variable version and stays as three. Twelve faces at
+453 KB became seven at 187 KB, and Inter's italic is now a real italic rather
+than a sheared upright. Nothing is loaded from a third party, which is why the
+privacy policy can state that a page load contacts nobody but the host.
+
+**Social cards are per page.** `tools/make_og.py` writes one card per product
+and one per section, each with that compound's name printed on the vial.
+`og_image()` in `build.py` routes a page to its card by canonical path, falling
+back to the general card.
+
+**Print is a real output.** `specimen-coa.html` offers "print or save as PDF",
+and every product page prints as a filed specification sheet: chrome, ordering
+controls and cross-sell rails are dropped, the photograph shrinks to a
+reference thumbnail, and a footer carries the source URL.
 
 ---
 

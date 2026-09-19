@@ -181,6 +181,76 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .split { display: grid; grid-template-columns: minmax(0,.82fr) minmax(0,1.18fr); gap: var(--s-8); align-items: start; }
 @media (max-width: 900px) { .split { grid-template-columns: 1fr; gap: var(--s-6); } }
 
+/* --- Certificate of analysis -------------------------------------------- */
+/* Deliberately not styled like the rest of the site: a laboratory document is
+   a dense, ruled, monospaced-data artefact, and making it look like a web page
+   would undermine the thing it is meant to demonstrate. */
+.coa {
+  position: relative; overflow: hidden;
+  background: var(--white); border: 1px solid var(--line-strong);
+  border-radius: var(--radius); padding: var(--s-7);
+  box-shadow: 0 1px 2px rgba(28,26,23,.04), 0 12px 32px -18px rgba(28,26,23,.25);
+}
+@media (max-width: 620px) { .coa { padding: var(--s-5); } }
+
+.coa-watermark {
+  position: absolute; top: 46%; left: 50%;
+  transform: translate(-50%,-50%) rotate(-24deg);
+  font-family: var(--f-label); font-size: clamp(3.5rem, 13vw, 9rem); font-weight: 700;
+  letter-spacing: .1em; color: rgba(28,26,23,.055);
+  pointer-events: none; user-select: none; white-space: nowrap; z-index: 0;
+}
+.coa > *:not(.coa-watermark) { position: relative; z-index: 1; }
+
+.coa-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s-5);
+            border-bottom: 2px solid var(--ink); padding-bottom: var(--s-4); flex-wrap: wrap; }
+.coa-brand { display: flex; align-items: center; gap: .7rem; }
+.coa-brand img { height: 34px; width: auto; }
+.coa-brand strong { display: block; font-size: var(--t-md); letter-spacing: .01em; }
+.coa-brand span { display: block; font-size: var(--t-xs); color: var(--ink-3); }
+.coa-title { text-align: right; }
+.coa-title h2 { font-family: var(--f-ui); font-size: var(--t-lg); font-weight: 600; letter-spacing: .01em; }
+.coa-title p { font-size: var(--t-sm); color: var(--ink-3); margin-top: .15rem; }
+@media (max-width: 520px) { .coa-title { text-align: left; } }
+
+.coa-ident { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+             gap: 0 var(--s-6); margin-top: var(--s-5); }
+.coa-field { display: flex; justify-content: space-between; gap: var(--s-4);
+             padding: .42rem 0; border-bottom: 1px dotted var(--line-strong); }
+.coa-field dt { font-size: var(--t-xs); color: var(--ink-3); text-transform: uppercase; letter-spacing: .08em; }
+.coa-field dd { font-family: var(--f-mono); font-size: var(--t-sm); text-align: right; }
+
+.coa-h { font-family: var(--f-ui); font-size: var(--t-sm); font-weight: 600; text-transform: uppercase;
+         letter-spacing: .14em; color: var(--ink-3); margin-top: var(--s-6); margin-bottom: var(--s-3);
+         padding-bottom: .4rem; border-bottom: 1px solid var(--line); }
+
+.coa-table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+.coa-table th, .coa-table td { text-align: left; padding: .52rem .6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.coa-table thead th { font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .09em;
+                      color: var(--ink-3); border-bottom: 1px solid var(--line-strong); font-weight: 600; }
+.coa-table tbody th { font-weight: 500; }
+.coa-table td { color: var(--ink-2); }
+.coa-result { font-family: var(--f-mono); color: var(--ink) !important; white-space: nowrap; }
+@media (max-width: 620px) {
+  .coa-table thead { display: none; }
+  .coa-table tr { display: grid; grid-template-columns: 1fr auto; gap: 0 .6rem; padding: .5rem 0; border-bottom: 1px solid var(--line); }
+  .coa-table th, .coa-table td { border: 0; padding: .1rem 0; }
+  .coa-table tbody th { grid-column: 1; font-weight: 600; }
+  .coa-result { grid-column: 2; grid-row: 1; text-align: right; }
+}
+
+.coa-note { font-size: var(--t-sm); color: var(--ink-2); line-height: 1.7; }
+.coa-trace { width: 100%; height: auto; margin-top: var(--s-4); }
+.coa-signal { fill: none; stroke: var(--accent); stroke-width: 1.3; stroke-linejoin: round; }
+.coa-axis line { stroke: var(--ink-3); stroke-width: 1; }
+.coa-axis line.coa-grid { stroke: var(--line); stroke-width: 1; }
+.coa-axis text { font-family: var(--f-mono); font-size: 10px; fill: var(--ink-3); }
+.coa-peak { font-family: var(--f-mono); font-size: 10px; fill: var(--ink-2); }
+
+.coa-sign { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-6); margin-top: var(--s-7); }
+.coa-rule { display: block; border-bottom: 1px solid var(--ink-3); height: 2.2rem; }
+.coa-sign small { display: block; margin-top: .4rem; font-size: var(--t-xs); color: var(--ink-3); }
+
 /* --- Demo bar ----------------------------------------------------------- */
 /* Only present in a TR_DEMO=1 build. Deliberately the loudest thing on the
    page: a visitor must not mistake a showcase copy for a trading supplier. */
@@ -673,8 +743,55 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
   .js [data-reveal] { opacity: 1; transform: none; }
 }
 
+/* --- Print --------------------------------------------------------------
+   A laboratory buyer prints the specification and files it, and the specimen
+   certificate is offered as "print or save as PDF", so print is a real output
+   of this site rather than an afterthought. Site chrome goes, the document
+   stays, and a footer carries the source URL so a printed sheet can be traced
+   back. ------------------------------------------------------------------ */
+@page { margin: 14mm 14mm 16mm; }
+
 @media print {
-  .header, .footer, .announce, .drawer, .drawer-scrim, .btn { display: none !important; }
-  body { background: #fff; color: #000; }
-  .section { padding-block: 1rem; }
+  .header, .footer, .announce, .demo-bar, .drawer, .drawer-scrim, .toast,
+  .skip-link, .btn, .filter-bar, .search-field, .rfq-btn, .nav-toggle,
+  .reveal-on-scroll, .crumb, .product-actions, .link-action,
+  .no-print { display: none !important; }
+
+  /* the photograph is the least informative thing on a filed spec sheet, and
+     at screen size it pushes the specification onto a second page */
+  .split { display: block; }
+  .detail-media { max-width: 58mm; margin: 0 0 4mm; padding: 3mm; float: right; }
+  .detail-media + p { text-align: left !important; max-width: 58mm; float: right; clear: right; }
+
+  html, body { background: #fff !important; color: #000; font-size: 10.5pt; }
+  body { overflow: visible; }
+  .section, .section--tight, .section--alt { padding-block: 0 !important; border: 0 !important; }
+  .shell, .shell-n { max-width: none; padding-inline: 0; }
+
+  /* let the browser paint the certificate's rules and the trace */
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  .display, .h-hero, .h-sec { font-size: 18pt !important; line-height: 1.15; }
+  .lede { font-size: 10.5pt; color: #000; }
+  .eyebrow { color: #444; }
+  h1, h2, h3 { break-after: avoid-page; }
+  p, li, tr, .coa-field { break-inside: avoid; }
+
+  .coa { border: 1px solid #999; box-shadow: none; padding: 6mm; }
+  /* five columns of identity fields is unreadable at print width */
+  .coa-ident { grid-template-columns: repeat(2, 1fr); gap: 0 8mm; }
+  .coa-head { padding-bottom: 3mm; }
+  .coa-watermark { color: rgba(0,0,0,.05); }
+  .coa-signal { stroke: #000 !important; }
+  .coa-trace { break-inside: avoid; }
+  .spec, .coa-table { font-size: 9.5pt; }
+  .notice { border: 1px solid #999; }
+
+  /* a printed sheet with no provenance is a loose page in a filing cabinet */
+  main::after {
+    content: "Timeless Research — " attr(data-print-src) " — printed for reference. Research use only.";
+    display: block; margin-top: 10mm; padding-top: 3mm;
+    border-top: 1px solid #999; font-size: 8pt; color: #444;
+  }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 8pt; color: #444; word-break: break-all; }
 }

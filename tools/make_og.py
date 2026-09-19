@@ -19,6 +19,7 @@ Requires: pillow, fonttools, brotli
 from __future__ import annotations
 
 import io
+import json
 import math
 import pathlib
 
@@ -26,9 +27,26 @@ from fontTools.ttLib import TTFont
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-OUT = ROOT / "assets/img/og-card.png"
+OUT = ROOT / "assets/img/og-card.jpg"
 
 W, H = 1200, 630
+
+SECTIONS = [
+    ("catalog", "The catalog.", ["Thirty-four compounds across seven research areas,",
+                                 "each released against a certificate of analysis."]),
+    ("quality", "Analytical programme.", ["Identity, purity, water and counter-ion content,",
+                                          "reviewed and signed before a lot is released."]),
+    ("about", "About us.", ["A reference-material supplier for institutional",
+                            "and qualified-research accounts."]),
+    ("faq", "Questions.", ["Accounts, documentation, shipping and storage,",
+                           "answered plainly."]),
+    ("contact", "Open an account.", ["Verified institutional and qualified-research",
+                                     "accounts only."]),
+    ("compliance", "Research use policy.", ["The conditions on which material is supplied,",
+                                            "and the uses that are prohibited."]),
+    ("specimen-coa", "Specimen certificate.", ["A worked example of the document released",
+                                               "with every lot."]),
+]
 PAPER = (250, 249, 247)
 INK = (28, 26, 23)
 INK_3 = (92, 87, 78)
@@ -152,7 +170,8 @@ def tracked(draw: ImageDraw.ImageDraw, xy, text, font, fill, tracking: float) ->
     return round(x - tracking)
 
 
-def print_label(card: Image.Image, vx: int, vy: int, vw: int, vh: int) -> None:
+def print_label(card: Image.Image, vx: int, vy: int, vw: int, vh: int,
+                name: str = "BPC-157", dose: str = "5 MG", purity: str = "\u226598%") -> None:
     """Print the label onto the vial.
 
     The site draws this as a DOM layer over the photograph, so the asset itself
@@ -167,20 +186,28 @@ def print_label(card: Image.Image, vx: int, vy: int, vw: int, vh: int) -> None:
     pad_l, pad_r, pad_t = 0.085 * vw, 0.11 * vw, 0.065 * vw
 
     x, y = lx + pad_l, ly + pad_t
-    draw.text((x, y), "BPC-157", font=load_font(700, round(base)), fill=INK)
+    # a long compound name has to shrink to fit rather than run off the label
+    size = round(base)
+    avail = lw - pad_l - pad_r
+    while size > round(base * 0.5):
+        f = load_font(700, size)
+        if draw.textlength(name, font=f) <= avail:
+            break
+        size -= 1
+    draw_text(draw, (x, y), name, load_font(700, size), INK, round(size * 0.92))
 
     # pack size, in an outlined pill
     f_dose = load_font(600, round(base * 0.34))
     dy = y + base * 1.15
-    tw = draw.textlength("5 MG", font=f_dose)
+    tw = draw.textlength(dose, font=f_dose)
     draw.rounded_rectangle([x, dy, x + tw + base * 0.42, dy + base * 0.52],
                            radius=base * 0.26, outline=INK, width=1)
-    draw.text((x + base * 0.21, dy + base * 0.1), "5 MG", font=f_dose, fill=INK)
+    draw.text((x + base * 0.21, dy + base * 0.1), dose, font=f_dose, fill=INK)
 
     # purity pill and research line along the bottom
     f_pill = load_font(500, round(base * 0.34))
     by = ly + lh - base * 1.5
-    pt = "Purity \u226598%"
+    pt = f"Purity {purity}"
     fb_size = round(base * 0.30)
     probe = Image.new("RGB", (1, 1))
     pw = draw_text(ImageDraw.Draw(probe), (0, 0), pt, f_pill, INK, fb_size)
@@ -198,7 +225,8 @@ def print_label(card: Image.Image, vx: int, vy: int, vw: int, vh: int) -> None:
     card.paste(strip, (round(lx + lw - pad_r * 0.75), round(ly + lh * 0.1)), strip)
 
 
-def main() -> None:
+def render(headline: list[str], sub: list[str], label: dict, out: pathlib.Path) -> int:
+    """One 1200x630 card. Layout is fixed; only the words and the label change."""
     card = Image.new("RGB", (W, H), PAPER)
     draw = ImageDraw.Draw(card)
 
@@ -211,39 +239,91 @@ def main() -> None:
     # one soft ellipse, blurred; stacking hard ellipses left visible banding
     pad = 40
     shadow = Image.new("L", (vial.width + pad * 2, 90), 0)
-    ImageDraw.Draw(shadow).ellipse(
-        [pad + 6, 28, pad + vial.width - 6, 62], fill=70)
+    ImageDraw.Draw(shadow).ellipse([pad + 6, 28, pad + vial.width - 6, 62], fill=70)
     shadow = shadow.filter(ImageFilter.GaussianBlur(14))
     tint = Image.new("RGB", shadow.size, (28, 26, 23))
     card.paste(tint, (vx - pad, vy + vh - 42), shadow)
 
     card.paste(vial, (vx, vy), vial)
-    print_label(card, vx, vy, vial.width, vh)
+    print_label(card, vx, vy, vial.width, vh, **label)
 
     # brand lockup
     draw_mark(card, 110, 96, 62)
     f_brand = load_font(700, 25)
-    end = tracked(draw, (186, 100), "TIMELESS", f_brand, INK, 5.2)
+    tracked(draw, (186, 100), "TIMELESS", f_brand, INK, 5.2)
     f_sub = load_font(600, 15)
     tracked(draw, (186, 132), "RESEARCH", f_sub, COPPER, 6.4)
 
-    # headline
-    f_head = load_font(700, 62)
-    draw.text((110, 236), "Characterised.", font=f_head, fill=INK)
-    draw.text((110, 306), "Documented.", font=f_head, fill=INK)
-    draw.text((110, 376), "Released.", font=f_head, fill=INK)
+    # headline — size steps down as the line count grows, so three short lines
+    # and two long ones both sit in the same optical block
+    head_px = {1: 68, 2: 62, 3: 62}.get(len(headline), 52)
+    avail = vx - 150
+    while head_px > 30:
+        f_head = load_font(700, head_px)
+        if max(draw.textlength(l, font=f_head) for l in headline) <= avail:
+            break
+        head_px -= 2
+    f_head = load_font(700, head_px)
+    top = 236 if len(headline) >= 3 else 268
+    for i, line in enumerate(headline):
+        draw_text(draw, (110, top + i * (head_px + 8)), line, f_head, INK, round(head_px * 0.92))
 
     # strapline + compliance line
     f_body = load_font(500, 23)
-    draw.text((110, 470), "Analytical-grade peptide reference material", font=f_body, fill=INK_3)
-    draw.text((110, 500), "for institutional laboratories.", font=f_body, fill=INK_3)
+    for i, line in enumerate(sub):
+        draw_text(draw, (110, 470 + i * 30), line, f_body, INK_3, 21)
     f_small = load_font(600, 15)
     draw.line([(110, 548), (150, 548)], fill=COPPER, width=2)
     tracked(draw, (166, 541), "RESEARCH USE ONLY", f_small, COPPER, 2.6)
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    card.save(OUT, optimize=True)
-    print(f"wrote {OUT.relative_to(ROOT)}  {card.size}  {OUT.stat().st_size // 1024} KB")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    # JPEG rather than PNG: the card is mostly a photograph, and at 1200x630 a
+    # lossless encode costs five times the bytes for no visible gain. Every
+    # platform that reads og:image accepts JPEG.
+    card.save(out, "JPEG", quality=86, optimize=True, progressive=True)
+    return out.stat().st_size
+
+
+def wrap(text: str, per_line: int = 22) -> list[str]:
+    lines, cur = [], ""
+    for word in text.split():
+        if cur and len(cur) + 1 + len(word) > per_line:
+            lines.append(cur)
+            cur = word
+        else:
+            cur = f"{cur} {word}".strip()
+    if cur:
+        lines.append(cur)
+    return lines[:3]
+
+
+def main() -> None:
+    total = size = 0
+
+    size += render(["Characterised.", "Documented.", "Released."],
+                   ["Analytical-grade peptide reference material",
+                    "for institutional laboratories."],
+                   {}, OUT)
+    total += 1
+
+    # A shared link should preview the thing that was shared, not the home page.
+    products = json.loads((ROOT / "assets/data/products.json").read_text())
+    products = products if isinstance(products, list) else products.get("products", products)
+    for p in products:
+        size += render(
+            wrap(p["name"], 18),
+            [(p.get("synonyms") or [p.get("form", "")])[0][:46],
+             f"CAS {p['cas']}" if p.get("cas") else p.get("form", "")],
+            {"name": p["name"], "dose": p["sizes"][0].upper(),
+             "purity": p.get("purity", "\u226598%")},
+            ROOT / f"assets/img/og/{p['id']}.jpg")
+        total += 1
+
+    for slug, head, sub in SECTIONS:
+        size += render(wrap(head, 18), sub, {}, ROOT / f"assets/img/og/{slug}.jpg")
+        total += 1
+
+    print(f"wrote {total} cards, {size // 1024} KB total")
 
 
 if __name__ == "__main__":

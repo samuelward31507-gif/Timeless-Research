@@ -1,2 +1,5 @@
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /tools/
+
+Sitemap: https://www.timelessresearch.com/sitemap.xml

@@ -89,9 +89,58 @@ def rel(depth: int) -> str:
 
 
 # --------------------------------------------------------------------------- chrome
+# A shared link should preview the page that was shared. tools/make_og.py writes
+# one card per product and one per section; anything without its own card falls
+# back to the general one.
+OG_SECTIONS = {"catalog", "quality", "about", "faq", "contact", "compliance",
+               "specimen-coa"}
+
+
+def jsonld(obj) -> str:
+    return ('<script type="application/ld+json">'
+            + json.dumps(obj, separators=(",", ":"), ensure_ascii=False)
+            + "</script>")
+
+
+def breadcrumbs(trail) -> str:
+    """trail: [(name, canonical-or-None)], innermost last."""
+    return jsonld({
+        "@context": "https://schema.org", "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": i + 1, "name": name,
+             **({"item": f"{SITE}/{href}"} if href else {})}
+            for i, (name, href) in enumerate(trail)],
+    })
+
+
+ORGANISATION = None  # built lazily so SITE/BRAND are resolved
+
+
+def organisation() -> str:
+    return jsonld({
+        "@context": "https://schema.org", "@type": "Organization",
+        "name": BRAND, "url": f"{SITE}/", "logo": f"{SITE}/assets/img/mark.svg",
+        "description": "Supplier of analytical-grade peptide reference material "
+                       "to institutional and qualified-research accounts.",
+        "email": CONTACT_EMAIL,
+        "contactPoint": [{"@type": "ContactPoint", "contactType": "sales",
+                          "email": CONTACT_EMAIL, "areaServed": "US"}],
+    })
+
+
+def og_image(canonical: str) -> str:
+    stem = canonical.rsplit("/", 1)[-1].removesuffix(".html")
+    if canonical.startswith("products/"):
+        return f"assets/img/og/{stem}.jpg"
+    if stem in OG_SECTIONS:
+        return f"assets/img/og/{stem}.jpg"
+    return "assets/img/og-card.jpg"
+
+
 def head(title, desc, depth, canonical, extra=""):
     p = rel(depth)
     robots = "noindex,nofollow" if DEMO else "index,follow"
+    og = og_image(canonical)
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -105,17 +154,17 @@ def head(title, desc, depth, canonical, extra=""):
 <meta property="og:title" content="{E(title)}">
 <meta property="og:description" content="{E(desc)}">
 <meta property="og:url" content="{SITE}/{canonical}">
-<meta property="og:image" content="{SITE}/assets/img/og-card.png">
+<meta property="og:image" content="{SITE}/{og}">
+<meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta name="twitter:image" content="{SITE}/assets/img/og-card.png">
+<meta name="twitter:image" content="{SITE}/{og}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="robots" content="{robots}">
 <meta name="theme-color" content="#FAF9F7">
 <link rel="icon" href="{p}assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="{p}assets/fonts/inter-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{p}assets/fonts/cormorant-garamond-var-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script>document.documentElement.className+=" js";</script>
 {ANALYTICS_HEAD}<script src="{p}assets/js/config.js"></script>
 <link rel="stylesheet" href="{p}assets/css/fonts.css">
@@ -127,7 +176,7 @@ def head(title, desc, depth, canonical, extra=""):
 """
 
 
-def header(depth, active):
+def header(depth, active, canonical=""):
     p = rel(depth)
     CUR = ' aria-current="page"'
     links = "".join(
@@ -167,7 +216,7 @@ def header(depth, active):
     </div>
   </div>
 </header>
-<main id="main">
+<main id="main" data-print-src="{SITE}/{canonical}">
 """
 
 
@@ -240,7 +289,7 @@ def page(path, title, desc, body, active="", extra_head="", extra_body=""):
     depth = path.count("/")
     out = ROOT / path
     out.parent.mkdir(parents=True, exist_ok=True)
-    doc = head(title, desc, depth, path, extra_head) + header(depth, active) + body + extra_body + footer(depth)
+    doc = head(title, desc, depth, path, extra_head) + header(depth, active, path) + body + extra_body + footer(depth)
     out.write_text(doc, encoding="utf-8")
     return path
 
@@ -431,7 +480,7 @@ def build_home():
       <p class="lede">Purity claims are only as good as the data behind them. Every lot moves through the same six stages, and the resulting data package travels with the material.</p>
     </div>
     <div class="grid-3">{steps_html}</div>
-    <div style="margin-top:2.5rem"><a class="btn btn--ghost" href="quality.html">Read the full analytical programme</a></div>
+    <div style="margin-top:2.5rem;display:flex;gap:.75rem;flex-wrap:wrap"><a class="btn btn--ghost" href="quality.html">Read the full analytical programme</a><a class="btn btn--ghost" href="specimen-coa.html">See a specimen certificate</a></div>
   </div>
 </section>
 
@@ -457,7 +506,7 @@ def build_home():
 """
     return page("index.html", f"{BRAND} — Peptide Reference Material for Research Laboratories",
                 "Analytical-grade research peptides for institutional laboratories. HPLC purity, mass-spec identity confirmation and a signed certificate of analysis with every lot. Research use only.",
-                body, "index.html")
+                body, "index.html", extra_head=organisation() + "\n")
 
 
 # --------------------------------------------------------------------------- catalog
@@ -621,12 +670,12 @@ def build_products():
           <span class="ruo-badge">Research use only</span>
         </div>
 
-        <div class="field" style="margin-bottom:1.5rem">
+        <div class="field no-print" style="margin-bottom:1.5rem">
           <label for="size-select">Pack size</label>
           <select id="size-select" data-size>{sizes_opt}</select>
         </div>
         <button class="btn btn--primary" data-add="{p['id']}" data-name="{E(p['name'])}">Add to request list</button>
-        <p class="muted" style="font-size:.72rem;margin:.9rem 0 2.5rem">Pricing and lot availability confirmed by quotation against a verified account.</p>
+        <p class="muted no-print" style="font-size:.72rem;margin:.9rem 0 2.5rem">Pricing and lot availability confirmed by quotation against a verified account.</p>
 
         <table class="spec">
           <caption>Specification</caption>
@@ -635,13 +684,13 @@ def build_products():
 
         <h2 style="font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin:2.5rem 0 1rem">Release assay panel</h2>
         <ul style="list-style:none;display:flex;flex-wrap:wrap;gap:.5rem">{assay_rows.replace('<li>', '<li class="chip" style="padding:.3rem .6rem">')}</ul>
-        <p class="muted" style="font-size:.78rem;margin-top:1rem;line-height:1.7">The certificate of analysis for the supplied lot reproduces the HPLC trace and mass spectrum, and is issued with the shipment. <a href="../quality.html" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">How lots are released</a>.</p>
+        <p class="muted" style="font-size:.78rem;margin-top:1rem;line-height:1.7">The certificate of analysis for the supplied lot reproduces the HPLC trace and mass spectrum, and is issued with the shipment. <a href="../quality.html" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">How lots are released</a>, or <a href="../specimen-coa.html" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">see a specimen certificate</a>.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="section section--alt">
+<section class="section section--alt no-print">
   <div class="shell">
     <h2 class="display h-sub" style="margin-bottom:2rem">Related in {E(CAT_LABEL[p['category']])}</h2>
     <div class="grid-3">{rel_html or '<p class="muted">No related compounds listed.</p>'}</div>
@@ -652,7 +701,11 @@ def build_products():
                             f"{p['name']} — {p.get('cas') or 'Research Peptide'} | {BRAND}",
                             f"{p['name']} ({p.get('cas') or 'research peptide'}), {p['purity']} HPLC purity, {p['form']}. {p['research'][:110]}",
                             body, "catalog.html",
-                            extra_head=f'<script type="application/ld+json">{ld}</script>\n'))
+                            extra_head=f'<script type="application/ld+json">{ld}</script>\n'
+                            + breadcrumbs([("Home", "index.html"),
+                                           ("Catalog", "catalog.html"),
+                                           (CAT_LABEL[p["category"]], f"catalog.html#{p['category']}"),
+                                           (p["name"], None)]) + "\n"))
     return written
 
 
@@ -711,6 +764,7 @@ def build_quality():
           <li><strong>Analyst signature</strong> and release authorisation</li>
         </ul>
         <p>Certificates for a specific lot are available to account holders on request before purchase. If you need to review the data package as part of a supplier-qualification process, ask and we will provide it.</p>
+        <p><a class="btn btn--primary" href="specimen-coa.html" style="margin-top:.5rem">See a specimen certificate</a></p>
         <h3>Retest, not expiry</h3>
         <p>Lyophilised peptides stored correctly do not simply expire on a date. We publish a retest date rather than an expiry: at that point the lot is re-assayed against its original specification and either re-released with updated data or withdrawn.</p>
         <h3>What we do not claim</h3>
@@ -1090,8 +1144,7 @@ def build_legal():
 
       <h2>4. Who else sees it</h2>
       <p><strong>Our hosting and form provider.</strong> The site is hosted on Netlify, which serves the pages, keeps the server logs described above, and receives account applications on our behalf as a service provider.</p>
-      <p><strong>Google Fonts.</strong> Pages load typefaces from Google's font servers, so your IP address and user-agent reach Google when a page loads. Google states that it does not use these requests for advertising.</p>
-      <p><strong>Nobody else, unless we have to.</strong> We do not sell personal information, and we do not share it for cross-context behavioural advertising. We disclose it only where the law requires it, where we must to establish or defend a legal claim, or to a carrier where that is necessary to deliver your order.</p>
+      <p><strong>No other third party.</strong> Typefaces, stylesheets, scripts and images are all served from this site itself, so loading a page contacts nobody but our hosting provider. We do not sell personal information, and we do not share it for cross-context behavioural advertising. We disclose it only where the law requires it, where we must to establish or defend a legal claim, or to a carrier where that is necessary to deliver your order.</p>
 
       <h2>5. How long we keep it</h2>
       <p>Enquiries that do not become accounts: 24 months from your last contact with us. Account and order records: seven years, which is what tax and commercial record-keeping requires. Server logs: as retained by our hosting provider, typically around 30 days.</p>
@@ -1158,6 +1211,168 @@ def build_legal():
     return out
 
 
+# --------------------------------------------------------------------------- specimen COA
+# The site describes its release testing in detail but never showed the document
+# that results from it, which is the one artefact a laboratory buyer actually
+# recognises. This renders a specimen: real document structure and a real signal
+# shape, with every value marked as illustrative. It is not, and must never be
+# presented as, a certificate for a lot that exists.
+
+def chromatogram(peaks, width=880, height=250, run=14.0, pad_l=54, pad_b=34, pad_t=14):
+    """An RP-HPLC trace drawn from Gaussians, not traced by hand.
+
+    peaks is a list of (retention_time, relative_area, sigma). The baseline
+    carries a slow drift and a little high-frequency noise, because a trace
+    without either reads as a diagram of a chromatogram rather than a
+    chromatogram.
+    """
+    import math
+
+    plot_w = width - pad_l - 8
+    plot_h = height - pad_b - pad_t
+    steps = 900
+
+    def signal(t):
+        y = 0.012 + 0.004 * math.sin(t * 0.55)          # column bleed drift
+        for rt, area, sigma in peaks:
+            y += area * math.exp(-((t - rt) ** 2) / (2 * sigma ** 2))
+        # deterministic pseudo-noise: same trace on every build
+        y += 0.0016 * math.sin(t * 91.7) * math.cos(t * 37.3)
+        return y
+
+    pts = []
+    for i in range(steps + 1):
+        t = run * i / steps
+        x = pad_l + plot_w * i / steps
+        y = pad_t + plot_h - plot_h * min(signal(t), 1.06) / 1.06
+        pts.append(f"{x:.1f},{y:.1f}")
+
+    ticks = []
+    for minute in range(0, int(run) + 1, 2):
+        x = pad_l + plot_w * minute / run
+        ticks.append(
+            f'<line x1="{x:.1f}" y1="{pad_t + plot_h}" x2="{x:.1f}" y2="{pad_t + plot_h + 4}"/>'
+            f'<text x="{x:.1f}" y="{pad_t + plot_h + 16}" text-anchor="middle">{minute}</text>')
+
+    grid = []
+    for frac in (0.25, 0.5, 0.75, 1.0):
+        y = pad_t + plot_h - plot_h * frac
+        grid.append(f'<line class="coa-grid" x1="{pad_l}" y1="{y:.1f}" x2="{pad_l + plot_w}" y2="{y:.1f}"/>')
+
+    labels = []
+    for rt, area, _sigma in peaks:
+        if area < 0.02:
+            continue
+        x = pad_l + plot_w * rt / run
+        y = pad_t + plot_h - plot_h * min(area, 1.06) / 1.06
+        labels.append(f'<text class="coa-peak" x="{x:.1f}" y="{y - 7:.1f}" text-anchor="middle">{rt:.2f}</text>')
+
+    return f"""<svg class="coa-trace" viewBox="0 0 {width} {height}" role="img"
+     aria-label="Specimen reverse-phase HPLC trace: a single principal peak at 8.42 minutes with three minor peaks.">
+  <g class="coa-axis">
+    {''.join(grid)}
+    <line x1="{pad_l}" y1="{pad_t}" x2="{pad_l}" y2="{pad_t + plot_h}"/>
+    <line x1="{pad_l}" y1="{pad_t + plot_h}" x2="{pad_l + plot_w}" y2="{pad_t + plot_h}"/>
+    {''.join(ticks)}
+    <text x="{pad_l + plot_w / 2:.0f}" y="{height - 4}" text-anchor="middle">Retention time (min)</text>
+    <text x="14" y="{pad_t + plot_h / 2:.0f}" text-anchor="middle"
+          transform="rotate(-90 14 {pad_t + plot_h / 2:.0f})">mAU (220 nm)</text>
+  </g>
+  <polyline class="coa-signal" points="{' '.join(pts)}"/>
+  {''.join(labels)}
+</svg>"""
+
+
+def build_coa():
+    peaks = [(6.91, 0.021, 0.10), (8.42, 1.00, 0.11), (9.63, 0.014, 0.10), (11.24, 0.009, 0.12)]
+    rows = [
+        ("Appearance", "Visual", "White to off-white lyophilised solid", "Conforms"),
+        ("Identity", "ESI-MS", "[M+H]<sup>+</sup> 1420.54 &plusmn; 0.5", "1420.61 — conforms"),
+        ("Purity", "RP-HPLC, 220 nm", "&ge; 98.0 % (area)", "98.7 %"),
+        ("Single largest impurity", "RP-HPLC, 220 nm", "&le; 1.0 % (area)", "0.42 %"),
+        ("Water content", "Karl Fischer", "&le; 8.0 %", "4.2 %"),
+        ("Acetate content", "RP-HPLC", "&le; 15.0 %", "9.8 %"),
+        ("Peptide content", "Nitrogen determination", "Report result", "82.4 %"),
+        ("Residual solvents", "GC headspace", "ICH Q3C class 2 limits", "Conforms"),
+    ]
+    trs = "".join(
+        f"<tr><th scope=\"row\">{n}</th><td>{m}</td><td>{sp}</td><td class=\"coa-result\">{r}</td></tr>"
+        for n, m, sp, r in rows)
+
+    ident = [
+        ("Product", "BPC-157"), ("Catalogue number", "TR-BPC157-05"),
+        ("Lot number", "TR-24-0417-B"), ("CAS number", "137525-51-0"),
+        ("Molecular formula", "C<sub>62</sub>H<sub>98</sub>N<sub>16</sub>O<sub>22</sub>"),
+        ("Molecular weight", "1419.53 g/mol"), ("Quantity", "5 mg"),
+        ("Date of manufacture", "2024-04-17"), ("Retest date", "2027-04-17"),
+        ("Storage", "&minus;20 &deg;C, desiccated, protected from light"),
+    ]
+    idrows = "".join(f"<div class=\"coa-field\"><dt>{k}</dt><dd>{v}</dd></div>" for k, v in ident)
+
+    body = f"""
+<section class="section section--tight">
+  <div class="shell">
+    <nav class="crumb" aria-label="Breadcrumb"><a href="index.html">Home</a> <span>/</span> <a href="quality.html">Analytical</a> <span>/</span> <span>Specimen certificate</span></nav>
+    <div class="sec-head">
+      <span class="eyebrow">Documentation</span>
+      <h1 class="display h-sec">Specimen <em>certificate of analysis.</em></h1>
+      <p class="lede">Every lot is released against a document of this form. This is a worked example so you can see exactly what arrives with an order — the layout, the assay panel and the level of detail.</p>
+    </div>
+
+    <div class="notice" style="margin-bottom:2.5rem">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+      <div>
+        <h3>This is an example document</h3>
+        <p>The lot number, dates and results below are illustrative and do not describe material that exists. A certificate for material you have actually been supplied carries that lot's own measured results and is signed on release. Ask us for the certificate for any lot before you order it.</p>
+      </div>
+    </div>
+
+    <article class="coa" aria-label="Specimen certificate of analysis">
+      <div class="coa-watermark" aria-hidden="true">SPECIMEN</div>
+      <header class="coa-head">
+        <div class="coa-brand">
+          <img src="assets/img/mark.svg" alt="" width="100" height="206">
+          <div><strong>{BRAND}</strong><span>Peptide reference material</span></div>
+        </div>
+        <div class="coa-title">
+          <h2>Certificate of Analysis</h2>
+          <p class="mono">Lot TR-24-0417-B</p>
+        </div>
+      </header>
+
+      <dl class="coa-ident">{idrows}</dl>
+
+      <h3 class="coa-h">Test results</h3>
+      <table class="coa-table">
+        <caption class="sr-only">Specimen test results for lot TR-24-0417-B</caption>
+        <thead><tr><th scope="col">Test</th><th scope="col">Method</th><th scope="col">Specification</th><th scope="col">Result</th></tr></thead>
+        <tbody>{trs}</tbody>
+      </table>
+
+      <h3 class="coa-h">Chromatographic purity</h3>
+      <p class="coa-note">Column C18, 4.6 &times; 250 mm, 5 &micro;m. Gradient 20–60 % acetonitrile in water, 0.1 % TFA, over 14 min at 1.0 mL/min. Detection 220 nm. Principal peak 8.42 min, 98.7 % of total integrated area.</p>
+      {chromatogram(peaks)}
+
+      <h3 class="coa-h">Release</h3>
+      <p class="coa-note">The lot described above was reviewed against its specification and released. Material is supplied for laboratory research use only; it is not for human or veterinary use, and it is not a drug, supplement, cosmetic or medical device.</p>
+      <div class="coa-sign">
+        <div><span class="coa-rule"></span><small>Analyst — Quality Control</small></div>
+        <div><span class="coa-rule"></span><small>Date of release</small></div>
+      </div>
+    </article>
+
+    <div style="margin-top:2.5rem;display:flex;gap:.75rem;flex-wrap:wrap">
+      <button class="btn btn--primary" onclick="window.print()">Print or save as PDF</button>
+      <a class="btn btn--ghost" href="quality.html">The full analytical programme</a>
+    </div>
+  </div>
+</section>
+"""
+    return page("specimen-coa.html", f"Specimen Certificate of Analysis — {BRAND}",
+                "A worked example of the certificate of analysis released with every lot: identification, assay panel, specifications, measured results and the HPLC trace.",
+                body, "")
+
+
 # --------------------------------------------------------------------------- 404
 def build_404():
     body = f"""
@@ -1215,7 +1430,7 @@ def main():
             shutil.rmtree(p)
 
     pages = [build_home(), build_catalog(), build_quality(), build_about(),
-             build_faq(), build_contact(), build_compliance(), build_404()]
+             build_faq(), build_contact(), build_compliance(), build_coa(), build_404()]
     pages += build_products()
     pages += build_legal()
 
