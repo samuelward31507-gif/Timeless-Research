@@ -181,11 +181,26 @@
     });
   }
 
+  /* ------------------------------------------- keep the vial label in step */
+  /* The printed label is the most prominent thing on a product card, and it sat
+     on sizes[0] whatever the pack-size control said. Selecting 300 mg next to a
+     vial reading 30 mg looks like the selection was not registered. */
+  function scopeOf(el) {
+    return el.closest('.product') || el.closest('.split') || document;
+  }
+
+  document.addEventListener('change', function (e) {
+    var sel = e.target.closest ? e.target.closest('[data-size]') : null;
+    if (!sel) return;
+    var dose = scopeOf(sel).querySelector('.vp-dose');
+    if (dose) dose.textContent = sel.value;
+  });
+
   /* --------------------------------------------------- add-to-list delegation */
   document.addEventListener('click', function (e) {
     var btn = e.target.closest('[data-add]');
     if (!btn) return;
-    var scope = btn.closest('.product') || btn.closest('form') || document;
+    var scope = btn.closest('.product') || btn.closest('form') || btn.closest('.split') || document;
     var sel = scope.querySelector('[data-size]');
     RFQ.add(btn.dataset.add, btn.dataset.name, sel ? sel.value : 'Standard');
   });
