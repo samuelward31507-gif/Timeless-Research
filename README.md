@@ -76,13 +76,26 @@ genuine product shot on a light page:
   white rectangle, which is what made it look fake.
 
 The label carries the brand lockup (mark + wordmark) on one line, a rule, then
-the compound, its pack size and CAS, and the research-use line.
+the compound, its pack size, and the research-use line. The CAS number lives in
+the page text, not on the vial.
 
 Label geometry in `.vial-print` is measured from the asset, not eyeballed —
 `make_vial.py` prints the values to keep CSS and asset in sync. Below 260px the
-CAS and research-use lines are dropped, since at that scale they render under
-6px and read as a smudge. Compound names are not uppercased, so Greek
-characters (α, β) survive.
+research-use line is dropped, since at that scale it renders under 6px and
+reads as a smudge. Compound names are not uppercased, so Greek characters
+(α, β) survive.
+
+**Despeckling.** The photographed glass carries fine white dust specks. On the
+original black backdrop they read as sparkle, but a luminance-derived alpha
+makes each speck *opaque* while the dark glass around it goes transparent — on
+a light page they turn into visible dirt, which is what made the vial look
+cheap. Alpha is therefore derived from a median-filtered copy (`DESPECKLE`)
+while the RGB stays sharp, so the cap's brushed metal and the label's paper
+texture are untouched. The glass curve was also steepened (`GLASS_GAMMA` above
+1) so mid-tones drop away and the glass reads clear rather than milky.
+
+The studio shadow is cut along with the black backdrop, so `.vial::after` draws
+a contact shadow — without it the vial floats above the tile.
 
 `make_vial.py` can also recolour the crimp cap (`CAP_TINT`) by remapping the
 cap's own luminance onto a colour ramp, which keeps the metal's specular and

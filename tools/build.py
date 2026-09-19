@@ -185,13 +185,13 @@ def page(path, title, desc, body, active="", extra_head="", extra_body=""):
 
 
 # --------------------------------------------------------------------------- pieces
-def vial(p_name, size_label, height=240, alt="", cas=None):
+def vial(p_name, size_label, height=240, alt=""):
     """Render the vial photograph with a per-compound label printed into the
     real paper label.
 
     Layout mirrors a real research vial: the brand lockup (mark + wordmark) on
-    one line at the top, a rule, then the compound, its pack size and CAS, and
-    the research-use line.
+    one line at the top, a rule, then the compound, its pack size, and the
+    research-use line.
 
     The text is a DOM layer blended with `multiply`, so it picks up the
     photographed label's own curvature shading and paper texture instead of
@@ -199,25 +199,23 @@ def vial(p_name, size_label, height=240, alt="", cas=None):
     asset's alpha channel by tools/make_vial.py:
     left 11.20%, top 39.77%, width 82.69%, height 41.82%.
 
-    Below 260px the CAS and research-use lines are dropped: at that scale they
-    render under 6px and read as a smudge."""
+    Below 260px the research-use line is dropped: at that scale it renders
+    under 6px and reads as a smudge."""
     compact = height < 260
     n = len(p_name)
-    if   n <= 7:  scale, wrap = "1em",   ""
-    elif n <= 11: scale, wrap = ".78em", ""
-    elif n <= 15: scale, wrap = ".60em", ""
-    elif n <= 21: scale, wrap = ".48em", " vp-name--wrap"
-    else:         scale, wrap = ".40em", " vp-name--wrap"
+    if   n <= 7:  scale, wrap = ".92em", ""
+    elif n <= 11: scale, wrap = ".72em", ""
+    elif n <= 15: scale, wrap = ".56em", ""
+    elif n <= 21: scale, wrap = ".45em", " vp-name--wrap"
+    else:         scale, wrap = ".38em", " vp-name--wrap"
 
     detail = E(size_label)
-    if cas and not compact:
-        detail += f" &middot; CAS {E(cas)}"
     ruo = "" if compact else '\n    <span class="vp-ruo">FOR RESEARCH USE ONLY</span>'
 
     return f"""<span class="vial" style="--vial-h:{height}px">
   <picture>
     <source srcset="{{PREFIX}}assets/img/vial.webp" type="image/webp">
-    <img src="{{PREFIX}}assets/img/vial.png" alt="{E(alt) if alt else ''}" width="491" height="880" loading="lazy" decoding="async">
+    <img src="{{PREFIX}}assets/img/vial.png" alt="{E(alt) if alt else ''}" width="489" height="880" loading="lazy" decoding="async">
   </picture>
   <span class="vial-print" style="--vp-name:{scale}" aria-hidden="true">
     <span class="vp-head">
@@ -280,7 +278,7 @@ def build_home():
     featured = [p for p in PRODUCTS if p["id"] in ("bpc-157", "ipamorelin", "ghk-cu", "epithalon", "mots-c", "ss-31")]
     feat_html = "".join(f"""
       <article class="product" data-reveal data-reveal-delay="{i % 3}">
-        <div class="product-media">{vial(p['name'], p['sizes'][0], 285, cas=p.get('cas'))}</div>
+        <div class="product-media">{vial(p['name'], p['sizes'][0], 285)}</div>
         <div class="product-body">
           <span class="product-cas">CAS {E(p['cas'] or '—')}</span>
           <h3 class="product-name"><a href="products/{p['id']}.html">{E(p['name'])}</a></h3>
@@ -290,7 +288,7 @@ def build_home():
         </div>
       </article>""" for i, p in enumerate(featured))
 
-    hero_vial = vial("BPC-157", "5 mg", 470, cas="137525-51-0",
+    hero_vial = vial("BPC-157", "5 mg", 470,
                      alt="A Timeless Research vial of BPC-157, 5 mg")
     body = f"""
 <section class="hero">
@@ -396,7 +394,7 @@ def build_catalog():
         sizes = "".join(f'<option value="{E(s)}">{E(s)}</option>' for s in p["sizes"])
         cards.append(f"""
         <article class="product" data-cat="{p['category']}" data-search="{E(hay)}">
-          <div class="product-media">{vial(p['name'], p['sizes'][0], 285, cas=p.get('cas'))}
+          <div class="product-media">{vial(p['name'], p['sizes'][0], 285)}
             {'<span class="ruo-badge" style="position:absolute;top:.75rem;right:.75rem">Restricted</span>' if p.get('restricted') else ''}
           </div>
           <div class="product-body">
@@ -522,7 +520,7 @@ def build_products():
     <div class="split">
       <div>
         <div style="background:var(--tile);padding:3.5rem 2rem;display:grid;place-items:center">
-          {vial(p['name'], p['sizes'][0], 400, alt=f"{p['name']} research vial, {p['sizes'][0]}", cas=p.get('cas'))}
+          {vial(p['name'], p['sizes'][0], 400, alt=f"{p['name']} research vial, {p['sizes'][0]}")}
         </div>
         <p class="muted" style="font-size:.7rem;margin-top:.75rem;text-align:center">Label shown for illustration. Supplied vial carries the lot number and release date.</p>
       </div>

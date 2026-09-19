@@ -38,9 +38,17 @@ SRC = ROOT / "vial.png"
 OUT_DIR = ROOT / "assets/img"
 
 BG_LUM      = 26     # below this counts as studio backdrop
-GLASS_DIV   = 110.0  # luminance that maps to fully opaque
-GLASS_GAMMA = 0.85   # <1 lifts midtones so glass keeps some body
-ALPHA_FLOOR = 0.12   # never fully transparent inside the silhouette
+GLASS_DIV   = 128.0  # luminance that maps to fully opaque
+GLASS_GAMMA = 1.15   # >1 pushes midtones down so the glass reads clear, not milky
+ALPHA_FLOOR = 0.07   # never fully transparent inside the silhouette
+
+# The glass carries fine white dust specks. On the original black backdrop they
+# read as sparkle, but a luminance-derived alpha makes each speck OPAQUE while
+# the dark glass around it goes transparent — on a light page they turn into
+# visible dirt. Deriving alpha from a despeckled copy removes them while the
+# RGB stays sharp, so the cap's brushed metal and the label's paper texture are
+# untouched (their alpha is 1 either way).
+DESPECKLE   = 5      # median radius for the alpha source only
 BASE_Y      = 972    # last row of the vial itself; below is surface shadow
 FEATHER     = 10
 TARGET_H    = 880    # 2x the largest on-page render (470px hero)
@@ -167,9 +175,13 @@ def main() -> None:
     h, w, _ = a.shape
     lum = luminance(a)
 
+    # alpha comes from a despeckled copy; RGB stays sharp
+    clean = Image.fromarray(lum.astype(np.uint8), "L").filter(ImageFilter.MedianFilter(DESPECKLE))
+    lum_a = np.asarray(clean).astype(float)
+
     subject = ~background_mask(lum)
 
-    alpha = np.clip((lum / GLASS_DIV) ** GLASS_GAMMA, 0.0, 1.0)
+    alpha = np.clip((lum_a / GLASS_DIV) ** GLASS_GAMMA, 0.0, 1.0)
     alpha = np.where(subject, np.clip(alpha, ALPHA_FLOOR, 1.0), 0.0)
 
     # drop the surface shadow: it is part of the black backdrop, not the vial
@@ -178,7 +190,7 @@ def main() -> None:
 
     a = tint_cap(a, alpha * 255)
 
-    mask = Image.fromarray((alpha * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(0.7))
+    mask = Image.fromarray((alpha * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.1))
     rgba = Image.fromarray(np.clip(a, 0, 255).astype(np.uint8), "RGB").convert("RGBA")
     rgba.putalpha(mask)
 
