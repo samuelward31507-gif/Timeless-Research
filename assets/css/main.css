@@ -181,6 +181,15 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .split { display: grid; grid-template-columns: minmax(0,.82fr) minmax(0,1.18fr); gap: var(--s-8); align-items: start; }
 @media (max-width: 900px) { .split { grid-template-columns: 1fr; gap: var(--s-6); } }
 
+/* --- Demo bar ----------------------------------------------------------- */
+/* Only present in a TR_DEMO=1 build. Deliberately the loudest thing on the
+   page: a visitor must not mistake a showcase copy for a trading supplier. */
+.demo-bar { background: var(--ink); color: var(--paper); font-size: var(--t-sm); }
+.demo-bar .shell { display: flex; gap: var(--s-3); align-items: baseline; flex-wrap: wrap; padding-block: var(--s-3); }
+.demo-bar strong { color: #FFFFFF; font-weight: 600; }
+.demo-bar span { color: #D9D5CD; }
+@media (max-width: 620px) { .demo-bar .shell { display: block; } .demo-bar span { display: block; margin-top: .25rem; } }
+
 /* --- Announcement ------------------------------------------------------- */
 .announce { border-bottom: 1px solid var(--line); font-size: var(--t-xs); color: var(--ink-4); letter-spacing: .015em; }
 .announce .shell { display: flex; gap: var(--s-6); justify-content: center; align-items: center; flex-wrap: wrap; padding-block: var(--s-2); }

@@ -55,6 +55,13 @@ LEGAL_ADDRESS = os.environ.get("TR_LEGAL_ADDRESS", "")
 LEGAL_STATE = os.environ.get("TR_LEGAL_STATE", "")
 LEGAL_EMAIL = os.environ.get("TR_LEGAL_EMAIL", "") or CONTACT_EMAIL
 
+# TR_DEMO=1 builds a showcase copy: one shown to a prospective operator before
+# it has a business behind it. It says so on every page and asks search engines
+# to stay away, because an unattended peptide storefront that looks open for
+# business will be found by people trying to place real orders, and because a
+# demo competing in search with the eventual live site helps nobody.
+DEMO = os.environ.get("TR_DEMO", "").strip() in ("1", "true", "yes")
+
 
 def fill(value: str, label: str) -> str:
     """A configured legal detail, or a template field where one is still needed.
@@ -84,6 +91,7 @@ def rel(depth: int) -> str:
 # --------------------------------------------------------------------------- chrome
 def head(title, desc, depth, canonical, extra=""):
     p = rel(depth)
+    robots = "noindex,nofollow" if DEMO else "index,follow"
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,7 +110,7 @@ def head(title, desc, depth, canonical, extra=""):
 <meta property="og:image:height" content="630">
 <meta name="twitter:image" content="{SITE}/assets/img/og-card.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="robots" content="index,follow">
+<meta name="robots" content="{robots}">
 <meta name="theme-color" content="#FAF9F7">
 <link rel="icon" href="{p}assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -123,10 +131,18 @@ def header(depth, active):
     p = rel(depth)
     CUR = ' aria-current="page"'
     links = "".join(
-        '<a href="{}{}"{}>{}</a>'.format(p, href, CUR if href == active else "", E(label))
+        '<a href="{}{}"{}>{}</a>'.format(
+            p, href, CUR if href == active else "", E(label))
         for label, href in NAV
     )
-    return f"""<div class="announce">
+    demo = """<div class="demo-bar">
+  <div class="shell">
+    <strong>Demonstration site.</strong>
+    <span>Not a trading business. Nothing here can be ordered, and no enquiry sent through this site reaches a supplier.</span>
+  </div>
+</div>
+""" if DEMO else ""
+    return f"""{demo}<div class="announce">
   <div class="shell">
     <span><b>Research use only.</b> Not for human or veterinary use.</span>
     <span>Institutional and qualified-research accounts only</span>
@@ -1182,7 +1198,9 @@ def build_meta(pages):
         ) + ";\n", encoding="utf-8")
 
     (ROOT / "robots.txt").write_text(
-        f"User-agent: *\nAllow: /\nDisallow: /tools/\n\nSitemap: {SITE}/sitemap.xml\n", encoding="utf-8")
+        ("User-agent: *\nDisallow: /\n" if DEMO else
+         f"User-agent: *\nAllow: /\nDisallow: /tools/\n\nSitemap: {SITE}/sitemap.xml\n"),
+        encoding="utf-8")
 
     # Netlify and Cloudflare Pages both read _redirects; without it a static
     # host returns its own 404 rather than the one in this repo.

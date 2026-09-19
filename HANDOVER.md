@@ -51,6 +51,21 @@ produced by `python3 tools/build.py && python3 tools/dist.py`.
 
 ---
 
+## 2b. Showing the site before it has a business behind it
+
+Building with `TR_DEMO=1` produces a demonstration copy: a black bar on every
+page stating that the site is not trading and that no enquiry reaches a
+supplier, `noindex,nofollow` on every page, and a `robots.txt` that disallows
+everything. The unfilled legal fields in section 1 become a warning instead of
+a build failure, so a demo deploys without inventing details.
+
+This matters for a live demo. A peptide storefront that looks open for business
+will be found by people trying to place real orders, and a demo left in the
+search index competes with the eventual live site. Set `TR_DEMO = "0"` in
+`netlify.toml`, or remove the line, when the site goes into service.
+
+---
+
 ## 3. Claims you are taking on
 
 The site states these as fact. They have not been verified against any supply

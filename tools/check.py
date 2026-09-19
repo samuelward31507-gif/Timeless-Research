@@ -13,6 +13,7 @@ Exits non-zero if anything fails, so it can gate a deploy.
 from __future__ import annotations
 
 import html
+import os
 import pathlib
 import re
 import sys
@@ -132,11 +133,16 @@ for selectors, body in re.findall(r"([^{}]+)\{([^{}]*)\}", CSS):
 # build.py renders a missing legal detail as a visible marker instead of a
 # blank. Publishing one is a real fault: the document reads as unfinished to
 # the customer and the clause it sits in may not do its job.
+# A TR_DEMO=1 build is a showcase without a business behind it, so the fields
+# are legitimately unfilled; the demo bar on every page says so. Any other build
+# is heading for production and must not carry an unfinished legal document.
+DEMO = os.environ.get("TR_DEMO", "").strip() in ("1", "true", "yes")
 for page in PAGES:
     rel = page.relative_to(ROOT).as_posix()
     for m in re.findall(r'<mark class="fill-me">([^<]*)</mark>',
                         page.read_text(encoding="utf-8")):
-        fail(f"{rel} still needs {m} (set TR_LEGAL_* at build time)")
+        msg = f"{rel} still needs {m} (set TR_LEGAL_* at build time)"
+        notes.append("demo build: " + msg) if DEMO else fail(msg)
 
 # ------------------------------------------------------------- generated
 for extra in ("sitemap.xml", "robots.txt", "assets/img/favicon.svg",

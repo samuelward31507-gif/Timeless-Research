@@ -205,6 +205,8 @@ python3 tools/build.py && python3 tools/dist.py
 | `TR_FORM_PROVIDER` | `netlify` | `netlify`, or `endpoint` to POST JSON elsewhere |
 | `TR_FORM_ENDPOINT` | *(empty)* | Target when `TR_FORM_PROVIDER=endpoint` |
 | `TR_ANALYTICS_HEAD` | *(empty)* | Raw `<head>` markup for an analytics tag |
+| `TR_LEGAL_ENTITY` / `TR_LEGAL_ADDRESS` / `TR_LEGAL_STATE` / `TR_LEGAL_EMAIL` | see *Legal documents* | Parties, controller and governing-law clauses |
+| `TR_DEMO` | *(off)* | `1` marks the build a demonstration: a not-trading bar on every page, `noindex`, and `robots.txt` disallowing all |
 
 These reach the browser through `assets/js/config.js`, which the build
 generates — do not edit that file.

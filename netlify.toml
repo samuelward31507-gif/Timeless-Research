@@ -20,6 +20,11 @@
   # TR_CONTACT_EMAIL, so only the two below normally need setting.
   TR_LEGAL_ADDRESS = ""
   TR_LEGAL_STATE = ""
+  # Set to "1" to deploy a demonstration copy: every page carries a bar saying
+  # the site is not trading, search engines are asked to stay away, and the
+  # unfilled legal fields above become a warning instead of a build failure.
+  # Remove it, or set it to "0", for the real thing.
+  TR_DEMO = "0"
 
 # Hashed filenames are not used, so pages must revalidate while the static
 # assets they reference can be cached hard.
