@@ -162,6 +162,7 @@ information or a professional's review — not a placeholder I invent.
 | Item | Where | What is needed |
 |---|---|---|
 | Form endpoint | `assets/js/contact.js` | Set `ENDPOINT` to your handler URL. Until then the form falls back to opening the visitor's mail client, which leaves you no record of submissions. |
+| Account verification | — | The contact form collects name, email and phone only. Everything the research use policy requires for verification — institution, facility address, responsible investigator, institutional email, intended use — is gathered in the follow-up, so that step has to actually happen off-site. |
 | Contact addresses | `assets/js/contact.js`, legal pages | Replace `accounts@timelessresearch.com` and the `[BRACKETED]` addresses. |
 | Legal documents | `legal/*.html` | Every `[BRACKETED]` placeholder must be completed, and all three documents reviewed by a lawyer in your operating jurisdiction. They are drafting starting points, **not** legal advice. |
 | Canonical domain | `SITE` in `tools/build.py` | Currently `https://www.timelessresearch.com`. Feeds canonical tags, Open Graph URLs and the sitemap. |

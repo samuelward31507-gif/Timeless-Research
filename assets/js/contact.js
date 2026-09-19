@@ -39,6 +39,8 @@
     form.querySelectorAll('[required]').forEach(function (el) {
       var valid = el.type === 'checkbox' ? el.checked : el.value.trim() !== '';
       if (valid && el.type === 'email') valid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(el.value.trim());
+      // accept any international format, but require enough digits to be a real number
+      if (valid && el.type === 'tel') valid = (el.value.replace(/\D/g, '').length >= 7);
       var f = fieldOf(el);
       if (f) f.classList.toggle('is-invalid', !valid);
       if (!valid && ok) { el.focus(); ok = false; }
@@ -68,7 +70,7 @@
       }).then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         form.reset();
-        if (status) status.innerHTML = '<p style="color:var(--ok);font-size:.85rem">Application received. We respond within two business days.</p>';
+        if (status) status.innerHTML = '<p style="color:var(--ok);font-size:.85rem">Thank you — we will be in touch within two business days.</p>';
       }).catch(function () {
         if (status) status.innerHTML = '<p style="color:#FF8A8A;font-size:.85rem">Submission failed. Please email ' + FALLBACK_EMAIL + ' directly.</p>';
       }).finally(function () { btn.disabled = false; });
@@ -78,14 +80,8 @@
     /* no endpoint configured — compose an email instead */
     var lines = [
       'Name: ' + (data.name || ''),
-      'Role: ' + (data.role || ''),
-      'Institution: ' + (data.organisation || ''),
       'Email: ' + (data.email || ''),
-      'Country: ' + (data.country || ''),
-      'Enquiry type: ' + (data.enquiry_type || ''),
-      '',
-      'Intended research use:',
-      data.research_use || '',
+      'Phone: ' + (data.phone || ''),
       '',
       'Confirmed in vitro research use only: yes'
     ];
@@ -93,7 +89,7 @@
       lines.push('', 'Request list:', data.request_list.join('\n'));
     }
     window.location.href = 'mailto:' + FALLBACK_EMAIL +
-      '?subject=' + encodeURIComponent('Account application — ' + (data.organisation || '')) +
+      '?subject=' + encodeURIComponent('Enquiry — ' + (data.name || '')) +
       '&body=' + encodeURIComponent(lines.join('\n'));
     if (status) status.innerHTML = '<p class="muted" style="font-size:.8rem">Your email client should now open with the application ready to send.</p>';
   });
