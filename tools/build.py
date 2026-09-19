@@ -158,15 +158,7 @@ def footer(depth):
           <li><a href="{p}quality.html">Analytical programme</a></li>
           <li><a href="{p}faq.html">FAQ</a></li>
           <li><a href="{p}contact.html">Contact</a></li>
-        </ul>
-      </div>
-      <div>
-        <h3>Legal</h3>
-        <ul>
           <li><a href="{p}compliance.html">Research use policy</a></li>
-          <li><a href="{p}legal/terms.html">Terms of sale</a></li>
-          <li><a href="{p}legal/privacy.html">Privacy</a></li>
-          <li><a href="{p}legal/shipping.html">Shipping &amp; returns</a></li>
         </ul>
       </div>
     </div>
@@ -870,7 +862,7 @@ def build_contact():
           </div>
 
           <button class="btn btn--primary btn--block" type="submit">Send enquiry</button>
-          <p class="muted" style="font-size:.7rem;margin-top:1rem;text-align:center">By submitting you agree to our <a href="legal/privacy.html" style="color:var(--accent);text-decoration:underline">privacy policy</a> and <a href="compliance.html" style="color:var(--accent);text-decoration:underline">research use policy</a>.</p>
+          <p class="muted" style="font-size:.7rem;margin-top:1rem;text-align:center">By submitting you agree to our <a href="compliance.html" style="color:var(--accent);text-decoration:underline">research use policy</a>.</p>
           <div id="form-status" role="status" aria-live="polite" style="margin-top:1rem"></div>
         </form>
       </div>
@@ -933,113 +925,6 @@ def build_compliance():
                 body, "")
 
 
-# --------------------------------------------------------------------------- legal
-LEGAL_BANNER = """<div class="notice" style="margin-bottom:2.5rem">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
-  <div><h3>Template — requires legal review before publication</h3>
-  <p>This document is a drafting starting point, not legal advice. Placeholders in [SQUARE BRACKETS] must be completed, and the whole document must be reviewed by a qualified lawyer in your operating jurisdiction before the site goes live.</p></div>
-</div>"""
-
-
-def legal_page(slug, title, eyebrow, heading, lede, prose):
-    body = f"""
-<section class="section section--tight">
-  <div class="shell-n">
-    <nav class="crumb" aria-label="Breadcrumb"><a href="../index.html">Home</a> <span>/</span> <span>{E(eyebrow)}</span></nav>
-    <div class="sec-head">
-      <span class="eyebrow">{E(eyebrow)}</span>
-      <h1 class="display h-sec">{heading}</h1>
-      <p class="lede">{E(lede)} Last updated {TODAY}.</p>
-    </div>
-    {LEGAL_BANNER}
-    <div class="prose">{prose}</div>
-  </div>
-</section>
-"""
-    return page(f"legal/{slug}.html", f"{title} — {BRAND}", lede, body, "")
-
-
-def build_legal():
-    out = []
-    out.append(legal_page("terms", "Terms of Sale", "Legal", "Terms of <em>sale.</em>",
-        "The terms on which {b} accepts orders and supplies material.".format(b=BRAND), f"""
-      <h2>1. Parties and scope</h2>
-      <p>These terms govern all sales by {BRAND}, [REGISTERED COMPANY NAME], registered at [REGISTERED ADDRESS], company number [NUMBER] (“we”, “us”), to the account holder placing the order (“you”). They apply to the exclusion of any terms you seek to impose.</p>
-      <h2>2. Eligibility and acceptance</h2>
-      <p>Orders may be placed only by verified institutional or qualified-research accounts. Submitting a request list or quotation request is an invitation to treat, not an order. A contract forms only when we issue a written order confirmation. We may decline any order at our discretion, including where account verification is incomplete or the stated research use falls outside our <a href="../compliance.html">research use policy</a>.</p>
-      <h2>3. Research use condition</h2>
-      <p>Every sale is conditional on your agreement to the research use policy, which is incorporated into these terms. Breach of that policy is a material breach of contract entitling us to terminate immediately and to decline future orders.</p>
-      <h2>4. Pricing and payment</h2>
-      <p>Prices are those stated in the written quotation, are valid for [30] days, and exclude taxes, duties and shipping unless stated. Payment terms are [PAYMENT TERMS]. We reserve the right to require payment in advance. Late payment accrues interest at [RATE] in accordance with [APPLICABLE STATUTE].</p>
-      <h2>5. Delivery and risk</h2>
-      <p>Delivery estimates are estimates, not guarantees. Risk passes on delivery to the address stated on the order confirmation; title passes on payment in full. Shipments are made to institutional addresses only.</p>
-      <h2>6. Specification and warranty</h2>
-      <p>We warrant that, at the time of release, material conforms to the specification on the certificate of analysis issued for the supplied lot. This is the entire warranty. We give no warranty of merchantability, fitness for a particular purpose, sterility, endotoxin status, or suitability for any specific experimental application, and no warranty that use will not infringe third-party intellectual property.</p>
-      <h2>7. Non-conforming material</h2>
-      <p>Claims that material does not meet specification must be made within 30 days of delivery, quoting the lot number and supporting data. Our sole obligation is, at our option, replacement of the material or refund of the price paid. See the <a href="shipping.html">shipping and returns policy</a>.</p>
-      <h2>8. Limitation of liability</h2>
-      <p>Nothing in these terms limits liability for death or personal injury caused by negligence, for fraud, or for any liability that cannot lawfully be limited. Subject to that, our total liability arising from any order is limited to the price paid for the material giving rise to the claim, and we are not liable for loss of profit, loss of data, loss of experimental work, or any indirect or consequential loss.</p>
-      <h2>9. Indemnity</h2>
-      <p>You indemnify us against all claims, losses and costs arising from your use, handling, storage, resale or transfer of material supplied, including any use in breach of the research use policy.</p>
-      <h2>10. Export, import and compliance</h2>
-      <p>You are responsible for import permits, customs classification and compliance with the law of the destination jurisdiction. We will not mis-declare the contents, value or classification of any shipment.</p>
-      <h2>11. Governing law</h2>
-      <p>These terms are governed by the law of [JURISDICTION], and the courts of [JURISDICTION] have exclusive jurisdiction.</p>
-      <h2>12. Contact</h2>
-      <p>[LEGAL CONTACT EMAIL] · [REGISTERED ADDRESS]</p>"""))
-
-    out.append(legal_page("privacy", "Privacy Policy", "Legal", "Privacy <em>policy.</em>",
-        "What personal data we collect when you apply for an account, and how it is handled.", f"""
-      <h2>1. Controller</h2>
-      <p>The controller is {BRAND}, [REGISTERED COMPANY NAME], [REGISTERED ADDRESS]. Data protection contact: [DPO / PRIVACY EMAIL].</p>
-      <h2>2. What we collect</h2>
-      <ul>
-        <li><strong>Account application data</strong> — name, role, institution, institutional email, country, and the description of intended research use you provide.</li>
-        <li><strong>Order and correspondence records</strong> — quotations, order confirmations, shipping records and technical correspondence.</li>
-        <li><strong>Technical data</strong> — server logs including IP address, user agent and pages requested, retained for [PERIOD] for security and diagnostics.</li>
-      </ul>
-      <p>Your request list is stored in your own browser using local storage. It is not transmitted to us until you submit a quotation request, and you can clear it at any time from the request list panel.</p>
-      <h2>3. Why we process it, and on what basis</h2>
-      <ul>
-        <li><strong>Account verification and supply</strong> — performance of a contract, and compliance with our legal obligations in restricting supply of research material.</li>
-        <li><strong>Regulatory and audit records</strong> — legal obligation and legitimate interest in demonstrating responsible supply.</li>
-        <li><strong>Security and fraud prevention</strong> — legitimate interest.</li>
-      </ul>
-      <p>We do not sell personal data, and we do not use it for advertising or profiling.</p>
-      <h2>4. Retention</h2>
-      <p>Account and order records are retained for [RETENTION PERIOD] to meet accounting and supply-audit obligations. Declined applications are retained for [PERIOD] and then deleted.</p>
-      <h2>5. Sharing</h2>
-      <p>We share data with carriers for delivery, with payment providers for settlement, and with professional advisers or regulators where legally required. Processors are bound by written agreements. Where data is transferred outside [JURISDICTION], we rely on [TRANSFER MECHANISM].</p>
-      <h2>6. Your rights</h2>
-      <p>Subject to applicable law you may request access, rectification, erasure, restriction, portability, or object to processing based on legitimate interest. Contact [PRIVACY EMAIL]. You may complain to [SUPERVISORY AUTHORITY].</p>
-      <h2>7. Cookies</h2>
-      <p>This site sets no advertising or analytics cookies. Local storage is used solely to keep your request list between pages. If analytics are introduced, this policy will be updated and consent obtained where required.</p>
-      <h2>8. Changes</h2>
-      <p>Material changes will be notified to account holders by email.</p>"""))
-
-    out.append(legal_page("shipping", "Shipping &amp; Returns", "Logistics", "Shipping &amp; <em>returns.</em>",
-        "How orders are packed, shipped, and handled if something is wrong.", f"""
-      <h2>1. Destinations</h2>
-      <p>We ship to institutional research addresses only. We do not deliver to residential addresses, mail-forwarding services or PO boxes. International shipments are accepted only where the material may lawfully be imported for research use.</p>
-      <h2>2. Processing and dispatch</h2>
-      <p>Orders against a verified account are dispatched within [1–2] business days of confirmed payment, subject to lot availability. Where a lot is in quarantine pending release, we will tell you the expected release date rather than ship unreleased material.</p>
-      <h2>3. Packing and cold chain</h2>
-      <p>Lyophilised peptides are stable for shipping at ambient temperature for the duration of transit, and are packed with desiccant and protected from light. Where stability data indicates it, shipments are sent in insulated packaging with coolant, and the packing documentation notes the cold-chain condition. Transfer material to -20 °C on arrival.</p>
-      <h2>4. Inspection on arrival</h2>
-      <p>Inspect the shipment on receipt. Report visible damage, temperature excursion or discrepancy within 5 business days, with photographs and the lot number.</p>
-      <h2>5. Non-conforming material</h2>
-      <p>If material does not meet the specification on its certificate of analysis, notify us within 30 days of delivery with the lot number and your supporting data. Where the claim is substantiated we will, at our option, replace the material or refund the price paid, and we will cover return shipping. Material must not be returned before we issue a return authorisation.</p>
-      <h2>6. Returns we cannot accept</h2>
-      <p>Because storage conditions after delivery cannot be verified, we cannot accept returns of correctly supplied, conforming material — including where an order was placed in error, where requirements changed, or where material has been opened, reconstituted or transferred out of its original vial. Returns of restricted reference standards are not accepted under any circumstances.</p>
-      <h2>7. Lost or delayed shipments</h2>
-      <p>Report non-delivery within [15] business days of dispatch so a carrier trace can be opened. We will replace material confirmed lost in transit.</p>
-      <h2>8. Customs and duties</h2>
-      <p>Import duties, taxes and clearance charges are the account holder's responsibility, as are import permits. Shipments are declared accurately; we will not alter a declaration on request. Where a shipment is seized or refused entry because a required permit was not in place, we cannot refund it.</p>
-      <h2>9. Contact</h2>
-      <p>[LOGISTICS EMAIL]</p>"""))
-    return out
-
-
 # --------------------------------------------------------------------------- 404
 def build_404():
     body = f"""
@@ -1096,7 +981,6 @@ def main():
     pages = [build_home(), build_catalog(), build_quality(), build_about(),
              build_faq(), build_contact(), build_compliance(), build_404()]
     pages += build_products()
-    pages += build_legal()
 
     # {PREFIX} placeholders emitted by vial() resolve per page depth
     for rel_path in pages:

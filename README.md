@@ -32,7 +32,6 @@ contact.html            Account application + quotation request
 compliance.html         Research use policy
 404.html                Not found
 products/<id>.html      34 generated specification pages
-legal/                  terms.html, privacy.html, shipping.html
 assets/
   css/main.css          Design tokens + all component styles
   js/site.js            Nav, reveal, accordion, request list, drawer
@@ -180,10 +179,9 @@ python3 tools/build.py
 use `error_page 404 /404.html;`, on Apache `ErrorDocument 404 /404.html`.
 Without it a static host serves its own 404 instead of this one.
 
-**Analytics** is deliberately off. Adding a tag has a privacy-policy
-consequence: `legal/privacy.html` currently states the site sets no analytics
-cookies and promises to update the policy and obtain consent where required.
-Honour that before switching one on.
+**Analytics** is deliberately off. The site currently sets no analytics
+cookies. Switching a tag on is a cookie-consent question in the EU and UK and
+a disclosure question under CCPA, so settle the policy side before adding one.
 
 **Email deliverability.** If `TR_FORM_ENDPOINT` mails you, set SPF and DKIM on
 the sending domain or the notifications will land in spam.
@@ -197,11 +195,9 @@ invent.
 
 | Item | Where | What is needed |
 |---|---|---|
-| Legal documents | `legal/*.html` | 21 `[BRACKETED]` placeholders across three documents, and review by a lawyer in your operating jurisdiction. They are drafting starting points, **not** legal advice. |
-| Certificate data | `quality.html`, product pages | "COA issued with every lot" appears on all 45 pages and the site describes the COA process in detail. If a lot-specific certificate cannot be produced on request, that claim has to come down. |
-| Purity claims | `assets/data/products.json` | `≥98%` appears 63 times across cards and vial labels. It is a commercial claim; confirm each against your actual supplier and QC arrangements. |
+| Certificate data | `quality.html`, product pages | "COA issued with every lot" appears on all 42 pages and the site describes the COA process in detail. If a lot-specific certificate cannot be produced on request, that claim has to come down. |
+| Purity claims | `assets/data/products.json` | 28 of the 34 compounds carry `≥98%` (three carry `≥95%`), surfaced 210 times across cards, vial labels and spec tables. These are commercial claims; confirm each against your actual supplier and QC arrangements. |
 | Account verification | — | The contact form collects name, email and phone only. Everything the research use policy requires for verification — institution, facility address, responsible investigator, institutional email, intended use — is gathered in the follow-up, so that step has to actually happen off-site. |
-| Restricted standards | `assets/data/products.json` | Semaglutide, Tirzepatide, Retatrutide and Oxytocin are flagged `restricted` and gated in the UI. They carry the highest regulatory exposure in the catalog; worth a deliberate decision with counsel rather than a default. |
 
 ---
 
@@ -222,6 +218,15 @@ substances, a criminal one) that a website cannot paper over — and the
 research-use framing only holds up if the commercial mechanics actually match
 it. Re-adding a cart or those SKUs would undermine the compliance posture the
 rest of the site is built on.
+
+**No terms, privacy or shipping pages.** These were drafted as templates and
+then removed at the owner's request, and `build.py` no longer generates them.
+Removing the pages does not remove the underlying obligations: the contact form
+collects a name, email address and phone number, which is personal data under
+GDPR and CCPA, and both regimes require a published privacy notice describing
+what is collected and why. Terms of sale are also what a purchasing department
+asks for before raising a PO. Restore them from git history (`git log --
+legal/`) once a lawyer has drafted the real versions.
 
 ---
 

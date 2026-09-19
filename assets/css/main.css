@@ -606,7 +606,7 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 
 /* --- Footer ------------------------------------------------------------- */
 .footer { border-top: 1px solid var(--line); padding-block: var(--s-8) var(--s-6); }
-.footer-grid { display: grid; grid-template-columns: 1.6fr repeat(3,1fr); gap: var(--s-7); }
+.footer-grid { display: grid; grid-template-columns: 1.6fr repeat(2,1fr); gap: var(--s-7); }
 @media (max-width: 860px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: var(--s-6); } }
 @media (max-width: 520px) { .footer-grid { grid-template-columns: 1fr; } }
 .footer h3 { font-size: var(--t-xs); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-4); margin-bottom: var(--s-4); }
