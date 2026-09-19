@@ -142,6 +142,26 @@ change — it can cost you the protection.
 
 ---
 
+## 5b. What has not been tested
+
+Stated plainly so you are not surprised, and so a buyer is not misled.
+
+- **Only Chromium.** Every automated check was run in Chromium. The site uses
+  no exotic CSS and its JavaScript is deliberately ES5 — no arrow functions, no
+  optional chaining, a clipboard fallback — so it should behave, and every
+  vendor-prefixed property is paired. But the vial label is printed over the
+  photograph with `mix-blend-mode: multiply`, and blend modes are the one thing
+  that can differ between engines. Open the home page in Safari and on an
+  iPhone before you rely on it; if the labels look washed out or too dark,
+  that rule is the cause.
+- **No screen-reader pass.** Every page is clean under axe-core, which catches
+  perhaps a third of real accessibility problems. Nobody has driven the site
+  with VoiceOver or NVDA, or completed an order flow using only a keyboard.
+- **No real-device testing.** Layouts were verified by emulating widths from
+  360 px up, not on physical hardware.
+
+---
+
 ## 6. Checking your work
 
 ```bash
