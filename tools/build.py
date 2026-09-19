@@ -249,6 +249,7 @@ def footer(depth):
           <li><a href="{p}quality.html">Analytical programme</a></li>
           <li><a href="{p}faq.html">FAQ</a></li>
           <li><a href="{p}contact.html">Contact</a></li>
+          <li><a href="{p}pay.html">Payment</a></li>
         </ul>
       </div>
       <div>
@@ -971,6 +972,8 @@ FAQ = [
      "Ordering is limited to verified institutional and qualified-research accounts: universities, hospital and government research units, contract research organisations, and commercial R&D laboratories with a documented research purpose. We review each application individually and we do not supply individuals for personal use."),
     ("Why can I not simply check out with a card?",
      "Because we need to know who the material is going to and what it is for before it ships. List prices are published, but the order itself is confirmed by quotation against a verified account, so lot availability, quantity and shipping conditions are agreed in writing first. Building a request list on this site starts that process; it is not a purchase."),
+    ("How do I pay once my account is open?",
+     "We issue a written quotation, and on acceptance we invoice through Stripe. The invoice arrives by email and carries a secure Stripe-hosted payment page that takes a card or a bank transfer, so payment is immediate from that point. We never see or store card details, and we never ask for them by telephone or email."),
     ("What does “research use only” actually mean here?",
      "It means the material is intended exclusively for in vitro laboratory research and analytical method development by qualified professionals. It is not a drug, supplement, cosmetic or medical device; it has not been evaluated for safety or efficacy in humans or animals; and it must not be administered to either. This is a statement about what the material is, not a disclaimer that unlocks another use."),
     ("Will you advise on dosing or administration?",
@@ -1055,6 +1058,7 @@ def build_contact():
             <li>We reply to arrange account verification.</li>
             <li>Verification covers the institution and its research facility address, the responsible investigator, an institutional email address, and the intended research use.</li>
             <li>Once the account is open we issue a written quotation against your request list.</li>
+            <li>On acceptance we invoice through Stripe; payment is by card or bank transfer from the invoice. <a href="pay.html">How payment works</a>.</li>
           </ol>
           <p>Nothing ships before that verification is complete, and we do not supply individuals for personal use.</p>
           <h3>What we cannot help with</h3>
@@ -1501,6 +1505,84 @@ def build_coa():
                 body, "")
 
 
+# --------------------------------------------------------------------------- payment
+# Payment happens after the account is verified and a quotation is issued, not
+# before. That ordering is what the terms of sale commit to in section 2, so
+# this page explains the sequence rather than offering a way to short-circuit it.
+#
+# Deliberately NOT a redirector. A page that took an invoice id or a URL in the
+# query string and forwarded the visitor to it would be an open redirect on a
+# domain that sends payment requests — a ready-made phishing tool aimed at our
+# own customers. Stripe hosts the invoice; the link reaches the buyer by email
+# from the address on this page and nowhere else.
+
+
+def build_pay():
+    body = f"""
+<section class="section section--tight">
+  <div class="shell-n">
+    <nav class="crumb" aria-label="Breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>Payment</span></nav>
+    <div class="sec-head">
+      <span class="eyebrow">Accounts &amp; payment</span>
+      <h1 class="display h-sec">Paying for <em>an order.</em></h1>
+      <p class="lede">Orders are invoiced once your account is verified and you have accepted a quotation. There is no checkout on this site, and nothing ships against an unverified account.</p>
+    </div>
+
+    <ol class="pay-steps">
+      <li>
+        <h2>Request</h2>
+        <p>Build a request list from the catalogue and send it with your account application. Prices on the catalogue are list prices; they exclude shipping and tax.</p>
+      </li>
+      <li>
+        <h2>Verification</h2>
+        <p>We confirm the institution, the research facility address, the responsible investigator, an institutional email address and the intended research use. Nothing is invoiced before this is complete.</p>
+      </li>
+      <li>
+        <h2>Quotation</h2>
+        <p>We issue a written quotation against your request list, confirming lot availability, any quantity break, shipping method and the total including tax and carriage. It is valid for 30 days.</p>
+      </li>
+      <li>
+        <h2>Invoice</h2>
+        <p>On acceptance we raise an invoice through Stripe. It arrives by email from <a href="mailto:{E(CONTACT_EMAIL)}">{E(CONTACT_EMAIL)}</a> and carries a secure payment page hosted by Stripe, where you can pay by card or bank transfer. We never see or store your card details.</p>
+      </li>
+      <li>
+        <h2>Release</h2>
+        <p>Material is released once payment clears, unless written credit terms have been agreed in advance. The certificate of analysis for the supplied lot travels with the shipment.</p>
+      </li>
+    </ol>
+
+    <div class="notice" style="margin-top:2.5rem">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+      <div>
+        <h3>How to know an invoice is really ours</h3>
+        <p>Our invoices arrive only from <strong>{E(CONTACT_EMAIL)}</strong>, and the payment page they link to is hosted by Stripe on a <strong>stripe.com</strong> address. We will never telephone you for card details, never ask you to pay a different account from the one on the invoice, and never send payment instructions that change bank details at short notice. If anything about a payment request looks wrong, stop and contact us on the address above before paying.</p>
+      </div>
+    </div>
+
+    <div class="prose" style="margin-top:2.5rem">
+      <h2>Questions we are asked</h2>
+      <h3>Can I pay by card immediately?</h3>
+      <p>Not before the account is verified. Once it is, the Stripe invoice takes a card and settles straight away, so in practice payment is instant from that point on.</p>
+      <h3>Do you take purchase orders?</h3>
+      <p>Yes, from verified institutions. Send the PO reference with your acceptance of the quotation and it is carried on the invoice. Credit terms have to be agreed in writing first; otherwise payment is due in advance.</p>
+      <h3>What currency?</h3>
+      <p>All prices and invoices are in {E(CURRENCY)}. Your bank may apply its own conversion and charges.</p>
+      <h3>Can you ship before payment clears?</h3>
+      <p>Only against agreed credit terms. See <a href="legal/terms.html">terms of sale</a>, section 4.</p>
+    </div>
+
+    <div style="margin-top:2.5rem;display:flex;gap:.75rem;flex-wrap:wrap">
+      <a class="btn btn--primary" href="contact.html">Apply for an account</a>
+      <a class="btn btn--ghost" href="legal/terms.html">Terms of sale</a>
+    </div>
+  </div>
+</section>
+"""
+    return page("pay.html", f"Paying for an Order — {BRAND}",
+                "How orders are paid: account verification, written quotation, then a Stripe invoice by email. No checkout, and nothing ships against an unverified account.",
+                body, "")
+
+
 # --------------------------------------------------------------------------- 404
 def build_404():
     body = f"""
@@ -1558,7 +1640,7 @@ def main():
             shutil.rmtree(p)
 
     pages = [build_home(), build_catalog(), build_quality(), build_about(),
-             build_faq(), build_contact(), build_compliance(), build_coa(), build_404()]
+             build_faq(), build_contact(), build_compliance(), build_coa(), build_pay(), build_404()]
     pages += build_products()
     pages += build_legal()
 

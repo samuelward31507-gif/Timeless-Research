@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Page not found — Timeless Research</title>
-<meta name="description" content="The requested page could not be found.">
-<link rel="canonical" href="https://www.timelessresearch.com/404.html">
+<title>Paying for an Order — Timeless Research</title>
+<meta name="description" content="How orders are paid: account verification, written quotation, then a Stripe invoice by email. No checkout, and nothing ships against an unverified account.">
+<link rel="canonical" href="https://www.timelessresearch.com/pay.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Timeless Research">
-<meta property="og:title" content="Page not found — Timeless Research">
-<meta property="og:description" content="The requested page could not be found.">
-<meta property="og:url" content="https://www.timelessresearch.com/404.html">
+<meta property="og:title" content="Paying for an Order — Timeless Research">
+<meta property="og:description" content="How orders are paid: account verification, written quotation, then a Stripe invoice by email. No checkout, and nothing ships against an unverified account.">
+<meta property="og:url" content="https://www.timelessresearch.com/pay.html">
 <meta property="og:image" content="https://www.timelessresearch.com/assets/img/og-card.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
@@ -61,16 +61,63 @@
     </div>
   </div>
 </header>
-<main id="main" data-print-src="https://www.timelessresearch.com/404.html">
+<main id="main" data-print-src="https://www.timelessresearch.com/pay.html">
 
-<section class="section">
-  <div class="shell-n" style="text-align:center;padding-block:4rem">
-    <span class="eyebrow">Error 404</span>
-    <h1 class="display h-sec">That page isn't <em>here.</em></h1>
-    <p class="lede" style="margin-inline:auto">The link may be out of date, or the compound may have been withdrawn from the catalog.</p>
-    <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-top:2.5rem">
-      <a class="btn btn--primary" href="/catalog.html">Browse the catalog</a>
-      <a class="btn btn--ghost" href="/index.html">Return home</a>
+<section class="section section--tight">
+  <div class="shell-n">
+    <nav class="crumb" aria-label="Breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>Payment</span></nav>
+    <div class="sec-head">
+      <span class="eyebrow">Accounts &amp; payment</span>
+      <h1 class="display h-sec">Paying for <em>an order.</em></h1>
+      <p class="lede">Orders are invoiced once your account is verified and you have accepted a quotation. There is no checkout on this site, and nothing ships against an unverified account.</p>
+    </div>
+
+    <ol class="pay-steps">
+      <li>
+        <h2>Request</h2>
+        <p>Build a request list from the catalogue and send it with your account application. Prices on the catalogue are list prices; they exclude shipping and tax.</p>
+      </li>
+      <li>
+        <h2>Verification</h2>
+        <p>We confirm the institution, the research facility address, the responsible investigator, an institutional email address and the intended research use. Nothing is invoiced before this is complete.</p>
+      </li>
+      <li>
+        <h2>Quotation</h2>
+        <p>We issue a written quotation against your request list, confirming lot availability, any quantity break, shipping method and the total including tax and carriage. It is valid for 30 days.</p>
+      </li>
+      <li>
+        <h2>Invoice</h2>
+        <p>On acceptance we raise an invoice through Stripe. It arrives by email from <a href="mailto:accounts@timelessresearch.com">accounts@timelessresearch.com</a> and carries a secure payment page hosted by Stripe, where you can pay by card or bank transfer. We never see or store your card details.</p>
+      </li>
+      <li>
+        <h2>Release</h2>
+        <p>Material is released once payment clears, unless written credit terms have been agreed in advance. The certificate of analysis for the supplied lot travels with the shipment.</p>
+      </li>
+    </ol>
+
+    <div class="notice" style="margin-top:2.5rem">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+      <div>
+        <h3>How to know an invoice is really ours</h3>
+        <p>Our invoices arrive only from <strong>accounts@timelessresearch.com</strong>, and the payment page they link to is hosted by Stripe on a <strong>stripe.com</strong> address. We will never telephone you for card details, never ask you to pay a different account from the one on the invoice, and never send payment instructions that change bank details at short notice. If anything about a payment request looks wrong, stop and contact us on the address above before paying.</p>
+      </div>
+    </div>
+
+    <div class="prose" style="margin-top:2.5rem">
+      <h2>Questions we are asked</h2>
+      <h3>Can I pay by card immediately?</h3>
+      <p>Not before the account is verified. Once it is, the Stripe invoice takes a card and settles straight away, so in practice payment is instant from that point on.</p>
+      <h3>Do you take purchase orders?</h3>
+      <p>Yes, from verified institutions. Send the PO reference with your acceptance of the quotation and it is carried on the invoice. Credit terms have to be agreed in writing first; otherwise payment is due in advance.</p>
+      <h3>What currency?</h3>
+      <p>All prices and invoices are in USD. Your bank may apply its own conversion and charges.</p>
+      <h3>Can you ship before payment clears?</h3>
+      <p>Only against agreed credit terms. See <a href="legal/terms.html">terms of sale</a>, section 4.</p>
+    </div>
+
+    <div style="margin-top:2.5rem;display:flex;gap:.75rem;flex-wrap:wrap">
+      <a class="btn btn--primary" href="contact.html">Apply for an account</a>
+      <a class="btn btn--ghost" href="legal/terms.html">Terms of sale</a>
     </div>
   </div>
 </section>

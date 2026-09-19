@@ -223,6 +223,26 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .rfq-total strong { font-family: var(--f-mono); font-size: var(--t-lg); font-variant-numeric: tabular-nums; }
 .rfq-total-note { font-size: var(--t-xs); color: var(--ink-3); line-height: 1.6; }
 
+/* --- Payment sequence ----------------------------------------------------- */
+.pay-steps { list-style: none; counter-reset: step; margin: 0; padding: 0; }
+.pay-steps li {
+  counter-increment: step; position: relative;
+  padding: var(--s-5) 0 var(--s-5) 3.4rem;
+  border-top: 1px solid var(--line);
+}
+.pay-steps li:last-child { border-bottom: 1px solid var(--line); }
+.pay-steps li::before {
+  content: counter(step, decimal-leading-zero);
+  position: absolute; left: 0; top: var(--s-5);
+  font-family: var(--f-mono); font-size: var(--t-sm); color: var(--copper-text);
+  letter-spacing: .08em;
+}
+.pay-steps h2 {
+  font-family: var(--f-ui); font-size: var(--t-md); font-weight: 600;
+  letter-spacing: 0; margin-bottom: .4rem;
+}
+.pay-steps p { color: var(--ink-2); line-height: 1.75; font-size: var(--t-base); }
+
 /* --- Certificate of analysis -------------------------------------------- */
 /* Deliberately not styled like the rest of the site: a laboratory document is
    a dense, ruled, monospaced-data artefact, and making it look like a web page

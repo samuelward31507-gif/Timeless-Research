@@ -113,6 +113,59 @@ reason — it is not an invoice, and there is no checkout.
 
 ---
 
+## 3c. Taking payment
+
+There is no checkout on this site and no cart. The terms of sale, §2, commit to
+supplying verified accounts only, against a written order confirmation; a
+self-serve checkout would contradict that in writing on your own site. Payment
+therefore happens after verification, through a Stripe invoice. `pay.html`
+explains the sequence to the buyer.
+
+### Before you build on this: Stripe may not accept you
+
+Stripe's restricted-business rules cover pharmaceuticals, "nutraceuticals" and
+products making unsubstantiated health claims, and research-chemical sellers are
+declined or shut down under them regularly — often after processing has begun,
+with a hold on the balance. Find out before you depend on it:
+
+1. Apply describing the business accurately: analytical reference material sold
+   to institutional and qualified-research accounts, research use only.
+2. Say plainly that you do not sell for human consumption and that supply is
+   gated on account verification. The site and its research use policy are your
+   evidence.
+3. Get the answer in writing before taking a first order. If Stripe declines,
+   the alternatives for this sector are bank transfer on invoice, or a
+   high-risk merchant acquirer at a considerably worse rate.
+
+Nothing in the site depends on Stripe specifically — `pay.html` names it, and
+that is the only place to change if you invoice some other way.
+
+### Issuing an invoice
+
+1. **Customer** — create it once per verified account, under the institution's
+   name, with the institutional email and the facility address. Not a personal
+   address: shipping to residential addresses is refused in the shipping policy.
+2. **Invoice** — one line per pack size, matching the quotation exactly. The
+   catalogue's list prices exclude shipping and tax, so add carriage and let
+   Stripe Tax handle the rest.
+3. **Reference** — put the quotation number and the buyer's PO reference on the
+   invoice, and the lot number once allocated. That is what ties the payment to
+   the certificate of analysis you ship.
+4. **Payment methods** — card and bank transfer (ACH) are the two that matter
+   here. Institutions frequently prefer transfer, and it costs you less.
+5. **Send from** the address on `pay.html`, so it matches what the site tells
+   buyers to expect. That page tells them to distrust anything arriving from
+   elsewhere, which only protects them if you keep to it.
+
+### Things not to do
+
+Never take card details by telephone or email and key them in yourself: it
+defeats the fraud protection, and it contradicts what `pay.html` promises
+customers. Never change bank details on an issued invoice — reissue instead.
+Both are the exact patterns invoice-fraud relies on.
+
+---
+
 ## 4. Decisions only you can make
 
 **The four restricted compounds.** Semaglutide, Tirzepatide, Retatrutide and

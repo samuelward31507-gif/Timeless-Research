@@ -37,6 +37,7 @@ compliance.html         Research use policy
 404.html                Not found
 products/<id>.html      27 generated specification pages
 specimen-coa.html       Worked example of a certificate of analysis
+pay.html                How an order is invoiced and paid
 legal/                  terms.html, privacy.html, shipping.html
 assets/
   css/main.css          Design tokens + all component styles
