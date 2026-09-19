@@ -52,10 +52,18 @@ sitemap.xml, robots.txt Generated
 
 ## Design
 
-Editorial and minimal on warm off-white paper (`#FAF9F7`): no card chrome,
-hairline rules instead of boxes, large Cormorant Garamond display type over
-Inter, and monospace reserved for analytical data (CAS, MW, sequences).
+Editorial and minimal on warm off-white paper (`#FAF9F7`): hairline rules
+instead of boxes through the page body, large Cormorant Garamond display type
+over Inter, and monospace reserved for analytical data (CAS, MW, sequences).
 A single deep-blue accent (`#0A57B0`) carries links and emphasis.
+
+Product cards follow a supplied reference: a rounded card, a tinted two-tone
+tile (lighter ground with a deeper floor band), a purity pill sitting on the
+tile edge, and one full-width pill action. Each research area carries its own
+pastel tint, set in `assets/data/products.json` alongside the category, and the
+translucent vial picks that tint up through the glass. The reference's
+commerce furniture — prices, discount flashes — is deliberately not carried
+over, since ordering here runs through quotation rather than checkout.
 
 ### The vials
 
@@ -75,9 +83,14 @@ genuine product shot on a light page:
   and paper texture. An earlier version covered the real label with a flat
   white rectangle, which is what made it look fake.
 
-The label carries the brand lockup (mark + wordmark) on one line, a rule, then
-the compound, its pack size, and the research-use line. The CAS number lives in
-the page text, not on the vial.
+Label text layout follows a supplied reference: the compound set large and
+left-aligned at the top, its pack size in a pill beneath, the brand wordmark
+running vertically up the right edge, and the purity pill with the research-use
+line along the bottom. The CAS number lives in the page text, not on the vial.
+
+Multiply can only darken, so the pills are outlined rather than filled —
+knocked-out light text inside a dark pill is not reachable through that blend
+mode.
 
 Label geometry in `.vial-print` is measured from the asset, not eyeballed —
 `make_vial.py` prints the values to keep CSS and asset in sync. Below 260px the

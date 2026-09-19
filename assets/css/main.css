@@ -217,6 +217,7 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .btn--quiet:hover { color: var(--ink); }
 .btn--sm { font-size: var(--t-xs); padding: .5rem 1rem; }
 .btn--block { width: 100%; }
+.btn--pill { border-radius: 3em; padding: .85rem 1.6rem; letter-spacing: .04em; text-transform: none; font-size: var(--t-base); }
 .btn[disabled] { opacity: .45; cursor: not-allowed; }
 
 /* a quiet editorial text action — underline, no box */
@@ -324,43 +325,77 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .search-field svg { position: absolute; left: 0; top: 50%; transform: translateY(-50%); color: var(--ink-4); }
 
 /* bare grid — no card outlines, the vial carries the composition */
-.product-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: var(--s-8) var(--s-6); }
+.product-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: var(--s-5); }
 @media (max-width: 1080px) { .product-grid { grid-template-columns: repeat(2,1fr); } }
-/* phones keep a 2-up grid: one column with full-size vials made the catalog
-   ~23,000px tall. --vial-h needs !important because vial() sets it inline. */
-@media (max-width: 620px) {
-  .product-grid { grid-template-columns: 1fr 1fr; gap: var(--s-6) var(--s-4); }
-  .product .vial { --vial-h: 168px !important; }
-  .product-media { padding: var(--s-5) var(--s-3) var(--s-4); }
-  .product-name { font-size: 1.02rem; }
-  .product-sub { font-size: var(--t-xs); min-height: 0; }
-  .product-meta { flex-direction: column; gap: var(--s-1); margin-bottom: var(--s-4); }
-}
-@media (max-width: 380px) { .product-grid { grid-template-columns: 1fr; } }
 
-.product { display: flex; flex-direction: column; background: none; border: 0; }
+/* Card styling follows the supplied reference: a rounded card, a tinted
+   two-tone product tile (lighter ground, deeper floor band), a purity pill
+   sitting on the tile edge, and one full-width pill action. */
+.product {
+  display: flex; flex-direction: column;
+  background: var(--bg, #fff); border: 1px solid var(--line);
+  border-radius: 18px; overflow: hidden;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.product:hover { border-color: var(--line-strong); transform: translateY(-3px); box-shadow: 0 18px 40px -24px rgba(28,26,23,.35); }
+
 .product-media {
   position: relative; display: grid; place-items: center;
   padding: var(--s-7) var(--s-4) var(--s-6);
-  background: var(--tile);
-  transition: background var(--dur) var(--ease);
+  background: var(--tint, var(--tile));
 }
-.product:hover .product-media { background: var(--deep); }
-.product-body { padding: var(--s-5) 0 0; display: flex; flex-direction: column; flex: 1; }
-.product-cas { font-family: var(--f-mono); font-size: .66rem; color: var(--ink-4); letter-spacing: .04em; }
-.product-name { font-size: 1.2rem; font-weight: 500; letter-spacing: -.015em; margin: var(--s-2) 0 var(--s-1); }
+/* the deeper band reads as the studio floor the vial stands on */
+.product-media::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 15%;
+  background: var(--tint-deep, var(--deep));
+}
+.product-media > * { position: relative; z-index: 1; }
+
+.product-badge {
+  position: absolute; left: var(--s-4); bottom: calc(15% - 16px); z-index: 2;
+  display: inline-flex; align-items: center; gap: .4em;
+  background: #fff; color: var(--ink);
+  border-radius: 3em; padding: .42em .8em;
+  font-size: var(--t-xs); font-weight: 600; letter-spacing: .01em;
+  box-shadow: 0 2px 10px -4px rgba(28,26,23,.3);
+}
+.product-badge svg { color: #12714A; }
+
+.product-flag {
+  position: absolute; right: var(--s-4); top: var(--s-4); z-index: 2;
+  background: var(--warn-bg); color: var(--warn-ink);
+  border: 1px solid var(--warn-line); border-radius: 3em;
+  padding: .3em .7em; font-size: .62rem; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+}
+
+.product-body { padding: var(--s-5); display: flex; flex-direction: column; flex: 1; gap: var(--s-2); }
+.product-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); }
+.product-name { font-size: 1.22rem; font-weight: 600; letter-spacing: -.02em; }
 .product-name a { transition: color var(--dur) var(--ease); }
 .product-name a:hover { color: var(--accent); }
-.product-sub { font-size: var(--t-sm); color: var(--ink-3); line-height: 1.6; min-height: 2.6em; }
-.product-meta { display: flex; flex-wrap: wrap; gap: var(--s-3); margin: var(--s-4) 0 var(--s-5); font-family: var(--f-mono); font-size: .66rem; color: var(--ink-4); }
-.product-meta span::after { content: ''; }
-.product-foot { margin-top: auto; display: flex; gap: var(--s-4); align-items: center; }
+.product-cas { font-family: var(--f-mono); font-size: .62rem; color: var(--ink-4); white-space: nowrap; }
+.product-sub { font-size: var(--t-sm); color: var(--ink-3); line-height: 1.55; min-height: 2.4em; }
+.product-meta { display: flex; flex-wrap: wrap; gap: var(--s-3); font-family: var(--f-mono); font-size: .66rem; color: var(--ink-4); }
+.product-foot { display: flex; gap: var(--s-4); align-items: center; margin-top: auto; padding-top: var(--s-2); }
 .product-foot select {
   flex: 1; background: none; border: 0; border-bottom: 1px solid var(--line);
   padding: .35rem 0; font-family: var(--f-mono); font-size: .72rem; color: var(--ink-2);
   outline: none; border-radius: 0; transition: border-color var(--dur) var(--ease);
 }
 .product-foot select:focus { border-bottom-color: var(--ink); }
+
+/* product page shares the tinted tile */
+.detail-media {
+  position: relative; display: grid; place-items: center;
+  padding: var(--s-8) var(--s-6); border-radius: 18px; overflow: hidden;
+  background: var(--tint, var(--tile));
+}
+.detail-media::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 15%;
+  background: var(--tint-deep, var(--deep));
+}
+.detail-media > * { position: relative; z-index: 1; }
 
 .chip { font-family: var(--f-mono); font-size: .66rem; letter-spacing: .03em; color: var(--ink-4); }
 .chip--accent { color: var(--ink-2); font-weight: 600; }
@@ -397,35 +432,59 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 /* scope to the photograph: .vial img would also catch the logo in the label */
 .vial > picture img { height: 100%; width: auto; }
 
+/* Label text layout follows the supplied reference: compound large and
+   left-aligned at the top, pack size in a pill beneath it, brand wordmark
+   running vertically up the right edge, purity pill and research-use line
+   along the bottom.
+
+   Multiply can only darken, so the pills are outlined rather than filled —
+   knocked-out light text inside a dark pill is not reachable through it. */
 .vial-print {
   position: absolute;
   left: 11.45%; top: 39.77%;
   width: 82.41%; height: 41.70%;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding-inline: 7%;
+  padding: 8% 6% 7% 8.5%;
   color: #1B1814;
   mix-blend-mode: multiply;
-  text-align: center; line-height: 1.1;
+  text-align: left;
   font-size: calc(var(--vial-h, 240px) * .058);
+  line-height: 1.05;
   overflow: hidden;
 }
-.vp-head { display: flex; align-items: center; gap: .34em; }
-.vp-mark { height: .78em; width: auto; }
-.vp-brand {
-  font-size: .27em; font-weight: 700; letter-spacing: .15em; text-indent: .15em;
-  white-space: nowrap; line-height: 1;
-}
-.vp-rule { width: 54%; height: 1px; background: currentColor; opacity: .26; margin: .62em 0 .56em; }
 .vp-name {
+  display: block;
   font-size: var(--vp-name, 1em); font-weight: 800;
-  letter-spacing: -.02em; white-space: nowrap; line-height: 1;
+  letter-spacing: -.035em; line-height: .92; white-space: nowrap;
 }
-.vp-name--wrap { white-space: normal; line-height: 1.05; }
-.vp-size { font-size: .38em; font-weight: 600; letter-spacing: .04em; margin-top: .5em; white-space: nowrap; }
+.vp-name--wrap { white-space: normal; line-height: 1; }
+.vp-dose {
+  display: inline-block; margin-top: .45em;
+  padding: .16em .58em .2em;
+  border: 1px solid currentColor; border-radius: 3em;
+  font-size: .3em; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase; white-space: nowrap;
+}
+.vp-side {
+  position: absolute; right: 5%; top: 7%;
+  display: flex; flex-direction: column-reverse; align-items: center; gap: .55em;
+}
+.vp-mark { height: .85em; width: auto; }
+.vp-brand {
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  font-size: .235em; font-weight: 700; letter-spacing: .3em; text-indent: .3em;
+  white-space: nowrap;
+}
+.vp-foot { position: absolute; left: 8.5%; bottom: 7%; }
+.vp-pill {
+  display: inline-block;
+  padding: .12em .5em .16em;
+  border: 1px solid currentColor; border-radius: 3em;
+  font-size: .235em; font-weight: 600; letter-spacing: .02em; white-space: nowrap;
+}
 .vp-ruo {
-  font-size: .25em; font-weight: 700; letter-spacing: .09em;
-  color: var(--copper); opacity: .8; margin-top: .95em; white-space: nowrap;
+  display: block; margin-top: .5em;
+  font-size: .215em; font-weight: 500; letter-spacing: .03em;
+  opacity: .72; white-space: nowrap;
 }
 
 /* --- Spec table --------------------------------------------------------- */

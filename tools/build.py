@@ -21,6 +21,7 @@ DATA = json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8
 PRODUCTS = DATA["products"]
 CATEGORIES = DATA["categories"]
 CAT_LABEL = {c["id"]: c["label"] for c in CATEGORIES}
+CAT_TINT = {c["id"]: (c["tint"], c["tintDeep"]) for c in CATEGORIES}
 
 SITE = "https://www.timelessresearch.com"
 BRAND = "Timeless Research"
@@ -185,32 +186,39 @@ def page(path, title, desc, body, active="", extra_head="", extra_body=""):
 
 
 # --------------------------------------------------------------------------- pieces
-def vial(p_name, size_label, height=240, alt=""):
+def vial(p_name, size_label, height=240, alt="", purity=None):
     """Render the vial photograph with a per-compound label printed into the
     real paper label.
 
-    Layout mirrors a real research vial: the brand lockup (mark + wordmark) on
-    one line at the top, a rule, then the compound, its pack size, and the
-    research-use line.
+    Text layout follows the supplied reference: the compound set large and
+    left-aligned at the top, its pack size in a pill beneath, the brand
+    wordmark running vertically up the right edge, and the purity pill with
+    the research-use line along the bottom.
 
     The text is a DOM layer blended with `multiply`, so it picks up the
     photographed label's own curvature shading and paper texture instead of
-    sitting on a flat synthetic rectangle. Label geometry is measured from the
-    asset's alpha channel by tools/make_vial.py:
-    left 11.20%, top 39.77%, width 82.69%, height 41.82%.
+    sitting on a flat synthetic rectangle. Multiply can only darken, so the
+    pills are outlined rather than filled — knocked-out light text inside a
+    dark pill is not reachable through this blend mode.
 
-    Below 260px the research-use line is dropped: at that scale it renders
-    under 6px and reads as a smudge."""
+    Label geometry is measured from the asset's alpha channel by
+    tools/make_vial.py: left 11.45%, top 39.77%, width 82.41%, height 41.70%.
+
+    Below 260px the purity and research-use lines are dropped: at that scale
+    they render under 6px and read as a smudge."""
     compact = height < 260
     n = len(p_name)
-    if   n <= 7:  scale, wrap = ".92em", ""
-    elif n <= 11: scale, wrap = ".72em", ""
-    elif n <= 15: scale, wrap = ".56em", ""
-    elif n <= 21: scale, wrap = ".45em", " vp-name--wrap"
-    else:         scale, wrap = ".38em", " vp-name--wrap"
+    if   n <= 7:  scale, wrap = "1.15em", ""
+    elif n <= 11: scale, wrap = ".88em",  ""
+    elif n <= 15: scale, wrap = ".66em",  ""
+    elif n <= 21: scale, wrap = ".52em",  " vp-name--wrap"
+    else:         scale, wrap = ".43em",  " vp-name--wrap"
 
-    detail = E(size_label)
-    ruo = "" if compact else '\n    <span class="vp-ruo">FOR RESEARCH USE ONLY</span>'
+    foot = ""
+    if not compact:
+        pur = f'<span class="vp-pill">Purity {E(purity)}</span>' if purity else ""
+        foot = ('\n    <span class="vp-foot">' + pur +
+                '<span class="vp-ruo">Research Use Only</span></span>')
 
     return f"""<span class="vial" style="--vial-h:{height}px">
   <picture>
@@ -218,13 +226,12 @@ def vial(p_name, size_label, height=240, alt=""):
     <img src="{{PREFIX}}assets/img/vial.png" alt="{E(alt) if alt else ''}" width="489" height="880" loading="lazy" decoding="async">
   </picture>
   <span class="vial-print" style="--vp-name:{scale}" aria-hidden="true">
-    <span class="vp-head">
+    <span class="vp-name{wrap}">{E(p_name)}</span>
+    <span class="vp-dose">{E(size_label)}</span>
+    <span class="vp-side">
       <img class="vp-mark" src="{{PREFIX}}assets/img/mark.svg" alt="" width="100" height="206">
       <span class="vp-brand">TIMELESS RESEARCH</span>
-    </span>
-    <span class="vp-rule"></span>
-    <span class="vp-name{wrap}">{E(p_name)}</span>
-    <span class="vp-size">{detail}</span>{ruo}
+    </span>{foot}
   </span>
 </span>"""
 
@@ -278,17 +285,21 @@ def build_home():
     featured = [p for p in PRODUCTS if p["id"] in ("bpc-157", "ipamorelin", "ghk-cu", "epithalon", "mots-c", "ss-31")]
     feat_html = "".join(f"""
       <article class="product" data-reveal data-reveal-delay="{i % 3}">
-        <div class="product-media">{vial(p['name'], p['sizes'][0], 285)}</div>
+        <div class="product-media" style="--tint:{CAT_TINT[p['category']][0]};--tint-deep:{CAT_TINT[p['category']][1]}">
+          {vial(p['name'], p['sizes'][0], 285, purity=p.get('purity'))}
+          <span class="product-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 6 6L20 6"/></svg>{E(p['purity'])} HPLC</span>
+        </div>
         <div class="product-body">
-          <span class="product-cas">CAS {E(p['cas'] or '—')}</span>
-          <h3 class="product-name"><a href="products/{p['id']}.html">{E(p['name'])}</a></h3>
-          <p class="product-sub">{E(p['research'][:96])}…</p>
-          <div class="product-meta"><span>{E(p['purity'])} HPLC</span><span>{E(p['form'])}</span></div>
-          <div class="product-foot"><a class="link-action" href="products/{p['id']}.html">Specification</a></div>
+          <div class="product-head">
+            <h3 class="product-name"><a href="products/{p['id']}.html">{E(p['name'])}</a></h3>
+            <span class="product-cas">CAS {E(p['cas'] or '—')}</span>
+          </div>
+          <p class="product-sub">{E((p.get('synonyms') or [CAT_LABEL[p['category']]])[0])}</p>
+          <a class="btn btn--primary btn--pill btn--block" href="products/{p['id']}.html">View</a>
         </div>
       </article>""" for i, p in enumerate(featured))
 
-    hero_vial = vial("BPC-157", "5 mg", 470,
+    hero_vial = vial("BPC-157", "5 mg", 470, purity="\u226598%",
                      alt="A Timeless Research vial of BPC-157, 5 mg")
     body = f"""
 <section class="hero">
@@ -392,22 +403,25 @@ def build_catalog():
         hay = " ".join(filter(None, [p["name"], p.get("cas") or "", " ".join(p.get("synonyms") or []),
                                      CAT_LABEL[p["category"]], p["research"]])).lower()
         sizes = "".join(f'<option value="{E(s)}">{E(s)}</option>' for s in p["sizes"])
+        tint, tint_deep = CAT_TINT[p['category']]
         cards.append(f"""
         <article class="product" data-cat="{p['category']}" data-search="{E(hay)}">
-          <div class="product-media">{vial(p['name'], p['sizes'][0], 285)}
-            {'<span class="ruo-badge" style="position:absolute;top:.75rem;right:.75rem">Restricted</span>' if p.get('restricted') else ''}
+          <div class="product-media" style="--tint:{tint};--tint-deep:{tint_deep}">
+            {vial(p['name'], p['sizes'][0], 285, purity=p.get('purity'))}
+            {'<span class="product-flag">Restricted</span>' if p.get('restricted') else ''}
+            <span class="product-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 6 6L20 6"/></svg>{E(p['purity'])} HPLC</span>
           </div>
           <div class="product-body">
-            <span class="product-cas">CAS {E(p['cas'] or '—')}</span>
-            <h3 class="product-name"><a href="products/{p['id']}.html">{E(p['name'])}</a></h3>
-            <p class="product-sub">{E((p.get('synonyms') or [CAT_LABEL[p['category']]])[0])}</p>
-            <div class="product-meta">
-              <span>{E(p['purity'])} HPLC</span><span>MW {E(p['mw'] or '—')}</span><span>{E(p['form'])}</span>
+            <div class="product-head">
+              <h3 class="product-name"><a href="products/{p['id']}.html">{E(p['name'])}</a></h3>
+              <span class="product-cas">CAS {E(p['cas'] or '—')}</span>
             </div>
+            <p class="product-sub">{E((p.get('synonyms') or [CAT_LABEL[p['category']]])[0])}</p>
             <div class="product-foot">
               <select aria-label="Pack size for {E(p['name'])}" data-size>{sizes}</select>
               <button class="link-action" data-add="{p['id']}" data-name="{E(p['name'])}">Add to list</button>
             </div>
+            <a class="btn btn--primary btn--pill btn--block" href="products/{p['id']}.html">View</a>
           </div>
         </article>""")
 
@@ -519,8 +533,8 @@ def build_products():
 
     <div class="split">
       <div>
-        <div style="background:var(--tile);padding:3.5rem 2rem;display:grid;place-items:center">
-          {vial(p['name'], p['sizes'][0], 400, alt=f"{p['name']} research vial, {p['sizes'][0]}")}
+        <div class="detail-media" style="--tint:{CAT_TINT[p['category']][0]};--tint-deep:{CAT_TINT[p['category']][1]}">
+          {vial(p['name'], p['sizes'][0], 400, alt=f"{p['name']} research vial, {p['sizes'][0]}", purity=p.get('purity'))}
         </div>
         <p class="muted" style="font-size:.7rem;margin-top:.75rem;text-align:center">Label shown for illustration. Supplied vial carries the lot number and release date.</p>
       </div>
