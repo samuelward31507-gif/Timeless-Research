@@ -328,57 +328,132 @@ if(S.glow){
   ctx.fillStyle=rg; ctx.fillRect(0,0,W,H);
 }
 
-/* ridge geometry */
+/* ---------- terrain as a lit heightfield ----------
+   The flat silhouette fills are what made these read as vector art. Real
+   terrain has form because light lands differently on each slope, so every
+   layer is now shaded per pixel: lambert from the sun, atmospheric
+   perspective by depth, surface texture, and snow that accumulates on
+   shallow ground rather than being painted on by height alone. */
+
+/* fast integer hash — Math.sin hashing was far too slow at 2M px/frame */
+function hash2i(x, y){
+  // Math.imul, not *: a plain 32-bit x 32-bit multiply overflows 2^53 in JS and
+  // silently drops the low bits, which left visible structure in the noise.
+  let h = Math.imul(x|0, 374761393) + Math.imul(y|0, 668265263) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+function vnoise2(x, y){
+  const ix = Math.floor(x), iy = Math.floor(y);
+  const fx = x - ix, fy = y - iy;
+  const ux = fx*fx*(3-2*fx), uy = fy*fy*(3-2*fy);
+  const a = hash2i(ix, iy),     b = hash2i(ix+1, iy);
+  const c = hash2i(ix, iy+1),   d = hash2i(ix+1, iy+1);
+  return a*(1-ux)*(1-uy) + b*ux*(1-uy) + c*(1-ux)*uy + d*ux*uy;
+}
+function fbm2(x, y, oct){
+  let v=0, a=0.5, f=1, s=0;
+  for(let i=0;i<oct;i++){ v += vnoise2(x*f, y*f)*a; s += a; a*=0.5; f*=2; }
+  return v/s;
+}
+
 function ridgeY(n,x,L){
   let v = fbm1(n, x*L.fr, L.oct||5);
-  if(L.jag){                                  // sharpen into peaks
+  if(L.jag){
     v = Math.pow(v, 1.45);
     v = v*0.80 + 0.20*Math.pow(fbm1(n,(x+740)*L.fr*2.1,2),1.8);
   }
-  if(L.dune){                                 // soft windward, steep lee
+  if(L.dune){
     const t=Math.max(0,Math.min(1,v)); v=t*t*(3-2*t);
     v = v*0.85 + 0.15*fbm1(n,(x+311)*L.fr*0.6,2);
   }
-  if(L.mesa){                                 // quantise into flat-topped benches
-    v = Math.round(v*7)/7*0.55 + v*0.45;
-  }
+  if(L.mesa) v = Math.round(v*7)/7*0.55 + v*0.45;
   return L.y*H + (v-0.5)*2*L.amp;
 }
-function ridgePath(n,L,flipY){
-  ctx.beginPath();
-  if(flipY===undefined){
-    ctx.moveTo(0,H);
-    for(let x=0;x<=W;x+=2) ctx.lineTo(x, ridgeY(n,x,L));
-    ctx.lineTo(W,H);
-  } else {                                     // mirrored about flipY
-    ctx.moveTo(0,flipY);
-    for(let x=0;x<=W;x+=2) ctx.lineTo(x, 2*flipY - ridgeY(n,x,L));
-    ctx.lineTo(W,flipY);
-  }
-  ctx.closePath();
-}
 
-/* water body */
-if(S.water){
-  const w=S.water, y0=w.y*H;
-  const wg=ctx.createLinearGradient(0,y0,0,H);
-  wg.addColorStop(0,w.c1); wg.addColorStop(1,w.c2);
-  ctx.fillStyle=wg; ctx.fillRect(0,y0,W,H-y0);
-}
+const layers = S.ridges || [];
+const NL = layers.length;
 
-/* ridges */
-const ridgeNoises = (S.ridges||[]).map((_,li)=>mkNoise1D(1000+li*137));
-(S.ridges||[]).forEach((L,li)=>{
-  const n=ridgeNoises[li];
-  ridgePath(n,L); ctx.fillStyle=L.c; ctx.fill();
-  if(L.haze>0){
-    ctx.save(); ctx.clip();
-    const hz=ctx.createLinearGradient(0,L.y*H-L.amp,0,L.y*H+L.amp*2.4);
-    hz.addColorStop(0,`rgba(180,205,225,${(L.haze*0.30).toFixed(3)})`);
-    hz.addColorStop(1,'rgba(180,205,225,0)');
-    ctx.fillStyle=hz; ctx.fillRect(0,0,W,H); ctx.restore();
-  }
+/* height + slope per column, once per frame */
+const HGT = [], SLP = [];
+layers.forEach((L,li)=>{
+  const n = mkNoise1D(1000+li*137);
+  const h = new Float32Array(W+2);
+  for(let x=0; x<=W+1; x++) h[x] = ridgeY(n, x, L);
+  const sl = new Float32Array(W+2);
+  for(let x=1; x<=W; x++) sl[x] = (h[x+1]-h[x-1]) * 0.5;
+  sl[0]=sl[1]; sl[W+1]=sl[W];
+  HGT.push(h); SLP.push(sl);
 });
+
+function hex2rgbArr(h){
+  const n = parseInt(h.slice(1),16);
+  return [(n>>16)&255, (n>>8)&255, n&255];
+}
+
+if(NL){
+  const sunX = (S.glow ? S.glow.x : 0.5) * W;
+  const sunY = (S.glow ? S.glow.y : 0.5) * H;
+  // haze colour taken from the sky at the horizon so distance reads correctly
+  const hazeRGB = hex2rgbArr(S.sky[Math.min(S.sky.length-1, S.sky.length-2)][1]);
+  const img = ctx.getImageData(0,0,W,H);
+  const d = img.data;
+  const cols = layers.map(L=>hex2rgbArr(L.c));
+
+  for(let x=0; x<W; x++){
+    let bottom = H;
+    // nearest layer first; each one occludes everything behind it
+    for(let i=NL-1; i>=0; i--){
+      const top = Math.max(0, Math.floor(HGT[i][x]));
+      if(top >= bottom) continue;
+
+      const L = layers[i];
+      const depth = NL===1 ? 1 : i/(NL-1);        // 0 = farthest, 1 = nearest
+      const haze  = (L.haze!==undefined ? L.haze : 0.3);
+      const [br,bg,bb] = cols[i];
+
+      // lambert-ish term from the profile slope against the sun direction
+      const s = SLP[i][x];
+      // Light direction must vary CONTINUOUSLY across the frame. A +1/-1 sign
+      // flip at the sun's x cut a hard vertical seam straight down the image.
+      const dirX = Math.tanh((sunX - x) / (W * 0.30));
+      const facing = Math.tanh(-s * dirX * 0.70);
+      // distance from the light also dims the terrain a little
+      const falloff = 1 - 0.14 * Math.min(1, Math.abs(sunX - x) / (W * 0.75));
+      const lambert = (0.94 + 0.44 * facing) * falloff;
+
+      const ridgeTop = HGT[i][x];
+
+      for(let y=top; y<bottom; y++){
+        const below = y - ridgeTop;
+
+        // form: bright just under the ridge line, falling into shadow below
+        const form = 1.03 - 0.30 * Math.min(1, below / (150 + 260*depth));
+
+        // surface texture, coarser on near layers so grain doesn't crawl
+        const scale = 0.016 + 0.040*depth;
+        const tex = 0.86 + 0.28 * fbm2(x*scale, y*scale*1.35, 4);
+
+        let r = br * lambert * form * tex;
+        let g = bg * lambert * form * tex;
+        let b = bb * lambert * form * tex;
+
+        // atmospheric perspective — distant layers wash toward the horizon
+        const mix = haze * (0.55 - 0.42*depth) * (1 - Math.min(1, below/620));
+        if(mix > 0){
+          r += (hazeRGB[0]-r)*mix; g += (hazeRGB[1]-g)*mix; b += (hazeRGB[2]-b)*mix;
+        }
+
+        const p = (y*W + x) << 2;
+        d[p]   = r < 0 ? 0 : r > 255 ? 255 : r;
+        d[p+1] = g < 0 ? 0 : g > 255 ? 255 : g;
+        d[p+2] = b < 0 ? 0 : b > 255 ? 255 : b;
+      }
+      bottom = top;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
 
 /* mirrored reflection into the water */
 if(S.mirror){
@@ -386,13 +461,16 @@ if(S.mirror){
   ctx.save();
   ctx.beginPath(); ctx.rect(0,my,W,H-my); ctx.clip();
   ctx.globalAlpha=S.mirror.alpha;
-  (S.ridges||[]).forEach((L,li)=>{
-    ridgePath(ridgeNoises[li],L,my);
+  layers.forEach((L,li)=>{
+    ctx.beginPath(); ctx.moveTo(0,my);
+    for(let x=0;x<=W;x+=2) ctx.lineTo(x, 2*my - HGT[li][x]);
+    ctx.lineTo(W,my); ctx.closePath();
     ctx.fillStyle=L.c; ctx.fill();
   });
   ctx.globalAlpha=1;
-  const sm=ctx.createLinearGradient(0,my,0,H);   // sink it into the depths
-  sm.addColorStop(0,'rgba(0,0,0,0)'); sm.addColorStop(.55,'rgba(6,14,19,.45)'); sm.addColorStop(1,'rgba(4,9,13,.92)');
+  const sm=ctx.createLinearGradient(0,my,0,H);
+  sm.addColorStop(0,'rgba(0,0,0,0)'); sm.addColorStop(.55,'rgba(6,14,19,.45)');
+  sm.addColorStop(1,'rgba(4,9,13,.92)');
   ctx.fillStyle=sm; ctx.fillRect(0,my,W,H-my);
   ctx.restore();
 }
@@ -403,15 +481,15 @@ if(S.water){
   const gn=mkNoise1D(6060);
   const base=w.glint.replace(/rgba\(([^)]*),[\d.]+\)/,'$1');
   for(let y=y0; y<H; y+=3){
-    const d=(y-y0)/(H-y0);
-    const half=(20+210*Math.pow(d,0.9))*(0.80+0.30*fbm1(gn,y*0.03+drift*2,2));
-    const wob=Math.sin(y*0.09 + drift*Math.PI*2)*(3+18*d);
-    const a=Math.pow(1-d,1.7)*0.30*(0.75+0.25*breath);
+    const dd=(y-y0)/(H-y0);
+    const half=(20+210*Math.pow(dd,0.9))*(0.80+0.30*fbm1(gn,y*0.03+drift*2,2));
+    const wob=Math.sin(y*0.09 + drift*Math.PI*2)*(3+18*dd);
+    const a=Math.pow(1-dd,1.7)*0.30*(0.75+0.25*breath);
     const cx=gx+wob;
     const g=ctx.createLinearGradient(cx-half,0,cx+half,0);
-    g.addColorStop(0,   `rgba(${base},0)`);
-    g.addColorStop(0.5, `rgba(${base},${a.toFixed(3)})`);
-    g.addColorStop(1,   `rgba(${base},0)`);
+    g.addColorStop(0,`rgba(${base},0)`);
+    g.addColorStop(0.5,`rgba(${base},${a.toFixed(3)})`);
+    g.addColorStop(1,`rgba(${base},0)`);
     ctx.fillStyle=g;
     ctx.fillRect(cx-half, y, half*2, 2.2);
   }
@@ -526,7 +604,7 @@ if(S.fog){
     fg.addColorStop(.5,S.fog);
     fg.addColorStop(1,'rgba(0,0,0,0)');
     ctx.fillStyle=fg;
-    ctx.globalAlpha=0.55+0.45*Math.sin((drift+i*0.17)*Math.PI*2)*0.5+0.22*breath;
+    ctx.globalAlpha=Math.min(1, 0.42+0.20*Math.sin((drift+i*0.17)*Math.PI*2)+0.14*breath);
     ctx.fillRect(0,yy-hh,W,hh*2);
     ctx.globalAlpha=1;
   }
@@ -545,14 +623,18 @@ if(S.snow){
 }
 
 /* Static dither — breaks gradient banding without costing bitrate.
-   Seed must NOT vary with phase: per-frame noise is incompressible and
-   blew one 2-minute encode up to 376MB. */
+   Uses a positional 2D hash, NOT a sequential LCG: an LCG walked row-major
+   correlates with the frame width and shows up as vertical streaking.
+   The pattern must not vary with phase, or every frame becomes unique and
+   incompressible (that cost 376MB on one 2-minute encode). */
 (function(){
-  const r=mkRand(5150);
   const img=ctx.getImageData(0,0,W,H), d=img.data;
-  for(let i=0;i<d.length;i+=4){
-    const g=(r()-0.5)*6;
-    d[i]+=g; d[i+1]+=g; d[i+2]+=g;
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const g=(hash2i(x+7919, y+104729)-0.5)*6;
+      const p=(y*W+x)<<2;
+      d[p]+=g; d[p+1]+=g; d[p+2]+=g;
+    }
   }
   ctx.putImageData(img,0,0);
 })();
