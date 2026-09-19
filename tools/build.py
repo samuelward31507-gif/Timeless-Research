@@ -440,12 +440,18 @@ def vial(p_name, size_label, height=240, alt="", purity=None, pid=None):
                 f'<span><b>RETEST</b> 2027-04 \u00b7 \u221220 \u00b0C</span>'
                 f'</span>')
 
+    # The strength sits at the head of the bottom block, above the release
+    # lines, rather than under the compound name. Below 260px there is no
+    # bottom block, so it stays with the name.
+    dose = f'<span class="vp-dose">{E(size_label)}</span>'
+
     foot = ""
     if not compact:
         pur = f'<span class="vp-pill">Purity {E(purity)}</span>' if purity else ""
-        foot = ('\n    <span class="vp-foot">' + meta + pur +
+        foot = ('\n    <span class="vp-foot">' + dose + meta + pur +
                 '<span class="vp-ruo">Research Use Only</span></span>')
         meta = ""   # consumed by the foot
+        dose = ""   # ditto
 
     return f"""<span class="vial" style="--vial-h:{height}px">
   <picture>
@@ -453,8 +459,7 @@ def vial(p_name, size_label, height=240, alt="", purity=None, pid=None):
     <img src="{{PREFIX}}assets/img/vial.png" alt="{E(alt) if alt else ''}" width="{VIAL_W}" height="{VIAL_H}" loading="lazy" decoding="async">
   </picture>
   <span class="vial-print" aria-hidden="true">
-    <span class="vp-name">{E(label_name(p_name))}</span>
-    <span class="vp-dose">{E(size_label)}</span>{meta}
+    <span class="vp-name">{E(label_name(p_name))}</span>{dose}{meta}
     <span class="vp-side">
       <img class="vp-mark" src="{{PREFIX}}assets/img/mark.svg" alt="" width="100" height="206">
       <span class="vp-brand">TIMELESS RESEARCH</span>

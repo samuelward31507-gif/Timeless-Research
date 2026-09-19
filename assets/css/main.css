@@ -640,6 +640,9 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
   font-size: .92em; font-weight: 700; letter-spacing: 0;
   text-transform: uppercase; white-space: nowrap;
 }
+/* In the bottom block it leads the release lines, so the margin goes below it
+   rather than above. Only the compact vial still carries it under the name. */
+.vp-foot .vp-dose { margin: 0 0 .2em; }
 .vp-meta {
   /* Traceability block: the small dense type a real vial carries. It lives in
      the bottom-anchored stack with the warnings rather than flowing under the

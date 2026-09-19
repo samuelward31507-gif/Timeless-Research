@@ -196,22 +196,21 @@ def print_label(card: Image.Image, vx: int, vy: int, vw: int, vh: int,
         size -= 1
     draw_text(draw, (x, y), name, load_font(700, size), INK, round(size * 0.92))
 
-    # Strength: plain and large under the name, matching the site. It used to be
-    # drawn in a rounded outline chip; no pharmaceutical vial prints a strength
-    # that way, and the card must not disagree with the page it links to.
-    f_dose = load_font(700, round(base * 0.82))
-    draw.text((x, y + base * 1.02), dose, font=f_dose, fill=INK)
-
-    # release block along the bottom, under a hairline as on the site
-    by = ly + lh - base * 1.42
+    # Release block along the bottom, under a hairline as on the site: the
+    # strength leads it, then purity, then the warning. The card must not
+    # disagree with the page it links to, so this order tracks the CSS.
+    by = ly + lh - base * 2.02
     rule_w = lw * 0.62
     draw.line([(x, by), (x + rule_w, by)], fill=INK_3, width=1)
+
+    f_dose = load_font(700, round(base * 0.82))
+    draw.text((x, by + base * 0.14), dose, font=f_dose, fill=INK)
 
     f_pill = load_font(600, round(base * 0.45))
     pt = f"Purity {purity}"
     fb_size = round(base * 0.40)
-    draw_text(draw, (x, by + base * 0.16), pt, f_pill, INK, fb_size)
-    draw.text((x, by + base * 0.74), "Research Use Only",
+    draw_text(draw, (x, by + base * 1.06), pt, f_pill, INK, fb_size)
+    draw.text((x, by + base * 1.64), "Research Use Only",
               font=load_font(500, round(base * 0.41)), fill=INK_3)
 
     # brand lockup running up the right edge
