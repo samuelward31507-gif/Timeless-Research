@@ -137,7 +137,10 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .prose p, .prose li { color: var(--ink-2); line-height: 1.82; }
 .prose ul, .prose ol { padding-left: 1.2rem; }
 .prose li + li { margin-top: var(--s-2); }
-.prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+/* buttons inside prose must keep their own colour: .prose a is (0,1,1) and
+   was overriding .btn--primary (0,1,0), painting the label in accent blue on
+   an accent-blue hover background — the text disappeared entirely */
+.prose a:not(.btn):not(.link-action) { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 .prose strong { color: var(--ink); font-weight: 600; }
 
 /* --- Layout ------------------------------------------------------------- */
@@ -186,8 +189,8 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 }
 
 .nav { display: flex; align-items: center; gap: var(--s-6); }
-.nav a { font-size: var(--t-sm); color: var(--ink-3); transition: color var(--dur) var(--ease); position: relative; padding-block: var(--s-1); }
-.nav a:hover, .nav a[aria-current="page"] { color: var(--ink); }
+.nav a:not(.btn) { font-size: var(--t-sm); color: var(--ink-3); transition: color var(--dur) var(--ease); position: relative; padding-block: var(--s-1); }
+.nav a:not(.btn):hover, .nav a:not(.btn)[aria-current="page"] { color: var(--ink); }
 .nav a[aria-current="page"]::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--ink); }
 .header-actions { display: flex; align-items: center; gap: var(--s-3); }
 
@@ -376,7 +379,7 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .product-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); }
 .product-name { font-size: 1.22rem; font-weight: 600; letter-spacing: -.02em; }
 .product-name a { transition: color var(--dur) var(--ease); }
-.product-name a:hover { color: var(--accent); }
+.product-name a:not(.btn):hover { color: var(--accent); }
 .product-cas { font-family: var(--f-mono); font-size: .62rem; color: var(--ink-4); white-space: nowrap; }
 .product-sub { font-size: var(--t-sm); color: var(--ink-3); line-height: 1.55; min-height: 2.4em; }
 .product-meta { display: flex; flex-wrap: wrap; gap: var(--s-3); font-family: var(--f-mono); font-size: .66rem; color: var(--ink-4); }
@@ -528,7 +531,7 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .acc-item.is-open .acc-q svg { transform: rotate(45deg); }
 .acc-a { display: none; padding-bottom: var(--s-5); color: var(--ink-3); line-height: 1.82; max-width: 70ch; }
 .acc-item.is-open .acc-a { display: block; }
-.acc-a a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.acc-a a:not(.btn) { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 
 /* --- Forms — underline fields, no boxes --------------------------------- */
 .field { margin-bottom: var(--s-5); }
@@ -608,8 +611,8 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 @media (max-width: 520px) { .footer-grid { grid-template-columns: 1fr; } }
 .footer h3 { font-size: var(--t-xs); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-4); margin-bottom: var(--s-4); }
 .footer ul { list-style: none; display: flex; flex-direction: column; gap: var(--s-3); }
-.footer a { font-size: var(--t-sm); color: var(--ink-3); transition: color var(--dur) var(--ease); }
-.footer a:hover { color: var(--ink); }
+.footer a:not(.btn) { font-size: var(--t-sm); color: var(--ink-3); transition: color var(--dur) var(--ease); }
+.footer a:not(.btn):hover { color: var(--ink); }
 .footer-note { font-size: var(--t-sm); color: var(--ink-3); line-height: 1.78; max-width: 40ch; margin-top: var(--s-4); }
 .footer-bottom {
   margin-top: var(--s-8); padding-top: var(--s-5); border-top: 1px solid var(--line);
@@ -619,8 +622,8 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 
 /* --- Breadcrumb --------------------------------------------------------- */
 .crumb { display: flex; gap: var(--s-2); font-size: var(--t-xs); color: var(--ink-4); margin-bottom: var(--s-6); flex-wrap: wrap; font-family: var(--f-mono); }
-.crumb a { color: var(--ink-3); }
-.crumb a:hover { color: var(--ink); }
+.crumb a:not(.btn) { color: var(--ink-3); }
+.crumb a:not(.btn):hover { color: var(--ink); }
 
 /* --- Reveal (progressive enhancement) ----------------------------------- */
 .js [data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity .65s var(--ease), transform .65s var(--ease); }

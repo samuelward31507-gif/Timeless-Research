@@ -107,6 +107,24 @@ for page in PAGES:
             # "not for human use" phrasing is expected; flag for review only
             notes.append(f"review {page.relative_to(ROOT).as_posix()}: possible {label}")
 
+# --------------------------------------------------- button colour isolation
+# A descendant rule like `.prose a { color: ... }` beats `.btn--primary` on
+# specificity, so a button placed inside that container gets repainted — once
+# badly enough that the label came out the same colour as its own background.
+# Any such rule that sets a colour must therefore exclude buttons.
+CSS = (ROOT / "assets/css/main.css").read_text(encoding="utf-8")
+CSS = re.sub(r"/\*.*?\*/", "", CSS, flags=re.S)
+LAST_A = re.compile(r"\s(a(?::[\w-]+(?:\([^)]*\))?|\[[^\]]*\])*)$")
+
+for selectors, body in re.findall(r"([^{}]+)\{([^{}]*)\}", CSS):
+    if not re.search(r"(?:^|;)\s*color\s*:", body):
+        continue
+    for sel in selectors.split(","):
+        sel = sel.strip()
+        m = LAST_A.search(sel)
+        if m and ":not(.btn)" not in m.group(1):
+            fail(f"CSS rule `{sel}` colours descendant links without excluding .btn")
+
 # ------------------------------------------------------------- generated
 for extra in ("sitemap.xml", "robots.txt", "assets/img/favicon.svg",
               "assets/data/products.json", "assets/css/main.css",
