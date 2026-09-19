@@ -143,6 +143,25 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .prose a:not(.btn):not(.link-action) { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 .prose strong { color: var(--ink); font-weight: 600; }
 
+/* Legal documents. Numbered clauses want tighter leading than editorial prose,
+   and the two conspicuous blocks must stay visually distinct: a disclaimer of
+   implied warranties has to be noticeable to be effective, not buried. */
+.prose--legal h2 { font-family: var(--f-ui); font-size: var(--t-lg); font-weight: 600; letter-spacing: 0; margin-top: var(--s-6); }
+.prose--legal p, .prose--legal li { line-height: 1.72; }
+.legal-strong {
+  border-left: 3px solid var(--ink-3); background: var(--tile);
+  padding: var(--s-4) var(--s-5); margin-top: var(--s-4); border-radius: var(--radius);
+}
+.legal-strong p { color: var(--ink); font-size: var(--t-sm); line-height: 1.7; font-weight: 500; }
+.legal-strong p + p { margin-top: var(--s-3); }
+/* A detail the owner still has to supply. Loud on purpose: an unfilled legal
+   document should be impossible to publish without noticing. */
+.fill-me {
+  background: var(--warn-bg); color: var(--warn-ink);
+  border-bottom: 2px solid var(--warn-line);
+  padding: 0 .3em; font-weight: 600; border-radius: 2px;
+}
+
 /* --- Layout ------------------------------------------------------------- */
 .shell   { max-width: var(--shell);   margin-inline: auto; padding-inline: var(--s-6); }
 .shell-n { max-width: var(--shell-n); margin-inline: auto; padding-inline: var(--s-6); }
@@ -606,7 +625,7 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 
 /* --- Footer ------------------------------------------------------------- */
 .footer { border-top: 1px solid var(--line); padding-block: var(--s-8) var(--s-6); }
-.footer-grid { display: grid; grid-template-columns: 1.6fr repeat(2,1fr); gap: var(--s-7); }
+.footer-grid { display: grid; grid-template-columns: 1.6fr repeat(3,1fr); gap: var(--s-7); }
 @media (max-width: 860px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: var(--s-6); } }
 @media (max-width: 520px) { .footer-grid { grid-template-columns: 1fr; } }
 .footer h3 { font-size: var(--t-xs); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-4); margin-bottom: var(--s-4); }

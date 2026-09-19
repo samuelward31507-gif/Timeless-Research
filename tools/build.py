@@ -45,6 +45,22 @@ ANALYTICS_HEAD = os.environ.get("TR_ANALYTICS_HEAD", "")
 BRAND = "Timeless Research"
 TODAY = datetime.date.today().isoformat()
 
+# Identity used in the legal documents. These have to be the real trading
+# details: a fabricated address or registration number would make the documents
+# false, which is worse than not publishing them. Anything left unset renders as
+# a visible fill-in marker on the page rather than as a silent blank, and
+# tools/check.py reports it, so an incomplete document cannot ship unnoticed.
+LEGAL_ENTITY = os.environ.get("TR_LEGAL_ENTITY", BRAND)
+LEGAL_ADDRESS = os.environ.get("TR_LEGAL_ADDRESS", "")
+LEGAL_STATE = os.environ.get("TR_LEGAL_STATE", "")
+LEGAL_EMAIL = os.environ.get("TR_LEGAL_EMAIL", "") or CONTACT_EMAIL
+
+
+def fill(value: str, label: str) -> str:
+    """A configured legal detail, or a visible marker where one is still needed."""
+    return E(value) if value else f'<mark class="fill-me">{E(label)}</mark>'
+
+
 NAV = [
     ("Catalog", "catalog.html"),
     ("Analytical", "quality.html"),
@@ -161,7 +177,15 @@ def footer(depth):
           <li><a href="{p}quality.html">Analytical programme</a></li>
           <li><a href="{p}faq.html">FAQ</a></li>
           <li><a href="{p}contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Legal</h3>
+        <ul>
           <li><a href="{p}compliance.html">Research use policy</a></li>
+          <li><a href="{p}legal/terms.html">Terms of sale</a></li>
+          <li><a href="{p}legal/privacy.html">Privacy</a></li>
+          <li><a href="{p}legal/shipping.html">Shipping &amp; returns</a></li>
         </ul>
       </div>
     </div>
@@ -869,7 +893,7 @@ def build_contact():
           </div>
 
           <button class="btn btn--primary btn--block" type="submit">Send enquiry</button>
-          <p class="muted" style="font-size:.7rem;margin-top:1rem;text-align:center">By submitting you agree to our <a href="compliance.html" style="color:var(--accent);text-decoration:underline">research use policy</a>.</p>
+          <p class="muted" style="font-size:.7rem;margin-top:1rem;text-align:center">By submitting you agree to our <a href="legal/privacy.html" style="color:var(--accent);text-decoration:underline">privacy policy</a> and <a href="compliance.html" style="color:var(--accent);text-decoration:underline">research use policy</a>.</p>
           <div id="form-status" role="status" aria-live="polite" style="margin-top:1rem"></div>
         </form>
       </div>
@@ -932,6 +956,187 @@ def build_compliance():
                 body, "")
 
 
+# --------------------------------------------------------------------------- legal
+# Written for a US sole proprietorship selling research reagents business to
+# business. Two clauses carry real weight and are deliberately set in capitals:
+# UCC 2-316 requires a disclaimer of the implied warranties of merchantability
+# and fitness to be conspicuous, and a limitation of liability is read the same
+# way. Do not quietly restyle those into sentence case.
+
+
+def legal_page(slug, title, eyebrow, heading, lede, prose):
+    body = f"""
+<section class="section section--tight">
+  <div class="shell-n">
+    <nav class="crumb" aria-label="Breadcrumb"><a href="../index.html">Home</a> <span>/</span> <span>{E(eyebrow)}</span></nav>
+    <div class="sec-head">
+      <span class="eyebrow">{E(eyebrow)}</span>
+      <h1 class="display h-sec">{heading}</h1>
+      <p class="lede">{E(lede)} Last updated {TODAY}.</p>
+    </div>
+    <div class="prose prose--legal">{prose}</div>
+  </div>
+</section>
+"""
+    return page(f"legal/{slug}.html", f"{title} — {BRAND}", lede, body, "")
+
+
+def build_legal():
+    entity = fill(LEGAL_ENTITY, "your trading name")
+    address = fill(LEGAL_ADDRESS, "your business address")
+    state = fill(LEGAL_STATE, "your state")
+    email = E(LEGAL_EMAIL)
+    out = []
+
+    # ---------------------------------------------------------------- terms
+    out.append(legal_page("terms", "Terms of Sale", "Legal", "Terms of <em>sale.</em>",
+        f"The terms on which {BRAND} accepts orders and supplies material.", f"""
+      <h2>1. Who these terms are between</h2>
+      <p>These terms govern every sale by {entity}, a sole proprietorship operating from {address} (“we”, “us”, “our”), to the account holder placing the order (“you”). They apply instead of any purchase-order or vendor terms you send us. Our beginning work on an order is not acceptance of those terms.</p>
+
+      <h2>2. Who may buy</h2>
+      <p>We supply verified institutional and qualified-research accounts only. Submitting a request list or a quotation request is not an order — it is an invitation for us to quote. A contract is formed only when we issue a written order confirmation. We may decline any order at our discretion, including where account verification is incomplete or the stated research use falls outside our <a href="../compliance.html">research use policy</a>.</p>
+
+      <h2>3. Research use is a condition of every sale</h2>
+      <p>Every sale is conditional on your agreement to our <a href="../compliance.html">research use policy</a>, which forms part of these terms. Material supplied is for <strong>in vitro</strong> laboratory research by qualified professionals. It is not a drug, dietary supplement, cosmetic, food or medical device, and it is not for human or veterinary use, clinical or diagnostic procedures, or household use. Breach of that policy is a material breach of these terms, entitling us to cancel outstanding orders, terminate your account and decline future business.</p>
+
+      <h2>4. Quotations, prices and payment</h2>
+      <p>Quotations are valid for 30 days unless they state otherwise. Prices exclude sales and use taxes, duties, and shipping, which are added to the invoice or charged separately. Payment is due in advance unless we have agreed credit terms with you in writing; where we have, payment is due 30 days from the invoice date. Overdue amounts accrue interest at 1.5% per month or the maximum rate permitted by applicable law, whichever is lower, and you are responsible for reasonable costs of collection, including attorneys' fees.</p>
+
+      <h2>5. Shipping, title and risk</h2>
+      <p>Shipments are made as described in our <a href="shipping.html">shipping and returns policy</a>, to institutional or commercial addresses only. Delivery dates are estimates, not guarantees, and we are not liable for delay. Risk of loss passes to you on delivery of the material to the carrier. Title passes when we have received payment in full.</p>
+
+      <h2>6. Inspection and notice</h2>
+      <p>Inspect each shipment on arrival. Tell us in writing within 10 business days of delivery about any shortage, visible damage or nonconformity, with the lot number and, for damage, photographs. Material not rejected within that period is accepted.</p>
+
+      <h2>7. Limited warranty</h2>
+      <p>We warrant that, at the time it leaves us, the material conforms in all material respects to the specification on its certificate of analysis. If it does not, and you have given notice under section 6, we will at our option replace the material or refund what you paid for it. That is your sole and exclusive remedy, and our entire liability, for nonconforming material. The warranty does not apply to material stored or handled outside the conditions on its certificate of analysis, used after its retest date, or altered, reconstituted or repackaged after delivery.</p>
+
+      <h2>8. Disclaimer of other warranties</h2>
+      <div class="legal-strong">
+        <p>EXCEPT FOR THE LIMITED WARRANTY IN SECTION 7, THE MATERIAL IS PROVIDED “AS IS” AND WE DISCLAIM ALL OTHER WARRANTIES, EXPRESS OR IMPLIED, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT.</p>
+        <p>WE DO NOT WARRANT THAT THE MATERIAL IS SAFE OR SUITABLE FOR ANY USE IN OR ON HUMANS OR ANIMALS. NO SUCH USE IS AUTHORISED, AND ANY SUCH USE IS ENTIRELY AT THE RISK OF THE PERSON MAKING IT.</p>
+      </div>
+
+      <h2>9. Limitation of liability</h2>
+      <div class="legal-strong">
+        <p>TO THE FULLEST EXTENT PERMITTED BY LAW, OUR TOTAL LIABILITY ARISING OUT OF OR RELATING TO ANY ORDER, WHETHER IN CONTRACT, TORT, STRICT LIABILITY OR OTHERWISE, WILL NOT EXCEED THE AMOUNT YOU PAID FOR THE MATERIAL GIVING RISE TO THE CLAIM.</p>
+        <p>WE WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY OR PUNITIVE DAMAGES, OR FOR LOST PROFITS, LOST DATA OR LOST OR INVALIDATED RESEARCH, EVEN IF WE HAVE BEEN ADVISED THAT THEY WERE POSSIBLE.</p>
+      </div>
+      <p>Nothing in these terms excludes or limits liability that cannot lawfully be excluded or limited, including liability for fraud, or for death or personal injury caused by our negligence.</p>
+
+      <h2>10. Your responsibilities</h2>
+      <p>You are responsible for handling the material safely: restricting it to trained personnel, working in appropriate containment, reviewing the safety data sheet before use, obtaining any institutional approvals your research requires, and disposing of material and waste in accordance with federal, state and local law.</p>
+
+      <h2>11. Indemnity</h2>
+      <p>You will indemnify and hold us harmless against claims, losses, damages and expenses (including reasonable attorneys' fees) arising out of your use, handling, storage, disposal, resale or transfer of the material, any administration of it to a human or an animal, and any breach by you of these terms or of the research use policy.</p>
+
+      <h2>12. Export control and sanctions</h2>
+      <p>The material may be subject to the US Export Administration Regulations and to sanctions administered by the Office of Foreign Assets Control. You will not export, re-export, transfer or divert it contrary to those rules, and you confirm that you are not, and are not acting for, a party on a US restricted-party list or located in an embargoed destination.</p>
+
+      <h2>13. Licences and permits</h2>
+      <p>You are responsible for holding any licence, permit or registration your jurisdiction requires in order to receive, hold or use the material, including import permits where it crosses a border, and for producing evidence of them on request.</p>
+
+      <h2>14. No resale or transfer for human use</h2>
+      <p>You will not resell the material to the general public, offer it for human or veterinary use, or transfer it to anyone who intends such use. Where you transfer it lawfully to another research entity, you will bind that recipient to restrictions at least as protective as these terms and the research use policy.</p>
+
+      <h2>15. Events outside our control</h2>
+      <p>We are not liable for failure or delay caused by events beyond our reasonable control, including supplier or carrier failure, loss of cold chain in transit, natural events, labour disputes, epidemics, acts of government, or interruption of utilities or communications.</p>
+
+      <h2>16. Governing law and venue</h2>
+      <p>These terms and any dispute arising out of them are governed by the laws of the State of {state}, without regard to its conflict-of-laws rules. The state and federal courts located in {state} have exclusive jurisdiction, and both of us consent to their venue. The United Nations Convention on Contracts for the International Sale of Goods does not apply.</p>
+
+      <h2>17. General</h2>
+      <p>These terms, the research use policy, the shipping and returns policy and our written order confirmation are the entire agreement between us on their subject matter. Changes must be in writing and signed by us. Failing to enforce a provision does not waive it. If a provision is held unenforceable, the rest continues in force. You may not assign your rights without our written consent. Notices go to the addresses on the order confirmation. Sections 3, 7 to 14, 16 and 17 survive termination.</p>
+
+      <h2>18. Contact</h2>
+      <p><a href="mailto:{email}">{email}</a></p>"""))
+
+    # -------------------------------------------------------------- privacy
+    out.append(legal_page("privacy", "Privacy Policy", "Legal", "Privacy <em>policy.</em>",
+        "What personal information this site collects, why, and what you can ask us to do with it.", f"""
+      <h2>1. Who we are</h2>
+      <p>{entity} is a sole proprietorship operating from {address}. We are responsible for the personal information described in this policy. Contact us at <a href="mailto:{email}">{email}</a>.</p>
+
+      <h2>2. What we collect</h2>
+      <p><strong>What you give us.</strong> The account application form collects your name, email address and telephone number, together with the list of compounds you have added to your request list. If your application proceeds, our follow-up correspondence collects what account verification requires: your institution, the research facility address, the responsible investigator, an institutional email address and a description of the intended research use.</p>
+      <p><strong>What is collected automatically.</strong> Our hosting provider records standard server logs — IP address, browser user-agent, pages requested and timestamps — which are used to keep the site available and to investigate abuse.</p>
+      <p><strong>What stays on your device.</strong> Your request list is held in your browser's local storage so it survives moving between pages. It remains on your device until you clear it or clear your browser data. We cannot see it unless you submit the form.</p>
+      <p><strong>What we do not do.</strong> We set no advertising or analytics cookies, we run no tracking pixels, and we do not build profiles of visitors.</p>
+
+      <h2>3. Why we use it</h2>
+      <p>To reply to your enquiry; to verify that an account meets the eligibility conditions in our <a href="../compliance.html">research use policy</a>; to quote for, process and fulfil orders; to keep the commercial, tax and lot-traceability records our business needs; and to protect the site against abuse.</p>
+
+      <h2>4. Who else sees it</h2>
+      <p><strong>Our hosting and form provider.</strong> The site is hosted on Netlify, which serves the pages, keeps the server logs described above, and receives account applications on our behalf as a service provider.</p>
+      <p><strong>Google Fonts.</strong> Pages load typefaces from Google's font servers, so your IP address and user-agent reach Google when a page loads. Google states that it does not use these requests for advertising.</p>
+      <p><strong>Nobody else, unless we have to.</strong> We do not sell personal information, and we do not share it for cross-context behavioural advertising. We disclose it only where the law requires it, where we must to establish or defend a legal claim, or to a carrier where that is necessary to deliver your order.</p>
+
+      <h2>5. How long we keep it</h2>
+      <p>Enquiries that do not become accounts: 24 months from your last contact with us. Account and order records: seven years, which is what tax and commercial record-keeping requires. Server logs: as retained by our hosting provider, typically around 30 days.</p>
+
+      <h2>6. Your rights</h2>
+      <p>Wherever you are, you can ask us for a copy of the personal information we hold about you, ask us to correct it, or ask us to delete it. Email <a href="mailto:{email}">{email}</a>. We will respond within 45 days and will verify your identity against the information we already hold before acting.</p>
+      <p><strong>If you are in California,</strong> the CCPA as amended by the CPRA gives you the right to know what we collect and why, to receive a copy, to correct it, to delete it, to opt out of sale or sharing, and not to be treated differently for exercising any of them. In the last 12 months we have collected identifiers (name, email address, telephone number), commercial information (the compounds you enquired about) and internet activity information (server logs), from you and from your device, for the purposes in section 3, and have disclosed them only to the service providers in section 4. We have not sold or shared personal information, and we do not collect sensitive personal information as the CPRA defines it. An authorised agent may make a request on your behalf with your written permission.</p>
+      <p><strong>If you are in another US state</strong> with a comprehensive privacy law — including Virginia, Colorado, Connecticut, Utah, Texas, Oregon and Montana — you have broadly equivalent rights of access, correction, deletion and portability, and you may appeal a refusal by replying to our decision.</p>
+      <p><strong>Global Privacy Control.</strong> Because we neither sell nor share personal information, there is nothing to opt out of; we honour GPC signals in any case.</p>
+
+      <h2>7. Security</h2>
+      <p>The site is served over TLS, and access to enquiries is limited to people who need it. No method of transmission or storage is completely secure, and we cannot guarantee absolute security.</p>
+
+      <h2>8. Children</h2>
+      <p>This site is directed at research professionals and is not intended for anyone under 18. We do not knowingly collect personal information from children. If you believe a child has given us information, contact us and we will delete it.</p>
+
+      <h2>9. Where your information is processed</h2>
+      <p>We operate in the United States and our service providers process information there. If you contact us from outside the United States, your information will be transferred to and processed in the United States, where privacy law differs from your own.</p>
+
+      <h2>10. Changes</h2>
+      <p>If we change this policy we will post the revised version here with a new date at the top. Where a change materially affects how we use information you have already given us, we will tell you directly.</p>
+
+      <h2>11. Contact</h2>
+      <p><a href="mailto:{email}">{email}</a></p>"""))
+
+    # ------------------------------------------------------------- shipping
+    out.append(legal_page("shipping", "Shipping &amp; Returns", "Logistics",
+        "Shipping &amp; <em>returns.</em>",
+        "How material is packed, shipped and received, and the narrow circumstances in which it can be returned.", f"""
+      <h2>1. Where we ship</h2>
+      <p>We ship to institutional, laboratory and commercial addresses only. We do not ship to residential addresses, and an order placed against one will be held until an institutional address is supplied.</p>
+
+      <h2>2. Processing</h2>
+      <p>Orders are released once the account is verified and payment or agreed credit terms are in place. Material in stock usually leaves within one to three business days. Shipments requiring cold chain are released to match carrier schedules, so that material is not sitting in a depot over a weekend.</p>
+
+      <h2>3. Packing and cold chain</h2>
+      <p>Material ships lyophilised unless stated otherwise. Where stability requires it, shipments are packed in insulated containers with gel packs or dry ice; dry-ice shipments are declared as required for carriage. Store material on arrival as its certificate of analysis specifies.</p>
+
+      <h2>4. Carriage and tracking</h2>
+      <p>We use tracked courier services domestically and internationally, and send tracking details when a shipment leaves us. Transit times are estimates: customs, weather and carrier backlogs are outside our control.</p>
+
+      <h2>5. Title, risk and receipt</h2>
+      <p>Risk of loss passes to you when the material is delivered to the carrier; title passes when we have received payment in full. Someone must be available to receive cold-chain shipments, because material left at an unattended address may no longer be fit for use.</p>
+
+      <h2>6. Customs, duties and permits</h2>
+      <p>Import duties, taxes and clearance charges are yours to pay, as are any import permits your jurisdiction requires. We declare shipments accurately and will not alter a declaration, undervalue a shipment or describe it as a gift on request. Where a shipment is seized or refused entry because a required permit was not in place, we cannot refund it.</p>
+
+      <h2>7. Checking a shipment on arrival</h2>
+      <p>Inspect the shipment when it arrives. Report shortages, visible damage or a failed cold chain in writing within 10 business days of delivery, quoting the lot number and including photographs of the packaging and its contents. Keep the packaging until the claim is settled.</p>
+
+      <h2>8. Returns</h2>
+      <p>Once material has left us we cannot verify how it has been stored or handled, so it cannot re-enter stock. Shipped material is therefore not returnable because you have changed your mind or ordered the wrong item.</p>
+      <p>We will replace the material or refund what you paid for it, at our option, where: it does not conform to its certificate of analysis; we shipped the wrong item or quantity; it arrived damaged and you told us within the period in section 7; or the cold chain demonstrably failed in transit. Contact us before returning anything — material sent back without a return authorisation cannot be credited.</p>
+
+      <h2>9. Refused and undeliverable shipments</h2>
+      <p>Where a shipment is refused or cannot be delivered for a reason within your control, you are responsible for the outbound and return carriage and for any cold-chain packaging consumed. Material that has been out of controlled storage cannot be credited.</p>
+
+      <h2>10. Cancelling an order</h2>
+      <p>You may cancel at no charge any time before the shipment leaves us. Once it has left, section 8 applies.</p>
+
+      <h2>11. Contact</h2>
+      <p><a href="mailto:{email}">{email}</a></p>"""))
+
+    return out
+
+
 # --------------------------------------------------------------------------- 404
 def build_404():
     body = f"""
@@ -989,6 +1194,7 @@ def main():
     pages = [build_home(), build_catalog(), build_quality(), build_about(),
              build_faq(), build_contact(), build_compliance(), build_404()]
     pages += build_products()
+    pages += build_legal()
 
     # {PREFIX} placeholders emitted by vial() resolve per page depth
     for rel_path in pages:

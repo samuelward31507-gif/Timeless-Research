@@ -13,6 +13,13 @@
   TR_CONTACT_EMAIL = "accounts@timelessresearch.com"
   # Account applications are captured by Netlify Forms; no endpoint required.
   TR_FORM_PROVIDER = "netlify"
+  # Identity used in the legal documents. These must be your real trading
+  # details. The build renders anything missing as a visible marker in the page
+  # and tools/check.py fails while one is present, so filling these in is not
+  # optional. TR_LEGAL_ENTITY defaults to the brand name and TR_LEGAL_EMAIL to
+  # TR_CONTACT_EMAIL, so only the two below normally need setting.
+  TR_LEGAL_ADDRESS = ""
+  TR_LEGAL_STATE = ""
 
 # Hashed filenames are not used, so pages must revalidate while the static
 # assets they reference can be cached hard.

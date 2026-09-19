@@ -128,6 +128,16 @@ for selectors, body in re.findall(r"([^{}]+)\{([^{}]*)\}", CSS):
         if m and ":not(.btn)" not in m.group(1):
             fail(f"CSS rule `{sel}` colours descendant links without excluding .btn")
 
+# ------------------------------------------------- unfilled legal details
+# build.py renders a missing legal detail as a visible marker instead of a
+# blank. Publishing one is a real fault: the document reads as unfinished to
+# the customer and the clause it sits in may not do its job.
+for page in PAGES:
+    rel = page.relative_to(ROOT).as_posix()
+    for m in re.findall(r'<mark class="fill-me">([^<]*)</mark>',
+                        page.read_text(encoding="utf-8")):
+        fail(f"{rel} still needs {m} (set TR_LEGAL_* at build time)")
+
 # ------------------------------------------------------------- generated
 for extra in ("sitemap.xml", "robots.txt", "assets/img/favicon.svg",
               "assets/data/products.json", "assets/css/main.css",
