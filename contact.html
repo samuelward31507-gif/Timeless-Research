@@ -99,7 +99,11 @@
       </div>
 
       <div>
-        <form id="account-form" novalidate>
+        <form id="account-form" name="account-application" method="POST"
+              data-netlify="true" data-netlify-honeypot="bot-field" novalidate>
+          <input type="hidden" name="form-name" value="account-application">
+          <input type="hidden" name="request_list" id="f-request-list">
+          <p hidden><label>Leave this field empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
           <div class="field">
             <label for="f-name">Name <span class="req" aria-hidden="true">*</span></label>
             <input id="f-name" name="name" type="text" required autocomplete="name">

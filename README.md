@@ -155,25 +155,59 @@ python3 tools/make_vial.py     # then sync .vial-print if the geometry changed
 
 ## Deploying
 
+### Netlify (how this is set up)
+
+`netlify.toml` holds the whole deploy. Netlify runs the generator and publishes
+`dist/`, so the repository's own tooling is never served:
+
+```toml
+command = "python3 tools/build.py && python3 tools/dist.py"
+publish = "dist"
+```
+
+To go live:
+
+1. In Netlify, **Add new site → Import an existing project**, and pick this
+   repository. Every setting is read from `netlify.toml`; leave the build
+   fields alone.
+2. Attach the domain under **Domain management**. Netlify issues the
+   certificate.
+3. Change `TR_SITE` in `netlify.toml` to that domain and push. Canonical tags,
+   Open Graph URLs and the sitemap are all built from it, so a wrong value here
+   is an SEO problem rather than a visible one.
+4. Account applications arrive under **Forms → account-application**. Turn on
+   the email notification there, or nothing will tell you a lead came in.
+
+Run it locally exactly as Netlify does with
+`python3 tools/build.py && python3 tools/dist.py`, then serve `dist/`.
+`dist/` is generated and git-ignored; never edit it.
+
+### Build variables
+
 Everything environment-specific is a build-time variable, so a deploy never
 means editing source:
 
 ```bash
 TR_SITE=https://your-domain.com \
 TR_CONTACT_EMAIL=accounts@your-domain.com \
-TR_FORM_ENDPOINT=https://your-handler.example/submit \
-python3 tools/build.py
+python3 tools/build.py && python3 tools/dist.py
 ```
 
 | Variable | Default | Effect |
 |---|---|---|
 | `TR_SITE` | `https://www.timelessresearch.com` | Canonical tags, Open Graph URLs, sitemap |
 | `TR_CONTACT_EMAIL` | `accounts@timelessresearch.com` | Contact fallback address |
-| `TR_FORM_ENDPOINT` | *(empty)* | Where the contact form POSTs |
+| `TR_FORM_PROVIDER` | `netlify` | `netlify`, or `endpoint` to POST JSON elsewhere |
+| `TR_FORM_ENDPOINT` | *(empty)* | Target when `TR_FORM_PROVIDER=endpoint` |
 | `TR_ANALYTICS_HEAD` | *(empty)* | Raw `<head>` markup for an analytics tag |
 
-`TR_SITE` and `TR_CONTACT_EMAIL` reach the browser through
-`assets/js/config.js`, which the build generates — do not edit that file.
+These reach the browser through `assets/js/config.js`, which the build
+generates — do not edit that file.
+
+**Moving off Netlify** means setting `TR_FORM_PROVIDER=endpoint` and
+`TR_FORM_ENDPOINT` to a handler of your own; the form posts JSON to it instead.
+If a submission fails either way, the form shows the visitor their composed
+enquiry with a copy button and a mailto link, so a lead is never lost silently.
 
 **404s.** `_redirects` is generated for Netlify and Cloudflare Pages. On nginx
 use `error_page 404 /404.html;`, on Apache `ErrorDocument 404 /404.html`.
@@ -183,8 +217,9 @@ Without it a static host serves its own 404 instead of this one.
 cookies. Switching a tag on is a cookie-consent question in the EU and UK and
 a disclosure question under CCPA, so settle the policy side before adding one.
 
-**Email deliverability.** If `TR_FORM_ENDPOINT` mails you, set SPF and DKIM on
-the sending domain or the notifications will land in spam.
+**Email deliverability.** Netlify's form notifications come from Netlify, so
+they need no DNS work. If you move to your own handler that mails you, set SPF
+and DKIM on the sending domain or the notifications will land in spam.
 
 ---
 
@@ -195,7 +230,7 @@ invent.
 
 | Item | Where | What is needed |
 |---|---|---|
-| Deployment | — | No host or domain yet, and `TR_FORM_ENDPOINT` is empty, so account applications fall through to the copy-and-email fallback instead of reaching an inbox. Set it at build time and point a domain at the output. |
+| Deployment | `netlify.toml` | Configured for Netlify and form capture is wired. Still needs you to connect the repository in Netlify, attach a domain, set `TR_SITE` to it, and switch on the form notification email. |
 | Terms and privacy | — | Removed at the owner's request (see above). A privacy notice is required while the contact form collects personal data, and without terms of sale the research-use condition is a notice rather than a contract term. |
 | Account verification | — | The contact form collects name, email and phone only. Everything the research use policy requires for verification — institution, facility address, responsible investigator, institutional email, intended use — is gathered in the follow-up, so that step has to actually happen off-site. |
 

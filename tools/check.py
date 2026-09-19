@@ -18,7 +18,10 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-PAGES = sorted(p for p in ROOT.rglob("*.html") if ".claude" not in p.parts)
+# dist/ is a copy of these same pages assembled for deployment; checking it
+# too would double every count and report every fault twice.
+SKIP_DIRS = {".claude", "dist", "node_modules"}
+PAGES = sorted(p for p in ROOT.rglob("*.html") if not SKIP_DIRS & set(p.parts))
 
 failures: list[str] = []
 notes: list[str] = []
