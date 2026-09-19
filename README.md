@@ -154,21 +154,54 @@ python3 tools/make_vial.py     # then sync .vial-print if the geometry changed
 
 ---
 
+## Deploying
+
+Everything environment-specific is a build-time variable, so a deploy never
+means editing source:
+
+```bash
+TR_SITE=https://your-domain.com \
+TR_CONTACT_EMAIL=accounts@your-domain.com \
+TR_FORM_ENDPOINT=https://your-handler.example/submit \
+python3 tools/build.py
+```
+
+| Variable | Default | Effect |
+|---|---|---|
+| `TR_SITE` | `https://www.timelessresearch.com` | Canonical tags, Open Graph URLs, sitemap |
+| `TR_CONTACT_EMAIL` | `accounts@timelessresearch.com` | Contact fallback address |
+| `TR_FORM_ENDPOINT` | *(empty)* | Where the contact form POSTs |
+| `TR_ANALYTICS_HEAD` | *(empty)* | Raw `<head>` markup for an analytics tag |
+
+`TR_SITE` and `TR_CONTACT_EMAIL` reach the browser through
+`assets/js/config.js`, which the build generates — do not edit that file.
+
+**404s.** `_redirects` is generated for Netlify and Cloudflare Pages. On nginx
+use `error_page 404 /404.html;`, on Apache `ErrorDocument 404 /404.html`.
+Without it a static host serves its own 404 instead of this one.
+
+**Analytics** is deliberately off. Adding a tag has a privacy-policy
+consequence: `legal/privacy.html` currently states the site sets no analytics
+cookies and promises to update the policy and obtain consent where required.
+Honour that before switching one on.
+
+**Email deliverability.** If `TR_FORM_ENDPOINT` mails you, set SPF and DKIM on
+the sending domain or the notifications will land in spam.
+
+---
+
 ## Before this goes live
 
-These are the things that are deliberately unfinished, because they need your
-information or a professional's review — not a placeholder I invent.
+These need your information or a professional's review — not a placeholder I
+invent.
 
 | Item | Where | What is needed |
 |---|---|---|
-| Form endpoint | `assets/js/contact.js` | Set `ENDPOINT` to your handler URL. Until then the form falls back to opening the visitor's mail client, which leaves you no record of submissions. |
+| Legal documents | `legal/*.html` | 21 `[BRACKETED]` placeholders across three documents, and review by a lawyer in your operating jurisdiction. They are drafting starting points, **not** legal advice. |
+| Certificate data | `quality.html`, product pages | "COA issued with every lot" appears on all 45 pages and the site describes the COA process in detail. If a lot-specific certificate cannot be produced on request, that claim has to come down. |
+| Purity claims | `assets/data/products.json` | `≥98%` appears 63 times across cards and vial labels. It is a commercial claim; confirm each against your actual supplier and QC arrangements. |
 | Account verification | — | The contact form collects name, email and phone only. Everything the research use policy requires for verification — institution, facility address, responsible investigator, institutional email, intended use — is gathered in the follow-up, so that step has to actually happen off-site. |
-| Contact addresses | `assets/js/contact.js`, legal pages | Replace `accounts@timelessresearch.com` and the `[BRACKETED]` addresses. |
-| Legal documents | `legal/*.html` | Every `[BRACKETED]` placeholder must be completed, and all three documents reviewed by a lawyer in your operating jurisdiction. They are drafting starting points, **not** legal advice. |
-| Canonical domain | `SITE` in `tools/build.py` | Currently `https://www.timelessresearch.com`. Feeds canonical tags, Open Graph URLs and the sitemap. |
-| Certificate data | `quality.html`, product pages | The site describes the COA process and claims a `≥98%` **specification**. It publishes no lot-specific results, because those must come from your actual analytical records. Wire real COA PDFs per lot before claiming them. |
-| Purity / assay claims | `assets/data/products.json` | The `purity` and `assays` fields state what you intend to release against. Confirm each against your real supplier and QC arrangements; they are commercial claims. |
-| Analytics | — | None installed. If you add any, update `legal/privacy.html` and obtain consent where required. |
+| Restricted standards | `assets/data/products.json` | Semaglutide, Tirzepatide, Retatrutide and Oxytocin are flagged `restricted` and gated in the UI. They carry the highest regulatory exposure in the catalog; worth a deliberate decision with counsel rather than a default. |
 
 ---
 
