@@ -26,17 +26,17 @@
   .center{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
     display:flex;flex-direction:column;align-items:center;text-align:center}
   .kicker{font-size:15px;font-weight:500;letter-spacing:.44em;color:var(--w70);
-    margin-bottom:34px;text-shadow:0 2px 20px rgba(0,0,0,.8)}
+    margin-bottom:34px;text-shadow:0 2px 20px rgba(0,0,0,.85)}
   .note{font-family:var(--fd);font-weight:300;font-size:250px;line-height:.86;
     color:var(--wh);letter-spacing:.01em;
-    text-shadow:0 4px 60px rgba(0,0,0,.75), 0 0 120px rgba(0,0,0,.5)}
+    text-shadow:0 4px 60px rgba(0,0,0,.78), 0 0 120px rgba(0,0,0,.55)}
   .chord{font-family:var(--fd);font-style:italic;font-weight:300;
     font-size:64px;line-height:1;color:var(--w70);margin-top:24px;letter-spacing:.015em;
-    text-shadow:0 2px 34px rgba(0,0,0,.8)}
+    text-shadow:0 2px 34px rgba(0,0,0,.85)}
   .rule{width:132px;height:1px;margin:44px 0 26px;
     background:linear-gradient(90deg,transparent,rgba(245,243,238,.55),transparent)}
   .meta{font-size:16px;font-weight:400;letter-spacing:.34em;color:var(--w45);
-    text-transform:uppercase;text-shadow:0 2px 18px rgba(0,0,0,.8)}
+    text-transform:uppercase;text-shadow:0 2px 18px rgba(0,0,0,.85)}
 </style>
 </head>
 <body>
@@ -73,7 +73,7 @@ function mkNoise1D(seed){
   return x=>{
     const i=Math.floor(x), f=x-i;
     const a=g[((i%N)+N)%N], b=g[(((i+1)%N)+N)%N];
-    const u=f*f*(3-2*f);                       // smoothstep
+    const u=f*f*(3-2*f);
     return a*(1-u)+b*u;
   };
 }
@@ -83,85 +83,185 @@ function fbm1(noise,x,oct=5){
   return v/norm;
 }
 
-/* ---------- scene definitions ---------- */
+/* ---------- scenes ----------
+   ridges[].fr is CYCLES PER PIXEL: ~0.0015 gives ~3 undulations across 1920px.
+   Values orders of magnitude larger turn terrain into an audio waveform. */
 const SCENES = {
-  // wood — misty conifer forest at blue hour
-  forest:{
+  forest:{   // misty conifers, blue hour
     sky:[[0,'#080f0d'],[.45,'#0e1a16'],[.72,'#16261f'],[1,'#1d2f25']],
     glow:{x:.62,y:.60,r:520,c:'rgba(150,190,160,.20)'},
-    ridges:[
-      {y:.60,amp:46,fr:.0016,c:'#16241d',haze:.55,oct:4},
-      {y:.70,amp:60,fr:.0021,c:'#101a15',haze:.35,oct:5},
-      {y:.82,amp:74,fr:.0027,c:'#0a110e',haze:.16,oct:5}
-    ],
+    ridges:[{y:.60,amp:46,fr:.0016,c:'#16241d',haze:.55,oct:4},
+            {y:.70,amp:60,fr:.0021,c:'#101a15',haze:.35,oct:5},
+            {y:.82,amp:74,fr:.0027,c:'#0a110e',haze:.16,oct:5}],
     trees:[{y:.620,h:140,step:34,c:'#13211a',haze:.45},
            {y:.730,h:215,step:52,c:'#0b1410',haze:.24},
            {y:.870,h:300,step:74,c:'#050908',haze:0}],
     fog:'rgba(190,215,200,.055)', fogY:.66, stars:0,
     ground:{y:.885,c1:'#070d0a',c2:'#030605'}
   },
-  // breath — dawn over soft hills
-  dawn:{
+  dawn:{     // first light over soft hills
     sky:[[0,'#191226'],[.34,'#3a2340'],[.58,'#7d3f47'],[.78,'#c4713f'],[1,'#e0a05c']],
     glow:{x:.50,y:.78,r:620,c:'rgba(255,190,110,.30)'},
-    ridges:[
-      {y:.74,amp:40,fr:.0014,c:'#5b3540',haze:.50,oct:4},
-      {y:.82,amp:52,fr:.0019,c:'#38202c',haze:.30,oct:5},
-      {y:.90,amp:60,fr:.0025,c:'#1c1018',haze:.12,oct:5}
-    ],
-    trees:[], fog:'rgba(255,205,160,.075)', fogY:.78, stars:70
+    ridges:[{y:.74,amp:40,fr:.0014,c:'#5b3540',haze:.50,oct:4},
+            {y:.82,amp:52,fr:.0019,c:'#38202c',haze:.30,oct:5},
+            {y:.90,amp:60,fr:.0025,c:'#1c1018',haze:.12,oct:5}],
+    fog:'rgba(255,205,160,.075)', fogY:.78, stars:70
   },
-  // bowed — cold alpine peaks
-  alpine:{
+  alpine:{   // cold peaks at night
     sky:[[0,'#070d1a'],[.40,'#0e1a30'],[.70,'#1b3050'],[1,'#33506e']],
     glow:{x:.34,y:.52,r:460,c:'rgba(160,200,255,.20)'},
-    ridges:[
-      {y:.56,amp:112,fr:.0022,c:'#27405c',haze:.52,oct:3,jag:true},
-      {y:.68,amp:130,fr:.0028,c:'#182a40',haze:.32,oct:3,jag:true},
-      {y:.81,amp:112,fr:.0035,c:'#0d1826',haze:.14,oct:4,jag:true}
-    ],
-    trees:[], fog:'rgba(190,220,255,.06)', fogY:.70, stars:150
+    ridges:[{y:.56,amp:112,fr:.0022,c:'#27405c',haze:.52,oct:3,jag:true},
+            {y:.68,amp:130,fr:.0028,c:'#182a40',haze:.32,oct:3,jag:true},
+            {y:.81,amp:112,fr:.0035,c:'#0d1826',haze:.14,oct:4,jag:true}],
+    fog:'rgba(190,220,255,.06)', fogY:.70, stars:150
   },
-  // bell — still water, low horizon
-  ocean:{
+  ocean:{    // still water under a moon
     sky:[[0,'#050b14'],[.42,'#0a1728'],[.66,'#123350'],[1,'#20536e']],
     glow:{x:.50,y:.63,r:400,c:'rgba(180,225,255,.24)'},
     ridges:[{y:.665,amp:9,fr:.0011,c:'#0c2036',haze:.30,oct:3}],
-    trees:[], fog:'rgba(190,225,255,.05)', fogY:.63, stars:190,
+    fog:'rgba(190,225,255,.05)', fogY:.63, stars:190,
     water:{y:.665,c1:'#0b1d30',c2:'#050c15',glint:'rgba(180,225,255,.5)'}
   },
-  // hollow — desert dunes at dusk
-  dunes:{
+  dunes:{    // desert at dusk
     sky:[[0,'#120a16'],[.38,'#2a1324'],[.66,'#5c2a2c'],[1,'#94503a']],
     glow:{x:.70,y:.70,r:520,c:'rgba(255,165,105,.24)'},
-    ridges:[
-      {y:.70,amp:56,fr:.0013,c:'#5e3730',haze:.48,oct:3,dune:true},
-      {y:.79,amp:70,fr:.0018,c:'#3c2220',haze:.28,oct:3,dune:true},
-      {y:.89,amp:80,fr:.0024,c:'#1d1113',haze:.10,oct:3,dune:true}
-    ],
-    trees:[], fog:'rgba(255,190,150,.05)', fogY:.74, stars:110
+    ridges:[{y:.70,amp:56,fr:.0013,c:'#5e3730',haze:.48,oct:3,dune:true},
+            {y:.79,amp:70,fr:.0018,c:'#3c2220',haze:.28,oct:3,dune:true},
+            {y:.89,amp:80,fr:.0024,c:'#1d1113',haze:.10,oct:3,dune:true}],
+    fog:'rgba(255,190,150,.05)', fogY:.74, stars:110
+  },
+  aurora:{   // northern lights over a snow ridge
+    sky:[[0,'#04070f'],[.45,'#071324'],[.75,'#0a1c2e'],[1,'#102838']],
+    stars:260,
+    aurora:[{y:.30,h:300,amp:60,fr:.0011,c:'120,255,180',a:.24},
+            {y:.38,h:250,amp:80,fr:.0016,c:'110,220,255',a:.16},
+            {y:.25,h:210,amp:50,fr:.0022,c:'170,255,200',a:.11}],
+    ridges:[{y:.76,amp:70,fr:.0020,c:'#16293c',haze:.40,oct:3,jag:true},
+            {y:.88,amp:66,fr:.0029,c:'#0a1420',haze:.12,oct:4,jag:true}],
+    fog:'rgba(190,225,255,.045)', fogY:.80
+  },
+  lake:{     // mirror water, far shore
+    sky:[[0,'#0a1018'],[.40,'#13212e'],[.64,'#24404e'],[1,'#3c6472']],
+    glow:{x:.40,y:.58,r:420,c:'rgba(210,235,240,.20)'},
+    stars:120,
+    ridges:[{y:.575,amp:54,fr:.0018,c:'#1b3340',haze:.46,oct:4},
+            {y:.625,amp:40,fr:.0026,c:'#10222c',haze:.20,oct:4}],
+    water:{y:.645,c1:'#33586a',c2:'#0a151c',glint:'rgba(215,240,245,.16)'},
+    mirror:{y:.645,alpha:.80},
+    fog:'rgba(200,230,235,.05)', fogY:.62
+  },
+  mist:{     // layered valley fog
+    sky:[[0,'#101820'],[.42,'#1b2932'],[.72,'#2b3d45'],[1,'#425a62']],
+    glow:{x:.55,y:.46,r:520,c:'rgba(225,240,245,.16)'},
+    ridges:[{y:.50,amp:40,fr:.0015,c:'#33474f',haze:.62,oct:4},
+            {y:.60,amp:48,fr:.0019,c:'#27383f',haze:.48,oct:4},
+            {y:.70,amp:54,fr:.0023,c:'#1c2a30',haze:.34,oct:4},
+            {y:.80,amp:60,fr:.0028,c:'#131e23',haze:.20,oct:5},
+            {y:.90,amp:64,fr:.0033,c:'#0b1316',haze:.08,oct:5}],
+    fog:'rgba(225,240,245,.085)', fogY:.56, stars:0
+  },
+  canyon:{   // flat-topped mesas, late light
+    sky:[[0,'#1a1020'],[.36,'#3a1c28'],[.64,'#73342c'],[.86,'#b25c33'],[1,'#d98a4a']],
+    glow:{x:.28,y:.66,r:560,c:'rgba(255,170,90,.26)'},
+    ridges:[{y:.62,amp:64,fr:.0012,c:'#6b3a2c',haze:.50,oct:3,mesa:true},
+            {y:.74,amp:78,fr:.0017,c:'#46231e',haze:.28,oct:3,mesa:true},
+            {y:.87,amp:74,fr:.0023,c:'#221113',haze:.10,oct:3,mesa:true}],
+    fog:'rgba(255,195,150,.055)', fogY:.72, stars:60
+  },
+  cloudsea:{ // peaks above a sea of cloud
+    sky:[[0,'#1b1630'],[.35,'#3d2a45'],[.62,'#7a4550'],[.84,'#c07a55'],[1,'#e5a878']],
+    glow:{x:.66,y:.60,r:520,c:'rgba(255,205,150,.26)'},
+    ridges:[{y:.56,amp:96,fr:.0021,c:'#4a3a4e',haze:.55,oct:3,jag:true},
+            {y:.64,amp:104,fr:.0027,c:'#312638',haze:.34,oct:3,jag:true}],
+    clouds:{y:.70,amp:26,fr:.0014,c1:'rgba(255,225,205,.90)',c2:'rgba(225,185,175,.55)'},
+    fog:'rgba(255,220,200,.07)', fogY:.74, stars:40
+  },
+  birch:{    // pale trunks, still air
+    sky:[[0,'#131519'],[.44,'#1d2126'],[.74,'#2a3036'],[1,'#3a4249']],
+    glow:{x:.44,y:.44,r:480,c:'rgba(230,235,240,.14)'},
+    ridges:[{y:.80,amp:34,fr:.0018,c:'#161a1e',haze:.24,oct:4},
+            {y:.90,amp:40,fr:.0025,c:'#0d1013',haze:.08,oct:4}],
+    birch:[{y:.96,h:980,step:210,c:'#6f767d',a:.42},
+           {y:1.02,h:1150,step:330,c:'#c2c8cf',a:.72}],
+    fog:'rgba(225,232,238,.06)', fogY:.74, stars:0,
+    ground:{y:.905,c1:'#0d1013',c2:'#050608'}
+  },
+  snowfall:{ // conifers under falling snow
+    sky:[[0,'#131a24'],[.44,'#1e2833'],[.74,'#2c3946'],[1,'#41515f']],
+    glow:{x:.52,y:.40,r:520,c:'rgba(225,238,250,.16)'},
+    ridges:[{y:.66,amp:48,fr:.0017,c:'#2a3743',haze:.48,oct:4},
+            {y:.80,amp:60,fr:.0024,c:'#1a242d',haze:.22,oct:4}],
+    trees:[{y:.700,h:150,step:40,c:'#1d2831',haze:.40},
+           {y:.840,h:250,step:66,c:'#111920',haze:.14}],
+    snow:230,
+    fog:'rgba(225,238,250,.07)', fogY:.72, stars:0,
+    ground:{y:.900,c1:'#26323c',c2:'#151d24'}
+  },
+  marsh:{    // reeds over shallow water, late sun
+    sky:[[0,'#241a2a'],[.36,'#4a2d33'],[.62,'#8e5535'],[.84,'#c98842'],[1,'#e0ae5e']],
+    glow:{x:.58,y:.62,r:500,c:'rgba(255,200,120,.28)'},
+    ridges:[{y:.615,amp:18,fr:.0016,c:'#3d2626',haze:.34,oct:4}],
+    water:{y:.640,c1:'#2a1a1c',c2:'#1a1214',glint:'rgba(255,205,140,.45)'},
+    reeds:[{y:.98,h:330,step:13,c:'#2b1c1c',a:.55},
+           {y:1.01,h:430,step:19,c:'#160f10',a:.85}],
+    fog:'rgba(255,215,170,.06)', fogY:.64, stars:30
+  },
+  tundra:{   // low ground, enormous sky
+    sky:[[0,'#05070f'],[.38,'#0a1020'],[.68,'#131d33'],[1,'#22304a']],
+    glow:{x:.50,y:.30,r:600,c:'rgba(150,180,255,.13)'},
+    stars:340,
+    ridges:[{y:.84,amp:26,fr:.0013,c:'#162032',haze:.34,oct:4},
+            {y:.90,amp:32,fr:.0019,c:'#0d1420',haze:.14,oct:4},
+            {y:.96,amp:30,fr:.0026,c:'#070b12',haze:.04,oct:4}],
+    fog:'rgba(170,195,245,.045)', fogY:.86
+  },
+  glacier:{  // ice field, cold light
+    sky:[[0,'#061019'],[.42,'#0d2130'],[.70,'#17394a'],[1,'#2a5f70']],
+    glow:{x:.72,y:.46,r:480,c:'rgba(175,235,255,.20)'},
+    stars:130,
+    ridges:[{y:.58,amp:96,fr:.0024,c:'#2b5b6d',haze:.56,oct:3,jag:true},
+            {y:.70,amp:104,fr:.0031,c:'#1a3c4c',haze:.34,oct:3,jag:true},
+            {y:.84,amp:88,fr:.0039,c:'#0d2331',haze:.12,oct:4,jag:true}],
+    fog:'rgba(190,240,255,.065)', fogY:.74
   }
 };
 const S = SCENES[sceneName] || SCENES.forest;
 
 const ctx = document.getElementById('c').getContext('2d');
 const breath = 0.5 - 0.5*Math.cos(2*Math.PI*phase);   // 0..1..0, smooth at the seam
-const drift  = phase;                                  // full wrap over the cycle
+const drift  = phase;
 
 /* sky */
 const sky = ctx.createLinearGradient(0,0,0,H);
 S.sky.forEach(([p,c])=>sky.addColorStop(p,c));
 ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
 
-/* stars, fading with the breath */
+/* stars */
 if(S.stars){
   const r=mkRand(9931);
   for(let i=0;i<S.stars;i++){
-    const x=r()*W, y=r()*H*0.62, a=(0.10+r()*0.55)*(0.80+0.20*breath);
+    const x=r()*W, y=r()*H*0.66, a=(0.10+r()*0.55)*(0.80+0.20*breath);
     ctx.fillStyle=`rgba(255,255,255,${a.toFixed(3)})`;
-    ctx.fillRect(x,y,r()<0.85?1:2,r()<0.85?1:2);
+    const sz=r()<0.86?1:2;
+    ctx.fillRect(x,y,sz,sz);
   }
 }
+
+/* aurora curtains */
+(S.aurora||[]).forEach((A,ai)=>{
+  const n=mkNoise1D(2200+ai*53);
+  for(let x=0;x<W;x+=3){
+    const off = (fbm1(n, x*A.fr + drift*0.6, 3)-0.5)*2*A.amp;
+    const top = A.y*H + off;
+    const h   = A.h*(0.80+0.30*fbm1(n,(x+400)*A.fr*1.7,2));
+    const a   = A.a*(0.65+0.35*Math.sin((x*0.004)+drift*Math.PI*2))*(0.80+0.20*breath);
+    const g=ctx.createLinearGradient(0,top,0,top+h);
+    g.addColorStop(0,`rgba(${A.c},0)`);
+    g.addColorStop(.35,`rgba(${A.c},${Math.max(0,a).toFixed(3)})`);
+    g.addColorStop(1,`rgba(${A.c},0)`);
+    ctx.fillStyle=g; ctx.fillRect(x,top,4,h);
+  }
+});
 
 /* celestial glow */
 if(S.glow){
@@ -171,44 +271,50 @@ if(S.glow){
   ctx.fillStyle=rg; ctx.fillRect(0,0,W,H);
 }
 
-/* still water: mirror band + glint path */
+/* ridge geometry */
+function ridgeY(n,x,L){
+  let v = fbm1(n, x*L.fr, L.oct||5);
+  if(L.jag){                                  // sharpen into peaks
+    v = Math.pow(v, 1.45);
+    v = v*0.80 + 0.20*Math.pow(fbm1(n,(x+740)*L.fr*2.1,2),1.8);
+  }
+  if(L.dune){                                 // soft windward, steep lee
+    const t=Math.max(0,Math.min(1,v)); v=t*t*(3-2*t);
+    v = v*0.85 + 0.15*fbm1(n,(x+311)*L.fr*0.6,2);
+  }
+  if(L.mesa){                                 // quantise into flat-topped benches
+    v = Math.round(v*7)/7*0.55 + v*0.45;
+  }
+  return L.y*H + (v-0.5)*2*L.amp;
+}
+function ridgePath(n,L,flipY){
+  ctx.beginPath();
+  if(flipY===undefined){
+    ctx.moveTo(0,H);
+    for(let x=0;x<=W;x+=2) ctx.lineTo(x, ridgeY(n,x,L));
+    ctx.lineTo(W,H);
+  } else {                                     // mirrored about flipY
+    ctx.moveTo(0,flipY);
+    for(let x=0;x<=W;x+=2) ctx.lineTo(x, 2*flipY - ridgeY(n,x,L));
+    ctx.lineTo(W,flipY);
+  }
+  ctx.closePath();
+}
+
+/* water body */
 if(S.water){
   const w=S.water, y0=w.y*H;
   const wg=ctx.createLinearGradient(0,y0,0,H);
   wg.addColorStop(0,w.c1); wg.addColorStop(1,w.c2);
   ctx.fillStyle=wg; ctx.fillRect(0,y0,W,H-y0);
-  const gx=(S.glow?S.glow.x:0.5)*W;
-  for(let y=y0; y<H; y+=3){
-    const d=(y-y0)/(H-y0);
-    const wob=Math.sin(y*0.09 + drift*Math.PI*2)*(6+34*d);
-    const a=(1-d)*0.16*(0.75+0.25*breath);
-    ctx.fillStyle=w.glint.replace(/,[\d.]+\)$/,`,${a.toFixed(3)})`);
-    ctx.fillRect(gx-70-Math.abs(wob)+wob*0.4, y, 140+Math.abs(wob)*2.2, 1.6);
-  }
 }
 
-/* ridge silhouettes, back to front, with atmospheric haze.
-   L.fr is cycles-per-pixel: ~0.0015 gives ~3 undulations across 1920px. */
-function ridgeY(n,x,L){
-  let v = fbm1(n, x*L.fr, L.oct||5);
-  if(L.jag){                                  // sharpen into peaks, add a second ridge line
-    v = Math.pow(v, 1.45);
-    v = v*0.80 + 0.20*Math.pow(fbm1(n,(x+740)*L.fr*2.1,2),1.8);
-  }
-  if(L.dune){                                 // asymmetric crest: soft windward, steep lee
-    const t = Math.max(0,Math.min(1,v));
-    v = t*t*(3-2*t);
-    v = v*0.85 + 0.15*fbm1(n,(x+311)*L.fr*0.6,2);
-  }
-  return L.y*H + (v-0.5)*2*L.amp;
-}
-S.ridges.forEach((L,li)=>{
-  const n=mkNoise1D(1000+li*137);
-  ctx.beginPath(); ctx.moveTo(0,H);
-  for(let x=0;x<=W;x+=2) ctx.lineTo(x, ridgeY(n,x,L));
-  ctx.lineTo(W,H); ctx.closePath();
-  ctx.fillStyle=L.c; ctx.fill();
-  if(L.haze>0){                                  // distance haze over the layer
+/* ridges */
+const ridgeNoises = (S.ridges||[]).map((_,li)=>mkNoise1D(1000+li*137));
+(S.ridges||[]).forEach((L,li)=>{
+  const n=ridgeNoises[li];
+  ridgePath(n,L); ctx.fillStyle=L.c; ctx.fill();
+  if(L.haze>0){
     ctx.save(); ctx.clip();
     const hz=ctx.createLinearGradient(0,L.y*H-L.amp,0,L.y*H+L.amp*2.4);
     hz.addColorStop(0,`rgba(180,205,225,${(L.haze*0.30).toFixed(3)})`);
@@ -217,46 +323,135 @@ S.ridges.forEach((L,li)=>{
   }
 });
 
-/* conifer silhouettes — layered boughs, not bare spikes */
+/* mirrored reflection into the water */
+if(S.mirror){
+  const my=S.mirror.y*H;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(0,my,W,H-my); ctx.clip();
+  ctx.globalAlpha=S.mirror.alpha;
+  (S.ridges||[]).forEach((L,li)=>{
+    ridgePath(ridgeNoises[li],L,my);
+    ctx.fillStyle=L.c; ctx.fill();
+  });
+  ctx.globalAlpha=1;
+  const sm=ctx.createLinearGradient(0,my,0,H);   // sink it into the depths
+  sm.addColorStop(0,'rgba(0,0,0,0)'); sm.addColorStop(.55,'rgba(6,14,19,.45)'); sm.addColorStop(1,'rgba(4,9,13,.92)');
+  ctx.fillStyle=sm; ctx.fillRect(0,my,W,H-my);
+  ctx.restore();
+}
+
+/* glint path on water — soft-edged rows; flat rects cut a hard silhouette */
+if(S.water){
+  const w=S.water, y0=w.y*H, gx=(S.glow?S.glow.x:0.5)*W;
+  const gn=mkNoise1D(6060);
+  const base=w.glint.replace(/rgba\(([^)]*),[\d.]+\)/,'$1');
+  for(let y=y0; y<H; y+=3){
+    const d=(y-y0)/(H-y0);
+    const half=(20+210*Math.pow(d,0.9))*(0.80+0.30*fbm1(gn,y*0.03+drift*2,2));
+    const wob=Math.sin(y*0.09 + drift*Math.PI*2)*(3+18*d);
+    const a=Math.pow(1-d,1.7)*0.30*(0.75+0.25*breath);
+    const cx=gx+wob;
+    const g=ctx.createLinearGradient(cx-half,0,cx+half,0);
+    g.addColorStop(0,   `rgba(${base},0)`);
+    g.addColorStop(0.5, `rgba(${base},${a.toFixed(3)})`);
+    g.addColorStop(1,   `rgba(${base},0)`);
+    ctx.fillStyle=g;
+    ctx.fillRect(cx-half, y, half*2, 2.2);
+  }
+}
+
+/* cloud sea */
+if(S.clouds){
+  const C=S.clouds, n=mkNoise1D(7700);
+  ctx.beginPath(); ctx.moveTo(0,H);
+  for(let x=0;x<=W;x+=2){
+    const y=C.y*H + (fbm1(n, x*C.fr + drift*0.25, 4)-0.5)*2*C.amp;
+    ctx.lineTo(x,y);
+  }
+  ctx.lineTo(W,H); ctx.closePath();
+  const cg=ctx.createLinearGradient(0,C.y*H-C.amp,0,H);
+  cg.addColorStop(0,C.c1); cg.addColorStop(1,C.c2);
+  ctx.fillStyle=cg; ctx.fill();
+}
+
+/* conifers — layered boughs */
 function conifer(x, base, h, w, col){
-  ctx.fillStyle = col;
-  const tiers = 4;
-  for(let t=0; t<tiers; t++){
-    const f  = t/tiers;                         // 0 at crown, 1 at the skirt
-    const topY  = base - h + (h*0.88)*f*0.78;
-    const botY  = topY + h*0.36;
-    const halfW = (w*0.5) * (0.30 + 0.78*f);
+  ctx.fillStyle=col;
+  const tiers=4;
+  for(let t=0;t<tiers;t++){
+    const f=t/tiers;
+    const topY=base-h+(h*0.88)*f*0.78, botY=topY+h*0.36;
+    const halfW=(w*0.5)*(0.30+0.78*f);
     ctx.beginPath();
-    ctx.moveTo(x, topY);
-    ctx.lineTo(x + halfW, botY);
-    ctx.lineTo(x + halfW*0.42, botY - h*0.045);
-    ctx.lineTo(x - halfW*0.42, botY - h*0.045);
-    ctx.lineTo(x - halfW, botY);
+    ctx.moveTo(x,topY);
+    ctx.lineTo(x+halfW,botY);
+    ctx.lineTo(x+halfW*0.42,botY-h*0.045);
+    ctx.lineTo(x-halfW*0.42,botY-h*0.045);
+    ctx.lineTo(x-halfW,botY);
     ctx.closePath(); ctx.fill();
   }
 }
 (S.trees||[]).forEach((T,ti)=>{
   const n=mkNoise1D(4200+ti*71), r=mkRand(77+ti*13);
-  ctx.save();
-  const bandTop = T.y*H - T.h*1.7;
-  for(let x=-60; x<W+60; x+=T.step){
-    const jit  = (r()-0.5)*T.step*1.5;
-    const base = T.y*H + (fbm1(n, x*0.0014, 4)-0.5)*2*30;
-    const h    = T.h*(0.55+r()*0.85);           // wide height variance breaks the "waveform" look
-    const w    = h*(0.34+r()*0.16);
+  const bandTop=T.y*H-T.h*1.7;
+  for(let x=-60;x<W+60;x+=T.step){
+    const jit=(r()-0.5)*T.step*1.5;
+    const base=T.y*H + (fbm1(n,x*0.0014,4)-0.5)*2*30;
+    const h=T.h*(0.55+r()*0.85), w=h*(0.34+r()*0.16);
     conifer(x+jit, base, h, w, T.c);
   }
-  if(T.haze>0){                                 // haze as a soft gradient, never a hard rect
+  if(T.haze>0){                                // fade in AND out, or the top edge draws a line
     const hz=ctx.createLinearGradient(0,bandTop,0,T.y*H+T.h*0.3);
     hz.addColorStop(0,'rgba(185,210,228,0)');
     hz.addColorStop(.55,`rgba(185,210,228,${(T.haze*0.22).toFixed(3)})`);
     hz.addColorStop(1,'rgba(185,210,228,0)');
     ctx.fillStyle=hz; ctx.fillRect(0,bandTop,W,(T.y*H+T.h*0.3)-bandTop);
   }
-  ctx.restore();
 });
 
-/* ground plane beneath the front stand */
+/* birch trunks */
+(S.birch||[]).forEach((B,bi)=>{
+  const r=mkRand(880+bi*37);
+  ctx.globalAlpha=B.a;
+  for(let x=-40;x<W+40;x+=B.step){
+    const jit=(r()-0.5)*B.step*1.1;
+    const tw=30+r()*48, base=B.y*H, top=base-B.h*(0.6+r()*0.5);
+    const lean=(r()-0.5)*26;
+    ctx.fillStyle=B.c;
+    ctx.beginPath();
+    ctx.moveTo(x+jit-tw/2, base);
+    ctx.lineTo(x+jit+tw/2, base);
+    ctx.lineTo(x+jit+lean+tw*0.30, top);
+    ctx.lineTo(x+jit+lean-tw*0.30, top);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle='rgba(20,22,25,.55)';        // bark marks
+    for(let k=0;k<14;k++){
+      const ty=base-(k+1)*(base-top)/15 - r()*18;
+      const bw=tw*(0.20+r()*0.55);
+      ctx.fillRect(x+jit-tw*0.45+r()*(tw*0.8-bw), ty, bw, 2.5+r()*5);
+    }
+  }
+  ctx.globalAlpha=1;
+});
+
+/* reeds */
+(S.reeds||[]).forEach((R,ri)=>{
+  const r=mkRand(1500+ri*29);
+  ctx.globalAlpha=R.a; ctx.strokeStyle=R.c; ctx.lineCap='round';
+  for(let x=-20;x<W+20;x+=R.step){
+    const jit=(r()-0.5)*R.step*1.4;
+    const base=R.y*H, h=R.h*(0.45+r()*0.85);
+    const bend=(r()-0.5)*40 + Math.sin(drift*Math.PI*2 + x*0.01)*7;
+    ctx.lineWidth=1.4+r()*2.0;
+    ctx.beginPath();
+    ctx.moveTo(x+jit, base);
+    ctx.quadraticCurveTo(x+jit+bend*0.4, base-h*0.6, x+jit+bend, base-h);
+    ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+});
+
+/* ground plane */
 if(S.ground){
   const gy=S.ground.y*H;
   const gg=ctx.createLinearGradient(0,gy,0,H);
@@ -280,9 +475,21 @@ if(S.fog){
   }
 }
 
-/* Static dither — breaks up gradient banding without costing bitrate.
-   The seed must NOT vary with phase: per-frame noise is incompressible and
-   blew the encode up to ~376MB for a single 2-minute track. */
+/* falling snow — wraps exactly once per cycle so the loop stays seamless */
+if(S.snow){
+  const r=mkRand(3310);
+  for(let i=0;i<S.snow;i++){
+    const x0=r()*W, y0=r()*H, sp=1, sz=1+r()*2.1;
+    const y=(y0 + drift*H*sp) % H;
+    const x=(x0 + Math.sin((drift*2*Math.PI)+i)*18 + W) % W;
+    ctx.fillStyle=`rgba(240,248,255,${(0.18+r()*0.45).toFixed(3)})`;
+    ctx.beginPath(); ctx.arc(x,y,sz,0,6.2832); ctx.fill();
+  }
+}
+
+/* Static dither — breaks gradient banding without costing bitrate.
+   Seed must NOT vary with phase: per-frame noise is incompressible and
+   blew one 2-minute encode up to 376MB. */
 (function(){
   const r=mkRand(5150);
   const img=ctx.getImageData(0,0,W,H), d=img.data;

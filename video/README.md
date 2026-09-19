@@ -30,14 +30,19 @@ To add the remaining tracks, append rows to `tracks.tsv` and re-run. Nothing els
 
 `scene.html?scene=forest&note=B2&chord=minor%20triad&texture=Wood&dur=2:00&phase=0`
 
-Scenes: `forest` · `dawn` · `alpine` · `ocean` · `dunes`. Add more by appending a
-palette + ridge/tree spec to the `SCENES` map — no other code changes needed.
+15 scenes: `forest` `dawn` `alpine` `ocean` `dunes` `aurora` `lake` `mist`
+`canyon` `cloudsea` `birch` `snowfall` `marsh` `tundra` `glacier`. Add more by
+appending a palette + layer spec to the `SCENES` map — no other code changes needed.
+
+Layer primitives: `ridges` (with `jag` peaks, `dune` crests, `mesa` benches),
+`trees` (conifers), `birch`, `reeds`, `water` + `mirror` (reflection), `clouds`,
+`aurora`, `stars`, `snow`, `fog`, `ground`.
 
 `phase` is `[0,1)` and drives one full breath cycle of the core glow. `build_videos.sh`
 renders 80 frames across that range and loops them, so the animation is seamless at the
 join (verified: luminance at `phase=0` and the loop seam match to within 0.01).
 
-## Three things that will bite you
+## Four things that will bite you
 
 1. **Headless Chrome reserves 87px of window height for browser chrome.** `--window-size=1920,1080`
    yields a *993px* viewport, silently cutting everything anchored to the bottom of the page.
@@ -48,7 +53,14 @@ join (verified: luminance at `phase=0` and the loop seam match to within 0.01).
    came out at **376 MB**. The dither seed is deliberately constant; keep it that way.
    With a fixed seed the same track is ~39 MB.
 
-3. **`ffmpeg` reads stdin one byte at a time.** Inside a `while read` loop it eats characters
+3. **Anything symmetric and hard-edged reads as an artifact.** The water glint
+   started as flat `fillRect` rows of constant width; stacked up they cut a hard
+   silhouette that looked like a christmas tree sitting on the lake. Each row now
+   fills with a horizontal transparent→colour→transparent gradient. Same lesson
+   sank the first mesa pass (4 quantisation steps = a bar chart) and the first
+   birch pass (6px trunks = a barcode).
+
+4. **`ffmpeg` reads stdin one byte at a time.** Inside a `while read` loop it eats characters
    from the loop's input (it was swallowing the leading `0` of each `NN` index). Every `ffmpeg`
    call here passes `-nostdin`; keep it that way if you edit these scripts.
 
