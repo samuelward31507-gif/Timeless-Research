@@ -1,0 +1,31 @@
+idx	volume	note	chord	texture	dur	scene	variant	src
+31	1	B2	open fifth	Breath	2:00	aurora	0	A31.m4a
+32	1	B2	sus4	Breath	2:00	aurora	1	A32.m4a
+33	1	B2	minor ninth	Breath	2:00	aurora	2	A33.m4a
+34	1	B2	add9	Breath	2:00	aurora	3	A34.m4a
+35	1	B2	major seventh	Breath	2:00	aurora	4	A35.m4a
+36	2	A3	quartal	Breath	2:00	mist	0	A36.m4a
+37	2	A3	sus2	Breath	2:00	mist	1	A37.m4a
+38	2	A3	minor triad	Breath	2:00	mist	2	A38.m4a
+39	2	A3	sixth	Breath	2:00	mist	3	A39.m4a
+40	2	A3	major triad	Breath	2:00	mist	4	A40.m4a
+41	3	D#3	diminished	Hollow	2:00	canyon	0	A41.m4a
+42	3	D#3	minor seventh	Hollow	2:00	canyon	1	A42.m4a
+43	3	D#3	sus4	Hollow	2:00	canyon	2	A43.m4a
+44	3	D#3	add9	Hollow	2:00	canyon	3	A44.m4a
+45	3	D#3	major seventh	Hollow	2:00	canyon	4	A45.m4a
+46	4	G3	minor triad	Wood	2:00	birch	0	A46.m4a
+47	4	G3	sus2	Wood	2:00	birch	1	A47.m4a
+48	4	G3	minor seventh	Wood	2:00	birch	2	A48.m4a
+49	4	G3	sus4	Wood	2:00	birch	3	A49.m4a
+50	4	G3	major triad	Wood	2:00	birch	4	A50.m4a
+51	5	F#3	open fifth	Bell	2:00	snowfall	0	A51.m4a
+52	5	F#3	sus4	Bell	2:00	snowfall	1	A52.m4a
+53	5	F#3	minor ninth	Bell	2:00	snowfall	2	A53.m4a
+54	5	F#3	add9	Bell	2:00	snowfall	3	A54.m4a
+55	5	F#3	major seventh	Bell	2:00	snowfall	4	A55.m4a
+56	6	A#3	quartal	Bell	2:00	ocean	0	A56.m4a
+57	6	A#3	sus2	Bell	2:00	ocean	1	A57.m4a
+58	6	A#3	minor triad	Bell	2:00	ocean	2	A58.m4a
+59	6	A#3	sixth	Bell	2:00	ocean	3	A59.m4a
+60	6	A#3	major triad	Bell	2:00	ocean	4	A60.m4a

@@ -33,7 +33,11 @@ SCENE_TEXTURE = {
 }
 
 # Roots cycle so consecutive volumes don't sit on the same tonic.
-ROOTS = ["G2", "C3", "A2", "E3", "D3", "F3", "B2", "A3", "C2", "G3", "E2", "D2"]
+# Nothing below ~95 Hz: C2 is 64 Hz and D2 is 72 Hz at A=432, and those
+# fundamentals barely reproduce on phone or laptop speakers. For a video whose
+# whole content is a sustained tone, that is the difference between hearing it
+# and not. Octave 2 is only safe from G2 up.
+ROOTS = ["G2", "C3", "A2", "E3", "D3", "F3", "B2", "A3", "D#3", "G3", "F#3", "A#3"]
 
 # Five chord shapes per volume, rotated so volume 1 and volume 2 don't open
 # the same way. Each set moves dark -> open.

@@ -20,13 +20,13 @@ NFRAMES=$((FPS * CYCLE))
 mkdir -p "$OUT"
 urlenc() { python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1]))" "$1"; }
 
-while IFS=$'\t' read -r idx note chord texture dur scene src; do
+tail -n +2 "$DIR/tracks.tsv" | while IFS=$'\t' read -r idx vol note chord texture dur scene variant src; do
   [ -z "${idx:-}" ] && continue
   SRC="$SRCDIR/$src"
   if [ ! -f "$SRC" ]; then echo "SKIP $idx — missing $src"; continue; fi
 
   FRAMES="$OUT/.frames_$idx"; rm -rf "$FRAMES"; mkdir -p "$FRAMES"
-  base="note=$(urlenc "$note")&chord=$(urlenc "$chord")&texture=$(urlenc "$texture")&dur=$(urlenc "$dur")&scene=$(urlenc "$scene")"
+  base="note=$(urlenc "$note")&chord=$(urlenc "$chord")&texture=$(urlenc "$texture")&dur=$(urlenc "$dur")&scene=$(urlenc "$scene")&variant=$(urlenc "$variant")"
 
   for ((i=0; i<NFRAMES; i++)); do
     p=$(python3 -c "print($i/$NFRAMES)")
@@ -54,6 +54,6 @@ while IFS=$'\t' read -r idx note chord texture dur scene src; do
 
   rm -rf "$FRAMES"
   echo "built $OUT/TR_${idx}_$(echo "$note" | tr -d ' ').mp4"
-done < "$DIR/tracks.tsv"
+done
 
 echo "--- done -> $OUT ---"
