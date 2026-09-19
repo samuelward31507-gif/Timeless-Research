@@ -569,8 +569,15 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
   position: absolute;
   left: 11.45%; top: 39.77%;
   width: 82.41%; height: 41.70%;
-  padding: 5.5% 11% 5% 8.5%;
-  color: #1B1814;
+  padding: 4.4% 11% 5% 8.5%;
+  /* Ink, not paint. Printed black photographed under studio light never reads
+     as #000: it reads as a dark warm grey carrying whatever the paper is doing
+     underneath. Keeping it light enough for multiply to have something to work
+     on is what makes the letters sit *in* the label rather than on top of it —
+     sampling the photograph across this band shows the paper running from 241
+     at the specular highlight down to 125 in the shadow, and the ink now
+     inherits that whole range. */
+  color: #423B31;
   mix-blend-mode: multiply;
   text-align: left;
   font-family: var(--f-label);
@@ -578,6 +585,17 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
   font-size: calc(var(--vial-h, 240px) * .058);
   line-height: 1.05;
   overflow: hidden;
+
+  /* The label is wrapped round a cylinder, so the face turns away from the
+     camera. The photograph's own luminance puts the near point at ~12% across
+     the band, which is where this rotation is hinged; everything to the right
+     foreshortens, as the printing on a real vial does. */
+  transform: perspective(calc(var(--vial-h, 240px) * 2.4)) rotateY(-15deg);
+  transform-origin: 12% 50%;
+
+  /* The photograph has a focal plane; crisp vector edges on top of it are the
+     giveaway. Scaled to the vial so it holds at every size it is rendered at. */
+  filter: blur(calc(var(--vial-h, 240px) * .0009));
 }
 .vp-name {
   display: block;
@@ -590,12 +608,23 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
   overflow: hidden;   /* a wider fallback clips at the reserve, never over the strip */
 }
 .vp-dose {
-  display: inline-block; margin-top: .95em;
+  display: inline-block; margin-top: .32em;
   padding: .22em .7em .26em;
   border: 1px solid currentColor; border-radius: 3em;
   font-size: .62em; font-weight: 600; letter-spacing: .06em;
   text-transform: uppercase; white-space: nowrap;
 }
+.vp-meta {
+  /* Traceability block: the small dense type a real vial carries. It lives in
+     the bottom-anchored stack with the warnings rather than flowing under the
+     pack size, because a two-line compound name pushes flowed content straight
+     through the pills below it. */
+  display: block; margin-bottom: .28em;
+  font-size: .385em; line-height: 1.34; letter-spacing: .03em;
+}
+.vp-meta span { display: block; white-space: nowrap; }
+.vp-meta b { font-weight: 600; letter-spacing: .09em; margin-right: .5em; }
+
 .vp-side {
   /* bounded top and bottom so the strip can never run past the label,
      whatever the mark and wordmark are sized to */
@@ -605,7 +634,11 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 }
 .vp-mark { height: 1.05em; width: auto; flex-shrink: 0; }
 .vp-brand {
-  writing-mode: vertical-rl; transform: rotate(180deg);
+  /* This strip sits on the part of the cylinder turning hardest away from the
+     camera — the photograph's luminance bottoms out right here — so it is
+     narrowed on top of the label-wide rotation. Full-width type at this
+     position is the single most obvious tell that the text is an overlay. */
+  writing-mode: vertical-rl; transform: rotate(180deg) scaleY(.86);
   font-size: .38em; font-weight: 600; letter-spacing: .18em; text-indent: .18em;
   white-space: nowrap;
 }

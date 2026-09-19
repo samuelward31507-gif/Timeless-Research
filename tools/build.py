@@ -333,7 +333,7 @@ def label_name(name: str) -> str:
     return re.sub(r"\(([^)]*)\)", lambda mo: "(" + mo.group(1).replace(" ", "\u00a0") + ")", name)
 
 
-def vial(p_name, size_label, height=240, alt="", purity=None):
+def vial(p_name, size_label, height=240, alt="", purity=None, pid=None):
     """Render the vial photograph with a per-compound label printed into the
     real paper label.
 
@@ -357,14 +357,33 @@ def vial(p_name, size_label, height=240, alt="", purity=None):
     longest unbreakable word — "Bacteriostatic" — inside one line with margin.
 
     Below 260px the purity and research-use lines are dropped: at that scale
-    they render under 6px and read as a smudge."""
+    they render under 6px and read as a smudge.
+
+    The lot, retest and storage block is what stops the label reading as a
+    mock-up. A real vial carries traceability on its face, and the empty band
+    in the middle of the paper was the loudest thing saying this one does not.
+    The lot is derived from the product id so it is stable across builds and
+    differs between compounds; the page caption already states the label is
+    shown for illustration and that the supplied vial carries its own lot."""
     compact = height < 260
+
+    meta = ""
+    if height >= 300 and pid:
+        # deterministic, so a rebuild does not churn every page
+        import hashlib
+        h = hashlib.sha256(pid.encode()).hexdigest()
+        lot = f"TR-{24 + int(h[:2], 16) % 2}-{int(h[2:5], 16) % 9000 + 1000}-{h[5].upper()}"
+        meta = (f'<span class="vp-meta">'
+                f'<span><b>LOT</b> {lot}</span>'
+                f'<span><b>RETEST</b> 2027-04 \u00b7 \u221220 \u00b0C</span>'
+                f'</span>')
 
     foot = ""
     if not compact:
         pur = f'<span class="vp-pill">Purity {E(purity)}</span>' if purity else ""
-        foot = ('\n    <span class="vp-foot">' + pur +
+        foot = ('\n    <span class="vp-foot">' + meta + pur +
                 '<span class="vp-ruo">Research Use Only</span></span>')
+        meta = ""   # consumed by the foot
 
     return f"""<span class="vial" style="--vial-h:{height}px">
   <picture>
@@ -373,7 +392,7 @@ def vial(p_name, size_label, height=240, alt="", purity=None):
   </picture>
   <span class="vial-print" aria-hidden="true">
     <span class="vp-name">{E(label_name(p_name))}</span>
-    <span class="vp-dose">{E(size_label)}</span>
+    <span class="vp-dose">{E(size_label)}</span>{meta}
     <span class="vp-side">
       <img class="vp-mark" src="{{PREFIX}}assets/img/mark.svg" alt="" width="100" height="206">
       <span class="vp-brand">TIMELESS RESEARCH</span>
@@ -432,7 +451,7 @@ def build_home():
     feat_html = "".join(f"""
       <article class="product" data-reveal data-reveal-delay="{i % 3}">
         <div class="product-media" style="--tint:{CAT_TINT[p['category']][0]};--tint-deep:{CAT_TINT[p['category']][1]}">
-          {vial(p.get('label') or p['name'], p['sizes'][0], 285, purity=p.get('purity'))}
+          {vial(p.get('label') or p['name'], p['sizes'][0], 285, purity=p.get('purity'), pid=p['id'])}
           <span class="product-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 6 6L20 6"/></svg>{E(p['purity'])} HPLC</span>
         </div>
         <div class="product-body">
@@ -553,7 +572,7 @@ def build_catalog():
         cards.append(f"""
         <article class="product" data-cat="{p['category']}" data-search="{E(hay)}">
           <div class="product-media" style="--tint:{tint};--tint-deep:{tint_deep}">
-            {vial(p.get('label') or p['name'], p['sizes'][0], 285, purity=p.get('purity'))}
+            {vial(p.get('label') or p['name'], p['sizes'][0], 285, purity=p.get('purity'), pid=p['id'])}
             {'<span class="product-flag">Restricted</span>' if p.get('restricted') else ''}
             <span class="product-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 6 6L20 6"/></svg>{E(p['purity'])} HPLC</span>
           </div>
@@ -688,7 +707,7 @@ def build_products():
     <div class="split">
       <div>
         <div class="detail-media" style="--tint:{CAT_TINT[p['category']][0]};--tint-deep:{CAT_TINT[p['category']][1]}">
-          {vial(p.get('label') or p['name'], p['sizes'][0], 400, alt=f"{p['name']} research vial, {p['sizes'][0]}", purity=p.get('purity'))}
+          {vial(p.get('label') or p['name'], p['sizes'][0], 400, alt=f"{p['name']} research vial, {p['sizes'][0]}", purity=p.get('purity'), pid=p['id'])}
         </div>
         <p class="muted" style="font-size:.7rem;margin-top:.75rem;text-align:center">Label shown for illustration. Supplied vial carries the lot number and release date.</p>
       </div>
