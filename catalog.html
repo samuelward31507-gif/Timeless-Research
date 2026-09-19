@@ -90,9 +90,20 @@
           <label class="sr-only" for="catalog-search">Search the catalog</label>
           <input id="catalog-search" type="search" placeholder="Search by name, CAS number, synonym or research area…" autocomplete="off">
         </div>
-        <p class="muted mono" id="result-count" style="font-size:.7rem;margin-bottom:1.25rem" aria-live="polite"></p>
+        <div class="catalog-meta">
+          <p class="muted mono" id="result-count" aria-live="polite"></p>
+          <div class="sort-field">
+            <label for="catalog-sort">Sort</label>
+            <select id="catalog-sort">
+              <option value="default">Research area</option>
+              <option value="price-asc">Price, low to high</option>
+              <option value="price-desc">Price, high to low</option>
+              <option value="name">Name A–Z</option>
+            </select>
+          </div>
+        </div>
         <div class="product-grid" id="product-grid">
-        <article class="product" data-cat="growth" data-search="cjc-1295 (no dac) 863288-34-0 modified grf (1-29) mod grf 1-29 growth axis ghrh(1-29) analogue with substitutions that increase plasma stability. used to probe ghrh receptor signalling and pulsatile gh release.">
+        <article class="product" data-cat="growth" data-search="cjc-1295 (no dac) 863288-34-0 modified grf (1-29) mod grf 1-29 growth axis ghrh(1-29) analogue with substitutions that increase plasma stability. used to probe ghrh receptor signalling and pulsatile gh release." data-available="true" data-price="60" data-name="CJC-1295 (no DAC)">
           <div class="product-media" style="--tint:#F3E9DA;--tint-deep:#E8D8BF">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -126,7 +137,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/cjc-1295.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="growth" data-search="cjc-1295 dac 863288-34-0 dac:grf drug affinity complex grf growth axis ghrh analogue bearing a drug-affinity-complex linker that permits covalent albumin binding, extending circulating half-life in animal models.">
+        <article class="product" data-cat="growth" data-search="cjc-1295 dac 863288-34-0 dac:grf drug affinity complex grf growth axis ghrh analogue bearing a drug-affinity-complex linker that permits covalent albumin binding, extending circulating half-life in animal models." data-available="true" data-price="65" data-name="CJC-1295 DAC">
           <div class="product-media" style="--tint:#F3E9DA;--tint-deep:#E8D8BF">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -160,7 +171,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/cjc-1295-dac.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="growth" data-search="igf-1 lr3 946870-92-4 long r3 igf-1 growth axis recombinant igf-1 analogue with reduced igfbp affinity, widely used as a cell-culture supplement in proliferation and differentiation studies.">
+        <article class="product" data-cat="growth" data-search="igf-1 lr3 946870-92-4 long r3 igf-1 growth axis recombinant igf-1 analogue with reduced igfbp affinity, widely used as a cell-culture supplement in proliferation and differentiation studies." data-available="true" data-price="85" data-name="IGF-1 LR3">
           <div class="product-media" style="--tint:#F3E9DA;--tint-deep:#E8D8BF">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -194,7 +205,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/igf-1-lr3.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="growth" data-search="ipamorelin 170851-70-4 nnc 26-0161 growth axis selective growth hormone secretagogue receptor (ghs-r1a) agonist. used in pituitary cell and rodent models of gh release with minimal effect on acth or prolactin.">
+        <article class="product" data-cat="growth" data-search="ipamorelin 170851-70-4 nnc 26-0161 growth axis selective growth hormone secretagogue receptor (ghs-r1a) agonist. used in pituitary cell and rodent models of gh release with minimal effect on acth or prolactin." data-available="true" data-price="45" data-name="Ipamorelin">
           <div class="product-media" style="--tint:#F3E9DA;--tint-deep:#E8D8BF">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -228,7 +239,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/ipamorelin.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="growth" data-search="mots-c 1627580-64-6 mitochondrial orf of the 12s rrna type-c growth axis mitochondrial-derived peptide encoded in the 12s rrna region. studied for ampk activation, metabolic homeostasis and exercise-response signalling.">
+        <article class="product" data-cat="growth" data-search="mots-c 1627580-64-6 mitochondrial orf of the 12s rrna type-c growth axis mitochondrial-derived peptide encoded in the 12s rrna region. studied for ampk activation, metabolic homeostasis and exercise-response signalling." data-available="true" data-price="25" data-name="MOTS-c">
           <div class="product-media" style="--tint:#F3E9DA;--tint-deep:#E8D8BF">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -262,7 +273,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/mots-c.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="growth" data-search="tesamorelin 218949-48-5 th9507 growth axis stabilised ghrh(1-44) analogue. reference material for ghrh receptor pharmacology and igf-1 axis research.">
+        <article class="product" data-cat="growth" data-search="tesamorelin 218949-48-5 th9507 growth axis stabilised ghrh(1-44) analogue. reference material for ghrh receptor pharmacology and igf-1 axis research." data-available="true" data-price="190" data-name="Tesamorelin">
           <div class="product-media" style="--tint:#F3E9DA;--tint-deep:#E8D8BF">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -296,7 +307,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/tesamorelin.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="longevity" data-search="epithalon 307297-39-8 epitalon aedg peptide cellular &amp; longevity synthetic tetrapeptide based on the pineal extract epithalamin. studied for telomerase expression and circadian-axis regulation in cell and rodent models.">
+        <article class="product" data-cat="longevity" data-search="epithalon 307297-39-8 epitalon aedg peptide cellular &amp; longevity synthetic tetrapeptide based on the pineal extract epithalamin. studied for telomerase expression and circadian-axis regulation in cell and rodent models." data-available="true" data-price="80" data-name="Epithalon">
           <div class="product-media" style="--tint:#DFEBE1;--tint-deep:#C9DECD">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -330,7 +341,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/epithalon.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="longevity" data-search="ghk-cu 89030-95-5 copper tripeptide-1 gly-his-lys copper complex cellular &amp; longevity naturally occurring copper-binding tripeptide. investigated for extracellular-matrix remodelling, fibroblast activity and antioxidant signalling in dermal research models.">
+        <article class="product" data-cat="longevity" data-search="ghk-cu 89030-95-5 copper tripeptide-1 gly-his-lys copper complex cellular &amp; longevity naturally occurring copper-binding tripeptide. investigated for extracellular-matrix remodelling, fibroblast activity and antioxidant signalling in dermal research models." data-available="true" data-price="25" data-name="GHK-Cu">
           <div class="product-media" style="--tint:#DFEBE1;--tint-deep:#C9DECD">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -364,7 +375,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/ghk-cu.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="longevity" data-search="glutathione (reduced) 70-18-8 gsh l-glutathione cellular &amp; longevity principal intracellular thiol antioxidant. used as a reference standard in oxidative-stress, redox-balance and detoxification assays.">
+        <article class="product" data-cat="longevity" data-search="glutathione (reduced) 70-18-8 gsh l-glutathione cellular &amp; longevity principal intracellular thiol antioxidant. used as a reference standard in oxidative-stress, redox-balance and detoxification assays." data-available="true" data-price="85" data-name="Glutathione (reduced)">
           <div class="product-media" style="--tint:#DFEBE1;--tint-deep:#C9DECD">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -398,7 +409,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/glutathione.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="longevity" data-search="nad⁺ 53-84-9 β-nicotinamide adenine dinucleotide cellular &amp; longevity essential redox cofactor. supplied as a reference substrate for enzymology, sirtuin activity assays and mitochondrial metabolism research.">
+        <article class="product" data-cat="longevity" data-search="nad⁺ 53-84-9 β-nicotinamide adenine dinucleotide cellular &amp; longevity essential redox cofactor. supplied as a reference substrate for enzymology, sirtuin activity assays and mitochondrial metabolism research." data-available="true" data-price="100" data-name="NAD⁺">
           <div class="product-media" style="--tint:#DFEBE1;--tint-deep:#C9DECD">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -432,7 +443,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/nad.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="metabolic" data-search="retatrutide 2381089-83-2 ly3437943 metabolic &amp; incretin investigational triple gip/glp-1/glucagon receptor agonist. supplied strictly as a reference standard for in vitro receptor and bioanalytical research.">
+        <article class="product" data-cat="metabolic" data-search="retatrutide 2381089-83-2 ly3437943 metabolic &amp; incretin investigational triple gip/glp-1/glucagon receptor agonist. supplied strictly as a reference standard for in vitro receptor and bioanalytical research." data-available="true" data-price="150" data-name="Retatrutide">
           <div class="product-media" style="--tint:#E7E3F5;--tint-deep:#D5CEEC">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -466,7 +477,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/retatrutide.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="metabolic" data-search="tirzepatide 2023788-19-2 ly3298176 metabolic &amp; incretin dual gip and glp-1 receptor agonist. reference standard for incretin receptor pharmacology and bioanalytical assay calibration.">
+        <article class="product" data-cat="metabolic" data-search="tirzepatide 2023788-19-2 ly3298176 metabolic &amp; incretin dual gip and glp-1 receptor agonist. reference standard for incretin receptor pharmacology and bioanalytical assay calibration." data-available="true" data-price="180" data-name="Tirzepatide">
           <div class="product-media" style="--tint:#E7E3F5;--tint-deep:#D5CEEC">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -500,7 +511,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/tirzepatide.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="neuro" data-search="dsip 62568-57-4 delta sleep-inducing peptide neuropeptides nonapeptide first isolated from rabbit cerebral venous blood. studied in sleep-architecture, stress-response and circadian research.">
+        <article class="product" data-cat="neuro" data-search="dsip 62568-57-4 delta sleep-inducing peptide neuropeptides nonapeptide first isolated from rabbit cerebral venous blood. studied in sleep-architecture, stress-response and circadian research." data-available="true" data-price="50" data-name="DSIP">
           <div class="product-media" style="--tint:#F4E2E4;--tint-deep:#E9CBCF">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -534,7 +545,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/dsip.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="neuro" data-search="kpv 67727-97-3 α-msh (11-13) lys-pro-val neuropeptides c-terminal tripeptide of α-msh investigated for anti-inflammatory activity via nf-κb pathway modulation in epithelial and immune cell models.">
+        <article class="product" data-cat="neuro" data-search="kpv 67727-97-3 α-msh (11-13) lys-pro-val neuropeptides c-terminal tripeptide of α-msh investigated for anti-inflammatory activity via nf-κb pathway modulation in epithelial and immune cell models." data-available="true" data-price="26" data-name="KPV">
           <div class="product-media" style="--tint:#F4E2E4;--tint-deep:#E9CBCF">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -568,7 +579,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/kpv.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="neuro" data-search="selank 129954-34-3 tp-7 neuropeptides tuftsin analogue studied for anxiolytic activity, gabaergic modulation and bdnf expression in rodent behavioural models.">
+        <article class="product" data-cat="neuro" data-search="selank 129954-34-3 tp-7 neuropeptides tuftsin analogue studied for anxiolytic activity, gabaergic modulation and bdnf expression in rodent behavioural models." data-available="true" data-price="55" data-name="Selank">
           <div class="product-media" style="--tint:#F4E2E4;--tint-deep:#E9CBCF">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -602,7 +613,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/selank.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="neuro" data-search="semax 80714-61-0 acth (4-10) pro-gly-pro neuropeptides acth(4-10) analogue investigated for neuroprotective and nootropic activity, including bdnf and ngf expression in cortical models.">
+        <article class="product" data-cat="neuro" data-search="semax 80714-61-0 acth (4-10) pro-gly-pro neuropeptides acth(4-10) analogue investigated for neuroprotective and nootropic activity, including bdnf and ngf expression in cortical models." data-available="true" data-price="55" data-name="Semax">
           <div class="product-media" style="--tint:#F4E2E4;--tint-deep:#E9CBCF">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -636,7 +647,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/semax.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="reagents" data-search="bacteriostatic water 0.9% benzyl alcohol water reagents &amp; supplies multi-dose reconstitution solvent containing 0.9% benzyl alcohol as a bacteriostatic agent. laboratory reconstitution use only.">
+        <article class="product" data-cat="reagents" data-search="bacteriostatic water 0.9% benzyl alcohol water reagents &amp; supplies multi-dose reconstitution solvent containing 0.9% benzyl alcohol as a bacteriostatic agent. laboratory reconstitution use only." data-available="true" data-price="15" data-name="Bacteriostatic Water">
           <div class="product-media" style="--tint:#E9EAEC;--tint-deep:#D7D9DD">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -670,7 +681,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/bac-water.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="reagents" data-search="sterile water 7732-18-5 water for reconstitution reagents &amp; supplies preservative-free single-use reconstitution solvent for lyophilised peptide reference material.">
+        <article class="product" data-cat="reagents" data-search="sterile water 7732-18-5 water for reconstitution reagents &amp; supplies preservative-free single-use reconstitution solvent for lyophilised peptide reference material." data-available="true" data-price="15" data-name="Sterile Water">
           <div class="product-media" style="--tint:#E9EAEC;--tint-deep:#D7D9DD">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -704,7 +715,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/sterile-water.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="repair" data-search="bpc-157 137525-51-0 pentadecapeptide bpc 157 body protection compound 157 tissue repair a synthetic pentadecapeptide derived from a sequence in human gastric juice. characterised in preclinical models of gastrointestinal mucosal integrity, tendon and ligament fibroblast migration, and angiogenic signalling.">
+        <article class="product" data-cat="repair" data-search="bpc-157 137525-51-0 pentadecapeptide bpc 157 body protection compound 157 tissue repair a synthetic pentadecapeptide derived from a sequence in human gastric juice. characterised in preclinical models of gastrointestinal mucosal integrity, tendon and ligament fibroblast migration, and angiogenic signalling." data-available="true" data-price="26" data-name="BPC-157">
           <div class="product-media" style="--tint:#DCE9F3;--tint-deep:#C6DCEC">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -738,7 +749,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/bpc-157.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="repair" data-search="bpc-157 / tb-500 blend wolverine blend tissue repair a co-lyophilised preparation of bpc-157 and tb-500, supplied as a single vial for studies that apply both peptides together. each component is assayed before blending and the certificate of analysis reports the content of each.">
+        <article class="product" data-cat="repair" data-search="bpc-157 / tb-500 blend wolverine blend tissue repair a co-lyophilised preparation of bpc-157 and tb-500, supplied as a single vial for studies that apply both peptides together. each component is assayed before blending and the certificate of analysis reports the content of each." data-available="true" data-price="245" data-name="BPC-157 / TB-500 Blend">
           <div class="product-media" style="--tint:#DCE9F3;--tint-deep:#C6DCEC">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -772,7 +783,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/bpc-157-tb-500-blend.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="repair" data-search="ghk-cu / tb-500 / bpc-157 / kpv blend klow blend tissue repair a four-component co-lyophilised preparation adding the kpv tripeptide to the ghk-cu, tb-500 and bpc-157 combination. supplied as a single vial; the certificate of analysis reports the content of each component.">
+        <article class="product" data-cat="repair" data-search="ghk-cu / tb-500 / bpc-157 / kpv blend klow blend tissue repair a four-component co-lyophilised preparation adding the kpv tripeptide to the ghk-cu, tb-500 and bpc-157 combination. supplied as a single vial; the certificate of analysis reports the content of each component." data-available="true" data-price="140" data-name="GHK-Cu / TB-500 / BPC-157 / KPV Blend">
           <div class="product-media" style="--tint:#DCE9F3;--tint-deep:#C6DCEC">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -806,7 +817,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/ghk-cu-tb-bpc-kpv-blend.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="repair" data-search="ghk-cu / tb-500 / bpc-157 blend glow blend tissue repair a three-component co-lyophilised preparation combining the copper tripeptide with tb-500 and bpc-157. supplied as a single vial; the certificate of analysis reports the content of each component.">
+        <article class="product" data-cat="repair" data-search="ghk-cu / tb-500 / bpc-157 blend glow blend tissue repair a three-component co-lyophilised preparation combining the copper tripeptide with tb-500 and bpc-157. supplied as a single vial; the certificate of analysis reports the content of each component." data-available="true" data-price="120" data-name="GHK-Cu / TB-500 / BPC-157 Blend">
           <div class="product-media" style="--tint:#DCE9F3;--tint-deep:#C6DCEC">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -840,7 +851,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/ghk-cu-tb-bpc-blend.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="repair" data-search="tb-500 77591-33-4 thymosin β4 fragment ac-lkktetq tissue repair actin-binding fragment corresponding to the active region of thymosin β4. used in preclinical work on cell migration, actin sequestration and angiogenesis.">
+        <article class="product" data-cat="repair" data-search="tb-500 77591-33-4 thymosin β4 fragment ac-lkktetq tissue repair actin-binding fragment corresponding to the active region of thymosin β4. used in preclinical work on cell migration, actin sequestration and angiogenesis." data-available="true" data-price="180" data-name="TB-500">
           <div class="product-media" style="--tint:#DCE9F3;--tint-deep:#C6DCEC">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -874,7 +885,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/tb-500.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="signaling" data-search="kisspeptin-10 374675-21-5 metastin (45-54) kiss1 (112-121) signalling peptides decapeptide agonist of the kiss1 receptor (gpr54). used to study gnrh pulse generation and reproductive-axis signalling.">
+        <article class="product" data-cat="signaling" data-search="kisspeptin-10 374675-21-5 metastin (45-54) kiss1 (112-121) signalling peptides decapeptide agonist of the kiss1 receptor (gpr54). used to study gnrh pulse generation and reproductive-axis signalling." data-available="true" data-price="55" data-name="Kisspeptin-10">
           <div class="product-media" style="--tint:#EAE6DC;--tint-deep:#DBD4C4">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -908,7 +919,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/kisspeptin-10.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="signaling" data-search="melanotan i 75921-69-6 afamelanotide ndp-α-msh signalling peptides superpotent α-msh analogue used to study melanocortin-1 receptor signalling and melanogenesis in cell models.">
+        <article class="product" data-cat="signaling" data-search="melanotan i 75921-69-6 afamelanotide ndp-α-msh signalling peptides superpotent α-msh analogue used to study melanocortin-1 receptor signalling and melanogenesis in cell models." data-available="true" data-price="32" data-name="Melanotan I">
           <div class="product-media" style="--tint:#EAE6DC;--tint-deep:#DBD4C4">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -942,7 +953,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/melanotan-1.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="signaling" data-search="melanotan ii 121062-08-6 mt-ii signalling peptides cyclic non-selective melanocortin receptor agonist. used in melanocortin pharmacology and receptor-selectivity studies.">
+        <article class="product" data-cat="signaling" data-search="melanotan ii 121062-08-6 mt-ii signalling peptides cyclic non-selective melanocortin receptor agonist. used in melanocortin pharmacology and receptor-selectivity studies." data-available="true" data-price="32" data-name="Melanotan II">
           <div class="product-media" style="--tint:#EAE6DC;--tint-deep:#DBD4C4">
             <span class="vial" style="--vial-h:285px">
   <picture>
@@ -976,7 +987,7 @@
             <a class="btn btn--primary btn--pill btn--block" href="products/melanotan-2.html">View</a>
           </div>
         </article>
-        <article class="product" data-cat="signaling" data-search="oxytocin 50-56-6 oxt signalling peptides cyclic nonapeptide hormone. reference standard for oxytocin receptor binding assays and neuroendocrine research.">
+        <article class="product" data-cat="signaling" data-search="oxytocin 50-56-6 oxt signalling peptides cyclic nonapeptide hormone. reference standard for oxytocin receptor binding assays and neuroendocrine research." data-available="true" data-price="55" data-name="Oxytocin">
           <div class="product-media" style="--tint:#EAE6DC;--tint-deep:#DBD4C4">
             <span class="vial" style="--vial-h:285px">
   <picture>

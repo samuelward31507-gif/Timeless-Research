@@ -13,6 +13,7 @@ Exits non-zero if anything fails, so it can gate a deploy.
 from __future__ import annotations
 
 import html
+import json as _json
 import os
 import pathlib
 import re
@@ -149,11 +150,45 @@ for page in PAGES:
         msg = f"{rel} still needs {m} (set TR_LEGAL_* at build time)"
         notes.append("demo build: " + msg) if DEMO else fail(msg)
 
+# ------------------------------------------------ structured data offers
+# The published price and the machine-readable price must agree. A page saying
+# $26 while its Product schema says something else, or nothing, is the kind of
+# fault nobody sees until a search engine acts on it.
+for _page in sorted((ROOT / "products").glob("*.html")):
+    _txt = _page.read_text(encoding="utf-8")
+    _blocks = re.findall(r'<script type="application/ld\+json">(.*?)</script>', _txt, re.S)
+    _prod = None
+    for _b in _blocks:
+        try:
+            _obj = _json.loads(_b)
+        except Exception:
+            fail(f"{_page.name}: unparseable ld+json")
+            continue
+        if _obj.get("@type") == "Product":
+            _prod = _obj
+    if _prod is None:
+        fail(f"{_page.name}: no Product structured data")
+        continue
+    _off = _prod.get("offers")
+    if not _off:
+        fail(f"{_page.name}: Product carries no offers")
+        continue
+    _each = _off.get("offers", [_off]) if _off.get("@type") == "AggregateOffer" else [_off]
+    for _o in _each:
+        for _k in ("price", "priceCurrency", "availability"):
+            if not _o.get(_k):
+                fail(f"{_page.name}: offer missing {_k}")
+    # the figure rendered on the page must be one of the offered prices
+    _shown = re.search(r'data-price-display>\$([\d,]+)', _txt)
+    if _shown:
+        _v = float(_shown.group(1).replace(",", ""))
+        if not any(abs(float(_o["price"]) - _v) < .005 for _o in _each):
+            fail(f"{_page.name}: shows ${_v:.0f} but no offer matches")
+
 # ------------------------------------------------------- price coverage
 # A pack size offered without a price renders an empty price line and puts a
 # priceless item in the request list, which then quietly drops out of the
 # subtotal. Cheaper to refuse the build.
-import json as _json
 _data = _json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8"))
 for _p in _data.get("products", []):
     _prices = _p.get("prices") or {}

@@ -94,7 +94,16 @@ rebuild — the catalogue card, the product page, the pack-size dropdown, the
 request list and the subtotal all read from that one place.
 
 `tools/check.py` fails if a listed pack size has no price, so a size cannot be
-offered without one.
+offered without one. It also checks that the price rendered on each product page
+matches one of the offers in that page's structured data — a page saying $26
+while the machine-readable product says something else is the kind of fault
+nobody notices until a search engine acts on it.
+
+**Marking something out of stock** is a data edit: add `"available": false` to
+that product in `products.json`. The catalogue card gains an Unavailable badge
+and loses its add control, the product page swaps the request button for a
+contact link and disables the pack-size selector, and the structured data
+reports `OutOfStock`. Remove the line to put it back.
 
 Prices are shown as list prices excluding shipping and tax. The site still
 routes orders through the request list and a written quotation against a

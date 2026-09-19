@@ -12,9 +12,29 @@
   var emptyEl = document.getElementById('empty-state');
   var buttons = Array.prototype.slice.call(document.querySelectorAll('.filter-btn'));
 
-  var state = { cat: 'all', q: '' };
+  var sort = document.getElementById('catalog-sort');
+  // the server-rendered order is the canonical one; remember it so "Research
+  // area" can restore it rather than approximating it
+  cards.forEach(function (c, i) { c.dataset.ord = i; });
+
+  var state = { cat: 'all', q: '', sort: 'default' };
+
+  function reorder() {
+    var by = state.sort;
+    var sorted = cards.slice().sort(function (a, c) {
+      if (by === 'price-asc')  return (+a.dataset.price || 0) - (+c.dataset.price || 0);
+      if (by === 'price-desc') return (+c.dataset.price || 0) - (+a.dataset.price || 0);
+      if (by === 'name') return (a.dataset.name || '').localeCompare(c.dataset.name || '');
+      return (+a.dataset.ord) - (+c.dataset.ord);
+    });
+    // one reflow, not twenty-seven
+    var frag = document.createDocumentFragment();
+    sorted.forEach(function (c) { frag.appendChild(c); });
+    grid.appendChild(frag);
+  }
 
   function apply() {
+    reorder();
     var q = state.q.trim().toLowerCase();
     var shown = 0;
 
@@ -46,6 +66,13 @@
       }
     });
   });
+
+  if (sort) {
+    sort.addEventListener('change', function () {
+      state.sort = sort.value;
+      apply();
+    });
+  }
 
   if (search) {
     var t;

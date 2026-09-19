@@ -22,6 +22,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8"))
 PRODUCTS = DATA["products"]
 CATEGORIES = DATA["categories"]
+CURRENCY = DATA.get("currency", "USD")
 CAT_LABEL = {c["id"]: c["label"] for c in CATEGORIES}
 CAT_TINT = {c["id"]: (c["tint"], c["tintDeep"]) for c in CATEGORIES}
 
@@ -313,6 +314,49 @@ def size_options(p) -> str:
     return "".join(out)
 
 
+def offers_for(p) -> dict:
+    """schema.org offers built from the same price table the page renders.
+
+    Without these the published price is invisible to a search engine: the page
+    says $26 and the machine-readable product says nothing at all. One Offer per
+    pack size, wrapped in an AggregateOffer where there is more than one.
+
+    Availability comes from the product record rather than being hardcoded, so
+    marking something out of stock is a data edit, not a code change. A stale
+    in-stock claim is worse than no claim.
+    """
+    prices = p.get("prices") or {}
+    if not prices:
+        return {}
+    avail = ("https://schema.org/InStock" if p.get("available", True)
+             else "https://schema.org/OutOfStock")
+    url = f"{SITE}/products/{p['id']}.html"
+    each = [{
+        "@type": "Offer",
+        "name": f"{p['name']}, {size}",
+        "sku": f"{p['id']}-{size.replace(' ', '').replace('x', 'x')}",
+        "price": f"{prices[size]:.2f}",
+        "priceCurrency": CURRENCY,
+        "availability": avail,
+        "itemCondition": "https://schema.org/NewCondition",
+        "url": url,
+        "seller": {"@type": "Organization", "name": BRAND},
+    } for size in p["sizes"] if size in prices]
+
+    if len(each) == 1:
+        return {"offers": each[0]}
+    vals = [prices[s] for s in p["sizes"] if s in prices]
+    return {"offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": CURRENCY,
+        "lowPrice": f"{min(vals):.2f}",
+        "highPrice": f"{max(vals):.2f}",
+        "offerCount": len(each),
+        "availability": avail,
+        "offers": each,
+    }}
+
+
 def initial_price(p) -> str:
     """The price of the pack size the selector starts on.
 
@@ -570,7 +614,7 @@ def build_catalog():
         sizes = size_options(p)
         tint, tint_deep = CAT_TINT[p['category']]
         cards.append(f"""
-        <article class="product" data-cat="{p['category']}" data-search="{E(hay)}">
+        <article class="product" data-cat="{p['category']}" data-search="{E(hay)}" data-available="{str(p.get('available', True)).lower()}" data-price="{(p.get('prices') or {}).get(p['sizes'][0], 0)}" data-name="{E(p['name'])}">
           <div class="product-media" style="--tint:{tint};--tint-deep:{tint_deep}">
             {vial(p.get('label') or p['name'], p['sizes'][0], 285, purity=p.get('purity'), pid=p['id'])}
             {'<span class="product-flag">Restricted</span>' if p.get('restricted') else ''}
@@ -582,10 +626,10 @@ def build_catalog():
               {f'<span class="product-cas">CAS {E(p["cas"])}</span>' if p.get('cas') else '<span class="product-cas">Blend</span>'}
             </div>
             <p class="product-sub">{E((p.get('synonyms') or [CAT_LABEL[p['category']]])[0])}</p>
-            <div class="product-price"><span data-price-display>{initial_price(p)}</span></div>
+            <div class="product-price"><span data-price-display>{initial_price(p)}</span>{'' if p.get("available", True) else '<span class="stock-out">Unavailable</span>'}</div>
             <div class="product-foot">
-              <select aria-label="Pack size for {E(p['name'])}" data-size>{sizes}</select>
-              <button class="link-action" data-add="{p['id']}" data-name="{E(p['name'])}">Add to list</button>
+              <select aria-label="Pack size for {E(p['name'])}" data-size{'' if p.get("available", True) else ' disabled'}>{sizes}</select>
+              {f'<button class="link-action" data-add="{p["id"]}" data-name="{E(p["name"])}">Add to list</button>' if p.get("available", True) else '<span class="muted" style="font-size:.72rem">Not currently supplied</span>'}
             </div>
             <a class="btn btn--primary btn--pill btn--block" href="products/{p['id']}.html">View</a>
           </div>
@@ -619,7 +663,18 @@ def build_catalog():
           <label class="sr-only" for="catalog-search">Search the catalog</label>
           <input id="catalog-search" type="search" placeholder="Search by name, CAS number, synonym or research area…" autocomplete="off">
         </div>
-        <p class="muted mono" id="result-count" style="font-size:.7rem;margin-bottom:1.25rem" aria-live="polite"></p>
+        <div class="catalog-meta">
+          <p class="muted mono" id="result-count" aria-live="polite"></p>
+          <div class="sort-field">
+            <label for="catalog-sort">Sort</label>
+            <select id="catalog-sort">
+              <option value="default">Research area</option>
+              <option value="price-asc">Price, low to high</option>
+              <option value="price-desc">Price, high to low</option>
+              <option value="name">Name A–Z</option>
+            </select>
+          </div>
+        </div>
         <div class="product-grid" id="product-grid">{''.join(cards)}</div>
         <div class="empty-state" id="empty-state" hidden>
           <strong>No compounds match that search.</strong>
@@ -692,6 +747,7 @@ def build_products():
             "description": p["research"], "category": CAT_LABEL[p["category"]],
             "sku": p["id"], "brand": {"@type": "Brand", "name": BRAND},
             **({"additionalProperty": [{"@type": "PropertyValue", "name": "CAS", "value": p["cas"]}]} if p.get("cas") else {}),
+            **offers_for(p),
         }, ensure_ascii=False)
 
         body = f"""
@@ -726,12 +782,13 @@ def build_products():
         </div>
 
         <div class="detail-price"><span data-price-display>{initial_price(p)}</span><small>per vial, excluding shipping and tax</small></div>
+        {'' if p.get("available", True) else '<p class="stock-note">Not currently supplied. Contact us and we will tell you when this compound returns to the catalogue.</p>'}
 
         <div class="field no-print" style="margin-bottom:1.5rem">
           <label for="size-select">Pack size</label>
-          <select id="size-select" data-size>{sizes_opt}</select>
+          <select id="size-select" data-size{'' if p.get("available", True) else ' disabled'}>{sizes_opt}</select>
         </div>
-        <button class="btn btn--primary" data-add="{p['id']}" data-name="{E(p['name'])}">Add to request list</button>
+        {f'<button class="btn btn--primary" data-add="{p["id"]}" data-name="{E(p["name"])}">Add to request list</button>' if p.get("available", True) else f'<a class="btn btn--ghost" href="../contact.html">Ask about availability</a>'}
         <p class="muted no-print" style="font-size:.72rem;margin:.9rem 0 2.5rem">List price shown. Orders are supplied against a verified account; lot availability and any quantity break are confirmed on the quotation.</p>
 
         <table class="spec">

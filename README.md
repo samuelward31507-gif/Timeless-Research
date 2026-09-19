@@ -276,7 +276,7 @@ network.
 | `tools/check.py` | Structural report, non-zero on failure | Before every push |
 | `tools/fetch_fonts.py` | Full faces into `tools/fonts-src/` | The type stack changes |
 | `tools/subset_fonts.py` | Served fonts in `assets/fonts/` | After fetching, or new glyphs |
-| `tools/make_og.py` | 42 social cards | Product names or copy change |
+| `tools/make_og.py` | 35 social cards | Product names or copy change |
 | `tools/make_vial.py` | `assets/img/vial.{png,webp}` | The photograph is replaced |
 | `tools/make_logo.py` | `assets/img/mark.svg`, `favicon.svg` | The mark changes |
 

@@ -185,7 +185,30 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .split { display: grid; grid-template-columns: minmax(0,.82fr) minmax(0,1.18fr); gap: var(--s-8); align-items: start; }
 @media (max-width: 900px) { .split { grid-template-columns: 1fr; gap: var(--s-6); } }
 
+/* --- Catalog sort --------------------------------------------------------- */
+.catalog-meta { display: flex; justify-content: space-between; align-items: center;
+                gap: var(--s-4); flex-wrap: wrap; margin-bottom: 1.25rem; }
+.catalog-meta #result-count { font-size: .7rem; margin: 0; }
+.sort-field { display: flex; align-items: center; gap: .5rem; }
+.sort-field label { font-size: var(--t-xs); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.sort-field select { font-size: var(--t-sm); padding: .3rem 1.6rem .3rem .5rem; border: 1px solid var(--line-strong);
+                     border-radius: var(--radius); background: transparent; color: var(--ink); }
+
 /* --- Price ---------------------------------------------------------------- */
+.stock-out {
+  display: inline-block; margin-left: .55rem; vertical-align: middle;
+  font-family: var(--f-ui); font-size: var(--t-xs); font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--warn-ink);
+  background: var(--warn-bg); border: 1px solid var(--warn-line);
+  padding: .1rem .45rem; border-radius: 2px;
+}
+.stock-note {
+  margin: 0 0 var(--s-5); padding: var(--s-3) var(--s-4);
+  background: var(--warn-bg); border: 1px solid var(--warn-line);
+  border-radius: var(--radius); font-size: var(--t-sm); color: var(--warn-ink);
+}
+.product[data-available="false"] .vial { opacity: .55; filter: grayscale(.35); }
+
 .product-price { font-family: var(--f-mono); font-size: var(--t-lg); color: var(--ink);
                  margin: var(--s-3) 0 var(--s-2); font-variant-numeric: tabular-nums; }
 .detail-price { margin: var(--s-5) 0 var(--s-5); }
