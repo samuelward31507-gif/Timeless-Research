@@ -387,62 +387,35 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 /* scope to the photograph: .vial img would also catch the logo in the label */
 .vial > picture img { height: 100%; width: auto; }
 
-/* The label follows the supplied reference: dark ground, left-aligned
-   compound stack, purity/research lines along the bottom, brand lockup
-   running up the right edge.
-
-   .vl-ink multiplies near-black over the photographed white paper, so the
-   label goes dark while keeping the label's own curvature shading — a flat
-   filled rectangle reads as a sticker. The text sits above at normal blend,
-   masked with a horizontal gradient so it dims toward the curved edges the
-   way real print on a cylinder does. */
-.vial-label {
+.vial-print {
   position: absolute;
   left: 11.20%; top: 39.77%;
   width: 82.69%; height: 41.82%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding-inline: 7%;
+  color: #1B1814;
+  mix-blend-mode: multiply;
+  text-align: center; line-height: 1.1;
+  font-size: calc(var(--vial-h, 240px) * .062);
   overflow: hidden;
 }
-.vl-ink {
-  position: absolute; inset: 0;
-  background: #202225;   /* lighter than pure black so the cylinder shading survives the multiply */
-  mix-blend-mode: multiply;
+.vp-head { display: flex; align-items: center; gap: .34em; }
+.vp-mark { height: .78em; width: auto; }
+.vp-brand {
+  font-size: .27em; font-weight: 700; letter-spacing: .15em; text-indent: .15em;
+  white-space: nowrap; line-height: 1;
 }
-.vl-text {
-  position: absolute; inset: 0;
-  display: flex; align-items: stretch;
-  padding: 7.5% 6% 6.5% 8%;
-  color: #F4F3F1;
-  font-size: calc(var(--vial-h, 240px) * .052);
-  line-height: 1.12;
-  -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,.55) 0%, #000 14%, #000 74%, rgba(0,0,0,.45) 100%);
-          mask-image: linear-gradient(to right, rgba(0,0,0,.55) 0%, #000 14%, #000 74%, rgba(0,0,0,.45) 100%);
+.vp-rule { width: 56%; height: 1px; background: currentColor; opacity: .28; margin: .42em 0 .38em; }
+.vp-name {
+  font-size: var(--vp-name, 1em); font-weight: 800;
+  letter-spacing: -.02em; white-space: nowrap; line-height: 1;
 }
-.vl-main { display: flex; flex-direction: column; align-items: flex-start; flex: 1; min-width: 0; }
-.vl-name {
-  font-size: var(--vp-name, 1em); font-weight: 700;
-  letter-spacing: -.02em; line-height: 1; white-space: nowrap;
-}
-.vl-sub {
-  font-size: .34em; font-weight: 400; letter-spacing: .01em;
-  margin-top: .5em; opacity: .82; line-height: 1.25;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
-.vl-dose { font-size: .46em; font-weight: 600; margin-top: .55em; letter-spacing: .01em; }
-.vl-foot {
-  position: absolute; left: 8%; bottom: 6.5%;
-  display: flex; flex-direction: column; gap: .18em;
-  font-size: .26em; font-weight: 400; letter-spacing: .02em; opacity: .74;
-  white-space: nowrap;
-}
-.vl-side {
-  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-  gap: .72em; flex-shrink: 0; padding-top: .05em;
-}
-.vl-mark { height: 1.55em; width: auto; opacity: .92; }
-.vl-side-text {
-  writing-mode: vertical-rl; transform: rotate(180deg);
-  font-size: .23em; font-weight: 600; letter-spacing: .3em; text-indent: .3em;
-  opacity: .8; white-space: nowrap;
+.vp-name--wrap { white-space: normal; line-height: 1.05; }
+.vp-size { font-size: .36em; font-weight: 600; letter-spacing: .01em; margin-top: .34em; white-space: nowrap; }
+.vp-ruo {
+  font-size: .25em; font-weight: 700; letter-spacing: .09em;
+  color: var(--copper); opacity: .85; margin-top: .62em; white-space: nowrap;
 }
 
 /* --- Spec table --------------------------------------------------------- */

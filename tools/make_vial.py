@@ -46,9 +46,48 @@ FEATHER     = 10
 TARGET_H    = 880    # 2x the largest on-page render (470px hero)
 WEBP_Q      = 88
 
+# The photographed crimp cap is bare aluminium. CAP_TINT recolours it by
+# remapping the cap's own luminance onto a colour ramp, so the metal's
+# highlights, shadow and brushed texture all survive — a flat colour fill
+# would kill the specular and read as plastic. Set to None to keep silver.
+CAP_TINT: "tuple[str, str, str] | None" = None   # bare aluminium, as photographed
+# Both in SOURCE image rows (vial.png is 1184 tall), applied before the crop.
+CAP_BOTTOM  = 322    # last row of the crimp cap; the glass neck starts ~336
+CAP_FEATHER = 12     # fade out over the crimp shoulder so there is no seam
+
 
 def luminance(a: np.ndarray) -> np.ndarray:
     return 0.2126 * a[:, :, 0] + 0.7152 * a[:, :, 1] + 0.0722 * a[:, :, 2]
+
+
+def _hex(c: str) -> np.ndarray:
+    return np.array([int(c[i:i + 2], 16) for i in (1, 3, 5)], dtype=float)
+
+
+def tint_cap(rgb: np.ndarray, alpha: np.ndarray) -> np.ndarray:
+    """Remap the cap's luminance onto a three-stop colour ramp."""
+    if CAP_TINT is None:
+        return rgb
+    shadow, mid, high = (_hex(c) for c in CAP_TINT)
+    h = rgb.shape[0]
+
+    lum = luminance(rgb)
+    lo, hi = 20.0, 235.0
+    t = np.clip((lum - lo) / (hi - lo), 0.0, 1.0)[..., None]
+
+    lower = shadow + (mid - shadow) * (t / 0.5)
+    upper = mid + (high - mid) * ((t - 0.5) / 0.5)
+    tinted = np.where(t < 0.5, lower, upper)
+
+    # let the brightest specular keep blowing out to white
+    spec = np.clip((t - 0.86) / 0.14, 0.0, 1.0)
+    tinted = tinted + (255.0 - tinted) * spec
+
+    rows = np.arange(h)[:, None, None]
+    region = np.clip((CAP_BOTTOM + CAP_FEATHER - rows) / CAP_FEATHER, 0.0, 1.0)
+    region = region * (alpha[..., None] > 8)
+
+    return rgb * (1 - region) + tinted * region
 
 
 def background_mask(lum: np.ndarray) -> np.ndarray:
@@ -112,7 +151,7 @@ def report_label_geometry(rgba: Image.Image) -> None:
     xs = np.where(label[(y0 + y1) // 2])[0]
     x0, x1 = xs.min(), xs.max()
 
-    print("\nPaper-label geometry — keep .vial-print in main.css in sync:")
+    print("\nPaper-label geometry — keep .vial-label in main.css in sync:")
     print(f"  left:   {x0 / w * 100:.2f}%")
     print(f"  top:    {y0 / h * 100:.2f}%")
     print(f"  width:  {(x1 - x0) / w * 100:.2f}%")
@@ -137,8 +176,10 @@ def main() -> None:
     rows = np.arange(h)[:, None]
     alpha *= np.clip((BASE_Y + FEATHER - rows) / FEATHER, 0.0, 1.0)
 
+    a = tint_cap(a, alpha * 255)
+
     mask = Image.fromarray((alpha * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(0.7))
-    rgba = im.convert("RGBA")
+    rgba = Image.fromarray(np.clip(a, 0, 255).astype(np.uint8), "RGB").convert("RGBA")
     rgba.putalpha(mask)
 
     box = rgba.getbbox()

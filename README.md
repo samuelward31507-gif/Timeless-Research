@@ -69,22 +69,25 @@ genuine product shot on a light page:
   light actually does through a vial. A plain cutout leaves the glass interior
   black and reads as a dark blob pasted onto white. The baked studio shadow is
   cut, since it belongs to the black backdrop.
-- **Label printed into the real one.** The label is a DOM layer positioned
-  over the photographed paper label. `.vl-ink` multiplies a near-black over
-  the white paper, so the label goes dark while keeping the label's own
-  curvature shading — a flat filled rectangle reads as a sticker. The text
-  sits above it at normal blend, masked with a horizontal gradient so it dims
-  toward the curved edges the way real print on a cylinder does.
+- **Type printed into the real label.** The label text is a DOM layer
+  positioned over the photographed paper label and blended with
+  `mix-blend-mode: multiply`, so it inherits the label's own curvature shading
+  and paper texture. An earlier version covered the real label with a flat
+  white rectangle, which is what made it look fake.
 
-Label layout follows the supplied reference: a left-aligned compound /
-sub-name / dose stack, purity and research-use lines along the bottom, and the
-brand lockup running vertically up the right edge.
+The label carries the brand lockup (mark + wordmark) on one line, a rule, then
+the compound, its pack size and CAS, and the research-use line.
 
-Label geometry in `.vial-label` is measured from the asset, not eyeballed —
+Label geometry in `.vial-print` is measured from the asset, not eyeballed —
 `make_vial.py` prints the values to keep CSS and asset in sync. Below 260px the
-sub-name, purity and research lines are dropped, since at that scale they
-render under 6px and read as a smudge. Compound names are not uppercased, so
-Greek characters (α, β) survive.
+CAS and research-use lines are dropped, since at that scale they render under
+6px and read as a smudge. Compound names are not uppercased, so Greek
+characters (α, β) survive.
+
+`make_vial.py` can also recolour the crimp cap (`CAP_TINT`) by remapping the
+cap's own luminance onto a colour ramp, which keeps the metal's specular and
+brushed texture rather than flat-filling it. It is set to `None` — bare
+aluminium, as photographed.
 
 ### The mark
 
