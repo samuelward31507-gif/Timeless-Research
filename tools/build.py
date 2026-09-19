@@ -16,6 +16,7 @@ import os
 import pathlib
 import re
 import shutil
+import struct
 import datetime
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -377,6 +378,23 @@ def label_name(name: str) -> str:
     return re.sub(r"\(([^)]*)\)", lambda mo: "(" + mo.group(1).replace(" ", "\u00a0") + ")", name)
 
 
+def png_size(rel: str) -> tuple[int, int]:
+    """Intrinsic size straight from the PNG header.
+
+    Hardcoding it meant the <img> advertised 489x880 while the asset was
+    437x786 — the browser reserves space from these numbers, so a stale pair
+    is a layout shift on every page that shows a vial. stdlib only: the IHDR
+    chunk carries width and height as two big-endian uint32 at offset 16.
+    """
+    data = (ROOT / rel).read_bytes()[:24]
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        raise ValueError(f"{rel} is not a PNG")
+    return struct.unpack(">II", data[16:24])
+
+
+VIAL_W, VIAL_H = png_size("assets/img/vial.png")
+
+
 def vial(p_name, size_label, height=240, alt="", purity=None, pid=None):
     """Render the vial photograph with a per-compound label printed into the
     real paper label.
@@ -432,7 +450,7 @@ def vial(p_name, size_label, height=240, alt="", purity=None, pid=None):
     return f"""<span class="vial" style="--vial-h:{height}px">
   <picture>
     <source srcset="{{PREFIX}}assets/img/vial.webp" type="image/webp">
-    <img src="{{PREFIX}}assets/img/vial.png" alt="{E(alt) if alt else ''}" width="489" height="880" loading="lazy" decoding="async">
+    <img src="{{PREFIX}}assets/img/vial.png" alt="{E(alt) if alt else ''}" width="{VIAL_W}" height="{VIAL_H}" loading="lazy" decoding="async">
   </picture>
   <span class="vial-print" aria-hidden="true">
     <span class="vp-name">{E(label_name(p_name))}</span>

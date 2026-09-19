@@ -604,7 +604,11 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
   mix-blend-mode: multiply;
   text-align: left;
   font-family: var(--f-label);
-  font-stretch: semi-condensed;   /* narrows a generic fallback where supported */
+  /* No font-stretch. Barlow Semi Condensed is a static face with no width
+     axis, so asking for semi-condensed made the browser synthesise it —
+     squashing every glyph horizontally. Round letters took it worst: the bowls
+     of p, o and e came out pinched with cramped counters. The face is already
+     condensed; it needs no help. */
   font-size: calc(var(--vial-h, 240px) * .058);
   line-height: 1.05;
   overflow: hidden;
@@ -616,9 +620,6 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
   transform: perspective(calc(var(--vial-h, 240px) * 2.4)) rotateY(-15deg);
   transform-origin: 12% 50%;
 
-  /* The photograph has a focal plane; crisp vector edges on top of it are the
-     giveaway. Scaled to the vial so it holds at every size it is rendered at. */
-  filter: blur(calc(var(--vial-h, 240px) * .0009));
 }
 .vp-name {
   display: block;

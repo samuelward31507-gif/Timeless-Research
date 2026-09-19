@@ -51,7 +51,11 @@ ALPHA_FLOOR = 0.07   # never fully transparent inside the silhouette
 DESPECKLE   = 5      # median radius for the alpha source only
 BASE_Y      = 972    # last row of the vial itself; below is surface shadow
 FEATHER     = 10
-TARGET_H    = 880    # 2x the largest on-page render (470px hero)
+# None keeps the source photograph's own resolution. It was 880, chosen as 2x
+# the 470px hero — but that is only 2x on a 1x display, so the hero was being
+# upscaled on every retina screen and the whole vial read as soft. The source
+# is 1184 tall; there is no reason to throw that away for ~200 KB.
+TARGET_H    = None
 WEBP_Q      = 88
 
 # The photographed crimp cap is bare aluminium. CAP_TINT recolours it by
@@ -198,7 +202,8 @@ def main() -> None:
     pad = 6
     rgba = rgba.crop((max(0, box[0] - pad), max(0, box[1] - pad),
                       min(w, box[2] + pad), min(h, box[3] + pad)))
-    rgba = rgba.resize((round(rgba.width * TARGET_H / rgba.height), TARGET_H), Image.LANCZOS)
+    if TARGET_H and TARGET_H < rgba.height:
+        rgba = rgba.resize((round(rgba.width * TARGET_H / rgba.height), TARGET_H), Image.LANCZOS)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     png, webp = OUT_DIR / "vial.png", OUT_DIR / "vial.webp"
