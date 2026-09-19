@@ -446,7 +446,7 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
   position: absolute;
   left: 11.45%; top: 39.77%;
   width: 82.41%; height: 41.70%;
-  padding: 6.5% 11% 6% 8.5%;
+  padding: 5.5% 11% 5% 8.5%;
   color: #1B1814;
   mix-blend-mode: multiply;
   text-align: left;
@@ -461,39 +461,42 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
   /* one size for every compound, as on real packaging; a name too long for
      the line wraps to a second. Sized so the catalog's longest unbreakable
      word ("Bacteriostatic", 5.5em of this size) clears the 6.12em line. */
-  font-size: 1em; font-weight: 700;
-  letter-spacing: -.012em; line-height: .95;
+  font-size: 1.06em; font-weight: 700;
+  letter-spacing: -.015em; line-height: .95;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden;   /* a wider fallback clips at the reserve, never over the strip */
 }
 .vp-dose {
-  display: inline-block; margin-top: .45em;
-  padding: .18em .62em .22em;
+  display: inline-block; margin-top: .95em;
+  padding: .22em .7em .26em;
   border: 1px solid currentColor; border-radius: 3em;
-  font-size: .34em; font-weight: 600; letter-spacing: .08em;
+  font-size: .62em; font-weight: 600; letter-spacing: .06em;
   text-transform: uppercase; white-space: nowrap;
 }
 .vp-side {
-  position: absolute; right: 4%; top: 7%;
-  display: flex; flex-direction: column-reverse; align-items: center; gap: .55em;
+  /* bounded top and bottom so the strip can never run past the label,
+     whatever the mark and wordmark are sized to */
+  position: absolute; right: 4%; top: 6%; bottom: 6%;
+  display: flex; flex-direction: column-reverse; align-items: center;
+  justify-content: flex-start; gap: .4em; overflow: hidden;
 }
-.vp-mark { height: .98em; width: auto; }
+.vp-mark { height: 1.05em; width: auto; flex-shrink: 0; }
 .vp-brand {
   writing-mode: vertical-rl; transform: rotate(180deg);
-  font-size: .255em; font-weight: 600; letter-spacing: .3em; text-indent: .3em;
+  font-size: .38em; font-weight: 600; letter-spacing: .18em; text-indent: .18em;
   white-space: nowrap;
 }
-.vp-foot { position: absolute; left: 8.5%; bottom: 7%; }
+.vp-foot { position: absolute; left: 8.5%; bottom: 5.5%; }
 .vp-pill {
   display: inline-block;
-  padding: .16em .6em .2em;
+  padding: .2em .66em .24em;
   border: 1px solid currentColor; border-radius: 3em;
-  font-size: .34em; font-weight: 600; letter-spacing: .02em; white-space: nowrap;
+  font-size: .56em; font-weight: 600; letter-spacing: .01em; white-space: nowrap;
 }
 .vp-ruo {
-  display: block; margin-top: .5em;
-  font-size: .30em; font-weight: 500; letter-spacing: .03em;
-  opacity: .78; white-space: nowrap;
+  display: block; margin-top: .42em;
+  font-size: .50em; font-weight: 500; letter-spacing: .015em;
+  opacity: .82; white-space: nowrap;
 }
 
 /* --- Spec table --------------------------------------------------------- */
