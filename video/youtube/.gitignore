@@ -1,0 +1,6 @@
+# secrets and run state — never commit these
+client_secret.json
+token.json
+config.json
+state.json
+*.tmp

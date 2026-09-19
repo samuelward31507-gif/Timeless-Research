@@ -1,0 +1,25 @@
+{
+  "schedule": {
+    "start_date": "2026-10-01",
+    "publish_time": "09:00",
+    "timezone": "America/New_York",
+    "interval_days": 1
+  },
+  "metadata": {
+    "title_template": "{note} · {chord_title} — 432 Hz Tuning | {dur} Sound Bath",
+    "description_template": "{note} {chord} in 432 Hz tuning.\n\nA {dur} sustained tone for focus, rest and breathing practice. Best with headphones, at a low volume.\n\nTexture: {texture_lower}\nTuning: A = 432 Hz\nDuration: {dur}\n\nPart of an ongoing series of single-chord tones. No talking, no interruptions.",
+    "tags": [
+      "432hz",
+      "432 hz tuning",
+      "sound bath",
+      "sound healing",
+      "{texture_lower}",
+      "meditation music",
+      "focus music",
+      "sleep sounds",
+      "ambient drone",
+      "binaural"
+    ],
+    "category_id": "10"
+  }
+}
