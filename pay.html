@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Paying for an Order — Timeless Research</title>
-<meta name="description" content="How orders are paid: account verification, written quotation, then a Stripe invoice by email. No checkout, and nothing ships against an unverified account.">
+<title>Ordering &amp;amp; Payment — Timeless Research</title>
+<meta name="description" content="How to order: add pack sizes to the cart, confirm research use, and pay by card on a Stripe-hosted checkout. Shipping and tax are shown before you pay.">
 <link rel="canonical" href="https://www.timelessresearch.com/pay.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Timeless Research">
-<meta property="og:title" content="Paying for an Order — Timeless Research">
-<meta property="og:description" content="How orders are paid: account verification, written quotation, then a Stripe invoice by email. No checkout, and nothing ships against an unverified account.">
+<meta property="og:title" content="Ordering &amp;amp; Payment — Timeless Research">
+<meta property="og:description" content="How to order: add pack sizes to the cart, confirm research use, and pay by card on a Stripe-hosted checkout. Shipping and tax are shown before you pay.">
 <meta property="og:url" content="https://www.timelessresearch.com/pay.html">
-<meta property="og:image" content="https://www.timelessresearch.com/assets/img/og-card.jpg">
+<meta property="og:image" content="https://www.timelessresearch.com/assets/img/og/pay.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta name="twitter:image" content="https://www.timelessresearch.com/assets/img/og-card.jpg">
+<meta name="twitter:image" content="https://www.timelessresearch.com/assets/img/og/pay.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#FAF9F7">
@@ -39,8 +39,8 @@
 <div class="announce">
   <div class="shell">
     <span><b>Research use only.</b> Not for human or veterinary use.</span>
-    <span>Institutional and qualified-research accounts only</span>
     <span>COA issued with every lot</span>
+    <span>Orders ship in 1&ndash;3 business days</span>
   </div>
 </div>
 <header class="header" id="header">
@@ -51,9 +51,9 @@
     </a>
     <nav class="nav" id="nav" aria-label="Primary"><a href="catalog.html">Catalog</a><a href="quality.html">Analytical</a><a href="about.html">About</a><a href="faq.html">FAQ</a><a href="contact.html">Contact</a></nav>
     <div class="header-actions">
-      <button class="btn btn--ghost btn--sm rfq-btn" id="rfq-open" aria-haspopup="dialog" aria-label="Request list">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-        <span class="rfq-label">Request list</span><span class="rfq-count" id="rfq-count" aria-live="polite">0</span>
+      <button class="btn btn--ghost btn--sm rfq-btn" id="rfq-open" aria-haspopup="dialog" aria-label="Cart">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h2.2l2.3 11.2a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.55L20.5 7H5.2"/><circle cx="9.5" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg>
+        <span class="rfq-label">Cart</span><span class="rfq-count" id="rfq-count" aria-live="polite">0</span>
       </button>
       <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav" aria-label="Menu">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
@@ -65,58 +65,62 @@
 
 <section class="section section--tight">
   <div class="shell-n">
-    <nav class="crumb" aria-label="Breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>Payment</span></nav>
+    <nav class="crumb" aria-label="Breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>Ordering &amp; payment</span></nav>
     <div class="sec-head">
-      <span class="eyebrow">Accounts &amp; payment</span>
-      <h1 class="display h-sec">Paying for <em>an order.</em></h1>
-      <p class="lede">Orders are invoiced once your account is verified and you have accepted a quotation. There is no checkout on this site, and nothing ships against an unverified account.</p>
+      <span class="eyebrow">Ordering &amp; payment</span>
+      <h1 class="display h-sec">Placing <em>an order.</em></h1>
+      <p class="lede">Catalogue prices are the prices you pay. Add pack sizes to the cart, confirm the research use condition, and pay by card on a page hosted by Stripe. There is no account to open and no quotation to wait for.</p>
     </div>
 
     <ol class="pay-steps">
       <li>
-        <h2>Request</h2>
-        <p>Build a request list from the catalogue and send it with your account application. Prices on the catalogue are list prices; they exclude shipping and tax. <strong>Already have an account?</strong> Skip to <a href="reorder.html">reorder</a> — steps 2 and 3 are already done and you go straight to a payment link.</p>
+        <h2>Cart</h2>
+        <p>Choose a pack size on any catalogue or product page and add it to the cart. The cart totals what you have chosen; shipping and any tax are added at checkout, where the full amount is shown before you pay.</p>
       </li>
       <li>
-        <h2>Verification</h2>
-        <p>The application asks for the institution, an address at it, and one line on the intended research use. That is the whole check. Most applications from a recognisable institutional address are approved the same working day; nothing is invoiced before it is done.</p>
+        <h2>Research use confirmation</h2>
+        <p>Before checkout opens you confirm that the material is for laboratory research use and will not be administered to a human or an animal. That confirmation is a condition of sale under our <a href="legal/terms.html">terms</a> and our <a href="compliance.html">research use policy</a> — it is not a formality, and an order we have reason to believe is destined for human or veterinary use is cancelled and refunded rather than shipped.</p>
       </li>
       <li>
-        <h2>Quotation</h2>
-        <p>We issue a written quotation against your request list, confirming lot availability, any quantity break, shipping method and the total including tax and carriage. It is valid for 30 days.</p>
+        <h2>Checkout</h2>
+        <p>Checkout is hosted by Stripe on their own page. They collect your name, email address, phone number and shipping address, and take the card payment. Your card details never reach this site: we receive the order and your delivery details, and nothing else.</p>
       </li>
       <li>
-        <h2>Invoice</h2>
-        <p>On acceptance we raise an invoice through Stripe. It arrives by email from <a href="mailto:accounts@timelessresearch.com">accounts@timelessresearch.com</a> and carries a secure payment page hosted by Stripe, where you can pay by card or bank transfer. We never see or store your card details.</p>
+        <h2>Confirmation</h2>
+        <p>Stripe emails you a receipt immediately, and we follow it with an order confirmation. The contract is formed at that confirmation or at despatch, whichever comes first — see <a href="legal/terms.html">terms of sale</a>, section 2.</p>
       </li>
       <li>
-        <h2>Release</h2>
-        <p>Material is released once payment clears, unless written credit terms have been agreed in advance. The certificate of analysis for the supplied lot travels with the shipment.</p>
+        <h2>Release and despatch</h2>
+        <p>Material in stock leaves us within one to three business days, tracked. The certificate of analysis for the supplied lot travels with the shipment.</p>
       </li>
     </ol>
 
     <div class="notice" style="margin-top:2.5rem">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
       <div>
-        <h3>How to know an invoice is really ours</h3>
-        <p>Our invoices arrive only from <strong>accounts@timelessresearch.com</strong>, and the payment page they link to is hosted by Stripe on a <strong>stripe.com</strong> address. We will never telephone you for card details, never ask you to pay a different account from the one on the invoice, and never send payment instructions that change bank details at short notice. If anything about a payment request looks wrong, stop and contact us on the address above before paying.</p>
+        <h3>How to know a payment request is really ours</h3>
+        <p>The only payment page we use is the one the checkout button opens, hosted by Stripe on a <strong>stripe.com</strong> address. Our email reaches you only from <strong>accounts@timelessresearch.com</strong>. We will never telephone you for card details, never email you a link to a payment page on another domain, and never send instructions that change bank details at short notice. If anything about a payment request looks wrong, stop and contact us on the address above before paying.</p>
       </div>
     </div>
 
     <div class="prose" style="margin-top:2.5rem">
       <h2>Questions we are asked</h2>
-      <h3>Can I pay by card immediately?</h3>
-      <p>Not before the account is verified. Once it is, the Stripe invoice takes a card and settles straight away, so in practice payment is instant from that point on.</p>
+      <h3>Which compounds cannot be bought this way?</h3>
+      <p>The three flagged as restricted reference standards — retatrutide, tirzepatide and oxytocin. They correspond to approved or investigational pharmaceutical substances and are released against a stated research protocol, so they carry an <strong>Enquire</strong> button and are quoted by email. Everything else on the catalogue is in the cart.</p>
+      <h3>What does shipping cost?</h3>
+      <p>You choose a tracked standard or express courier service at checkout and the cost is added there, before you pay. Import duties and clearance charges at the destination are separate and are yours to pay.</p>
       <h3>Do you take purchase orders?</h3>
-      <p>Yes, from verified institutions. Send the PO reference with your acceptance of the quotation and it is carried on the invoice. Credit terms have to be agreed in writing first; otherwise payment is due in advance.</p>
+      <p>Yes. <a href="contact.html">Contact us</a> with the PO and we will invoice it. Credit terms have to be agreed in writing first; otherwise payment is due at checkout.</p>
       <h3>What currency?</h3>
-      <p>All prices and invoices are in USD. Your bank may apply its own conversion and charges.</p>
-      <h3>Can you ship before payment clears?</h3>
-      <p>Only against agreed credit terms. See <a href="legal/terms.html">terms of sale</a>, section 4.</p>
+      <p>All prices and charges are in USD. Your bank may apply its own conversion and charges.</p>
+      <h3>Can I see a certificate of analysis before I order?</h3>
+      <p>Yes — <a href="contact.html">ask us</a> for the certificate covering the lot currently in stock and we will send it.</p>
+      <h3>What if I need to change or cancel an order?</h3>
+      <p>Tell us before it ships and we will cancel and refund it in full. Once it has shipped, the <a href="legal/shipping.html">returns policy</a> applies.</p>
     </div>
 
     <div style="margin-top:2.5rem;display:flex;gap:.75rem;flex-wrap:wrap">
-      <a class="btn btn--primary" href="contact.html">Apply for an account</a>
+      <a class="btn btn--primary" href="catalog.html">Browse the catalog</a>
       <a class="btn btn--ghost" href="legal/terms.html">Terms of sale</a>
     </div>
   </div>
@@ -130,7 +134,7 @@
           <img class="brand-mark" src="assets/img/mark.svg" alt="" width="100" height="206">
           <span class="brand-text">Timeless<em>Research</em></span>
         </a>
-        <p class="footer-note">Analytical-grade peptide reference material for institutional and qualified research programmes. Every lot ships with a certificate of analysis.</p>
+        <p class="footer-note">Analytical-grade peptide reference material for laboratory research. Every lot ships with a certificate of analysis.</p>
       </div>
       <div>
         <h3>Catalog</h3>
@@ -143,8 +147,7 @@
           <li><a href="quality.html">Analytical programme</a></li>
           <li><a href="faq.html">FAQ</a></li>
           <li><a href="contact.html">Contact</a></li>
-          <li><a href="pay.html">Payment</a></li>
-          <li><a href="reorder.html">Reorder</a></li>
+          <li><a href="pay.html">Ordering &amp; payment</a></li>
         </ul>
       </div>
       <div>
@@ -167,14 +170,21 @@
 <div class="drawer-scrim" id="rfq-scrim"></div>
 <aside class="drawer" id="rfq-drawer" role="dialog" aria-modal="true" aria-labelledby="rfq-title" aria-hidden="true">
   <div class="drawer-head">
-    <h2 id="rfq-title">Request list</h2>
-    <button class="btn btn--quiet btn--sm" id="rfq-close" aria-label="Close request list">Close</button>
+    <h2 id="rfq-title">Cart</h2>
+    <button class="btn btn--quiet btn--sm" id="rfq-close" aria-label="Close cart">Close</button>
   </div>
   <div class="drawer-body" id="rfq-body"></div>
   <div class="drawer-foot" id="rfq-foot" hidden>
-    <a class="btn btn--primary btn--block" href="contact.html?rfq=1" id="rfq-submit">Continue to quote request</a>
-    <a class="btn btn--ghost btn--sm btn--block" href="reorder.html" style="margin-top:.5rem">Existing account? Reorder</a>
-    <button class="btn btn--quiet btn--sm btn--block" id="rfq-clear" style="margin-top:.5rem">Clear list</button>
+    <div class="field cart-consent">
+      <label class="check">
+        <input type="checkbox" id="cart-confirm">
+        <span>I confirm I am ordering for laboratory research use, and that this material will not be administered to a human or an animal.</span>
+      </label>
+    </div>
+    <button class="btn btn--primary btn--block" id="cart-checkout">Checkout</button>
+    <p class="cart-foot-note">Card payment is taken by Stripe on their own page. Shipping and any tax are added there.</p>
+    <p class="cart-error" id="cart-error" role="alert" hidden></p>
+    <button class="btn btn--quiet btn--sm btn--block" id="rfq-clear">Clear cart</button>
   </div>
 </aside>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>

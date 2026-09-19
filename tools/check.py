@@ -187,7 +187,7 @@ for _page in sorted((ROOT / "products").glob("*.html")):
 
 # ------------------------------------------------------- price coverage
 # A pack size offered without a price renders an empty price line and puts a
-# priceless item in the request list, which then quietly drops out of the
+# priceless item in the cart, which then quietly drops out of the
 # subtotal. Cheaper to refuse the build.
 _data = _json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8"))
 for _p in _data.get("products", []):
@@ -199,11 +199,84 @@ for _p in _data.get("products", []):
         if _s not in _p.get("sizes", []):
             fail(f"{_p['id']}: price for {_s!r}, which is not an offered size")
 
+# ------------------------------------------- claims the site no longer makes
+# The site used to gate ordering behind a verified institutional account. It no
+# longer does: the catalogue is bought from the page with a card. Any surviving
+# sentence promising a check we do not run is a false statement to a customer
+# and a term the operator cannot honour, so it fails the build rather than
+# waiting to be noticed.
+RETIRED = [
+    ("verified account", "claims orders need a verified account"),
+    ("verified institutional", "claims institutional verification"),
+    ("institutional and qualified-research accounts only", "claims accounts-only supply"),
+    ("we do not supply individuals", "claims individuals are refused"),
+    ("written order confirmation", "claims a pre-sale written confirmation"),
+    ("invitation for us to quote", "describes ordering as a quotation request"),
+    ("account verification", "claims an account verification step"),
+    ("unverified account", "claims accounts are verified"),
+    ("apply for an account", "offers an account application"),
+    ("we do not ship to residential", "claims residential addresses are refused"),
+    ("add to request list", "offers a request list instead of a cart"),
+]
+for page in PAGES:
+    rel = page.relative_to(ROOT).as_posix()
+    low = page.read_text(encoding="utf-8").lower()
+    for phrase, why in RETIRED:
+        if phrase in low:
+            fail(f"{rel}: {why} (\"{phrase}\")")
+
+# ------------------------------------- restricted compounds stay out of the cart
+# A restricted compound corresponds to an approved or investigational
+# pharmaceutical and is released against a stated protocol, so no page may offer
+# to put one in the cart. The checkout function refuses it again server-side;
+# this catches the markup before it ships.
+_restricted = {_p["id"] for _p in
+               _json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8"))["products"]
+               if _p.get("restricted")}
+for page in PAGES:
+    rel = page.relative_to(ROOT).as_posix()
+    for _id in re.findall(r'data-add="([^"]+)"', page.read_text(encoding="utf-8")):
+        if _id in _restricted:
+            fail(f"{rel}: restricted compound {_id} carries an add-to-cart control")
+if not _restricted:
+    notes.append("no compound is marked restricted; the enquiry route is unused")
+
+# --------------------------------------------------- checkout price table
+# The function charges from netlify/functions/catalog.json, which build.py
+# regenerates from products.json. If the two disagree, the page shows one price
+# and the card is charged another.
+_fn = ROOT / "netlify/functions/create-checkout-session.js"
+_cat = ROOT / "netlify/functions/catalog.json"
+if not _fn.exists():
+    fail("missing netlify/functions/create-checkout-session.js")
+if not _cat.exists():
+    fail("missing netlify/functions/catalog.json (run tools/build.py)")
+else:
+    _c = _json.loads(_cat.read_text(encoding="utf-8"))
+    _src = _json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8"))
+    if _c.get("currency") != _src.get("currency", "USD"):
+        fail("checkout catalog currency disagrees with products.json")
+    for _p in _src["products"]:
+        _entry = _c.get("products", {}).get(_p["id"])
+        if _entry is None:
+            fail(f"checkout catalog is missing {_p['id']}")
+            continue
+        _want = not _p.get("restricted") and _p.get("available", True)
+        if _entry.get("buyable") is not _want:
+            fail(f"checkout catalog marks {_p['id']} buyable={_entry.get('buyable')}, "
+                 f"products.json says {_want}")
+        for _s, _v in (_p.get("prices") or {}).items():
+            if _entry.get("prices", {}).get(_s) != _v:
+                fail(f"checkout catalog price for {_p['id']} {_s!r} disagrees with products.json")
+    for _pid in _c.get("products", {}):
+        if _pid not in {_p["id"] for _p in _src["products"]}:
+            fail(f"checkout catalog carries {_pid}, which is not in products.json")
+
 # ------------------------------------------------------------- generated
 for extra in ("sitemap.xml", "robots.txt", "assets/img/favicon.svg",
               "assets/data/products.json", "assets/css/main.css",
               "assets/js/site.js", "assets/js/catalog.js", "assets/js/contact.js",
-              "assets/css/fonts.css"):
+              "assets/css/fonts.css", "order-received.html", "pay.html"):
     if not (ROOT / extra).exists():
         fail(f"missing generated asset: {extra}")
 

@@ -1,11 +1,13 @@
 # Timeless Research — website
 
-Static marketing and catalog site for a peptide **reference-material supplier**
-serving institutional and qualified-research accounts.
+Catalog and storefront for a peptide **reference-material supplier**, sold for
+laboratory research use only.
 
 No framework, no build toolchain, no runtime dependencies. Pages are generated
 from a single Python script so that shared chrome and compliance language can
-never drift between pages.
+never drift between pages. The one piece of server-side code is a Netlify
+Function that creates Stripe Checkout sessions, because a static page cannot
+hold a secret key.
 
 **Taking this site over? Start with [HANDOVER.md](HANDOVER.md)** — it lists
 everything an operator has to supply, deploy and decide, in order. This file
@@ -32,17 +34,17 @@ catalog.html            Filterable catalog (server-rendered, JS enhances)
 quality.html            Analytical programme / how lots are released
 about.html              Company position and what we decline to supply
 faq.html                FAQ (with FAQPage structured data)
-contact.html            Account application + quotation request
+contact.html            Enquiry form (restricted standards, COAs, technical)
 compliance.html         Research use policy
 404.html                Not found
 products/<id>.html      27 generated specification pages
 specimen-coa.html       Worked example of a certificate of analysis
-pay.html                How an order is invoiced and paid
-reorder.html            Repeat orders on an already-verified account
+pay.html                How ordering and payment work
+order-received.html     Stripe success_url; confirms and empties the cart
 legal/                  terms.html, privacy.html, shipping.html
 assets/
   css/main.css          Design tokens + all component styles
-  js/site.js            Nav, reveal, accordion, request list, drawer
+  js/site.js            Nav, reveal, accordion, cart, drawer, checkout
   js/catalog.js         Filtering and search
   js/contact.js         Form validation and submission
   data/products.json    Single source of truth for the catalog
@@ -56,6 +58,9 @@ tools/build.py          Static site generator
 tools/make_vial.py      Rebuilds the vial asset from the photograph
 tools/make_logo.py      Rebuilds the flame mark and favicon
 tools/check.py          Structural / link / a11y-hygiene checks
+netlify/functions/
+  create-checkout-session.js  Creates the Stripe session (the only backend)
+  catalog.json          Price table it charges from (generated)
 sitemap.xml, robots.txt Generated
 ```
 
@@ -183,8 +188,11 @@ To go live:
 3. Change `TR_SITE` in `netlify.toml` to that domain and push. Canonical tags,
    Open Graph URLs and the sitemap are all built from it, so a wrong value here
    is an SEO problem rather than a visible one.
-4. Account applications arrive under **Forms → account-application**. Turn on
-   the email notification there, or nothing will tell you a lead came in.
+4. Enquiries arrive under **Forms → enquiry**. Turn on the email notification
+   there, or nothing will tell you a lead came in.
+5. Set `STRIPE_SECRET_KEY` under **Site configuration → Environment variables**
+   — *not* in `netlify.toml`, which is in the repository. Until it is set, the
+   checkout button reports that checkout is unavailable.
 
 Run it locally exactly as Netlify does with
 `python3 tools/build.py && python3 tools/dist.py`, then serve `dist/`.
@@ -209,7 +217,17 @@ python3 tools/build.py && python3 tools/dist.py
 | `TR_FORM_ENDPOINT` | *(empty)* | Target when `TR_FORM_PROVIDER=endpoint` |
 | `TR_ANALYTICS_HEAD` | *(empty)* | Raw `<head>` markup for an analytics tag |
 | `TR_LEGAL_ENTITY` / `TR_LEGAL_ADDRESS` / `TR_LEGAL_STATE` / `TR_LEGAL_EMAIL` | see *Legal documents* | Parties, controller and governing-law clauses |
-| `TR_DEMO` | *(off)* | `1` marks the build a demonstration: a not-trading bar on every page, `noindex`, and `robots.txt` disallowing all |
+| `TR_DEMO` | *(off)* | `1` marks the build a demonstration: a not-trading bar on every page, `noindex`, `robots.txt` disallowing all, and a checkout button that says so instead of calling Stripe |
+
+The checkout function reads its own, set on the deploy rather than at build time:
+
+| Variable | Default | Effect |
+|---|---|---|
+| `STRIPE_SECRET_KEY` | *(none)* | Required. Never put it in `netlify.toml` |
+| `TR_SHIP_STANDARD_CENTS` | `1500` | Standard shipping rate offered at checkout |
+| `TR_SHIP_EXPRESS_CENTS` | `3500` | Express shipping rate offered at checkout |
+| `TR_SHIP_COUNTRIES` | *(empty)* | Comma-separated ISO codes; empty uses the list in the function |
+| `TR_STRIPE_TAX` | *(off)* | `1` enables Stripe Tax on the session |
 
 These reach the browser through `assets/js/config.js`, which the build
 generates — do not edit that file.
@@ -238,8 +256,8 @@ and DKIM on the sending domain or the notifications will land in spam.
 Everything an operator must supply, deploy or decide is in
 **[HANDOVER.md](HANDOVER.md)**: the build variables that `check.py` refuses to
 deploy without, the Netlify steps, the commercial claims the copy makes, and
-the decisions — the four restricted compounds, account verification, legal
-review — that are not the builder's to make.
+the decisions — the three restricted compounds, what to do with an order that
+reads wrong, legal review — that are not the builder's to make.
 
 `tools/check.py` fails while any legal document still carries an unfilled
 field, so an unconfigured site cannot reach production by accident.
@@ -252,17 +270,27 @@ The catalog is limited to research peptides, small-molecule research compounds
 and laboratory reagents.
 
 It does **not** include anabolic steroids, controlled substances, finished-dose
-pharmaceuticals or prescription medicines, and it has **no consumer checkout**.
-Ordering runs through account verification and written quotation instead of a
-cart, and the site publishes no dosing, administration or therapeutic guidance
-anywhere.
+pharmaceuticals or prescription medicines, and the site publishes no dosing,
+administration or therapeutic guidance anywhere.
 
 That is a deliberate design constraint, not an oversight. Supplying those
-product classes to the public is a licensing matter (and, for scheduled
-substances, a criminal one) that a website cannot paper over — and the
-research-use framing only holds up if the commercial mechanics actually match
-it. Re-adding a cart or those SKUs would undermine the compliance posture the
-rest of the site is built on.
+product classes to the public is a licensing matter — and, for scheduled
+substances, a criminal one — that a website cannot paper over. Adding those SKUs
+would undermine everything the rest of the site is built on.
+
+**Three compounds in the catalog have no checkout either.** Retatrutide,
+tirzepatide and oxytocin correspond to approved or investigational
+pharmaceutical substances; they are flagged `"restricted": true`, rendered with
+an Enquire button instead of a cart control, and refused by id in the checkout
+function. `tools/check.py` fails the build if any page renders an add-to-cart
+control for one.
+
+**What the site does not claim.** There is no account verification, no vetting
+and no credentialing step, and no page says otherwise — research use is a
+contractual condition confirmed at checkout, and `compliance.html` §3 says so in
+those words. `tools/check.py` carries a list of the retired "verified account"
+wording and fails the build if any of it reappears, because a promise the
+operator cannot keep is worse than no promise.
 
 ---
 
@@ -348,8 +376,8 @@ Verified with Playwright + Chromium and axe-core (WCAG 2.1 A/AA):
 
 - Every ink tier is verified AA against every surface it is used on. The
   original dark design failed here: its muted text sat at 3.5:1.
-- Keyboard: skip link, visible focus rings, focus trapped in the request-list
-  drawer, `Escape` closes drawer and mobile menu.
+- Keyboard: skip link, visible focus rings, focus trapped in the cart drawer,
+  `Escape` closes drawer and mobile menu.
 - `prefers-reduced-motion` disables all reveal animation.
 - Reveal animations are progressive enhancement — with JavaScript disabled all
   content renders, and the full catalog is present in the HTML.
@@ -366,11 +394,25 @@ python3 tools/check.py
 It verifies that internal links resolve, no template placeholders leaked, every
 page has a title / description / canonical / `<main>` / skip link and exactly one
 `<h1>`, images carry `alt`, form controls are labelled, and the research-use
-notice is present on every key page. It exits non-zero, so it can gate a deploy.
+notice is present on every key page. It also fails the build if the checkout
+price table disagrees with `products.json`, if a restricted compound carries an
+add-to-cart control, or if any of the retired account-verification wording
+reappears. It exits non-zero, so it can gate a deploy.
 
-Audited with axe-core (WCAG 2.1 A/AA) across ten representative pages:
-**0 violations**. Twenty functional tests cover catalog filtering, CAS search,
-the request list, persistence, form validation, the accordion and mobile nav.
+Audited with axe-core (WCAG 2.1 A/AA) across fifteen representative pages plus
+the open cart drawer in its error state: **0 violations**.
+
+Browser tests (Playwright, Chromium) cover catalog filtering, CAS search,
+sorting, out-of-stock state, pack-size to price and label sync, cart
+persistence, the checkout consent gate, the redirect to Stripe, what the browser
+actually posts, cart clearing after payment, checkout failure handling, demo
+mode, form validation and submission, the accordion and mobile nav.
+
+The checkout function has its own suite: the amount charged comes from the
+server-side table and not from the request, and every refusal path — restricted
+compound, unknown id or size, bad quantity, duplicate lines, missing consent,
+oversized body, wrong method, missing key, Stripe errors — is asserted. Stripe
+itself is stubbed; see HANDOVER §3c for the live test that is still owed.
 
 ---
 

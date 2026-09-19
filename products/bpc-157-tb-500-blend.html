@@ -41,8 +41,8 @@
 <div class="announce">
   <div class="shell">
     <span><b>Research use only.</b> Not for human or veterinary use.</span>
-    <span>Institutional and qualified-research accounts only</span>
     <span>COA issued with every lot</span>
+    <span>Orders ship in 1&ndash;3 business days</span>
   </div>
 </div>
 <header class="header" id="header">
@@ -53,9 +53,9 @@
     </a>
     <nav class="nav" id="nav" aria-label="Primary"><a href="../catalog.html" aria-current="page">Catalog</a><a href="../quality.html">Analytical</a><a href="../about.html">About</a><a href="../faq.html">FAQ</a><a href="../contact.html">Contact</a></nav>
     <div class="header-actions">
-      <button class="btn btn--ghost btn--sm rfq-btn" id="rfq-open" aria-haspopup="dialog" aria-label="Request list">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-        <span class="rfq-label">Request list</span><span class="rfq-count" id="rfq-count" aria-live="polite">0</span>
+      <button class="btn btn--ghost btn--sm rfq-btn" id="rfq-open" aria-haspopup="dialog" aria-label="Cart">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h2.2l2.3 11.2a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.55L20.5 7H5.2"/><circle cx="9.5" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg>
+        <span class="rfq-label">Cart</span><span class="rfq-count" id="rfq-count" aria-live="polite">0</span>
       </button>
       <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav" aria-label="Menu">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
@@ -115,8 +115,8 @@
           <label for="size-select">Pack size</label>
           <select id="size-select" data-size><option value="60 mg" data-price="245">60 mg — $245</option></select>
         </div>
-        <button class="btn btn--primary" data-add="bpc-157-tb-500-blend" data-name="BPC-157 / TB-500 Blend">Add to request list</button>
-        <p class="muted no-print" style="font-size:.72rem;margin:.9rem 0 2.5rem">List price shown. Orders are supplied against a verified account; lot availability and any quantity break are confirmed on the quotation.</p>
+        <button class="btn btn--primary" data-add="bpc-157-tb-500-blend" data-name="BPC-157 / TB-500 Blend">Add to cart</button>
+        <p class="muted no-print" style="font-size:.72rem;margin:.9rem 0 2.5rem">Shipping and any tax are added at checkout. Payment is taken by Stripe on their own page; we never see your card details.</p>
 
         <table class="spec">
           <caption>Specification</caption>
@@ -158,7 +158,7 @@
           <img class="brand-mark" src="../assets/img/mark.svg" alt="" width="100" height="206">
           <span class="brand-text">Timeless<em>Research</em></span>
         </a>
-        <p class="footer-note">Analytical-grade peptide reference material for institutional and qualified research programmes. Every lot ships with a certificate of analysis.</p>
+        <p class="footer-note">Analytical-grade peptide reference material for laboratory research. Every lot ships with a certificate of analysis.</p>
       </div>
       <div>
         <h3>Catalog</h3>
@@ -171,8 +171,7 @@
           <li><a href="../quality.html">Analytical programme</a></li>
           <li><a href="../faq.html">FAQ</a></li>
           <li><a href="../contact.html">Contact</a></li>
-          <li><a href="../pay.html">Payment</a></li>
-          <li><a href="../reorder.html">Reorder</a></li>
+          <li><a href="../pay.html">Ordering &amp; payment</a></li>
         </ul>
       </div>
       <div>
@@ -195,14 +194,21 @@
 <div class="drawer-scrim" id="rfq-scrim"></div>
 <aside class="drawer" id="rfq-drawer" role="dialog" aria-modal="true" aria-labelledby="rfq-title" aria-hidden="true">
   <div class="drawer-head">
-    <h2 id="rfq-title">Request list</h2>
-    <button class="btn btn--quiet btn--sm" id="rfq-close" aria-label="Close request list">Close</button>
+    <h2 id="rfq-title">Cart</h2>
+    <button class="btn btn--quiet btn--sm" id="rfq-close" aria-label="Close cart">Close</button>
   </div>
   <div class="drawer-body" id="rfq-body"></div>
   <div class="drawer-foot" id="rfq-foot" hidden>
-    <a class="btn btn--primary btn--block" href="../contact.html?rfq=1" id="rfq-submit">Continue to quote request</a>
-    <a class="btn btn--ghost btn--sm btn--block" href="../reorder.html" style="margin-top:.5rem">Existing account? Reorder</a>
-    <button class="btn btn--quiet btn--sm btn--block" id="rfq-clear" style="margin-top:.5rem">Clear list</button>
+    <div class="field cart-consent">
+      <label class="check">
+        <input type="checkbox" id="cart-confirm">
+        <span>I confirm I am ordering for laboratory research use, and that this material will not be administered to a human or an animal.</span>
+      </label>
+    </div>
+    <button class="btn btn--primary btn--block" id="cart-checkout">Checkout</button>
+    <p class="cart-foot-note">Card payment is taken by Stripe on their own page. Shipping and any tax are added there.</p>
+    <p class="cart-error" id="cart-error" role="alert" hidden></p>
+    <button class="btn btn--quiet btn--sm btn--block" id="rfq-clear">Clear cart</button>
   </div>
 </aside>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>

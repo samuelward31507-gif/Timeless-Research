@@ -761,9 +761,6 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 }
 .check input { width: 16px; height: 16px; flex-shrink: 0; margin-top: 3px; accent-color: var(--accent); }
 /* Two possible errors on the email field; show whichever applies. */
-.field-error--freemail { display: none; }
-.field.is-invalid.is-freemail .field-error:not(.field-error--freemail) { display: none; }
-.field.is-invalid.is-freemail .field-error--freemail { display: block; }
 
 .field-hint { font-size: var(--t-xs); color: var(--ink-3); margin-top: .35rem; line-height: 1.5; }
 .field textarea {
@@ -798,6 +795,18 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .drawer-head h2 { font-size: var(--t-md); font-weight: 600; letter-spacing: 0; }
 .drawer-body { flex: 1; overflow-y: auto; padding: var(--s-5); }
 .drawer-foot { padding: var(--s-5); border-top: 1px solid var(--line); }
+/* The research-use confirmation gates the checkout button, so it has to read as
+   part of the same control and not as small print underneath it. */
+.cart-consent { margin-bottom: var(--s-4); }
+.cart-consent .check span { font-size: var(--t-xs); line-height: 1.55; color: var(--ink-2); }
+.cart-foot-note { font-size: var(--t-xs); color: var(--ink-3); line-height: 1.6; margin-top: var(--s-3); }
+.cart-error {
+  margin-top: var(--s-3); padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--danger); border-radius: var(--radius);
+  color: var(--danger); font-size: var(--t-xs); line-height: 1.6;
+}
+.cart-error[hidden] { display: none; }
+#rfq-clear { margin-top: var(--s-3); }
 
 .rfq-line { display: flex; gap: var(--s-4); padding-block: var(--s-4); border-bottom: 1px solid var(--line); }
 .rfq-line-main { flex: 1; min-width: 0; }

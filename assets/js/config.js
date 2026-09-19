@@ -3,5 +3,13 @@
 window.TR_CONFIG = {
   "contactEmail": "accounts@timelessresearch.com",
   "formProvider": "netlify",
-  "formEndpoint": ""
+  "formEndpoint": "",
+  "checkoutEndpoint": "/.netlify/functions/create-checkout-session",
+  "currency": "USD",
+  "restricted": [
+    "oxytocin",
+    "retatrutide",
+    "tirzepatide"
+  ],
+  "demo": true
 };

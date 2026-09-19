@@ -1,11 +1,11 @@
-/* The site's two forms — a new account application and a reorder against an
-   account already approved — share this handler. They differ only in which
-   fields they carry, which is why the composed fallback below is derived from
-   the form's own labelled fields rather than a fixed list: a hardcoded list
-   went stale the first time a field was added.
+/* The enquiry form on /contact.html.
+
+   Ordering no longer goes through a form — the catalogue is bought from the
+   page and paid for at a Stripe-hosted checkout — so this handler is back to
+   doing one thing: sending an enquiry and never silently losing it.
 
    Submission is chosen by TR_FORM_PROVIDER at build time:
-     netlify   POST the form urlencoded to its own page; Netlify captures it.
+     netlify   POST the form urlencoded to the site root; Netlify captures it.
      endpoint  POST JSON to TR_FORM_ENDPOINT (your own handler or a service).
      anything else, or a failed POST, falls back to showing the composed
      enquiry so the visitor can copy or email it. The fallback is a safety net,
@@ -20,60 +20,37 @@
   var ENDPOINT = CFG.formEndpoint || null;
   var CONTACT_EMAIL = CFG.contactEmail || 'accounts@timelessresearch.com';
 
-  var form = document.getElementById('account-form') ||
-             document.getElementById('reorder-form');
+  var form = document.getElementById('account-form');
   if (!form) return;
 
   var status = document.getElementById('form-status');
   var esc = window.TR_esc || function (s) { return String(s); };
 
-  /* ---- show the request list alongside the form ------------------------- */
-  var list = (window.TR_RFQ && window.TR_RFQ.all()) || [];
-  var summary = document.getElementById('rfq-summary');
-  var summaryBody = document.getElementById('rfq-summary-body');
-  if (list.length && summary && summaryBody) {
-    summary.hidden = false;
-    summaryBody.innerHTML = list.map(function (i) {
-      return '<div style="display:flex;justify-content:space-between;gap:1rem;padding:.5rem 0;border-bottom:1px solid var(--line)">' +
-        '<span>' + esc(i.name) + '</span>' +
-        '<span class="mono muted" style="font-size:.72rem">' + esc(i.size) + ' &times;' + i.qty + '</span></div>';
-    }).join('');
+  /* ---- preselect the compound an Enquire button came from --------------- */
+  /* The value is only ever matched against options this page already contains,
+     so an unknown or hostile id selects nothing and changes nothing. It is
+     never written into the page and never used to build a URL. */
+  var select = document.getElementById('f-item');
+  if (select) {
+    var want = null;
+    try { want = new URLSearchParams(window.location.search).get('item'); } catch (e) { want = null; }
+    if (want) {
+      for (var i = 0; i < select.options.length; i++) {
+        if (select.options[i].value === want) { select.selectedIndex = i; break; }
+      }
+    }
   }
 
   /* ---- validation ------------------------------------------------------- */
-  /* Consumer mail providers. An account cannot be verified from one of these:
-     the address proves nothing about the institution, which is the whole point
-     of the check. Rejecting it inline turns a day of back-and-forth into an
-     immediate correction, and keeps the applications that do arrive worth
-     reading. Deliberately a list of the common consumer hosts rather than a
-     guess at what looks institutional — plenty of small CROs use a bare
-     company domain, and those must pass. */
-  var FREE_MAIL = ('gmail.com googlemail.com yahoo.com yahoo.co.uk ymail.com ' +
-    'hotmail.com hotmail.co.uk outlook.com live.com msn.com aol.com icloud.com ' +
-    'me.com mac.com proton.me protonmail.com pm.me gmx.com gmx.net mail.com ' +
-    'yandex.com yandex.ru inbox.com fastmail.com hushmail.com tutanota.com ' +
-    'qq.com 163.com 126.com naver.com daum.net rediffmail.com').split(' ');
-
-  function isFreeMail(addr) {
-    var at = String(addr).lastIndexOf('@');
-    if (at === -1) return false;
-    var domain = addr.slice(at + 1).trim().toLowerCase();
-    return FREE_MAIL.indexOf(domain) !== -1;
-  }
-
   function fieldOf(el) { return el.closest('.field'); }
 
   function validate() {
     var ok = true;
     form.querySelectorAll('[required]').forEach(function (el) {
       var valid = el.type === 'checkbox' ? el.checked : el.value.trim() !== '';
-      var freeMail = false;
       if (valid && el.type === 'email') {
         valid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(el.value.trim());
-        if (valid && isFreeMail(el.value)) { valid = false; freeMail = true; }
       }
-      var f0 = fieldOf(el);
-      if (f0) f0.classList.toggle('is-freemail', freeMail);
       // accept any international format, but require enough digits to be a real number
       if (valid && el.type === 'tel') valid = (el.value.replace(/\D/g, '').length >= 7);
       var f = fieldOf(el);
@@ -90,13 +67,8 @@
       return;
     }
 
-    var requested = list.map(function (i) { return i.name + ' ' + i.size + ' x' + i.qty; });
-    var listField = document.getElementById('f-request-list');
-    if (listField) listField.value = requested.join('\n');
-
     var data = {};
     new FormData(form).forEach(function (v, k) { data[k] = v; });
-    data.request_list = requested;
 
     /* Read the summary off the form itself: every visible named control, under
        the label the visitor actually saw. Adding a field to the markup carries
@@ -114,12 +86,8 @@
         lines.push(text + ': ' + el.value.trim());
       }
     });
-    if (data.request_list.length) {
-      lines.push('', 'Request list:', data.request_list.join('\n'));
-    }
     var body = lines.join('\n');
-    var subject = (form.id === 'reorder-form' ? 'Reorder \u2014 ' : 'Enquiry \u2014 ') +
-                  (data.name || data.account || data.email || '');
+    var subject = 'Enquiry — ' + (data.name || data.email || '');
 
     /* No endpoint, or the POST failed: show the enquiry so the visitor can copy
        or email it. A bare mailto: redirect silently does nothing when no mail
@@ -181,14 +149,14 @@
 
     var btn = form.querySelector('button[type="submit"]');
     btn.disabled = true;
-    if (status) status.innerHTML = '<p class="muted" style="font-size:.8rem">Sending\u2026</p>';
+    if (status) status.innerHTML = '<p class="muted" style="font-size:.8rem">Sending…</p>';
     fetch(url, opts).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       form.reset();
       if (status) status.innerHTML =
-        '<p style="color:var(--ok);font-size:.85rem">Thank you \u2014 we will be in touch within two business days.</p>';
+        '<p style="color:var(--ok);font-size:.85rem">Thank you — we will be in touch within two business days.</p>';
     }).catch(function () {
-      showManualFallback('That could not be sent automatically. Copy your details below, or open them in your email client \u2014 nothing has been lost.');
+      showManualFallback('That could not be sent automatically. Copy your details below, or open them in your email client — nothing has been lost.');
     }).finally(function () { btn.disabled = false; });
   });
 })();

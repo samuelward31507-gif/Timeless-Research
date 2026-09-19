@@ -52,8 +52,13 @@
     toastTimer = setTimeout(function () { toastEl.classList.remove('is-on'); }, 2400);
   }
 
-  /* --------------------------------------------------------------- RFQ store */
-  var KEY = 'tr_rfq_v1';
+  /* -------------------------------------------------------------- cart store */
+  /* The DOM ids and CSS classes below still carry the `rfq-` prefix from when
+     this was a request-for-quote list. They are load-bearing across the
+     generated pages and the stylesheet; the behaviour is a cart. */
+  var CFG = window.TR_CONFIG || {};
+  var RESTRICTED = CFG.restricted || [];
+  var KEY = 'tr_cart_v1';
 
   function read() {
     try {
@@ -66,14 +71,21 @@
     try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) { /* private mode */ }
   }
 
-  var RFQ = {
+  var CART = {
     all: read,
     add: function (id, name, size, price) {
+      /* Belt and braces: a restricted compound has no add control on any page,
+         so reaching here means the markup was edited or the console was used.
+         The checkout function refuses it again on the server, where it counts. */
+      if (RESTRICTED.indexOf(id) !== -1) {
+        toast(name + ' is a restricted standard — please enquire');
+        return;
+      }
       var list = read();
       var hit = list.filter(function (i) { return i.id === id && i.size === size; })[0];
       if (hit) { hit.qty += 1; hit.price = price; }
       else { list.push({ id: id, name: name, size: size, qty: 1, price: price }); }
-      write(list); sync(); toast(name + ' · ' + size + ' added to request list');
+      write(list); sync(); toast(name + ' · ' + size + ' added to cart');
     },
     setQty: function (idx, delta) {
       var list = read();
@@ -85,9 +97,9 @@
     clear: function () { write([]); sync(); },
     count: function () { return read().reduce(function (t, i) { return t + i.qty; }, 0); }
   };
-  window.TR_RFQ = RFQ;
+  window.TR_CART = CART;
 
-  /* -------------------------------------------------------------- RFQ drawer */
+  /* -------------------------------------------------------------- cart drawer */
   var drawer = document.getElementById('rfq-drawer');
   var scrim = document.getElementById('rfq-scrim');
   var body = document.getElementById('rfq-body');
@@ -100,8 +112,8 @@
     var list = read();
     if (!list.length) {
       body.innerHTML = '<div class="empty-state" style="padding:3rem 0">' +
-        '<strong>Your request list is empty.</strong>' +
-        '<p>Add compounds from the catalog to request a quotation.</p></div>';
+        '<strong>Your cart is empty.</strong>' +
+        '<p>Choose a pack size on any catalog or product page and add it here.</p></div>';
       if (foot) foot.hidden = true;
       return;
     }
@@ -117,21 +129,22 @@
         '</div>';
     }).join('');
 
-    /* An indicative subtotal, labelled as such: shipping, tax and any quantity
-       break are settled on the quotation, so this is not an invoice total. */
+    /* The goods subtotal only. Shipping is chosen at checkout and tax depends
+       on the destination, so neither can be known here; saying so is better
+       than showing a total the checkout page will disagree with. */
     var priced = list.filter(function (i) { return i.price != null; });
     if (priced.length) {
       var sum = priced.reduce(function (t, i) { return t + i.price * i.qty; }, 0);
       var partial = priced.length < list.length;
-      body.innerHTML += '<div class="rfq-total"><span>Indicative subtotal' +
+      body.innerHTML += '<div class="rfq-total"><span>Subtotal' +
         (partial ? ' (priced items)' : '') + '</span><strong>' + money(sum) + '</strong></div>' +
-        '<p class="rfq-total-note">Excludes shipping and tax. Lot availability and any quantity break are confirmed on the quotation.</p>';
+        '<p class="rfq-total-note">Shipping and any tax are added at checkout, before you pay.</p>';
     }
     if (foot) foot.hidden = false;
   }
 
   function sync() {
-    var n = RFQ.count();
+    var n = CART.count();
     if (countEl) {
       countEl.textContent = String(n);
       countEl.classList.toggle('is-on', n > 0);
@@ -165,14 +178,14 @@
   if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
   if (scrim) scrim.addEventListener('click', closeDrawer);
   var clearBtn = document.getElementById('rfq-clear');
-  if (clearBtn) clearBtn.addEventListener('click', function () { RFQ.clear(); });
+  if (clearBtn) clearBtn.addEventListener('click', function () { CART.clear(); });
 
   if (body) {
     body.addEventListener('click', function (e) {
       var q = e.target.closest('[data-q]');
-      if (q) { RFQ.setQty(+q.dataset.i, +q.dataset.q); return; }
+      if (q) { CART.setQty(+q.dataset.i, +q.dataset.q); return; }
       var rm = e.target.closest('[data-rm]');
-      if (rm) RFQ.remove(+rm.dataset.rm);
+      if (rm) CART.remove(+rm.dataset.rm);
     });
   }
 
@@ -224,15 +237,72 @@
     if (out && price !== null) out.textContent = money(price);
   });
 
-  /* --------------------------------------------------- add-to-list delegation */
+  /* --------------------------------------------------- add-to-cart delegation */
   document.addEventListener('click', function (e) {
     var btn = e.target.closest('[data-add]');
     if (!btn) return;
     var scope = btn.closest('.product') || btn.closest('form') || btn.closest('.split') || document;
     var sel = scope.querySelector('[data-size]');
-    RFQ.add(btn.dataset.add, btn.dataset.name, sel ? sel.value : 'Standard',
-            sel ? priceOf(sel) : null);
+    CART.add(btn.dataset.add, btn.dataset.name, sel ? sel.value : 'Standard',
+             sel ? priceOf(sel) : null);
   });
+
+  /* ---------------------------------------------------------------- checkout */
+  /* The cart holds prices so it can show a subtotal, but only ids, pack sizes
+     and quantities are sent: the amount charged is priced by the function from
+     its own copy of the catalogue. A price posted from a browser is a number
+     the customer chose. */
+  var checkoutBtn = document.getElementById('cart-checkout');
+  var consent = document.getElementById('cart-confirm');
+  var cartError = document.getElementById('cart-error');
+
+  function showCartError(msg) {
+    if (!cartError) return;
+    cartError.textContent = msg;
+    cartError.hidden = !msg;
+  }
+
+  if (consent) consent.addEventListener('change', function () { showCartError(''); });
+
+  if (checkoutBtn) {
+    checkoutBtn.addEventListener('click', function () {
+      var list = read();
+      if (!list.length) { showCartError('Your cart is empty.'); return; }
+      if (consent && !consent.checked) {
+        showCartError('Please confirm the research use condition before checking out.');
+        consent.focus();
+        return;
+      }
+      if (CFG.demo) {
+        showCartError('This is a demonstration site. No order can be placed and no payment is taken.');
+        return;
+      }
+      showCartError('');
+      checkoutBtn.disabled = true;
+      var label = checkoutBtn.textContent;
+      checkoutBtn.textContent = 'Opening checkout\u2026';
+
+      fetch(CFG.checkoutEndpoint || '/.netlify/functions/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: list.map(function (i) { return { id: i.id, size: i.size, qty: i.qty }; }),
+          researchUseConfirmed: true
+        })
+      }).then(function (r) {
+        return r.json().then(function (d) { return { ok: r.ok, data: d }; });
+      }).then(function (res) {
+        if (!res.ok || !res.data || !res.data.url) {
+          throw new Error((res.data && res.data.error) || 'Checkout could not be started.');
+        }
+        window.location.href = res.data.url;
+      }).catch(function (err) {
+        showCartError(err.message + ' Nothing has been charged \u2014 try again, or email us and we will take the order by hand.');
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = label;
+      });
+    });
+  }
 
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function (c) {

@@ -39,8 +39,8 @@
 <div class="announce">
   <div class="shell">
     <span><b>Research use only.</b> Not for human or veterinary use.</span>
-    <span>Institutional and qualified-research accounts only</span>
     <span>COA issued with every lot</span>
+    <span>Orders ship in 1&ndash;3 business days</span>
   </div>
 </div>
 <header class="header" id="header">
@@ -51,9 +51,9 @@
     </a>
     <nav class="nav" id="nav" aria-label="Primary"><a href="../catalog.html">Catalog</a><a href="../quality.html">Analytical</a><a href="../about.html">About</a><a href="../faq.html">FAQ</a><a href="../contact.html">Contact</a></nav>
     <div class="header-actions">
-      <button class="btn btn--ghost btn--sm rfq-btn" id="rfq-open" aria-haspopup="dialog" aria-label="Request list">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-        <span class="rfq-label">Request list</span><span class="rfq-count" id="rfq-count" aria-live="polite">0</span>
+      <button class="btn btn--ghost btn--sm rfq-btn" id="rfq-open" aria-haspopup="dialog" aria-label="Cart">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h2.2l2.3 11.2a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.55L20.5 7H5.2"/><circle cx="9.5" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg>
+        <span class="rfq-label">Cart</span><span class="rfq-count" id="rfq-count" aria-live="polite">0</span>
       </button>
       <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav" aria-label="Menu">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
@@ -73,10 +73,10 @@
     </div>
     <div class="prose prose--legal">
       <h2>1. Where we ship</h2>
-      <p>We ship to institutional, laboratory and commercial addresses only. We do not ship to residential addresses, and an order placed against one will be held until an institutional address is supplied.</p>
+      <p>We ship to the countries offered at checkout, to the address you give there. Where the material may not lawfully be imported into a destination for research use, we will cancel the order and refund it rather than ship it.</p>
 
       <h2>2. Processing</h2>
-      <p>Orders are released once the account is verified and payment or agreed credit terms are in place. Material in stock usually leaves within one to three business days. Shipments requiring cold chain are released to match carrier schedules, so that material is not sitting in a depot over a weekend.</p>
+      <p>Orders are released once payment has cleared, or once agreed credit terms are in place. Material in stock usually leaves within one to three business days. Shipments requiring cold chain are released to match carrier schedules, so that material is not sitting in a depot over a weekend.</p>
 
       <h2>3. Packing and cold chain</h2>
       <p>Material ships lyophilised unless stated otherwise. Where stability requires it, shipments are packed in insulated containers with gel packs or dry ice; dry-ice shipments are declared as required for carriage. Store material on arrival as its certificate of analysis specifies.</p>
@@ -86,6 +86,7 @@
 
       <h2>5. Title, risk and receipt</h2>
       <p>Risk of loss passes to you when the material is delivered to the carrier; title passes when we have received payment in full. Someone must be available to receive cold-chain shipments, because material left at an unattended address may no longer be fit for use.</p>
+      <p>Shipments carry a research-reagent declaration and are addressed exactly as you enter the address at checkout, so give an address where a parcel can be signed for during business hours.</p>
 
       <h2>6. Customs, duties and permits</h2>
       <p>Import duties, taxes and clearance charges are yours to pay, as are any import permits your jurisdiction requires. We declare shipments accurately and will not alter a declaration, undervalue a shipment or describe it as a gift on request. Where a shipment is seized or refused entry because a required permit was not in place, we cannot refund it.</p>
@@ -116,7 +117,7 @@
           <img class="brand-mark" src="../assets/img/mark.svg" alt="" width="100" height="206">
           <span class="brand-text">Timeless<em>Research</em></span>
         </a>
-        <p class="footer-note">Analytical-grade peptide reference material for institutional and qualified research programmes. Every lot ships with a certificate of analysis.</p>
+        <p class="footer-note">Analytical-grade peptide reference material for laboratory research. Every lot ships with a certificate of analysis.</p>
       </div>
       <div>
         <h3>Catalog</h3>
@@ -129,8 +130,7 @@
           <li><a href="../quality.html">Analytical programme</a></li>
           <li><a href="../faq.html">FAQ</a></li>
           <li><a href="../contact.html">Contact</a></li>
-          <li><a href="../pay.html">Payment</a></li>
-          <li><a href="../reorder.html">Reorder</a></li>
+          <li><a href="../pay.html">Ordering &amp; payment</a></li>
         </ul>
       </div>
       <div>
@@ -153,14 +153,21 @@
 <div class="drawer-scrim" id="rfq-scrim"></div>
 <aside class="drawer" id="rfq-drawer" role="dialog" aria-modal="true" aria-labelledby="rfq-title" aria-hidden="true">
   <div class="drawer-head">
-    <h2 id="rfq-title">Request list</h2>
-    <button class="btn btn--quiet btn--sm" id="rfq-close" aria-label="Close request list">Close</button>
+    <h2 id="rfq-title">Cart</h2>
+    <button class="btn btn--quiet btn--sm" id="rfq-close" aria-label="Close cart">Close</button>
   </div>
   <div class="drawer-body" id="rfq-body"></div>
   <div class="drawer-foot" id="rfq-foot" hidden>
-    <a class="btn btn--primary btn--block" href="../contact.html?rfq=1" id="rfq-submit">Continue to quote request</a>
-    <a class="btn btn--ghost btn--sm btn--block" href="../reorder.html" style="margin-top:.5rem">Existing account? Reorder</a>
-    <button class="btn btn--quiet btn--sm btn--block" id="rfq-clear" style="margin-top:.5rem">Clear list</button>
+    <div class="field cart-consent">
+      <label class="check">
+        <input type="checkbox" id="cart-confirm">
+        <span>I confirm I am ordering for laboratory research use, and that this material will not be administered to a human or an animal.</span>
+      </label>
+    </div>
+    <button class="btn btn--primary btn--block" id="cart-checkout">Checkout</button>
+    <p class="cart-foot-note">Card payment is taken by Stripe on their own page. Shipping and any tax are added there.</p>
+    <p class="cart-error" id="cart-error" role="alert" hidden></p>
+    <button class="btn btn--quiet btn--sm btn--block" id="rfq-clear">Clear cart</button>
   </div>
 </aside>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>

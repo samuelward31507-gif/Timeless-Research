@@ -94,8 +94,8 @@ def rel(depth: int) -> str:
 # A shared link should preview the page that was shared. tools/make_og.py writes
 # one card per product and one per section; anything without its own card falls
 # back to the general one.
-OG_SECTIONS = {"catalog", "quality", "about", "faq", "contact", "compliance",
-               "specimen-coa"}
+OG_SECTIONS = {"catalog", "quality", "about", "faq", "contact", "pay",
+               "compliance", "specimen-coa"}
 
 
 def jsonld(obj) -> str:
@@ -123,7 +123,7 @@ def organisation() -> str:
         "@context": "https://schema.org", "@type": "Organization",
         "name": BRAND, "url": f"{SITE}/", "logo": f"{SITE}/assets/img/mark.svg",
         "description": "Supplier of analytical-grade peptide reference material "
-                       "to institutional and qualified-research accounts.",
+                       "for laboratory research use.",
         "email": CONTACT_EMAIL,
         "contactPoint": [{"@type": "ContactPoint", "contactType": "sales",
                           "email": CONTACT_EMAIL, "areaServed": "US"}],
@@ -196,8 +196,8 @@ def header(depth, active, canonical=""):
     return f"""{demo}<div class="announce">
   <div class="shell">
     <span><b>Research use only.</b> Not for human or veterinary use.</span>
-    <span>Institutional and qualified-research accounts only</span>
     <span>COA issued with every lot</span>
+    <span>Orders ship in 1&ndash;3 business days</span>
   </div>
 </div>
 <header class="header" id="header">
@@ -208,9 +208,9 @@ def header(depth, active, canonical=""):
     </a>
     <nav class="nav" id="nav" aria-label="Primary">{links}</nav>
     <div class="header-actions">
-      <button class="btn btn--ghost btn--sm rfq-btn" id="rfq-open" aria-haspopup="dialog" aria-label="Request list">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-        <span class="rfq-label">Request list</span><span class="rfq-count" id="rfq-count" aria-live="polite">0</span>
+      <button class="btn btn--ghost btn--sm rfq-btn" id="rfq-open" aria-haspopup="dialog" aria-label="Cart">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h2.2l2.3 11.2a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.55L20.5 7H5.2"/><circle cx="9.5" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg>
+        <span class="rfq-label">Cart</span><span class="rfq-count" id="rfq-count" aria-live="polite">0</span>
       </button>
       <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav" aria-label="Menu">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
@@ -236,7 +236,7 @@ def footer(depth):
           <img class="brand-mark" src="{p}assets/img/mark.svg" alt="" width="100" height="206">
           <span class="brand-text">Timeless<em>Research</em></span>
         </a>
-        <p class="footer-note">Analytical-grade peptide reference material for institutional and qualified research programmes. Every lot ships with a certificate of analysis.</p>
+        <p class="footer-note">Analytical-grade peptide reference material for laboratory research. Every lot ships with a certificate of analysis.</p>
       </div>
       <div>
         <h3>Catalog</h3>
@@ -249,8 +249,7 @@ def footer(depth):
           <li><a href="{p}quality.html">Analytical programme</a></li>
           <li><a href="{p}faq.html">FAQ</a></li>
           <li><a href="{p}contact.html">Contact</a></li>
-          <li><a href="{p}pay.html">Payment</a></li>
-          <li><a href="{p}reorder.html">Reorder</a></li>
+          <li><a href="{p}pay.html">Ordering &amp; payment</a></li>
         </ul>
       </div>
       <div>
@@ -273,14 +272,21 @@ def footer(depth):
 <div class="drawer-scrim" id="rfq-scrim"></div>
 <aside class="drawer" id="rfq-drawer" role="dialog" aria-modal="true" aria-labelledby="rfq-title" aria-hidden="true">
   <div class="drawer-head">
-    <h2 id="rfq-title">Request list</h2>
-    <button class="btn btn--quiet btn--sm" id="rfq-close" aria-label="Close request list">Close</button>
+    <h2 id="rfq-title">Cart</h2>
+    <button class="btn btn--quiet btn--sm" id="rfq-close" aria-label="Close cart">Close</button>
   </div>
   <div class="drawer-body" id="rfq-body"></div>
   <div class="drawer-foot" id="rfq-foot" hidden>
-    <a class="btn btn--primary btn--block" href="{p}contact.html?rfq=1" id="rfq-submit">Continue to quote request</a>
-    <a class="btn btn--ghost btn--sm btn--block" href="{p}reorder.html" style="margin-top:.5rem">Existing account? Reorder</a>
-    <button class="btn btn--quiet btn--sm btn--block" id="rfq-clear" style="margin-top:.5rem">Clear list</button>
+    <div class="field cart-consent">
+      <label class="check">
+        <input type="checkbox" id="cart-confirm">
+        <span>I confirm I am ordering for laboratory research use, and that this material will not be administered to a human or an animal.</span>
+      </label>
+    </div>
+    <button class="btn btn--primary btn--block" id="cart-checkout">Checkout</button>
+    <p class="cart-foot-note">Card payment is taken by Stripe on their own page. Shipping and any tax are added there.</p>
+    <p class="cart-error" id="cart-error" role="alert" hidden></p>
+    <button class="btn btn--quiet btn--sm btn--block" id="rfq-clear">Clear cart</button>
   </div>
 </aside>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -359,6 +365,22 @@ def offers_for(p) -> dict:
         "availability": avail,
         "offers": each,
     }}
+
+
+def buyable(p) -> bool:
+    """Whether a product can be put in the cart and paid for on the site.
+
+    Two separate reasons say no, and they are not interchangeable. `available`
+    is stock: the compound is ours to sell but we have none. `restricted` is
+    policy: the compound corresponds to an approved or investigational
+    pharmaceutical, so it is released against a stated protocol rather than a
+    card. Both routes are kept out of the cart here so that no page can offer a
+    checkout the terms of sale do not back.
+    """
+    return bool(p.get("available", True)) and not p.get("restricted")
+
+
+RESTRICTED_IDS = sorted(p["id"] for p in PRODUCTS if p.get("restricted"))
 
 
 def initial_price(p) -> str:
@@ -475,7 +497,7 @@ RUO_NOTICE = """<div class="notice">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
   <div>
     <h3>For laboratory research use only</h3>
-    <p>All material supplied by {BRAND} is intended exclusively for <strong>in vitro</strong> laboratory research and analytical method development by qualified professionals. Nothing offered here is a drug, dietary supplement, cosmetic or medical device. It is not for human or veterinary use, not for clinical or diagnostic procedures, and not for food or household use. We do not provide dosing, administration or therapeutic guidance of any kind, and we supply only to verified institutional and qualified-research accounts.</p>
+    <p>All material supplied by {BRAND} is intended exclusively for <strong>in vitro</strong> laboratory research and analytical method development by qualified professionals. Nothing offered here is a drug, dietary supplement, cosmetic or medical device. It is not for human or veterinary use, not for clinical or diagnostic procedures, and not for food or household use. We do not provide dosing, administration or therapeutic guidance of any kind. Placing an order is your confirmation that the material is for laboratory research use and will not be administered to a human or an animal.</p>
   </div>
 </div>""".replace("{BRAND}", BRAND)
 
@@ -519,7 +541,7 @@ def build_home():
 
     featured = [p for p in PRODUCTS if p["id"] in ("bpc-157", "ipamorelin", "ghk-cu", "epithalon", "mots-c", "ss-31")]
     feat_html = "".join(f"""
-      <article class="product" data-reveal data-reveal-delay="{i % 3}">
+      <article class="product" data-id="{p['id']}" data-reveal data-reveal-delay="{i % 3}">
         <div class="product-media" style="--tint:{CAT_TINT[p['category']][0]};--tint-deep:{CAT_TINT[p['category']][1]}">
           {vial(p.get('label') or p['name'], p['sizes'][0], 285, purity=p.get('purity'), pid=p['id'])}
           <span class="product-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 6 6L20 6"/></svg>{E(p['purity'])} HPLC</span>
@@ -536,6 +558,9 @@ def build_home():
 
     hero_vial = vial("BPC-157", "5 mg", 470, purity="\u226598%",
                      alt="A Timeless Research vial of BPC-157, 5 mg")
+    n_restricted = len(RESTRICTED_IDS)
+    restricted_n = {1: "One compound is", 2: "Two compounds are",
+                    3: "Three compounds are"}.get(n_restricted, f"{n_restricted} compounds are")
     body = f"""
 <section class="hero">
   <div class="shell">
@@ -543,10 +568,10 @@ def build_home():
       <div>
         <span class="rule-tag">Peptide reference material</span>
         <h1 class="display h-hero">Characterised.<br><em>Documented. Released.</em></h1>
-        <p class="lede">Analytical-grade research peptides for institutional laboratories — each lot identity-confirmed by mass spectrometry, purity-assayed by HPLC, and released against a signed certificate of analysis.</p>
+        <p class="lede">Analytical-grade research peptides — each lot identity-confirmed by mass spectrometry, purity-assayed by HPLC, and released against a signed certificate of analysis. Priced on the page and paid for by card.</p>
         <div class="hero-actions">
           <a class="btn btn--primary" href="catalog.html">Browse the catalog</a>
-          <a class="btn btn--ghost" href="contact.html">Open an account</a>
+          <a class="btn btn--ghost" href="quality.html">How lots are released</a>
         </div>
       </div>
       <div class="hero-figure">{hero_vial}</div>
@@ -605,16 +630,16 @@ def build_home():
   <div class="shell">
     <div class="split">
       <div data-reveal>
-        <span class="eyebrow">Accounts</span>
-        <h2 class="display h-sec">We supply <em>laboratories.</em></h2>
+        <span class="eyebrow">Ordering</span>
+        <h2 class="display h-sec">Priced on the page. <em>Paid by card.</em></h2>
       </div>
       <div class="prose" data-reveal data-reveal-delay="1">
-        <p>Ordering is restricted to verified institutional and qualified-research accounts — universities, hospital and government research units, contract research organisations, and commercial R&amp;D laboratories with a documented research purpose.</p>
-        <p>Account applications are reviewed individually. We ask for the institution, the responsible investigator, a shipping address at the research facility, and a short description of the intended research use. We do not sell to individuals for personal use, and we do not ship to residential addresses.</p>
-        <p>List prices are published against every pack size. Orders are still supplied against a verified account, so that lot availability, quantity breaks and shipping conditions are agreed in writing before material ships.</p>
+        <p>Every pack size carries its list price. Add what you need to the cart and pay by card — checkout is hosted by Stripe, which collects your name, email, phone number and shipping address and takes the payment. There is no account to apply for and no quotation to wait on.</p>
+        <p>Research use is a condition of every sale, not a formality. You confirm it at checkout, it is written into the <a href="legal/terms.html">terms of sale</a>, and an order we have reason to believe is destined for human or veterinary use is cancelled and refunded rather than shipped.</p>
+        <p>{restricted_n} not sold this way. They correspond to approved or investigational pharmaceutical substances, so they are supplied as analytical reference standards against a stated research protocol — they carry an <strong>Enquire</strong> button instead of a cart, and we come back to you by email.</p>
         <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:2rem">
-          <a class="btn btn--primary" href="contact.html">Apply for an account</a>
-          <a class="btn btn--ghost" href="compliance.html">Research use policy</a>
+          <a class="btn btn--primary" href="catalog.html">Browse the catalog</a>
+          <a class="btn btn--ghost" href="pay.html">How ordering works</a>
         </div>
       </div>
     </div>
@@ -638,9 +663,16 @@ def build_catalog():
         hay = " ".join(filter(None, [p["name"], p.get("cas") or "", " ".join(p.get("synonyms") or []),
                                      CAT_LABEL[p["category"]], p["research"]])).lower()
         sizes = size_options(p)
+        if p.get("restricted"):
+            action = f'<a class="link-action" href="contact.html?item={p["id"]}">Enquire</a>'
+        elif p.get("available", True):
+            action = (f'<button class="link-action" data-add="{p["id"]}" '
+                      f'data-name="{E(p["name"])}">Add to cart</button>')
+        else:
+            action = '<span class="muted" style="font-size:.72rem">Not currently supplied</span>'
         tint, tint_deep = CAT_TINT[p['category']]
         cards.append(f"""
-        <article class="product" data-cat="{p['category']}" data-search="{E(hay)}" data-available="{str(p.get('available', True)).lower()}" data-price="{(p.get('prices') or {}).get(p['sizes'][0], 0)}" data-name="{E(p['name'])}">
+        <article class="product" data-id="{p['id']}" data-cat="{p['category']}" data-search="{E(hay)}" data-available="{str(p.get('available', True)).lower()}" data-price="{(p.get('prices') or {}).get(p['sizes'][0], 0)}" data-name="{E(p['name'])}">
           <div class="product-media" style="--tint:{tint};--tint-deep:{tint_deep}">
             {vial(p.get('label') or p['name'], p['sizes'][0], 285, purity=p.get('purity'), pid=p['id'])}
             {'<span class="product-flag">Restricted</span>' if p.get('restricted') else ''}
@@ -655,7 +687,7 @@ def build_catalog():
             <div class="product-price"><span data-price-display>{initial_price(p)}</span>{'' if p.get("available", True) else '<span class="stock-out">Unavailable</span>'}</div>
             <div class="product-foot">
               <select aria-label="Pack size for {E(p['name'])}" data-size{'' if p.get("available", True) else ' disabled'}>{sizes}</select>
-              {f'<button class="link-action" data-add="{p["id"]}" data-name="{E(p["name"])}">Add to list</button>' if p.get("available", True) else '<span class="muted" style="font-size:.72rem">Not currently supplied</span>'}
+              {action}
             </div>
             <a class="btn btn--primary btn--pill btn--block" href="products/{p['id']}.html">View</a>
           </div>
@@ -668,7 +700,7 @@ def build_catalog():
     <div class="sec-head">
       <span class="eyebrow">Catalog</span>
       <h1 class="display h-sec">Research <em>compounds.</em></h1>
-      <p class="lede">{len(PRODUCTS)} characterised compounds, priced by pack size. Build a request list and we confirm lot availability and shipping on the quotation; material is supplied against a verified account.</p>
+      <p class="lede">{len(PRODUCTS)} characterised compounds, priced by pack size and paid for by card at checkout. Compounds marked <strong>Restricted</strong> are supplied as reference standards against a stated research protocol, so they are quoted by email rather than sold from the page.</p>
     </div>
   </div>
 </section>
@@ -757,6 +789,24 @@ def build_products():
         syn = ", ".join(p.get("synonyms") or []) or "—"
         sizes_opt = size_options(p)
 
+        if p.get("restricted"):
+            price_caption = "indicative list price, confirmed on enquiry"
+            buy_control = (f'<a class="btn btn--primary" href="../contact.html?item={p["id"]}">'
+                           f'Enquire about this standard</a>')
+            buy_note = ("Supplied as an analytical reference standard against a stated research "
+                        "protocol, so it is quoted by email rather than sold from this page.")
+        elif p.get("available", True):
+            price_caption = "per vial, excluding shipping and tax"
+            buy_control = (f'<button class="btn btn--primary" data-add="{p["id"]}" '
+                           f'data-name="{E(p["name"])}">Add to cart</button>')
+            buy_note = ("Shipping and any tax are added at checkout. Payment is taken by Stripe "
+                        "on their own page; we never see your card details.")
+        else:
+            price_caption = "last list price; not currently supplied"
+            buy_control = '<a class="btn btn--ghost" href="../contact.html">Ask about availability</a>'
+            buy_note = ("Not currently supplied. Tell us what you need and we will say when this "
+                        "compound returns to the catalogue.")
+
         restricted = ""
         if p.get("restricted"):
             restricted = """
@@ -764,7 +814,7 @@ def build_products():
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
           <div>
             <h3>Restricted reference standard</h3>
-            <p>This compound corresponds to an approved or investigational pharmaceutical substance and is supplied strictly as an analytical reference standard for <strong>in vitro</strong> method development. Release requires documented institutional affiliation and a stated research protocol. It is not available to individuals and will not ship to a residential address.</p>
+            <p>This compound corresponds to an approved or investigational pharmaceutical substance and is supplied strictly as an analytical reference standard for <strong>in vitro</strong> method development. It is not sold through the cart. Release is against a stated research protocol, so tell us what the material is for and we will come back to you by email with availability and a price.</p>
           </div>
         </div>"""
 
@@ -807,15 +857,15 @@ def build_products():
           <span class="ruo-badge">Research use only</span>
         </div>
 
-        <div class="detail-price"><span data-price-display>{initial_price(p)}</span><small>per vial, excluding shipping and tax</small></div>
+        <div class="detail-price"><span data-price-display>{initial_price(p)}</span><small>{price_caption}</small></div>
         {'' if p.get("available", True) else '<p class="stock-note">Not currently supplied. Contact us and we will tell you when this compound returns to the catalogue.</p>'}
 
         <div class="field no-print" style="margin-bottom:1.5rem">
           <label for="size-select">Pack size</label>
           <select id="size-select" data-size{'' if p.get("available", True) else ' disabled'}>{sizes_opt}</select>
         </div>
-        {f'<button class="btn btn--primary" data-add="{p["id"]}" data-name="{E(p["name"])}">Add to request list</button>' if p.get("available", True) else f'<a class="btn btn--ghost" href="../contact.html">Ask about availability</a>'}
-        <p class="muted no-print" style="font-size:.72rem;margin:.9rem 0 2.5rem">List price shown. Orders are supplied against a verified account; lot availability and any quantity break are confirmed on the quotation.</p>
+        {buy_control}
+        <p class="muted no-print" style="font-size:.72rem;margin:.9rem 0 2.5rem">{buy_note}</p>
 
         <table class="spec">
           <caption>Specification</caption>
@@ -939,14 +989,14 @@ def build_about():
     <div class="split">
       <div><span class="eyebrow">Position</span><h2 class="display h-sub">What we are</h2></div>
       <div class="prose">
-        <p>{BRAND} supplies characterised peptide reference material to institutional and qualified-research laboratories. We are a research reagent supplier. We are not a pharmacy, not a compounder, and not a clinic, and we do not hold ourselves out as any of those things.</p>
+        <p>{BRAND} supplies characterised peptide reference material to research laboratories and qualified professional purchasers. We are a research reagent supplier. We are not a pharmacy, not a compounder, and not a clinic, and we do not hold ourselves out as any of those things.</p>
         <p>The catalog is deliberately narrow. Every compound on it is one we can source with documented process controls and release against a specification we are willing to put an analyst's signature on. When we cannot establish that, the compound does not go on the catalog — which is why you will find gaps here that other suppliers fill.</p>
         <h3>What we will not do</h3>
-        <p>We do not supply controlled substances. We do not supply finished-dose pharmaceuticals, anabolic steroids, or prescription medicines. We do not sell to individuals for personal use. We do not provide dosing, administration, protocol or therapeutic guidance, and we will not answer questions framed around human use — not as a liability posture, but because that is not what this material is for and pretending otherwise puts people at risk.</p>
+        <p>We do not supply controlled substances. We do not supply finished-dose pharmaceuticals, anabolic steroids, or prescription medicines. We do not sell for personal use: research use is a condition of every sale, and an order we have reason to believe is destined for human or veterinary use is cancelled and refunded rather than shipped. We do not provide dosing, administration, protocol or therapeutic guidance, and we will not answer questions framed around human use — not as a liability posture, but because that is not what this material is for and pretending otherwise puts people at risk.</p>
         <p>If you are looking for material to use on yourself or another person, we are the wrong supplier, and there is no version of this conversation in which we become the right one. Speak to a licensed clinician.</p>
         <h3>How we handle uncertainty</h3>
         <p>Some compounds in this catalog are well characterised with decades of literature behind them. Others are recent, and the preclinical record is thin. We describe each one at the level the evidence actually supports, and the product descriptions say what a compound has been <em>studied for</em> — not what it does, and never what it treats.</p>
-        <p>Where a compound corresponds to an approved or investigational pharmaceutical, we flag it as a restricted reference standard and require a stated research protocol before release.</p>
+        <p>Where a compound corresponds to an approved or investigational pharmaceutical, we flag it as a restricted reference standard, keep it out of the cart, and require a stated research protocol before release.</p>
       </div>
     </div>
   </div>
@@ -957,45 +1007,47 @@ def build_about():
     <div class="grid-3">
       <div class="card"><h3 style="display:flex;align-items:center;gap:.6rem">{icon(I_SCOPE)} Characterisation first</h3><p>A compound is listed when we can document its identity and purity, and not before. The specification comes first; the listing follows.</p></div>
       <div class="card"><h3 style="display:flex;align-items:center;gap:.6rem">{icon(I_DOC)} Lot-level traceability</h3><p>Every certificate is tied to a lot number and a named analyst. Generic, reused certificates tell you nothing about the vial in your hand.</p></div>
-      <div class="card"><h3 style="display:flex;align-items:center;gap:.6rem">{icon(I_SHIELD)} Verified accounts only</h3><p>Supply is restricted to research institutions with a documented purpose. The restriction is the point, not an obstacle to route around.</p></div>
+      <div class="card"><h3 style="display:flex;align-items:center;gap:.6rem">{icon(I_SHIELD)} Research use, as a condition</h3><p>It is written into the terms of sale, confirmed at checkout, and enforced by refunding orders rather than shipping them. The restriction is the point, not an obstacle to route around.</p></div>
     </div>
   </div>
 </section>
 
 """
     return page("about.html", f"About — {BRAND}",
-                f"{BRAND} supplies characterised peptide reference material to institutional research laboratories. What we supply, what we refuse to supply, and why.",
+                f"{BRAND} supplies characterised peptide reference material for laboratory research. What we supply, what we refuse to supply, and why.",
                 body, "about.html")
 
 
 # --------------------------------------------------------------------------- faq
 FAQ = [
-    ("Who is eligible to order?",
-     "Ordering is limited to verified institutional and qualified-research accounts: universities, hospital and government research units, contract research organisations, and commercial R&D laboratories with a documented research purpose. We review each application individually and we do not supply individuals for personal use."),
-    ("Why can I not simply check out with a card?",
-     "Because we need to know who the material is going to and what it is for before it ships. List prices are published, but the order itself is confirmed by quotation against a verified account, so lot availability, quantity and shipping conditions are agreed in writing first. Building a request list on this site starts that process; it is not a purchase."),
-    ("How do I pay once my account is open?",
-     "We issue a written quotation, and on acceptance we invoice through Stripe. The invoice arrives by email and carries a secure Stripe-hosted payment page that takes a card or a bank transfer, so payment is immediate from that point. We never see or store card details, and we never ask for them by telephone or email."),
-    ("What does “research use only” actually mean here?",
+    ("Can I just add something to the cart and pay?",
+     "Yes, for everything on the catalog except the three restricted reference standards. Prices are published against every pack size, the cart totals them, and checkout is hosted by Stripe. There is no account to apply for and nothing to wait on."),
+    ("What does checkout ask me for?",
+     "Your name, email address, phone number and a shipping address, all collected by Stripe on their own page, plus card details we never see. You also confirm on this site, before checkout opens, that the material is for laboratory research use. That is the whole of it."),
+    ("Why are three compounds not in the cart?",
+     "Retatrutide, tirzepatide and oxytocin correspond to approved or investigational pharmaceutical substances. We supply them as analytical reference standards for in vitro method development, against a stated research protocol, which is a conversation rather than a checkout. Use the Enquire button on those pages and we come back by email."),
+    ("What does \u201cresearch use only\u201d actually mean here?",
      "It means the material is intended exclusively for in vitro laboratory research and analytical method development by qualified professionals. It is not a drug, supplement, cosmetic or medical device; it has not been evaluated for safety or efficacy in humans or animals; and it must not be administered to either. This is a statement about what the material is, not a disclaimer that unlocks another use."),
+    ("You cannot verify who I am, so is that confirmation worth anything?",
+     "It is a condition of sale, not an identity check, and we say so rather than implying a vetting process we do not run. It binds you contractually, it is what the terms of sale are built on, and where we have reason to believe an order is destined for human or veterinary use we cancel and refund it instead of shipping. We would rather state the limit of that plainly than dress it up."),
     ("Will you advise on dosing or administration?",
-     "No — for any compound, under any framing, for any species. We answer questions about identity, purity, solubility, stability, storage and handling. We do not answer questions about dosing, administration routes, cycles or therapeutic use, and a request for that guidance will end the enquiry."),
+     "No \u2014 for any compound, under any framing, for any species. We answer questions about identity, purity, solubility, stability, storage and handling. We do not answer questions about dosing, administration routes, cycles or therapeutic use, and a request for that guidance will end the enquiry."),
     ("Do you supply anabolic steroids, hormones or prescription medicines?",
      "No. We do not supply controlled substances, anabolic steroids, finished-dose pharmaceuticals or prescription medicines of any kind. The catalog is limited to research peptides, small-molecule research compounds and laboratory reagents."),
     ("What is on the certificate of analysis?",
      "Product identity, lot number and release date, appearance, RP-HPLC chromatographic purity with the integrated trace, ESI-MS mass confirmation, Karl Fischer water content, counter-ion content where applicable, storage conditions, retest date, and the releasing analyst's signature. Certificates are lot-specific and are never reused across lots."),
     ("Can I see the COA before I order?",
-     "Yes. Account holders can request the certificate for a specific lot before purchase, and we will supply the full data package if you need it for supplier qualification."),
+     "Yes. Ask us for the certificate covering the lot currently in stock and we will send it, along with the full data package if you need it for supplier qualification."),
     ("Is the material sterile or endotoxin-tested?",
      "Only where the certificate for that lot says so and reports the test. Reagent solutions are tested for sterility and endotoxin. Lyophilised research peptides generally are not, and should not be assumed to be."),
     ("How should material be stored on arrival?",
-     "Lyophilised peptides should be transferred to -20 °C, kept desiccated and protected from light. Storage conditions specific to each compound are listed on its specification page and on the certificate. Repeated freeze–thaw cycles of reconstituted material should be avoided."),
+     "Lyophilised peptides should be transferred to -20 \u00b0C, kept desiccated and protected from light. Storage conditions specific to each compound are listed on its specification page and on the certificate. Repeated freeze\u2013thaw cycles of reconstituted material should be avoided."),
+    ("How long does shipping take, and what does it cost?",
+     "Orders placed against material in stock leave us within one to three business days. Shipping is charged at checkout, where you choose between a standard and an express tracked courier service; the cost is shown before you pay."),
     ("Do you ship internationally?",
-     "We ship to institutional addresses in jurisdictions where the material may lawfully be imported for research use. Import permits, customs classification and local restrictions are the account holder's responsibility, and we will not mis-declare the contents or value of a shipment under any circumstances."),
+     "We ship to the countries offered at checkout, where the material may lawfully be imported for research use. Import permits, customs classification and local restrictions are yours to deal with, and we will not mis-declare the contents or value of a shipment under any circumstances."),
     ("What if a lot does not meet specification?",
      "Tell us within 30 days of delivery with the lot number and the data. If the material is out of specification we replace it or refund it. See the shipping and returns policy for the full procedure."),
-    ("Do you ship to residential addresses?",
-     "No. Shipments go to the research facility associated with the verified account."),
 ]
 
 
@@ -1020,7 +1072,7 @@ def build_faq():
     <div class="sec-head">
       <span class="eyebrow">FAQ</span>
       <h1 class="display h-sec">Common <em>questions.</em></h1>
-      <p class="lede">Eligibility, documentation, handling and the limits of what we will advise on.</p>
+      <p class="lede">Ordering, documentation, handling and the limits of what we will advise on.</p>
     </div>
     <div class="acc">{items}</div>
     <p style="margin-top:2rem" class="muted">Question not answered here? <a href="contact.html" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">Contact the technical team</a>.</p>
@@ -1028,20 +1080,35 @@ def build_faq():
 </section>
 """
     return page("faq.html", f"FAQ — {BRAND}",
-                "Eligibility, certificates of analysis, storage and handling, shipping, and the limits of technical support.",
+                "Ordering and payment, certificates of analysis, storage and handling, shipping, and the limits of technical support.",
                 body, "faq.html", extra_head=f'<script type="application/ld+json">{ld}</script>\n')
 
 
 # --------------------------------------------------------------------------- contact
+# Since the catalogue is bought from the page, this form is no longer a gate in
+# front of a purchase: it is for the restricted standards, for technical
+# questions, and for anything the FAQ does not answer. It therefore asks for the
+# three things the operator needs to reply — name, email, phone — and the
+# question itself, and nothing else.
+#
+# The compound select is prefilled from ?item=, which is matched against the
+# option values built here. An id that is not in the catalogue simply leaves the
+# select on its default: the parameter chooses between options this page already
+# contains, and can never introduce content of its own.
 def build_contact():
+    opts = "".join(
+        f'<option value="{E(p["id"])}">{E(p["name"])}'
+        f'{" — restricted standard" if p.get("restricted") else ""}</option>'
+        for p in PRODUCTS)
+
     body = f"""
 <section class="section section--tight">
   <div class="shell">
     <nav class="crumb" aria-label="Breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>Contact</span></nav>
     <div class="sec-head">
-      <span class="eyebrow">Accounts &amp; quotations</span>
+      <span class="eyebrow">Enquiries</span>
       <h1 class="display h-sec">Get in <em>touch.</em></h1>
-      <p class="lede">Leave your details and we will come back to you within two business days. Account verification and pricing follow by email.</p>
+      <p class="lede">For the restricted reference standards, for a certificate of analysis, or for anything the catalogue does not answer. We reply within two business days.</p>
     </div>
   </div>
 </section>
@@ -1050,31 +1117,24 @@ def build_contact():
   <div class="shell">
     <div class="split">
       <div>
-        <div id="rfq-summary" hidden style="background:var(--surface-1);border:1px solid var(--line);border-radius:6px;padding:1.5rem;margin-bottom:1.5rem">
-          <h2 style="font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin-bottom:1rem">Your request list</h2>
-          <div id="rfq-summary-body"></div>
-        </div>
         <div class="prose">
-          <h3>What happens next</h3>
-          <ol>
-            <li>We check the details above. Most applications from a recognisable institutional address are approved the same working day.</li>
-            <li>Where anything is unclear we come back with one question rather than a form.</li>
-            <li>Once the account is open we issue a written quotation against your request list.</li>
-            <li>On acceptance we invoice through Stripe; payment is by card or bank transfer from the invoice. <a href="pay.html">How payment works</a>.</li>
-          </ol>
-          <p>Nothing ships before that verification is complete, and we do not supply individuals for personal use.</p>
+          <h3>Ordering does not go through here</h3>
+          <p>Everything on the catalogue except the restricted standards is bought from its own page: add it to the cart and pay by card. <a href="pay.html">How ordering works</a>.</p>
+          <h3>Restricted reference standards</h3>
+          <p>Retatrutide, tirzepatide and oxytocin correspond to approved or investigational pharmaceutical substances. They are supplied as analytical reference standards for <strong>in vitro</strong> method development against a stated research protocol, so tell us the assay or model the material is for and we will reply with availability and a price.</p>
+          <h3>Certificates and technical questions</h3>
+          <p>Ask for the certificate covering the lot currently in stock and we will send it, with the full data package if you need it for supplier qualification. We answer questions on identity, purity, solubility, stability, storage and handling.</p>
           <h3>What we cannot help with</h3>
-          <p>We do not provide dosing, administration or therapeutic guidance. Enquiries framed around human or veterinary use will be declined.</p>
-          <h3>Technical support</h3>
-          <p>For questions on identity, purity, solubility, stability, storage or certificates of analysis, mention it when you get in touch. Lot-specific certificates are available to account holders on request.</p>
+          <p>We do not provide dosing, administration or therapeutic guidance, for any species. Enquiries framed around human or veterinary use will be declined.</p>
+          <h3>Or write to us directly</h3>
+          <p><a href="mailto:{E(CONTACT_EMAIL)}">{E(CONTACT_EMAIL)}</a></p>
         </div>
       </div>
 
       <div>
-        <form id="account-form" name="account-application" method="POST"
+        <form id="account-form" name="enquiry" method="POST"
               data-netlify="true" data-netlify-honeypot="bot-field" novalidate>
-          <input type="hidden" name="form-name" value="account-application">
-          <input type="hidden" name="request_list" id="f-request-list">
+          <input type="hidden" name="form-name" value="enquiry">
           <p hidden><label>Leave this field empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
           <div class="field">
             <label for="f-name">Name <span class="req" aria-hidden="true">*</span></label>
@@ -1083,18 +1143,9 @@ def build_contact():
           </div>
 
           <div class="field">
-            <label for="f-institution">Institution or company <span class="req" aria-hidden="true">*</span></label>
-            <input id="f-institution" name="institution" type="text" required autocomplete="organization">
-            <p class="field-hint">University, hospital or government research unit, CRO, or commercial R&amp;D laboratory.</p>
-            <p class="field-error">Please tell us which institution you are enquiring for.</p>
-          </div>
-
-          <div class="field">
-            <label for="f-email">Institutional email <span class="req" aria-hidden="true">*</span></label>
+            <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
             <input id="f-email" name="email" type="email" required autocomplete="email">
-            <p class="field-hint">Your address at that institution. We cannot verify an account from a personal email provider.</p>
             <p class="field-error">Please enter a valid email address.</p>
-            <p class="field-error field-error--freemail">That is a personal email provider. Please use your address at the institution — we cannot verify an account without one.</p>
           </div>
 
           <div class="field">
@@ -1104,16 +1155,25 @@ def build_contact():
           </div>
 
           <div class="field">
-            <label for="f-use">Intended research use <span class="req" aria-hidden="true">*</span></label>
-            <textarea id="f-use" name="use" rows="3" required></textarea>
-            <p class="field-hint">One line is enough — the assay or model the material is for.</p>
-            <p class="field-error">Please describe the intended research use.</p>
+            <label for="f-item">Compound</label>
+            <select id="f-item" name="item">
+              <option value="">General enquiry</option>
+              {opts}
+            </select>
+            <p class="field-hint">Leave this on “General enquiry” if your question is not about one compound.</p>
+          </div>
+
+          <div class="field">
+            <label for="f-message">Your enquiry <span class="req" aria-hidden="true">*</span></label>
+            <textarea id="f-message" name="message" rows="5" required></textarea>
+            <p class="field-hint">For a restricted standard, one line on the assay or model it is for is enough.</p>
+            <p class="field-error">Please tell us what you need.</p>
           </div>
 
           <div class="field">
             <label class="check">
               <input type="checkbox" id="f-confirm" name="confirm" required>
-              <span>I confirm that I am enquiring on behalf of a research institution or qualified laboratory, that any material supplied will be used solely for <strong>in vitro</strong> laboratory research, and that it will not be administered to humans or animals. <span class="req" aria-hidden="true">*</span></span>
+              <span>I confirm that any material supplied will be used solely for <strong>in vitro</strong> laboratory research, and that it will not be administered to humans or animals. <span class="req" aria-hidden="true">*</span></span>
             </label>
             <p class="field-error">This confirmation is required.</p>
           </div>
@@ -1128,7 +1188,7 @@ def build_contact():
 </section>
 """
     return page("contact.html", f"Contact — {BRAND}",
-                "Get in touch about an institutional research account, a quotation, or a technical question on identity, purity, storage or certificates of analysis.",
+                "Enquire about a restricted reference standard, request a certificate of analysis, or ask a technical question on identity, purity, storage or handling.",
                 body, "contact.html", extra_body='<script src="assets/js/contact.js" defer></script>')
 
 
@@ -1158,17 +1218,17 @@ def build_compliance():
         <li>resale to the general public, or to any party that has not agreed to equivalent restrictions;</li>
         <li>any purpose prohibited by applicable law in your jurisdiction.</li>
       </ul>
-      <h2>3. Eligibility</h2>
-      <p>We supply only verified institutional and qualified-research accounts — universities, hospital and government research units, contract research organisations, and commercial R&amp;D laboratories with a documented research purpose. We do not supply individuals for personal use, and we do not ship to residential addresses.</p>
-      <p>Account verification requires the institution name and research facility address, the responsible investigator or laboratory manager, an institutional email address, and a description of the intended research use. We may request additional documentation, and we may decline or revoke an account at our discretion.</p>
+      <h2>3. Who may buy, and on what condition</h2>
+      <p>Material is sold to purchasers who are buying it for laboratory research use. Before checkout opens you confirm that the material is for <strong>in vitro</strong> laboratory research and will not be administered to a human or an animal. That confirmation is a condition of sale and is incorporated into the <a href="legal/terms.html">terms of sale</a>.</p>
+      <p>We are direct about what that is and is not. It is a contractual condition, not an identity check: we do not operate a vetting or credentialing process, and we do not claim to. What we do is refuse the sale where we have reason to believe the material is destined for human or veterinary use — before shipping, by cancelling and refunding the order; after shipping, by declining further business. We may decline any order at our discretion and without giving a reason.</p>
       <h2>4. Restricted reference standards</h2>
-      <p>Certain catalog items correspond to approved or investigational pharmaceutical substances. These are supplied strictly as analytical reference standards for <strong>in vitro</strong> method development, require a stated research protocol prior to release, and are flagged as restricted on their specification pages. They will not be released to an unverified account under any circumstances.</p>
+      <p>Certain catalog items correspond to approved or investigational pharmaceutical substances. These are supplied strictly as analytical reference standards for <strong>in vitro</strong> method development, require a stated research protocol prior to release, and are flagged as restricted on their specification pages. They cannot be added to the cart and are not sold through checkout under any circumstances; they are released only against an enquiry we have accepted in writing.</p>
       <h2>5. What we will not advise on</h2>
       <p>We provide technical support on identity, purity, solubility, stability, storage and handling. We do <strong>not</strong> provide guidance on dosing, administration routes, cycles, combinations, or therapeutic application, for any species. Enquiries seeking such guidance will be declined, and may result in an account being refused or closed.</p>
       <h2>6. Responsibility of the recipient</h2>
-      <p>The account holder is responsible for handling material in accordance with applicable laboratory safety requirements, for institutional approvals covering the intended work, for determining that receipt and use are lawful in their jurisdiction, and for any import permits or customs requirements. We will not mis-declare the contents, value or classification of a shipment.</p>
+      <p>The buyer is responsible for handling material in accordance with applicable laboratory safety requirements, for any institutional approvals the intended work requires, for determining that receipt and use are lawful in their jurisdiction, and for any import permits or customs requirements. We will not mis-declare the contents, value or classification of a shipment.</p>
       <h2>7. Enforcement</h2>
-      <p>We audit accounts periodically. Where we have reason to believe material has been diverted to human use, resold to the public, or otherwise used in breach of this policy, we will close the account, decline future orders and, where the law requires it, report the matter to the relevant authority.</p>
+      <p>Where we have reason to believe material has been diverted to human use, resold to the public, or otherwise used in breach of this policy, we will cancel and refund any order not yet shipped, decline future orders from that buyer, and, where the law requires it, report the matter to the relevant authority.</p>
       <h2>8. Changes</h2>
       <p>This policy may be updated. The version in force is the one published here on the date an order is accepted.</p>
     </div>
@@ -1177,7 +1237,7 @@ def build_compliance():
 </section>
 """
     return page("compliance.html", f"Research Use Policy — {BRAND}",
-                "Conditions of supply: intended use, prohibited uses, account eligibility, restricted reference standards and recipient responsibilities.",
+                "Conditions of supply: intended use, prohibited uses, who may buy, restricted reference standards and buyer responsibilities.",
                 body, "")
 
 
@@ -1219,17 +1279,21 @@ def build_legal():
       <h2>1. Who these terms are between</h2>
       <p>These terms govern every sale by {entity}, a sole proprietorship operating from {address} (“we”, “us”, “our”), to the account holder placing the order (“you”). They apply instead of any purchase-order or vendor terms you send us. Our beginning work on an order is not acceptance of those terms.</p>
 
-      <h2>2. Who may buy</h2>
-      <p>We supply verified institutional and qualified-research accounts only. Submitting a request list or a quotation request is not an order — it is an invitation for us to quote. A contract is formed only when we issue a written order confirmation. We may decline any order at our discretion, including where account verification is incomplete or the stated research use falls outside our <a href="../compliance.html">research use policy</a>.</p>
+      <h2>2. How an order is made and accepted</h2>
+      <p>Placing an order through checkout is your offer to buy. A contract is formed when we send you an order confirmation or despatch the material, whichever happens first. Payment being authorised or captured at checkout is not by itself our acceptance: until we confirm or despatch, we may cancel the order and refund you in full.</p>
+      <p>We may decline any order at our discretion, including where the stated research use falls outside our <a href="../compliance.html">research use policy</a>, where we have reason to believe the material is destined for human or veterinary use, where we cannot lawfully ship to the destination, or where a price or availability shown on the site was wrong.</p>
+      <p>Compounds marked as restricted reference standards are not sold through checkout. They are supplied only against an enquiry we have accepted in writing, on the terms of that acceptance and these terms together.</p>
 
       <h2>3. Research use is a condition of every sale</h2>
       <p>Every sale is conditional on your agreement to our <a href="../compliance.html">research use policy</a>, which forms part of these terms. Material supplied is for <strong>in vitro</strong> laboratory research by qualified professionals. It is not a drug, dietary supplement, cosmetic, food or medical device, and it is not for human or veterinary use, clinical or diagnostic procedures, or household use. Breach of that policy is a material breach of these terms, entitling us to cancel outstanding orders, terminate your account and decline future business.</p>
 
-      <h2>4. Quotations, prices and payment</h2>
-      <p>Quotations are valid for 30 days unless they state otherwise. Prices exclude sales and use taxes, duties, and shipping, which are added to the invoice or charged separately. Payment is due in advance unless we have agreed credit terms with you in writing; where we have, payment is due 30 days from the invoice date. Overdue amounts accrue interest at 1.5% per month or the maximum rate permitted by applicable law, whichever is lower, and you are responsible for reasonable costs of collection, including attorneys' fees.</p>
+      <h2>4. Prices and payment</h2>
+      <p>Catalogue prices are in {CURRENCY} and exclude shipping and any sales, use or import taxes and duties; shipping and any tax we are required to collect are added at checkout and shown before you pay. Payment is due in full at checkout and is taken by Stripe on their own hosted page. We do not receive, process or store your card details, and we will never ask for them by telephone or email.</p>
+      <p>Prices may change without notice, but the price you are charged is the one shown at checkout. Where a price is obviously wrong, we may cancel the order under section 2 and refund you rather than supply at that price.</p>
+      <p>Where we have agreed credit terms with you in writing, payment is due 30 days from the invoice date; overdue amounts accrue interest at 1.5% per month or the maximum rate permitted by applicable law, whichever is lower, and you are responsible for reasonable costs of collection, including attorneys' fees.</p>
 
       <h2>5. Shipping, title and risk</h2>
-      <p>Shipments are made as described in our <a href="shipping.html">shipping and returns policy</a>, to institutional or commercial addresses only. Delivery dates are estimates, not guarantees, and we are not liable for delay. Risk of loss passes to you on delivery of the material to the carrier. Title passes when we have received payment in full.</p>
+      <p>Shipments are made as described in our <a href="shipping.html">shipping and returns policy</a>, to the address you give at checkout. Delivery dates are estimates, not guarantees, and we are not liable for delay. Risk of loss passes to you on delivery of the material to the carrier. Title passes when we have received payment in full.</p>
 
       <h2>6. Inspection and notice</h2>
       <p>Inspect each shipment on arrival. Tell us in writing within 10 business days of delivery about any shortage, visible damage or nonconformity, with the lot number and, for damage, photographs. Material not rejected within that period is accepted.</p>
@@ -1272,7 +1336,7 @@ def build_legal():
       <p>These terms and any dispute arising out of them are governed by the laws of the State of {state}, without regard to its conflict-of-laws rules. The state and federal courts located in {state} have exclusive jurisdiction, and both of us consent to their venue. The United Nations Convention on Contracts for the International Sale of Goods does not apply.</p>
 
       <h2>17. General</h2>
-      <p>These terms, the research use policy, the shipping and returns policy and our written order confirmation are the entire agreement between us on their subject matter. Changes must be in writing and signed by us. Failing to enforce a provision does not waive it. If a provision is held unenforceable, the rest continues in force. You may not assign your rights without our written consent. Notices go to the addresses on the order confirmation. Sections 3, 7 to 14, 16 and 17 survive termination.</p>
+      <p>These terms, the research use policy, the shipping and returns policy and our order confirmation are the entire agreement between us on their subject matter. Changes must be in writing and signed by us. Failing to enforce a provision does not waive it. If a provision is held unenforceable, the rest continues in force. You may not assign your rights without our written consent. Notices go to the addresses on the order confirmation. Sections 3, 7 to 14, 16 and 17 survive termination.</p>
 
       <h2>18. Contact</h2>
       <p><a href="mailto:{email}">{email}</a></p>"""))
@@ -1284,24 +1348,26 @@ def build_legal():
       <p>{entity} is a sole proprietorship operating from {address}. We are responsible for the personal information described in this policy. Contact us at <a href="mailto:{email}">{email}</a>.</p>
 
       <h2>2. What we collect</h2>
-      <p><strong>What you give us.</strong> The account application form collects your name, email address and telephone number, together with the list of compounds you have added to your request list. If your application proceeds, our follow-up correspondence collects what account verification requires: your institution, the research facility address, the responsible investigator, an institutional email address and a description of the intended research use.</p>
+      <p><strong>What you give us when you order.</strong> Checkout is hosted by Stripe, who collect your name, email address, telephone number, shipping address and payment details in order to take the payment. Stripe then passes us everything except your card details, which we never receive, hold or have access to. We also record what you ordered.</p>
+      <p><strong>What you give us when you write to us.</strong> The enquiry form collects your name, email address, telephone number, the compound your question is about and the message itself.</p>
       <p><strong>What is collected automatically.</strong> Our hosting provider records standard server logs — IP address, browser user-agent, pages requested and timestamps — which are used to keep the site available and to investigate abuse.</p>
-      <p><strong>What stays on your device.</strong> Your request list is held in your browser's local storage so it survives moving between pages. It remains on your device until you clear it or clear your browser data. We cannot see it unless you submit the form.</p>
+      <p><strong>What stays on your device.</strong> Your cart is held in your browser's local storage so it survives moving between pages. It remains on your device until you clear it, check out, or clear your browser data. We cannot see it until you start checkout.</p>
       <p><strong>What we do not do.</strong> We set no advertising or analytics cookies, we run no tracking pixels, and we do not build profiles of visitors.</p>
 
       <h2>3. Why we use it</h2>
-      <p>To reply to your enquiry; to verify that an account meets the eligibility conditions in our <a href="../compliance.html">research use policy</a>; to quote for, process and fulfil orders; to keep the commercial, tax and lot-traceability records our business needs; and to protect the site against abuse.</p>
+      <p>To take payment for, process and fulfil your order; to reply to your enquiry; to apply the conditions of supply in our <a href="../compliance.html">research use policy</a>; to keep the commercial, tax and lot-traceability records our business needs; and to protect the site against abuse.</p>
 
       <h2>4. Who else sees it</h2>
-      <p><strong>Our hosting and form provider.</strong> The site is hosted on Netlify, which serves the pages, keeps the server logs described above, and receives account applications on our behalf as a service provider.</p>
+      <p><strong>Our payment processor.</strong> Checkout and payment are handled by Stripe, Inc. as an independent controller of the payment data it collects. Their <a href="https://stripe.com/privacy" rel="noopener">privacy policy</a> governs that processing. We receive from Stripe the name, email address, telephone number and shipping address you gave them, and the fact and amount of the payment — never your card number.</p>
+      <p><strong>Our hosting and form provider.</strong> The site is hosted on Netlify, which serves the pages, runs the small function that creates a Stripe checkout session, keeps the server logs described above, and receives enquiries from the contact form on our behalf as a service provider.</p>
       <p><strong>No other third party.</strong> Typefaces, stylesheets, scripts and images are all served from this site itself, so loading a page contacts nobody but our hosting provider. We do not sell personal information, and we do not share it for cross-context behavioural advertising. We disclose it only where the law requires it, where we must to establish or defend a legal claim, or to a carrier where that is necessary to deliver your order.</p>
 
       <h2>5. How long we keep it</h2>
-      <p>Enquiries that do not become accounts: 24 months from your last contact with us. Account and order records: seven years, which is what tax and commercial record-keeping requires. Server logs: as retained by our hosting provider, typically around 30 days.</p>
+      <p>Enquiries that do not become orders: 24 months from your last contact with us. Order records: seven years, which is what tax and commercial record-keeping requires. Server logs: as retained by our hosting provider, typically around 30 days.</p>
 
       <h2>6. Your rights</h2>
       <p>Wherever you are, you can ask us for a copy of the personal information we hold about you, ask us to correct it, or ask us to delete it. Email <a href="mailto:{email}">{email}</a>. We will respond within 45 days and will verify your identity against the information we already hold before acting.</p>
-      <p><strong>If you are in California,</strong> the CCPA as amended by the CPRA gives you the right to know what we collect and why, to receive a copy, to correct it, to delete it, to opt out of sale or sharing, and not to be treated differently for exercising any of them. In the last 12 months we have collected identifiers (name, email address, telephone number), commercial information (the compounds you enquired about) and internet activity information (server logs), from you and from your device, for the purposes in section 3, and have disclosed them only to the service providers in section 4. We have not sold or shared personal information, and we do not collect sensitive personal information as the CPRA defines it. An authorised agent may make a request on your behalf with your written permission.</p>
+      <p><strong>If you are in California,</strong> the CCPA as amended by the CPRA gives you the right to know what we collect and why, to receive a copy, to correct it, to delete it, to opt out of sale or sharing, and not to be treated differently for exercising any of them. In the last 12 months we have collected identifiers (name, email address, telephone number), commercial information (the compounds you enquired about) and internet activity information (server logs), from you and from your device, for the purposes in section 3, and have disclosed them only to the payment processor and service providers in section 4. We have not sold or shared personal information, and we do not collect sensitive personal information as the CPRA defines it. An authorised agent may make a request on your behalf with your written permission.</p>
       <p><strong>If you are in another US state</strong> with a comprehensive privacy law — including Virginia, Colorado, Connecticut, Utah, Texas, Oregon and Montana — you have broadly equivalent rights of access, correction, deletion and portability, and you may appeal a refusal by replying to our decision.</p>
       <p><strong>Global Privacy Control.</strong> Because we neither sell nor share personal information, there is nothing to opt out of; we honour GPC signals in any case.</p>
 
@@ -1325,10 +1391,10 @@ def build_legal():
         "Shipping &amp; <em>returns.</em>",
         "How material is packed, shipped and received, and the narrow circumstances in which it can be returned.", f"""
       <h2>1. Where we ship</h2>
-      <p>We ship to institutional, laboratory and commercial addresses only. We do not ship to residential addresses, and an order placed against one will be held until an institutional address is supplied.</p>
+      <p>We ship to the countries offered at checkout, to the address you give there. Where the material may not lawfully be imported into a destination for research use, we will cancel the order and refund it rather than ship it.</p>
 
       <h2>2. Processing</h2>
-      <p>Orders are released once the account is verified and payment or agreed credit terms are in place. Material in stock usually leaves within one to three business days. Shipments requiring cold chain are released to match carrier schedules, so that material is not sitting in a depot over a weekend.</p>
+      <p>Orders are released once payment has cleared, or once agreed credit terms are in place. Material in stock usually leaves within one to three business days. Shipments requiring cold chain are released to match carrier schedules, so that material is not sitting in a depot over a weekend.</p>
 
       <h2>3. Packing and cold chain</h2>
       <p>Material ships lyophilised unless stated otherwise. Where stability requires it, shipments are packed in insulated containers with gel packs or dry ice; dry-ice shipments are declared as required for carriage. Store material on arrival as its certificate of analysis specifies.</p>
@@ -1338,6 +1404,7 @@ def build_legal():
 
       <h2>5. Title, risk and receipt</h2>
       <p>Risk of loss passes to you when the material is delivered to the carrier; title passes when we have received payment in full. Someone must be available to receive cold-chain shipments, because material left at an unattended address may no longer be fit for use.</p>
+      <p>Shipments carry a research-reagent declaration and are addressed exactly as you enter the address at checkout, so give an address where a parcel can be signed for during business hours.</p>
 
       <h2>6. Customs, duties and permits</h2>
       <p>Import duties, taxes and clearance charges are yours to pay, as are any import permits your jurisdiction requires. We declare shipments accurately and will not alter a declaration, undervalue a shipment or describe it as a gift on request. Where a shipment is seized or refused entry because a required permit was not in place, we cannot refund it.</p>
@@ -1524,169 +1591,130 @@ def build_coa():
 
 
 # --------------------------------------------------------------------------- payment
-# Payment happens after the account is verified and a quotation is issued, not
-# before. That ordering is what the terms of sale commit to in section 2, so
-# this page explains the sequence rather than offering a way to short-circuit it.
+# Ordering is a card payment on a Stripe-hosted page, so this page explains the
+# sequence and what each step actually collects.
 #
-# Deliberately NOT a redirector. A page that took an invoice id or a URL in the
+# Deliberately NOT a redirector. A page that took a session id or a URL in the
 # query string and forwarded the visitor to it would be an open redirect on a
-# domain that sends payment requests — a ready-made phishing tool aimed at our
-# own customers. Stripe hosts the invoice; the link reaches the buyer by email
-# from the address on this page and nowhere else.
+# domain that takes payments — a ready-made phishing tool aimed at our own
+# customers. The only way to a payment page is the checkout button, which gets
+# its URL from Stripe's API in the response to a request this site made.
 
 
 def build_pay():
     body = f"""
 <section class="section section--tight">
   <div class="shell-n">
-    <nav class="crumb" aria-label="Breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>Payment</span></nav>
+    <nav class="crumb" aria-label="Breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>Ordering &amp; payment</span></nav>
     <div class="sec-head">
-      <span class="eyebrow">Accounts &amp; payment</span>
-      <h1 class="display h-sec">Paying for <em>an order.</em></h1>
-      <p class="lede">Orders are invoiced once your account is verified and you have accepted a quotation. There is no checkout on this site, and nothing ships against an unverified account.</p>
+      <span class="eyebrow">Ordering &amp; payment</span>
+      <h1 class="display h-sec">Placing <em>an order.</em></h1>
+      <p class="lede">Catalogue prices are the prices you pay. Add pack sizes to the cart, confirm the research use condition, and pay by card on a page hosted by Stripe. There is no account to open and no quotation to wait for.</p>
     </div>
 
     <ol class="pay-steps">
       <li>
-        <h2>Request</h2>
-        <p>Build a request list from the catalogue and send it with your account application. Prices on the catalogue are list prices; they exclude shipping and tax. <strong>Already have an account?</strong> Skip to <a href="reorder.html">reorder</a> — steps 2 and 3 are already done and you go straight to a payment link.</p>
+        <h2>Cart</h2>
+        <p>Choose a pack size on any catalogue or product page and add it to the cart. The cart totals what you have chosen; shipping and any tax are added at checkout, where the full amount is shown before you pay.</p>
       </li>
       <li>
-        <h2>Verification</h2>
-        <p>The application asks for the institution, an address at it, and one line on the intended research use. That is the whole check. Most applications from a recognisable institutional address are approved the same working day; nothing is invoiced before it is done.</p>
+        <h2>Research use confirmation</h2>
+        <p>Before checkout opens you confirm that the material is for laboratory research use and will not be administered to a human or an animal. That confirmation is a condition of sale under our <a href="legal/terms.html">terms</a> and our <a href="compliance.html">research use policy</a> — it is not a formality, and an order we have reason to believe is destined for human or veterinary use is cancelled and refunded rather than shipped.</p>
       </li>
       <li>
-        <h2>Quotation</h2>
-        <p>We issue a written quotation against your request list, confirming lot availability, any quantity break, shipping method and the total including tax and carriage. It is valid for 30 days.</p>
+        <h2>Checkout</h2>
+        <p>Checkout is hosted by Stripe on their own page. They collect your name, email address, phone number and shipping address, and take the card payment. Your card details never reach this site: we receive the order and your delivery details, and nothing else.</p>
       </li>
       <li>
-        <h2>Invoice</h2>
-        <p>On acceptance we raise an invoice through Stripe. It arrives by email from <a href="mailto:{E(CONTACT_EMAIL)}">{E(CONTACT_EMAIL)}</a> and carries a secure payment page hosted by Stripe, where you can pay by card or bank transfer. We never see or store your card details.</p>
+        <h2>Confirmation</h2>
+        <p>Stripe emails you a receipt immediately, and we follow it with an order confirmation. The contract is formed at that confirmation or at despatch, whichever comes first — see <a href="legal/terms.html">terms of sale</a>, section 2.</p>
       </li>
       <li>
-        <h2>Release</h2>
-        <p>Material is released once payment clears, unless written credit terms have been agreed in advance. The certificate of analysis for the supplied lot travels with the shipment.</p>
+        <h2>Release and despatch</h2>
+        <p>Material in stock leaves us within one to three business days, tracked. The certificate of analysis for the supplied lot travels with the shipment.</p>
       </li>
     </ol>
 
     <div class="notice" style="margin-top:2.5rem">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
       <div>
-        <h3>How to know an invoice is really ours</h3>
-        <p>Our invoices arrive only from <strong>{E(CONTACT_EMAIL)}</strong>, and the payment page they link to is hosted by Stripe on a <strong>stripe.com</strong> address. We will never telephone you for card details, never ask you to pay a different account from the one on the invoice, and never send payment instructions that change bank details at short notice. If anything about a payment request looks wrong, stop and contact us on the address above before paying.</p>
+        <h3>How to know a payment request is really ours</h3>
+        <p>The only payment page we use is the one the checkout button opens, hosted by Stripe on a <strong>stripe.com</strong> address. Our email reaches you only from <strong>{E(CONTACT_EMAIL)}</strong>. We will never telephone you for card details, never email you a link to a payment page on another domain, and never send instructions that change bank details at short notice. If anything about a payment request looks wrong, stop and contact us on the address above before paying.</p>
       </div>
     </div>
 
     <div class="prose" style="margin-top:2.5rem">
       <h2>Questions we are asked</h2>
-      <h3>Can I pay by card immediately?</h3>
-      <p>Not before the account is verified. Once it is, the Stripe invoice takes a card and settles straight away, so in practice payment is instant from that point on.</p>
+      <h3>Which compounds cannot be bought this way?</h3>
+      <p>The three flagged as restricted reference standards — retatrutide, tirzepatide and oxytocin. They correspond to approved or investigational pharmaceutical substances and are released against a stated research protocol, so they carry an <strong>Enquire</strong> button and are quoted by email. Everything else on the catalogue is in the cart.</p>
+      <h3>What does shipping cost?</h3>
+      <p>You choose a tracked standard or express courier service at checkout and the cost is added there, before you pay. Import duties and clearance charges at the destination are separate and are yours to pay.</p>
       <h3>Do you take purchase orders?</h3>
-      <p>Yes, from verified institutions. Send the PO reference with your acceptance of the quotation and it is carried on the invoice. Credit terms have to be agreed in writing first; otherwise payment is due in advance.</p>
+      <p>Yes. <a href="contact.html">Contact us</a> with the PO and we will invoice it. Credit terms have to be agreed in writing first; otherwise payment is due at checkout.</p>
       <h3>What currency?</h3>
-      <p>All prices and invoices are in {E(CURRENCY)}. Your bank may apply its own conversion and charges.</p>
-      <h3>Can you ship before payment clears?</h3>
-      <p>Only against agreed credit terms. See <a href="legal/terms.html">terms of sale</a>, section 4.</p>
+      <p>All prices and charges are in {E(CURRENCY)}. Your bank may apply its own conversion and charges.</p>
+      <h3>Can I see a certificate of analysis before I order?</h3>
+      <p>Yes — <a href="contact.html">ask us</a> for the certificate covering the lot currently in stock and we will send it.</p>
+      <h3>What if I need to change or cancel an order?</h3>
+      <p>Tell us before it ships and we will cancel and refund it in full. Once it has shipped, the <a href="legal/shipping.html">returns policy</a> applies.</p>
     </div>
 
     <div style="margin-top:2.5rem;display:flex;gap:.75rem;flex-wrap:wrap">
-      <a class="btn btn--primary" href="contact.html">Apply for an account</a>
+      <a class="btn btn--primary" href="catalog.html">Browse the catalog</a>
       <a class="btn btn--ghost" href="legal/terms.html">Terms of sale</a>
     </div>
   </div>
 </section>
 """
-    return page("pay.html", f"Paying for an Order — {BRAND}",
-                "How orders are paid: account verification, written quotation, then a Stripe invoice by email. No checkout, and nothing ships against an unverified account.",
+    return page("pay.html", f"Ordering &amp; Payment — {BRAND}",
+                "How to order: add pack sizes to the cart, confirm research use, and pay by card on a Stripe-hosted checkout. Shipping and tax are shown before you pay.",
                 body, "")
 
 
-# --------------------------------------------------------------------------- reorder
-# An account that has already been verified should not be verified again. This
-# form carries only what identifies the account and what they want; it lands as
-# a separate Netlify form so a reorder is never mixed in with new applications
-# waiting on a check. The operator matches it and sends a payment link.
+# --------------------------------------------------------------------------- order received
+# Stripe's success_url. It confirms nothing it cannot know: the page is reached
+# by a redirect, not by a webhook, so it reports what Stripe has already done
+# (taken the payment, emailed a receipt) and does not claim the order has been
+# accepted — under the terms of sale that happens at our confirmation.
 
 
-def build_reorder():
+def build_order_received():
     body = f"""
-<section class="section section--tight">
-  <div class="shell-n">
-    <nav class="crumb" aria-label="Breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>Reorder</span></nav>
+<section class="section">
+  <div class="shell-n" style="padding-block:3rem">
     <div class="sec-head">
-      <span class="eyebrow">Existing accounts</span>
-      <h1 class="display h-sec">Reorder on an <em>open account.</em></h1>
-      <p class="lede">Your account is already verified, so there is nothing to check again. Send the list and we return a payment link — usually within the working day.</p>
+      <span class="eyebrow">Order received</span>
+      <h1 class="display h-sec">Thank you &mdash; <em>that is paid.</em></h1>
+      <p class="lede">Stripe has taken the payment and emailed you a receipt. Check your spam folder if it has not arrived within a few minutes.</p>
     </div>
 
-    <div class="split">
-      <div class="prose">
-        <h3>What happens</h3>
-        <ol>
-          <li>Send your account reference and the compounds you want.</li>
-          <li>We confirm lot availability and reply with a Stripe payment link for the exact total.</li>
-          <li>Material is released once payment clears; the certificate of analysis for the supplied lot travels with it.</li>
-        </ol>
-        <h3>No account yet?</h3>
-        <p><a href="contact.html">Apply for one</a>. It is one form, and most applications from a recognisable institutional address are approved the same working day.</p>
-        <h3>Changed institution or address?</h3>
-        <p>Tell us in the notes below. A change of shipping address or responsible investigator needs checking before the next release, so it is quicker to say so than to have us notice.</p>
-      </div>
+    <div class="prose">
+      <h2>What happens next</h2>
+      <ol>
+        <li>We confirm the order by email, usually within one business day. That confirmation is what forms the contract &mdash; see <a href="legal/terms.html">terms of sale</a>, section 2.</li>
+        <li>Material in stock is released and despatched within one to three business days, tracked. We send the tracking details when it leaves us.</li>
+        <li>The certificate of analysis for the lot supplied travels with the shipment.</li>
+      </ol>
+      <h2>If something is wrong</h2>
+      <p>Reply to the receipt, or write to <a href="mailto:{E(CONTACT_EMAIL)}">{E(CONTACT_EMAIL)}</a>, quoting the receipt number. Anything that has not yet shipped can be changed, cancelled or refunded in full.</p>
+      <h2>On arrival</h2>
+      <p>Transfer lyophilised material to -20&nbsp;&deg;C, desiccated and protected from light, and inspect the shipment within 10 business days as the <a href="legal/shipping.html">shipping and returns policy</a> describes.</p>
+    </div>
 
-      <div>
-        <div id="rfq-summary" hidden style="background:var(--tile);border:1px solid var(--line);border-radius:6px;padding:1.5rem;margin-bottom:1.5rem">
-          <h2 style="font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin-bottom:1rem">Your request list</h2>
-          <div id="rfq-summary-body"></div>
-        </div>
-
-        <form id="reorder-form" name="reorder" method="POST"
-              data-netlify="true" data-netlify-honeypot="bot-field" novalidate>
-          <input type="hidden" name="form-name" value="reorder">
-          <input type="hidden" name="request_list" id="f-request-list">
-          <p hidden><label>Leave this field empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
-
-          <div class="field">
-            <label for="r-account">Account reference <span class="req" aria-hidden="true">*</span></label>
-            <input id="r-account" name="account" type="text" required autocomplete="off">
-            <p class="field-hint">On your last quotation and invoice. If you cannot find it, your institutional email is enough.</p>
-            <p class="field-error">Please give your account reference or institutional email.</p>
-          </div>
-
-          <div class="field">
-            <label for="r-email">Institutional email <span class="req" aria-hidden="true">*</span></label>
-            <input id="r-email" name="email" type="email" required autocomplete="email">
-            <p class="field-error">Please enter a valid email address.</p>
-            <p class="field-error field-error--freemail">That is a personal email provider. Please use the address the account was opened with.</p>
-          </div>
-
-          <div class="field">
-            <label for="r-notes">Notes</label>
-            <textarea id="r-notes" name="notes" rows="3"></textarea>
-            <p class="field-hint">Anything we should know — a PO reference, a delivery deadline, a change of address.</p>
-          </div>
-
-          <div class="field">
-            <label class="check">
-              <input type="checkbox" id="r-confirm" name="confirm" required>
-              <span>I confirm this order is for the account named above, and that the material will be used solely for <strong>in vitro</strong> laboratory research. <span class="req" aria-hidden="true">*</span></span>
-            </label>
-            <p class="field-error">This confirmation is required.</p>
-          </div>
-
-          <button class="btn btn--primary btn--block" type="submit">Send reorder</button>
-          <p class="muted" style="font-size:.7rem;margin-top:1rem;text-align:center">You will receive a payment link by email. We never ask for card details by phone or email — see <a href="pay.html" style="color:var(--accent);text-decoration:underline">how payment works</a>.</p>
-          <div id="form-status" role="status" aria-live="polite" style="margin-top:1rem"></div>
-        </form>
-      </div>
+    <div style="margin-top:2.5rem;display:flex;gap:.75rem;flex-wrap:wrap">
+      <a class="btn btn--primary" href="catalog.html">Back to the catalog</a>
+      <a class="btn btn--ghost" href="contact.html">Contact us</a>
     </div>
   </div>
 </section>
 """
-    # Without this the form natively POSTs and the page navigates away: the
-    # handler lives in contact.js and serves both forms.
-    return page("reorder.html", f"Reorder — {BRAND}",
-                "Reorder on an account already verified: send your account reference and request list, and we return a Stripe payment link for the exact total.",
-                body, "", extra_body='<script src="assets/js/contact.js" defer></script>')
+    # The cart has been paid for, so it must not survive the redirect back.
+    # Inline rather than in site.js: it has to run on this page and no other.
+    clear = ('<script>try{localStorage.removeItem("tr_cart_v1");'
+             'localStorage.removeItem("tr_rfq_v1");}catch(e){}</script>')
+    return page("order-received.html", f"Order received — {BRAND}",
+                "Your payment has been taken by Stripe. What happens next, and how to reach us about an order.",
+                body, "", extra_body=clear)
 
 
 # --------------------------------------------------------------------------- 404
@@ -1725,8 +1753,38 @@ def build_meta(pages):
         "   TR_FORM_PROVIDER and TR_FORM_ENDPOINT in the build environment instead. */\n"
         "window.TR_CONFIG = " + json.dumps(
             {"contactEmail": CONTACT_EMAIL, "formProvider": FORM_PROVIDER,
-             "formEndpoint": FORM_ENDPOINT}, indent=2
+             "formEndpoint": FORM_ENDPOINT,
+             "checkoutEndpoint": "/.netlify/functions/create-checkout-session",
+             "currency": CURRENCY,
+             # The browser is told which ids it must not put in the cart so the
+             # UI can refuse early with a sentence rather than a failed request.
+             # It is not the enforcement: the function re-checks every id
+             # against its own copy of the catalogue, because anything the
+             # browser is told, the browser can be made to ignore.
+             "restricted": RESTRICTED_IDS,
+             "demo": DEMO}, indent=2
         ) + ";\n", encoding="utf-8")
+
+    # The checkout function must not take a price from the browser, so it needs
+    # its own copy of the price table. Generating it here keeps products.json the
+    # single source of truth: the function cannot drift from the catalogue
+    # because it is rebuilt from it on every deploy. Only what pricing an order
+    # needs is written out — no prose, no assay panels.
+    catalog = {
+        "currency": CURRENCY,
+        "products": {
+            p["id"]: {
+                "name": p["name"],
+                "buyable": buyable(p),
+                "prices": {s: (p.get("prices") or {}).get(s) for s in p["sizes"]
+                           if (p.get("prices") or {}).get(s) is not None},
+            } for p in PRODUCTS
+        },
+    }
+    fn = ROOT / "netlify/functions"
+    fn.mkdir(parents=True, exist_ok=True)
+    (fn / "catalog.json").write_text(
+        json.dumps(catalog, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     (ROOT / "robots.txt").write_text(
         ("User-agent: *\nDisallow: /\n" if DEMO else
@@ -1746,7 +1804,8 @@ def main():
             shutil.rmtree(p)
 
     pages = [build_home(), build_catalog(), build_quality(), build_about(),
-             build_faq(), build_contact(), build_compliance(), build_coa(), build_pay(), build_reorder(), build_404()]
+             build_faq(), build_contact(), build_compliance(), build_coa(),
+             build_pay(), build_order_received(), build_404()]
     pages += build_products()
     pages += build_legal()
 
@@ -1756,6 +1815,16 @@ def main():
         txt = f.read_text(encoding="utf-8")
         if "{PREFIX}" in txt:
             f.write_text(txt.replace("{PREFIX}", rel(rel_path.count("/"))), encoding="utf-8")
+
+    # A page removed from the generator leaves its last build behind at the
+    # repository root, and tools/dist.py copies every root *.html into the
+    # publish directory — so a retired page keeps being deployed, linked from
+    # nowhere and contradicting the pages that replaced it.
+    kept = {(ROOT / q).resolve() for q in pages}
+    for stale in sorted(ROOT.glob("*.html")):
+        if stale.resolve() not in kept:
+            stale.unlink()
+            print(f"Removed stale page: {stale.name}")
 
     build_meta(pages)
     print(f"Built {len(pages)} pages:")

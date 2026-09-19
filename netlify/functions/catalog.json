@@ -1,0 +1,197 @@
+{
+  "currency": "USD",
+  "products": {
+    "cjc-1295": {
+      "name": "CJC-1295 (no DAC)",
+      "buyable": true,
+      "prices": {
+        "10 mg": 60
+      }
+    },
+    "cjc-1295-dac": {
+      "name": "CJC-1295 DAC",
+      "buyable": true,
+      "prices": {
+        "5 mg": 65
+      }
+    },
+    "igf-1-lr3": {
+      "name": "IGF-1 LR3",
+      "buyable": true,
+      "prices": {
+        "1 mg": 85
+      }
+    },
+    "ipamorelin": {
+      "name": "Ipamorelin",
+      "buyable": true,
+      "prices": {
+        "10 mg": 45
+      }
+    },
+    "mots-c": {
+      "name": "MOTS-c",
+      "buyable": true,
+      "prices": {
+        "10 mg": 25
+      }
+    },
+    "tesamorelin": {
+      "name": "Tesamorelin",
+      "buyable": true,
+      "prices": {
+        "20 mg": 190
+      }
+    },
+    "epithalon": {
+      "name": "Epithalon",
+      "buyable": true,
+      "prices": {
+        "50 mg": 80
+      }
+    },
+    "ghk-cu": {
+      "name": "GHK-Cu",
+      "buyable": true,
+      "prices": {
+        "100 mg": 25
+      }
+    },
+    "glutathione": {
+      "name": "Glutathione (reduced)",
+      "buyable": true,
+      "prices": {
+        "1500 mg": 85
+      }
+    },
+    "nad": {
+      "name": "NAD⁺",
+      "buyable": true,
+      "prices": {
+        "1000 mg": 100
+      }
+    },
+    "retatrutide": {
+      "name": "Retatrutide",
+      "buyable": false,
+      "prices": {
+        "30 mg": 150,
+        "60 mg": 240,
+        "90 mg": 360,
+        "300 mg": 600
+      }
+    },
+    "tirzepatide": {
+      "name": "Tirzepatide",
+      "buyable": false,
+      "prices": {
+        "100 mg": 180
+      }
+    },
+    "dsip": {
+      "name": "DSIP",
+      "buyable": true,
+      "prices": {
+        "10 mg": 50
+      }
+    },
+    "kpv": {
+      "name": "KPV",
+      "buyable": true,
+      "prices": {
+        "10 mg": 26
+      }
+    },
+    "selank": {
+      "name": "Selank",
+      "buyable": true,
+      "prices": {
+        "10 mg": 55
+      }
+    },
+    "semax": {
+      "name": "Semax",
+      "buyable": true,
+      "prices": {
+        "10 mg": 55
+      }
+    },
+    "bac-water": {
+      "name": "Bacteriostatic Water",
+      "buyable": true,
+      "prices": {
+        "3 mL x 3 vials": 15
+      }
+    },
+    "sterile-water": {
+      "name": "Sterile Water",
+      "buyable": true,
+      "prices": {
+        "10 mL": 15
+      }
+    },
+    "bpc-157": {
+      "name": "BPC-157",
+      "buyable": true,
+      "prices": {
+        "10 mg": 26
+      }
+    },
+    "bpc-157-tb-500-blend": {
+      "name": "BPC-157 / TB-500 Blend",
+      "buyable": true,
+      "prices": {
+        "60 mg": 245
+      }
+    },
+    "ghk-cu-tb-bpc-kpv-blend": {
+      "name": "GHK-Cu / TB-500 / BPC-157 / KPV Blend",
+      "buyable": true,
+      "prices": {
+        "80 mg": 140
+      }
+    },
+    "ghk-cu-tb-bpc-blend": {
+      "name": "GHK-Cu / TB-500 / BPC-157 Blend",
+      "buyable": true,
+      "prices": {
+        "70 mg": 120
+      }
+    },
+    "tb-500": {
+      "name": "TB-500",
+      "buyable": true,
+      "prices": {
+        "30 mg": 180
+      }
+    },
+    "kisspeptin-10": {
+      "name": "Kisspeptin-10",
+      "buyable": true,
+      "prices": {
+        "10 mg": 55
+      }
+    },
+    "melanotan-1": {
+      "name": "Melanotan I",
+      "buyable": true,
+      "prices": {
+        "10 mg": 32
+      }
+    },
+    "melanotan-2": {
+      "name": "Melanotan II",
+      "buyable": true,
+      "prices": {
+        "10 mg": 32
+      }
+    },
+    "oxytocin": {
+      "name": "Oxytocin",
+      "buyable": false,
+      "prices": {
+        "10 mg": 55
+      }
+    }
+  }
+}

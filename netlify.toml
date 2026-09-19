@@ -4,6 +4,15 @@
 [build]
   command = "python3 tools/build.py && python3 tools/dist.py"
   publish = "dist"
+  # Checkout needs a server, because Stripe sessions are created with the secret
+  # key. This is the only server-side code in the project.
+  functions = "netlify/functions"
+
+[functions]
+  # The price table the checkout function charges from. tools/build.py
+  # regenerates it from assets/data/products.json on every deploy, so it cannot
+  # drift from the catalogue.
+  included_files = ["netlify/functions/catalog.json"]
 
 [build.environment]
   PYTHON_VERSION = "3.11"
@@ -11,8 +20,23 @@
   # Change it to the live domain once one is attached.
   TR_SITE = "https://www.timelessresearch.com"
   TR_CONTACT_EMAIL = "accounts@timelessresearch.com"
-  # Account applications are captured by Netlify Forms; no endpoint required.
+  # Enquiries are captured by Netlify Forms; no endpoint required.
   TR_FORM_PROVIDER = "netlify"
+  # Shipping charged at checkout, in cents. These are placeholders: set them to
+  # what your courier actually costs before taking a real order.
+  TR_SHIP_STANDARD_CENTS = "1500"
+  TR_SHIP_EXPRESS_CENTS = "3500"
+  # Comma-separated ISO country codes offered at checkout. Unset uses the list
+  # in netlify/functions/create-checkout-session.js.
+  TR_SHIP_COUNTRIES = ""
+  # Set to "1" once Stripe Tax is configured on the Stripe account.
+  TR_STRIPE_TAX = ""
+  #
+  # STRIPE_SECRET_KEY is deliberately NOT set here. It is a secret, this file is
+  # in the repository, and a live key in version control is a live key on the
+  # internet. Set it in Netlify under Site configuration > Environment variables.
+  # Without it the checkout button reports that checkout is unavailable rather
+  # than failing silently.
   # Identity used in the legal documents. These must be your real trading
   # details. The build renders anything missing as a visible marker in the page
   # and tools/check.py fails while one is present, so filling these in is not

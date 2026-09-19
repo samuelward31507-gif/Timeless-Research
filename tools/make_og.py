@@ -31,17 +31,25 @@ OUT = ROOT / "assets/img/og-card.jpg"
 
 W, H = 1200, 630
 
+# The catalogue count is read from the data rather than written out here: it
+# said "thirty-four" for a while after the catalogue became twenty-seven, and a
+# social card is the one place nobody looks when checking for staleness.
+_CATALOG = json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8"))
+_N = len(_CATALOG["products"] if isinstance(_CATALOG, dict) else _CATALOG)
+
 SECTIONS = [
-    ("catalog", "The catalog.", ["Thirty-four compounds across seven research areas,",
+    ("catalog", "The catalog.", [f"{_N} compounds across seven research areas,",
                                  "each released against a certificate of analysis."]),
     ("quality", "Analytical programme.", ["Identity, purity, water and counter-ion content,",
                                           "reviewed and signed before a lot is released."]),
-    ("about", "About us.", ["A reference-material supplier for institutional",
-                            "and qualified-research accounts."]),
-    ("faq", "Questions.", ["Accounts, documentation, shipping and storage,",
+    ("about", "About us.", ["A reference-material supplier for laboratory",
+                            "research. What we will not supply, and why."]),
+    ("faq", "Questions.", ["Ordering, documentation, shipping and storage,",
                            "answered plainly."]),
-    ("contact", "Open an account.", ["Verified institutional and qualified-research",
-                                     "accounts only."]),
+    ("contact", "Get in touch.", ["Restricted standards, certificates of analysis",
+                                  "and technical questions."]),
+    ("pay", "Placing an order.", ["Catalogue prices, a card payment on a page",
+                                  "hosted by Stripe, and nothing in between."]),
     ("compliance", "Research use policy.", ["The conditions on which material is supplied,",
                                             "and the uses that are prohibited."]),
     ("specimen-coa", "Specimen certificate.", ["A worked example of the document released",
@@ -297,8 +305,8 @@ def main() -> None:
     total = size = 0
 
     size += render(["Characterised.", "Documented.", "Released."],
-                   ["Analytical-grade peptide reference material",
-                    "for institutional laboratories."],
+                   ["Analytical-grade peptide reference material,",
+                    "characterised, documented and released."],
                    {}, OUT)
     total += 1
 

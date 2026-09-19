@@ -39,8 +39,8 @@
 <div class="announce">
   <div class="shell">
     <span><b>Research use only.</b> Not for human or veterinary use.</span>
-    <span>Institutional and qualified-research accounts only</span>
     <span>COA issued with every lot</span>
+    <span>Orders ship in 1&ndash;3 business days</span>
   </div>
 </div>
 <header class="header" id="header">
@@ -51,9 +51,9 @@
     </a>
     <nav class="nav" id="nav" aria-label="Primary"><a href="../catalog.html">Catalog</a><a href="../quality.html">Analytical</a><a href="../about.html">About</a><a href="../faq.html">FAQ</a><a href="../contact.html">Contact</a></nav>
     <div class="header-actions">
-      <button class="btn btn--ghost btn--sm rfq-btn" id="rfq-open" aria-haspopup="dialog" aria-label="Request list">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-        <span class="rfq-label">Request list</span><span class="rfq-count" id="rfq-count" aria-live="polite">0</span>
+      <button class="btn btn--ghost btn--sm rfq-btn" id="rfq-open" aria-haspopup="dialog" aria-label="Cart">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h2.2l2.3 11.2a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.55L20.5 7H5.2"/><circle cx="9.5" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg>
+        <span class="rfq-label">Cart</span><span class="rfq-count" id="rfq-count" aria-live="polite">0</span>
       </button>
       <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav" aria-label="Menu">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
@@ -76,24 +76,26 @@
       <p>Timeless Research is a sole proprietorship operating from <mark class="fill-me">operator business address</mark>. We are responsible for the personal information described in this policy. Contact us at <a href="mailto:accounts@timelessresearch.com">accounts@timelessresearch.com</a>.</p>
 
       <h2>2. What we collect</h2>
-      <p><strong>What you give us.</strong> The account application form collects your name, email address and telephone number, together with the list of compounds you have added to your request list. If your application proceeds, our follow-up correspondence collects what account verification requires: your institution, the research facility address, the responsible investigator, an institutional email address and a description of the intended research use.</p>
+      <p><strong>What you give us when you order.</strong> Checkout is hosted by Stripe, who collect your name, email address, telephone number, shipping address and payment details in order to take the payment. Stripe then passes us everything except your card details, which we never receive, hold or have access to. We also record what you ordered.</p>
+      <p><strong>What you give us when you write to us.</strong> The enquiry form collects your name, email address, telephone number, the compound your question is about and the message itself.</p>
       <p><strong>What is collected automatically.</strong> Our hosting provider records standard server logs — IP address, browser user-agent, pages requested and timestamps — which are used to keep the site available and to investigate abuse.</p>
-      <p><strong>What stays on your device.</strong> Your request list is held in your browser's local storage so it survives moving between pages. It remains on your device until you clear it or clear your browser data. We cannot see it unless you submit the form.</p>
+      <p><strong>What stays on your device.</strong> Your cart is held in your browser's local storage so it survives moving between pages. It remains on your device until you clear it, check out, or clear your browser data. We cannot see it until you start checkout.</p>
       <p><strong>What we do not do.</strong> We set no advertising or analytics cookies, we run no tracking pixels, and we do not build profiles of visitors.</p>
 
       <h2>3. Why we use it</h2>
-      <p>To reply to your enquiry; to verify that an account meets the eligibility conditions in our <a href="../compliance.html">research use policy</a>; to quote for, process and fulfil orders; to keep the commercial, tax and lot-traceability records our business needs; and to protect the site against abuse.</p>
+      <p>To take payment for, process and fulfil your order; to reply to your enquiry; to apply the conditions of supply in our <a href="../compliance.html">research use policy</a>; to keep the commercial, tax and lot-traceability records our business needs; and to protect the site against abuse.</p>
 
       <h2>4. Who else sees it</h2>
-      <p><strong>Our hosting and form provider.</strong> The site is hosted on Netlify, which serves the pages, keeps the server logs described above, and receives account applications on our behalf as a service provider.</p>
+      <p><strong>Our payment processor.</strong> Checkout and payment are handled by Stripe, Inc. as an independent controller of the payment data it collects. Their <a href="https://stripe.com/privacy" rel="noopener">privacy policy</a> governs that processing. We receive from Stripe the name, email address, telephone number and shipping address you gave them, and the fact and amount of the payment — never your card number.</p>
+      <p><strong>Our hosting and form provider.</strong> The site is hosted on Netlify, which serves the pages, runs the small function that creates a Stripe checkout session, keeps the server logs described above, and receives enquiries from the contact form on our behalf as a service provider.</p>
       <p><strong>No other third party.</strong> Typefaces, stylesheets, scripts and images are all served from this site itself, so loading a page contacts nobody but our hosting provider. We do not sell personal information, and we do not share it for cross-context behavioural advertising. We disclose it only where the law requires it, where we must to establish or defend a legal claim, or to a carrier where that is necessary to deliver your order.</p>
 
       <h2>5. How long we keep it</h2>
-      <p>Enquiries that do not become accounts: 24 months from your last contact with us. Account and order records: seven years, which is what tax and commercial record-keeping requires. Server logs: as retained by our hosting provider, typically around 30 days.</p>
+      <p>Enquiries that do not become orders: 24 months from your last contact with us. Order records: seven years, which is what tax and commercial record-keeping requires. Server logs: as retained by our hosting provider, typically around 30 days.</p>
 
       <h2>6. Your rights</h2>
       <p>Wherever you are, you can ask us for a copy of the personal information we hold about you, ask us to correct it, or ask us to delete it. Email <a href="mailto:accounts@timelessresearch.com">accounts@timelessresearch.com</a>. We will respond within 45 days and will verify your identity against the information we already hold before acting.</p>
-      <p><strong>If you are in California,</strong> the CCPA as amended by the CPRA gives you the right to know what we collect and why, to receive a copy, to correct it, to delete it, to opt out of sale or sharing, and not to be treated differently for exercising any of them. In the last 12 months we have collected identifiers (name, email address, telephone number), commercial information (the compounds you enquired about) and internet activity information (server logs), from you and from your device, for the purposes in section 3, and have disclosed them only to the service providers in section 4. We have not sold or shared personal information, and we do not collect sensitive personal information as the CPRA defines it. An authorised agent may make a request on your behalf with your written permission.</p>
+      <p><strong>If you are in California,</strong> the CCPA as amended by the CPRA gives you the right to know what we collect and why, to receive a copy, to correct it, to delete it, to opt out of sale or sharing, and not to be treated differently for exercising any of them. In the last 12 months we have collected identifiers (name, email address, telephone number), commercial information (the compounds you enquired about) and internet activity information (server logs), from you and from your device, for the purposes in section 3, and have disclosed them only to the payment processor and service providers in section 4. We have not sold or shared personal information, and we do not collect sensitive personal information as the CPRA defines it. An authorised agent may make a request on your behalf with your written permission.</p>
       <p><strong>If you are in another US state</strong> with a comprehensive privacy law — including Virginia, Colorado, Connecticut, Utah, Texas, Oregon and Montana — you have broadly equivalent rights of access, correction, deletion and portability, and you may appeal a refusal by replying to our decision.</p>
       <p><strong>Global Privacy Control.</strong> Because we neither sell nor share personal information, there is nothing to opt out of; we honour GPC signals in any case.</p>
 
@@ -122,7 +124,7 @@
           <img class="brand-mark" src="../assets/img/mark.svg" alt="" width="100" height="206">
           <span class="brand-text">Timeless<em>Research</em></span>
         </a>
-        <p class="footer-note">Analytical-grade peptide reference material for institutional and qualified research programmes. Every lot ships with a certificate of analysis.</p>
+        <p class="footer-note">Analytical-grade peptide reference material for laboratory research. Every lot ships with a certificate of analysis.</p>
       </div>
       <div>
         <h3>Catalog</h3>
@@ -135,8 +137,7 @@
           <li><a href="../quality.html">Analytical programme</a></li>
           <li><a href="../faq.html">FAQ</a></li>
           <li><a href="../contact.html">Contact</a></li>
-          <li><a href="../pay.html">Payment</a></li>
-          <li><a href="../reorder.html">Reorder</a></li>
+          <li><a href="../pay.html">Ordering &amp; payment</a></li>
         </ul>
       </div>
       <div>
@@ -159,14 +160,21 @@
 <div class="drawer-scrim" id="rfq-scrim"></div>
 <aside class="drawer" id="rfq-drawer" role="dialog" aria-modal="true" aria-labelledby="rfq-title" aria-hidden="true">
   <div class="drawer-head">
-    <h2 id="rfq-title">Request list</h2>
-    <button class="btn btn--quiet btn--sm" id="rfq-close" aria-label="Close request list">Close</button>
+    <h2 id="rfq-title">Cart</h2>
+    <button class="btn btn--quiet btn--sm" id="rfq-close" aria-label="Close cart">Close</button>
   </div>
   <div class="drawer-body" id="rfq-body"></div>
   <div class="drawer-foot" id="rfq-foot" hidden>
-    <a class="btn btn--primary btn--block" href="../contact.html?rfq=1" id="rfq-submit">Continue to quote request</a>
-    <a class="btn btn--ghost btn--sm btn--block" href="../reorder.html" style="margin-top:.5rem">Existing account? Reorder</a>
-    <button class="btn btn--quiet btn--sm btn--block" id="rfq-clear" style="margin-top:.5rem">Clear list</button>
+    <div class="field cart-consent">
+      <label class="check">
+        <input type="checkbox" id="cart-confirm">
+        <span>I confirm I am ordering for laboratory research use, and that this material will not be administered to a human or an animal.</span>
+      </label>
+    </div>
+    <button class="btn btn--primary btn--block" id="cart-checkout">Checkout</button>
+    <p class="cart-foot-note">Card payment is taken by Stripe on their own page. Shipping and any tax are added there.</p>
+    <p class="cart-error" id="cart-error" role="alert" hidden></p>
+    <button class="btn btn--quiet btn--sm btn--block" id="rfq-clear">Clear cart</button>
   </div>
 </aside>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>

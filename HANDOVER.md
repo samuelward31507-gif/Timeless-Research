@@ -20,8 +20,24 @@ cannot go live half-configured. Set them in `[build.environment]` in
 |---|---|---|
 | `TR_LEGAL_ADDRESS` | Your business address | Terms §1, privacy policy §1 |
 | `TR_LEGAL_STATE` | The US state whose law governs your sales | Terms §16 |
-| `TR_SITE` | Your live domain | Canonical tags, Open Graph, sitemap |
+| `TR_SITE` | Your live domain | Canonical tags, Open Graph, sitemap, checkout return URLs |
 | `TR_CONTACT_EMAIL` | Where enquiries should reach you | Contact page, form fallback |
+
+One more is required before anyone can pay you, and is **not** set in
+`netlify.toml` because that file is in the repository and a live key in version
+control is a live key on the internet:
+
+| Variable | What it is | Where to set it |
+|---|---|---|
+| `STRIPE_SECRET_KEY` | Your Stripe secret key | Netlify → Site configuration → Environment variables |
+
+Without it the checkout button tells the customer that checkout is
+temporarily unavailable and logs the reason to the function log, rather than
+failing silently. Three more tune checkout and have working defaults:
+`TR_SHIP_STANDARD_CENTS` and `TR_SHIP_EXPRESS_CENTS` (the two shipping rates
+offered, **placeholders — set them to what your courier actually costs**),
+`TR_SHIP_COUNTRIES` (comma-separated ISO codes; empty uses the list in the
+function) and `TR_STRIPE_TAX` (`1` once Stripe Tax is configured).
 
 Two more are optional because they have sensible defaults:
 `TR_LEGAL_ENTITY` (defaults to "Timeless Research") and `TR_LEGAL_EMAIL`
@@ -41,13 +57,18 @@ The site is configured for Netlify and needs no build server of your own.
    alone.
 2. **Domain management** → attach your domain. Netlify issues the certificate.
 3. Set the variables in section 1 and push.
-4. **Forms → account-application** → turn on the notification email. Without
-   this, applications collect silently in the Netlify dashboard and nobody is
-   told.
+4. **Forms → enquiry** → turn on the notification email. Without this,
+   enquiries collect silently in the Netlify dashboard and nobody is told.
+5. **Environment variables → `STRIPE_SECRET_KEY`** → paste your Stripe secret
+   key, then redeploy. Test it with a Stripe test key first (see §3c).
 
 Moving to another host instead: set `TR_FORM_PROVIDER=endpoint` and
 `TR_FORM_ENDPOINT` to a handler of your own, and serve the `dist/` directory
-produced by `python3 tools/build.py && python3 tools/dist.py`.
+produced by `python3 tools/build.py && python3 tools/dist.py`. **Checkout will
+not come with you.** `netlify/functions/create-checkout-session.js` is written
+against Netlify Functions; the logic is 200 lines of plain Node with no
+dependencies, so it ports to any serverless runtime, but it is a port, not a
+copy.
 
 ---
 
@@ -79,8 +100,8 @@ likelihood:
    **redeploy** — detection happens at deploy time, so enabling it alone does
    nothing until the next build.
 2. **No notification is configured.** Submissions land in Forms →
-   account-application in the dashboard and nobody is told. Add an email
-   notification there.
+   enquiry in the dashboard and nobody is told. Add an email notification
+   there.
 3. **The mailbox does not exist.** `TR_CONTACT_EMAIL` is
    `accounts@timelessresearch.com`; if that address is not real and receiving,
    the notification bounces and the manual fallback on the page sends people
@@ -105,9 +126,9 @@ evidence or change the copy before you take an order.
 - **"COA issued with every lot."** On every page, with a six-stage release
   process described in detail on `quality.html`. If you cannot produce a
   lot-specific certificate when a customer asks, this has to come down.
-- **Purity.** 24 of the 27 compounds carry `≥98%` and 1 carry `≥95%`,
-  surfaced 210 times across cards, vial labels and specification tables.
-  Source values are in `assets/data/products.json`.
+- **Purity.** Of the 27 compounds, 24 carry `≥98%`, one carries `≥95%` and two
+  are specified `USP grade` (the waters), surfaced across cards, vial labels
+  and specification tables. Source values are in `assets/data/products.json`.
 - **Storage and handling.** Cold chain, −20 °C storage and the packing
   described in `legal/shipping.html` are commitments to your customers.
 
@@ -121,7 +142,7 @@ expects a seller to be able to substantiate.
 List prices live in `assets/data/products.json`, one per pack size, under
 `prices`, with `currency` at the top of the file. Change a number there and
 rebuild — the catalogue card, the product page, the pack-size dropdown, the
-request list and the subtotal all read from that one place.
+cart and the checkout function all read from that one place.
 
 `tools/check.py` fails if a listed pack size has no price, so a size cannot be
 offered without one. It also checks that the price rendered on each product page
@@ -131,116 +152,161 @@ nobody notices until a search engine acts on it.
 
 **Marking something out of stock** is a data edit: add `"available": false` to
 that product in `products.json`. The catalogue card gains an Unavailable badge
-and loses its add control, the product page swaps the request button for a
-contact link and disables the pack-size selector, and the structured data
-reports `OutOfStock`. Remove the line to put it back.
+and loses its add control, the product page swaps the cart button for a contact
+link and disables the pack-size selector, the structured data reports
+`OutOfStock`, and the checkout function refuses the id even if someone still
+has it in a cart from before. Remove the line to put it back.
 
-Prices are shown as list prices excluding shipping and tax. The site still
-routes orders through the request list and a written quotation against a
-verified account, which is where lot availability and any quantity break are
-settled. The subtotal in the request drawer is labelled indicative for that
-reason — it is not an invoice, and there is no checkout.
+Prices are shown excluding shipping and tax, and the cart's subtotal says so.
+Shipping is chosen at checkout from the two rates in §1 and tax, if you enable
+Stripe Tax, is calculated there — so the cart subtotal and the amount charged
+differ by exactly those two things and nothing else.
+
+**The price the customer is charged is never the one their browser holds.** The
+cart posts ids, pack sizes and quantities; the checkout function prices them
+from `netlify/functions/catalog.json`, which `tools/build.py` regenerates from
+`products.json` on every deploy. `tools/check.py` fails the build if those two
+files disagree on any price, any currency, or on which compounds are buyable.
 
 ---
 
 ## 3c. Taking payment
 
-There is no checkout on this site and no cart. The terms of sale, §2, commit to
-supplying verified accounts only, against a written order confirmation; a
-self-serve checkout would contradict that in writing on your own site. Payment
-therefore happens after verification, through a Stripe invoice. `pay.html`
-explains the sequence to the buyer.
+The catalogue is bought from the page and paid for by card at a Stripe-hosted
+checkout. `pay.html` explains the sequence to the buyer, and the terms of sale
+§2 describe it as it actually works: the order is the customer's offer, and the
+contract forms when you confirm or despatch. That wording is what lets you
+cancel and refund an order you do not want to fill, which is the only
+enforcement the research-use condition has.
+
+**Three compounds are deliberately not in the cart** — retatrutide, tirzepatide
+and oxytocin, flagged `"restricted": true` in `products.json`. They have an
+Enquire button instead, which lands on the contact form with the compound
+preselected. The exclusion is enforced twice: no page renders an add control
+for them, and the checkout function refuses their ids outright. Do not remove
+either check without reading §4 first.
+
+### How the checkout works
+
+```
+browser                     Netlify Function                Stripe
+  cart (ids, sizes, qty) ──▶ price from catalog.json ──────▶ create session
+  redirect to Stripe   ◀──── session url ◀──────────────────
+  pay on stripe.com ─────────────────────────────────────▶
+  /order-received.html ◀──── success_url
+```
+
+The whole backend is `netlify/functions/create-checkout-session.js`, about 200
+lines of plain Node with no npm dependency. It refuses anything that is not a
+POST, an unconfirmed research-use flag, an unknown id or pack size, a restricted
+compound, a non-integer or out-of-range quantity, duplicate cart lines, more
+than 20 lines, or a body over 20 KB. It never passes a Stripe error message
+back to the customer — those go to the function log, because they name account
+problems the customer cannot act on.
+
+### Test it before you take a real order
+
+1. Put a **test** key (`sk_test_…`) in `STRIPE_SECRET_KEY` and deploy.
+2. Buy something with Stripe's test card `4242 4242 4242 4242`, any future
+   expiry, any CVC.
+3. Check: the amount matches the catalogue plus the shipping rate you chose;
+   Stripe collected a name, email, phone number and shipping address; you got
+   the order in the Stripe dashboard; `/order-received.html` loaded and the
+   cart emptied.
+4. Then swap in the live key. **Do not skip step 3** — the shipping rates in
+   `netlify.toml` are placeholders, and a live key will happily charge them.
 
 ### Before you build on this: Stripe may not accept you
 
 Stripe's restricted-business rules cover pharmaceuticals, "nutraceuticals" and
 products making unsubstantiated health claims, and research-chemical sellers are
 declined or shut down under them regularly — often after processing has begun,
-with a hold on the balance. Find out before you depend on it:
+with a hold on the balance. **A card checkout makes this risk larger, not
+smaller**, because the volume runs through Stripe rather than through invoices
+you raise by hand. Find out before you depend on it:
 
 1. Apply describing the business accurately: analytical reference material sold
-   to institutional and qualified-research accounts, research use only.
-2. Say plainly that you do not sell for human consumption and that supply is
-   gated on account verification. The site and its research use policy are your
+   for laboratory research use only.
+2. Say plainly that you do not sell for human consumption, and that research use
+   is a condition of sale confirmed at checkout and written into the terms. The
+   site, its research use policy and the checkout confirmation are your
    evidence.
 3. Get the answer in writing before taking a first order. If Stripe declines,
    the alternatives for this sector are bank transfer on invoice, or a
    high-risk merchant acquirer at a considerably worse rate.
 
-Nothing in the site depends on Stripe specifically — `pay.html` names it, and
-that is the only place to change if you invoice some other way.
+If you have to leave Stripe, the function is the only thing that changes: every
+other page describes "a card payment on a hosted checkout" without naming a
+processor, except `pay.html` and the privacy policy §4, which name Stripe
+because they have to.
 
-### Repeat orders
+### Fulfilment, once an order lands
 
-An account verified once should not be verified again. `reorder.html` carries
-only the account reference, the institutional email, notes and the request
-list, and lands as its own Netlify form (**reorder**) so it never sits in the
-queue behind new applications waiting on a check.
-
-Give every approved account a reference — `TR-0041` and upward is fine — and
-put it on their quotation and invoice. That reference is what makes a reorder
-a thirty-second job: match it, confirm lot availability, send the payment link.
-
-Watch the notes field. A change of shipping address or responsible investigator
-is the one thing that does need re-checking before release, and the page asks
-customers to mention it there.
-
-### Issuing an invoice
-
-1. **Customer** — create it once per verified account, under the institution's
-   name, with the institutional email and the facility address. Not a personal
-   address: shipping to residential addresses is refused in the shipping policy.
-2. **Invoice** — one line per pack size, matching the quotation exactly. The
-   catalogue's list prices exclude shipping and tax, so add carriage and let
-   Stripe Tax handle the rest.
-3. **Reference** — put the quotation number and the buyer's PO reference on the
-   invoice, and the lot number once allocated. That is what ties the payment to
-   the certificate of analysis you ship.
-4. **Payment methods** — card and bank transfer (ACH) are the two that matter
-   here. Institutions frequently prefer transfer, and it costs you less.
-5. **Send from** the address on `pay.html`, so it matches what the site tells
-   buyers to expect. That page tells them to distrust anything arriving from
-   elsewhere, which only protects them if you keep to it.
+1. **Read the order before you release it.** Stripe gives you the name, email,
+   phone and shipping address. An order that reads as personal rather than
+   professional is the moment the research-use condition is worth something:
+   cancel and refund it. Doing that costs you one sale. Not doing it is what
+   turns "research use only" into decoration.
+2. **Confirm by email**, from the address on `pay.html`. That confirmation is
+   what forms the contract under the terms, and it is when the order becomes
+   one you have to fill.
+3. **Ship with the certificate of analysis** for the lot supplied, and record
+   which lot went to which order. That link is the whole point of §3.
+4. **Refunds** go back through Stripe against the original payment. Never
+   refund to a different card or account than the one that paid.
 
 ### Things not to do
 
 Never take card details by telephone or email and key them in yourself: it
 defeats the fraud protection, and it contradicts what `pay.html` promises
-customers. Never change bank details on an issued invoice — reissue instead.
-Both are the exact patterns invoice-fraud relies on.
+customers. Never email a payment link on a domain that is not `stripe.com` —
+`pay.html` tells buyers to distrust exactly that, which only protects them if
+you keep to it. Never put the Stripe secret key in `netlify.toml`, a commit, or
+anything else that lands in the repository.
 
 ---
 
 ## 4. Decisions only you can make
 
-**The four restricted compounds.** Semaglutide, Tirzepatide, Retatrutide and
-Oxytocin are flagged `"restricted": true` in `assets/data/products.json` and
-gated in the interface. They carry by far the highest regulatory exposure in
-the catalog: the three GLP-1 analogues are covered by active patents held by
-Novo Nordisk and Eli Lilly, both of which have litigated against sellers, and
-FDA has issued warning letters to research-peptide vendors over research-use-only
-framing. Removing them is four lines in the JSON and a rebuild. Keeping them
-should be a decision you make deliberately, ideally having taken advice.
+**The three restricted compounds.** Retatrutide, tirzepatide and oxytocin are
+flagged `"restricted": true` in `assets/data/products.json`, kept out of the
+cart in the interface, and refused by name in the checkout function. They carry
+by far the highest regulatory exposure in the catalog: the two GLP-1 analogues
+are covered by active patents held by Eli Lilly, which has litigated against
+sellers, and FDA has issued warning letters to research-peptide vendors over
+research-use-only framing. Removing them is three lines in the JSON and a
+rebuild. Keeping them should be a decision you make deliberately, ideally having
+taken advice — and selling them through the cart instead would be a different
+and much larger decision, which is why it takes more than a config change.
 
-**Account verification.** The whole legal posture of this site rests on supply
-being restricted to verified institutional accounts. The form now does most of
-the work: it collects the institution, an address at it and one line on the
-intended research use, and refuses consumer mail providers inline with a
-specific message, so an application that reaches you has already cleared the
-cheap checks.
+**Research use is a condition, not a check — and the site says so.** With a card
+checkout there is no vetting step, and every page has been written to stop
+short of claiming one. `compliance.html` §3 says in as many words that this is a
+contractual condition and not an identity check, and that we do not operate a
+credentialing process. `tools/check.py` fails the build if the retired
+"verified account" wording reappears anywhere.
 
-What is left is yours and cannot be automated away: read the intended use, and
-either approve or come back with one question. Approving every application
-unread is the same as having no verification at all, and at that point the
-research-use framing is decorative and will not protect you. The filter is a
-convenience, not the check.
+That honesty is load-bearing, and it puts the whole weight on what you actually
+do with an order once it arrives. Read §3c, "Fulfilment". An operator who ships
+everything that pays has a research-use policy that is decorative and will not
+protect them. An operator who cancels and refunds the orders that read wrong has
+one that means something. Nothing in this repository can make that choice for
+you; it is the single most consequential habit you take on with this site.
 
 **Legal review.** `legal/terms.html`, `legal/privacy.html` and
 `legal/shipping.html` were written for a US sole proprietorship selling
-research reagents business to business. They are careful drafts built on
-standard commercial practice; they have **not** been reviewed by a lawyer.
-If you incorporate, operate from a different state, or sell to consumers, they
-need revisiting. The clauses doing the most work are the warranty disclaimer
+research reagents. They are careful drafts built on standard commercial
+practice; they have **not** been reviewed by a lawyer. If you incorporate or
+operate from a different state, they need revisiting.
+
+⚠️ They also need revisiting *because of the cart*. An open checkout means
+anyone can buy, and a buyer who is not a business may be a consumer in law —
+which brings in consumer-protection rules a business-to-business contract does
+not contemplate: distance-selling cancellation rights in the UK and EU, state
+consumer statutes in the US, and limits on how far a warranty disclaimer and a
+liability cap can be enforced against a consumer at all. The terms were drafted
+before this site had a checkout. Getting them read by a lawyer was already
+sensible; with a card checkout it is the first thing to spend money on. The clauses doing the most work are the warranty disclaimer
 (terms §8) and the limitation of liability (terms §9).
 
 ⚠️ Those two clauses are set in capitals inside a `.legal-strong` block on
@@ -284,9 +350,16 @@ Stated plainly so you are not surprised, and so a buyer is not misled.
   that can differ between engines. Open the home page in Safari and on an
   iPhone before you rely on it; if the labels look washed out or too dark,
   that rule is the cause.
-- **No screen-reader pass.** Every page is clean under axe-core, which catches
-  perhaps a third of real accessibility problems. Nobody has driven the site
-  with VoiceOver or NVDA, or completed an order flow using only a keyboard.
+- **No screen-reader pass.** Every page is clean under axe-core, including the
+  cart drawer with its error state showing, and that catches perhaps a third of
+  real accessibility problems. Nobody has driven the site with VoiceOver or
+  NVDA, or completed an order flow using only a keyboard.
+- **No real Stripe call.** The checkout function is covered by 40 unit tests and
+  the browser flow by 23 more, but Stripe itself is stubbed in both: what is
+  proven is what the function refuses, and the exact parameters it sends. No
+  payment has been taken, no session has been created against Stripe's real API,
+  and no order has arrived in a Stripe dashboard. The test in §3c is not
+  optional, and the shipping rates it makes you check are placeholders.
 - **No real-device testing.** Layouts were verified by emulating widths from
   360 px up, not on physical hardware.
 
