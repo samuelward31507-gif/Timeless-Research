@@ -198,6 +198,13 @@ Run it locally exactly as Netlify does with
 `python3 tools/build.py && python3 tools/dist.py`, then serve `dist/`.
 `dist/` is generated and git-ignored; never edit it.
 
+`dist.py` re-resolves every internal link inside the publish directory before
+it reports success, and exits non-zero if one does not resolve. That is not
+redundant with `check.py`: `check.py` walks the source tree, so it cannot see a
+page that was built correctly and then left out of the copy. The `legal/`
+directory was missing from the copy list for as long as it existed — 114 footer
+links, on every page, resolving locally and 404ing once deployed.
+
 ### Build variables
 
 Everything environment-specific is a build-time variable, so a deploy never
