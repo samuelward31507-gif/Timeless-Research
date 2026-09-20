@@ -299,6 +299,15 @@ fails if a page still offers to cart something marked that way.
 Conflating those two was a bug in an earlier version of this site: the notice
 belongs on the page whatever the payment mechanics are.
 
+**The entry overlay is an affirmation, not a gate.** First visit shows a
+full-screen confirmation (21 or over; in vitro research use) before the site,
+remembered in `localStorage` under `tr_ruo_ack_v1`. Its whole behaviour is
+inline in `<head>` rather than in the deferred `site.js`: it has to run before
+the body paints, and a blocking overlay must not depend on a file that might
+not arrive. It fails open three ways — no JavaScript, unreadable storage, and a
+plain anchor as the way out — so it can never trap a visitor or hide the
+catalogue from a crawler, and the page behind it stays in the DOM.
+
 **What the site does not claim.** There is no account verification, no vetting
 and no credentialing step, and no page says otherwise — research use is a
 contractual condition confirmed at checkout, and `compliance.html` §3 says so in
@@ -416,8 +425,9 @@ reappears. It exits non-zero, so it can gate a deploy.
 Audited with axe-core (WCAG 2.1 A/AA) across fifteen representative pages plus
 the open cart drawer in its error state: **0 violations**.
 
-Browser tests (Playwright, Chromium) cover catalog filtering, CAS search,
-sorting, out-of-stock state, pack-size to price and label sync, cart
+Browser tests (Playwright, Chromium) cover the entry affirmation (what it
+blocks, what it remembers, and all three fail-open paths), catalog filtering,
+CAS search, sorting, out-of-stock state, pack-size to price and label sync, cart
 persistence, the `"cart": false` refusal, the checkout consent gate, the
 redirect to Stripe, what the browser actually posts, cart clearing after
 payment, checkout failure handling, demo mode, form validation and submission,

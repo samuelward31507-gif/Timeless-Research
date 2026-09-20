@@ -794,6 +794,50 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .drawer-head { display: flex; align-items: center; justify-content: space-between; padding: var(--s-5); border-bottom: 1px solid var(--line); }
 .drawer-head h2 { font-size: var(--t-md); font-weight: 600; letter-spacing: 0; }
 .drawer-body { flex: 1; overflow-y: auto; padding: var(--s-5); }
+/* ------------------------------------------------- entry affirmation ---
+   Hidden unless the inline script in <head> adds .gate-on to <html>, which it
+   does only when the acknowledgement is absent AND localStorage is readable.
+   No JavaScript therefore means no gate and a fully readable site, which is
+   the right failure mode: the tick boxes are an affirmation, not a lock, and
+   hiding the catalogue from everyone with JS off would cost real readers to
+   inconvenience nobody. */
+.gate { display: none; }
+.gate-on .gate {
+  display: flex; position: fixed; inset: 0; z-index: 200;
+  align-items: center; justify-content: center;
+  padding: var(--s-5); overflow-y: auto;
+  background: var(--paper);
+}
+.gate-on body { overflow: hidden; }
+
+.gate-card { width: 100%; max-width: 30rem; text-align: center; }
+.gate-mark { width: 26px; height: auto; margin: 0 auto var(--s-4); display: block; }
+.gate-card .eyebrow { display: block; margin-bottom: var(--s-3); }
+.gate-title { font-size: clamp(2rem, 6vw, 2.75rem); line-height: 1.05; margin-bottom: var(--s-4); }
+.gate-lede { color: var(--ink-2); font-size: var(--t-md); line-height: 1.7; margin-bottom: var(--s-6); }
+
+.gate-checks {
+  text-align: left; border-block: 1px solid var(--line);
+  padding-block: var(--s-4); margin-bottom: var(--s-5);
+}
+.gate-checks .check { padding-block: var(--s-3); align-items: flex-start; }
+.gate-checks .check + .check { border-top: 1px solid var(--line); }
+.gate-checks .check span { font-size: var(--t-base); line-height: 1.6; color: var(--ink-2); }
+
+#gate-enter[disabled] { opacity: .38; cursor: not-allowed; }
+
+.gate-note {
+  font-size: var(--t-xs); line-height: 1.65; color: var(--ink-3);
+  text-align: left; margin-top: var(--s-5);
+}
+.gate-note a:not(.btn) { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.gate-exit { font-size: var(--t-xs); color: var(--ink-3); margin-top: var(--s-4); }
+.gate-exit a:not(.btn) { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
+
+@media (max-width: 480px) {
+  .gate-on .gate { align-items: flex-start; padding-top: var(--s-6); }
+}
+
 .drawer-foot { padding: var(--s-5); border-top: 1px solid var(--line); }
 /* The research-use confirmation gates the checkout button, so it has to read as
    part of the same control and not as small print underneath it. */

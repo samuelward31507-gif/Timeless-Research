@@ -139,6 +139,54 @@ def og_image(canonical: str) -> str:
     return "assets/img/og-card.jpg"
 
 
+GATE_JS = """
+(function(){var K='tr_ruo_ack_v1',d=document;
+try{if(localStorage.getItem(K)==='1')return;}catch(e){return;}
+d.documentElement.className+=' gate-on';
+d.addEventListener('click',function(e){var t=e.target;
+if(t.id==='gate-enter'){try{localStorage.setItem(K,'1');}catch(x){}
+d.documentElement.className=d.documentElement.className.replace(/ ?gate-on/,'');
+var m=d.getElementById('main');if(m)m.focus();return;}
+if(t.name==='gate-ack'){var b=d.querySelectorAll('input[name=gate-ack]'),ok=true,i;
+for(i=0;i<b.length;i++){if(!b[i].checked)ok=false;}
+var g=d.getElementById('gate-enter');if(g)g.disabled=!ok;}});})();
+""".replace("\n", "")
+
+
+def gate() -> str:
+    """The affirmation shown before the site is browsed.
+
+    Deliberately not called verification. We cannot check a visitor's age or
+    what they intend to do with the material, and every other page on this site
+    is careful to say that the research use condition is contractual rather than
+    a vetting process. A gate captioned "researcher verification" — which is
+    what this sector's convention calls it — would contradict all of it on the
+    very first screen. The footnote says what the tick boxes are and are not.
+
+    Fails open, in three ways, each on purpose: no JavaScript means no gate,
+    because locking the catalogue behind a script would hide it from everyone
+    with JS disabled and gain nothing a determined visitor could not bypass;
+    blocked localStorage (private browsing) means no gate, for the same reason;
+    and the way out is a plain link, which works even if everything else breaks.
+    """
+    return """<div class="gate" id="gate" role="dialog" aria-labelledby="gate-title">
+  <div class="gate-card">
+    <img class="gate-mark" src="{PREFIX}assets/img/mark.svg" alt="" width="100" height="206">
+    <span class="eyebrow">Research use only</span>
+    <p class="display gate-title" id="gate-title">Before you <em>continue.</em></p>
+    <p class="gate-lede">Timeless Research supplies peptide reference material for laboratory research. Please confirm both statements.</p>
+    <div class="gate-checks">
+      <label class="check"><input type="checkbox" name="gate-ack"><span>I am at least 21 years old.</span></label>
+      <label class="check"><input type="checkbox" name="gate-ack"><span>I am acquiring this material for <strong>in vitro</strong> laboratory research. It will not be administered to a human or an animal.</span></label>
+    </div>
+    <button class="btn btn--primary btn--block" id="gate-enter" type="button" disabled>Enter the site</button>
+    <p class="gate-note">These are statements you make, not checks we perform. We have no way to verify either one and we do not claim to &mdash; they are a condition of sale under our <a href="{PREFIX}legal/terms.html">terms</a> and <a href="{PREFIX}compliance.html">research use policy</a>. Material supplied is not for human or veterinary use, not for use in diagnostic procedures, and has not been evaluated by the US Food and Drug Administration.</p>
+    <p class="gate-exit">Not buying for research? <a href="https://www.google.com/" rel="noopener">Leave this site</a>.</p>
+  </div>
+</div>
+"""
+
+
 def head(title, desc, depth, canonical, extra=""):
     p = rel(depth)
     robots = "noindex,nofollow" if DEMO else "index,follow"
@@ -167,7 +215,7 @@ def head(title, desc, depth, canonical, extra=""):
 <link rel="icon" href="{p}assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="{p}assets/fonts/inter-var-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{p}assets/fonts/cormorant-garamond-var-latin.woff2" as="font" type="font/woff2" crossorigin>
-<script>document.documentElement.className+=" js";</script>
+<script>document.documentElement.className+=" js";{GATE_JS}</script>
 {ANALYTICS_HEAD}<script src="{p}assets/js/config.js"></script>
 <link rel="stylesheet" href="{p}assets/css/fonts.css">
 <link rel="stylesheet" href="{p}assets/css/main.css">
@@ -175,7 +223,7 @@ def head(title, desc, depth, canonical, extra=""):
 {extra}</head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
-"""
+{gate()}"""
 
 
 def header(depth, active, canonical=""):

@@ -306,6 +306,22 @@ Removing them is three lines in the JSON and a rebuild. Taking just those three
 out of the cart while keeping them listed is `"cart": false` on each, which is
 the lever described in §3c. Both are config changes; the judgement is not.
 
+**The entry affirmation is not an age check.** A visitor's first view of the
+site is an overlay asking them to confirm they are 21 or over and that the
+material is for in vitro research. It is the convention in this sector, and it
+is worth having: it puts the condition in front of the catalogue rather than
+only at checkout, and it is a second documented touchpoint if a processor or a
+regulator asks what you do.
+
+Be clear with yourself about what it is. Anyone can tick two boxes; the gate
+stops nobody who means to proceed, and it is deliberately captioned so as not
+to imply otherwise — it says on its face that these are statements the visitor
+makes and not checks you perform. It also fails open by design: no JavaScript,
+or blocked browser storage, means no gate and a fully readable site, because
+hiding the catalogue from those visitors would cost you real readers and
+inconvenience nobody. If you ever need it to be a real control, it cannot be
+one on the client side at all.
+
 **Research use is a condition, not a check — and the site says so.** With a card
 checkout there is no vetting step, and every page has been written to stop
 short of claiming one. `compliance.html` §3 says in as many words that this is a
