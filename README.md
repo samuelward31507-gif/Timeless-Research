@@ -13,6 +13,23 @@ hold a secret key.
 everything an operator has to supply, deploy and decide, in order. This file
 covers how the site is built.
 
+### Put a demo online
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/samuelward31507-gif/Timeless-Research)
+
+Free, and nothing it touches is live. Netlify reads `netlify.toml`, so every
+build setting comes across — including `TR_DEMO = "1"`, which puts a
+not-trading bar on every page and keeps the deploy out of search results.
+
+Checkout works on the demo, against Stripe's **test** mode, so the thing the
+site is a demonstration *of* can actually be shown. Add
+`STRIPE_SECRET_KEY` (an `sk_test_...` key) under **Site configuration →
+Environment variables**, redeploy, and pay with `4242 4242 4242 4242`.
+
+The function refuses to run a demo build against a live key, so this cannot
+quietly start taking real money. Full steps, including the redeploy people
+miss: [HANDOVER.md §2b](HANDOVER.md).
+
 ---
 
 ## Quick start
