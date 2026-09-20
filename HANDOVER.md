@@ -476,8 +476,8 @@ Stated plainly so you are not surprised, and so a buyer is not misled.
   cart drawer with its error state showing, and that catches perhaps a third of
   real accessibility problems. Nobody has driven the site with VoiceOver or
   NVDA, or completed an order flow using only a keyboard.
-- **No real Stripe call.** The checkout function is covered by 40 unit tests and
-  the browser flow by 23 more, but Stripe itself is stubbed in both: what is
+- **No real Stripe call.** The checkout function is covered by 64 unit tests and
+  the browser flow by 39 more, but Stripe itself is stubbed in both: what is
   proven is what the function refuses, and the exact parameters it sends. No
   payment has been taken, no session has been created against Stripe's real API,
   and no order has arrived in a Stripe dashboard. The test in §3c is not
