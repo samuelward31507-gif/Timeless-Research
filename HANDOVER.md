@@ -80,6 +80,32 @@ supplier, `noindex,nofollow` on every page, and a `robots.txt` that disallows
 everything. The unfilled legal fields in section 1 become a warning instead of
 a build failure, so a demo deploys without inventing details.
 
+### Putting a demo online, in about ten minutes
+
+Free, and nothing here touches a live key or a real domain.
+
+1. **Netlify → Add new site → Import an existing project**, pick this
+   repository. Leave every build field alone; `netlify.toml` has them.
+2. **Stripe → Developers → API keys → reveal the *test* secret key**
+   (`sk_test_...`). It sits behind the Test mode toggle, so no Stripe account
+   review is needed to get one.
+3. **Site configuration → Environment variables → add `STRIPE_SECRET_KEY`**
+   with that test key. Then **Deploys → Trigger deploy**, because a variable
+   added after the first build does not apply until the next one.
+4. That is it. The deploy gets a `something.netlify.app` address and the site
+   figures out it lives there: canonical tags, the sitemap, the link-preview
+   image and Stripe's return URL all follow the real address rather than the
+   placeholder domain in `netlify.toml`. Sending the link by text gives a
+   proper preview card.
+5. **Try it before you show anyone.** Add something to the cart, tick the
+   research-use box, pay with `4242 4242 4242 4242`, any future expiry, any
+   CVC. You should land back on the order page with the cart emptied, and see
+   the payment in your Stripe dashboard under Test mode.
+
+`TR_LEGAL_ADDRESS` and `TR_LEGAL_STATE` can stay empty for a demo — the pages
+show a visible fill-in marker instead of a blank, and the demo bar already says
+the site is not trading.
+
 Checkout still works on a demo build, against Stripe's **test** mode, so the
 thing the site is a demonstration *of* can actually be demonstrated. The cart
 says so and gives the test card to use. This needs a test key

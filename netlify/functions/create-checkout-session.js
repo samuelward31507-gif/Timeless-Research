@@ -223,7 +223,15 @@ exports.handler = async function (event) {
     });
   }
 
-  const site = (process.env.TR_SITE || process.env.URL || '').replace(/\/+$/, '');
+  /* Same reasoning as the build: on a demonstration deploy TR_SITE is a
+     placeholder domain nobody owns, so returning the customer to it after
+     payment sends them nowhere. Netlify's own URL is where this actually runs.
+     A trading deploy keeps TR_SITE first, because that is the canonical domain
+     and a branch preview should still return to it. */
+  const served = process.env.DEPLOY_PRIME_URL || process.env.URL;
+  const site = (CATALOG.demo
+    ? (served || process.env.TR_SITE || '')
+    : (process.env.TR_SITE || served || '')).replace(/\/+$/, '');
   if (!site) {
     console.error('Neither TR_SITE nor URL is set; cannot build return URLs.');
     return json(503, { error: 'Checkout is temporarily unavailable.' });

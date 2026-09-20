@@ -86,6 +86,21 @@ LEGAL_EMAIL = os.environ.get("TR_LEGAL_EMAIL", "") or CONTACT_EMAIL
 # demo competing in search with the eventual live site helps nobody.
 DEMO = os.environ.get("TR_DEMO", "").strip() in ("1", "true", "yes")
 
+# A demonstration deploy does not live at the canonical domain — that domain is
+# a placeholder in netlify.toml which nobody owns yet. Left alone, every
+# absolute URL the build writes would point at it: the canonical tags, the
+# sitemap, and the Open Graph image. The last one is what a phone renders when
+# the demo link is sent to someone, so a demo shared by text would arrive with a
+# broken preview card, which is the one moment it needs to look right.
+#
+# Netlify sets URL to where the site is actually served, and DEPLOY_PRIME_URL to
+# the branch or preview deploy when it is not the production one. Neither is set
+# outside Netlify, so a local demo build is unaffected.
+if DEMO:
+    _served = os.environ.get("DEPLOY_PRIME_URL") or os.environ.get("URL")
+    if _served:
+        SITE = _served.rstrip("/")
+
 
 def fill(value: str, label: str) -> str:
     """A configured legal detail, or a template field where one is still needed.

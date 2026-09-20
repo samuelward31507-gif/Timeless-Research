@@ -220,7 +220,7 @@ python3 tools/build.py && python3 tools/dist.py
 
 | Variable | Default | Effect |
 |---|---|---|
-| `TR_SITE` | `https://www.timelessresearch.com` | Canonical tags, Open Graph URLs, sitemap |
+| `TR_SITE` | `https://www.timelessresearch.com` | Canonical tags, Open Graph URLs, sitemap. On a `TR_DEMO` build, Netlify's own `DEPLOY_PRIME_URL`/`URL` wins, so a demo deploy is self-addressing and its link previews resolve |
 | `TR_CONTACT_EMAIL` | `accounts@timelessresearch.com` | Contact fallback address |
 | `TR_FORM_PROVIDER` | `netlify` | `netlify`, or `endpoint` to POST JSON elsewhere |
 | `TR_FORM_ENDPOINT` | *(empty)* | Target when `TR_FORM_PROVIDER=endpoint` |
