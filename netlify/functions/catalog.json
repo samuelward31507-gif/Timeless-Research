@@ -1,5 +1,16 @@
 {
   "currency": "USD",
+  "volumeTiers": [
+    {
+      "minQty": 10,
+      "percent": 10.0
+    },
+    {
+      "minQty": 25,
+      "percent": 15.0
+    }
+  ],
+  "freeShippingOver": 250.0,
   "products": {
     "cjc-1295": {
       "name": "CJC-1295 (no DAC)",

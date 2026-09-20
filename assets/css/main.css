@@ -841,6 +841,27 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .drawer-foot { padding: var(--s-5); border-top: 1px solid var(--line); }
 /* The research-use confirmation gates the checkout button, so it has to read as
    part of the same control and not as small print underneath it. */
+.coa-table-wrap { overflow-x: auto; }
+.coa-index { width: 100%; }
+.coa-index th[scope="col"] {
+  font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .1em;
+  color: var(--ink-3); font-weight: 600; text-align: left; padding-bottom: var(--s-3);
+}
+.coa-index td { vertical-align: middle; }
+.coa-index td a:not(.link-action):not(.btn) { color: var(--ink); text-decoration: none; }
+.coa-index td a:not(.link-action):hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.footer-fda {
+  font-size: var(--t-xs); line-height: 1.7; color: var(--ink-3);
+  border-top: 1px solid var(--line); padding-top: var(--s-5); margin-top: var(--s-6);
+  max-width: 78ch;
+}
+.footer-fda strong { color: var(--ink-2); font-weight: 600; }
+
+.volume-note {
+  font-size: var(--t-xs); color: var(--ok); line-height: 1.6;
+  margin-top: calc(var(--s-2) * -1); margin-bottom: var(--s-4);
+}
 .cart-consent { margin-bottom: var(--s-4); }
 .cart-consent .check span { font-size: var(--t-xs); line-height: 1.55; color: var(--ink-2); }
 .cart-foot-note { font-size: var(--t-xs); color: var(--ink-3); line-height: 1.6; margin-top: var(--s-3); }
@@ -856,6 +877,10 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .rfq-line-main { flex: 1; min-width: 0; }
 .rfq-line-name { font-size: var(--t-base); font-weight: 500; }
 .rfq-line-size { font-family: var(--f-mono); font-size: var(--t-xs); color: var(--ink-4); margin-top: 2px; }
+.rfq-line-tier { font-size: var(--t-xs); color: var(--ok); margin-top: 3px; font-weight: 500; }
+.rfq-line-next { font-size: var(--t-xs); color: var(--ink-4); margin-top: 3px; }
+.rfq-total--sub strong { color: var(--ok); font-weight: 500; }
+.rfq-free { color: var(--ok); }
 .qty { display: flex; align-items: center; gap: var(--s-1); border: 1px solid var(--line-strong); border-radius: var(--radius); }
 .qty button { width: 26px; height: 26px; color: var(--ink-3); font-size: var(--t-md); line-height: 1; }
 .qty button:hover { color: var(--ink); }

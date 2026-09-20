@@ -150,6 +150,53 @@ matches one of the offers in that page's structured data — a page saying $26
 while the machine-readable product says something else is the kind of fault
 nobody notices until a search engine acts on it.
 
+## 3b-i. Volume pricing and free shipping
+
+Both live in `assets/data/products.json`, next to `currency`, and both flow from
+there into the cart, the product pages and the checkout function on every build:
+
+```json
+"volumeTiers": [ { "minQty": 10, "percent": 10 }, { "minQty": 25, "percent": 15 } ],
+"freeShippingOver": 250
+```
+
+⚠️ **Those numbers are placeholders and they come straight off your margin.**
+They were set conservatively because guessing high with someone else's money is
+worse than guessing low. Work out what you can actually afford per compound
+before a real order lands. Amino Club runs 40% at ten units and 50% at fifty;
+whether that is sustainable depends on a cost base neither of us can see from
+here.
+
+Tiers apply **per cart line** — one compound at one pack size — not across the
+order, because that is the version the customer can check themselves in the
+cart and the version the function can verify without trusting a total the
+browser worked out. The highest tier a line qualifies for wins. Free shipping
+is measured on the goods subtotal **after** discount, so a discount can take an
+order back under the threshold; that is deliberate and tested.
+
+`tools/check.py` refuses a discount outside 0–100%, two tiers at the same
+quantity, and tiers where a larger order would get a smaller discount. Set
+`"volumeTiers": []` to turn the whole thing off, or `"freeShippingOver": 0` for
+just the shipping side.
+
+---
+
+## 3b-ii. Certificates of analysis
+
+`coa.html` lists every compound with a link to request the certificate for the
+lot currently in stock. It publishes no lot numbers, deliberately: the ones on
+the vial illustrations are generated from a hash of the product id so the
+artwork looks right, and presenting those as real lots would turn a label
+mock-up into a false document.
+
+**To publish a real certificate**, drop the PDF at
+`assets/coa/<product-id>.pdf` — for example `assets/coa/bpc-157.pdf` — and
+rebuild. That row changes from "Request" to "Download PDF" on its own. There is
+no list to maintain; the file existing is the whole switch. The page's warning
+notice disappears once at least one certificate is published.
+
+---
+
 **Marking something out of stock** is a data edit: add `"available": false` to
 that product in `products.json`. The catalogue card gains an Unavailable badge
 and loses its add control, the product page swaps the cart button for a contact
@@ -335,6 +382,38 @@ everything that pays has a research-use policy that is decorative and will not
 protect them. An operator who cancels and refunds the orders that read wrong has
 one that means something. Nothing in this repository can make that choice for
 you; it is the single most consequential habit you take on with this site.
+
+**What was looked at and not copied.** A competitor's homepage was reviewed
+during this build. Four things on it were deliberately left alone, and the
+reasoning is here so the decisions are not silently reversed later:
+
+- **Renaming the GLP-1 analogues.** They list retatrutide, tirzepatide and
+  semaglutide as "GLP-3 (RT)", "GLP-2 (TR)" and "GLP-1 (SM)". The parenthetical
+  initials are the tell. Obscuring what a compound is, on a site whose entire
+  argument is that the material is what the label says, cuts against the
+  premise — and a processor or regulator who works out the substitution finds a
+  seller who was hiding the name, which is a worse position than never having
+  hidden it.
+- **Nasal and dermal sprays.** They sell GHK-Cu, NAD+, Semax and PT-141 as
+  metered sprays. A lyophilised powder in a sealed vial is a research
+  presentation; a metered spray is a delivery device for putting a substance
+  into a person. Selling one while saying "not for administration to humans" is
+  a contradiction on the face of the product.
+- **Countdown timers.** A "Fall Sale" counting down fifteen days, and a daily
+  list that "resets at 3:00 AM". If the deadline is not real, that is the
+  fake-urgency pattern the FTC has brought cases over. It can be built
+  honestly — a real end date, enforced — but it has to actually end.
+- **"Club Tab", their pay-in-four scheme.** They extend up to $1,500 of their
+  own credit at no interest. In the US, lending your own money to consumers is
+  a regulated activity: state lending or credit-service licensing, TILA and
+  Regulation Z disclosure duties, and CFPB interest in buy-now-pay-later
+  generally. If you want instalments, use a provider who holds the licences —
+  Stripe supports Klarna, Affirm and Afterpay on Checkout — rather than
+  becoming the lender yourself.
+
+Their affiliate programme, points-with-bonus scheme and subscription box are
+ordinary commerce features rather than problems; none is built here, and each
+is a fair-sized piece of work if you want one.
 
 **Legal review.** `legal/terms.html`, `legal/privacy.html` and
 `legal/shipping.html` were written for a US sole proprietorship selling

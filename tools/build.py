@@ -24,6 +24,28 @@ DATA = json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8
 PRODUCTS = DATA["products"]
 CATEGORIES = DATA["categories"]
 CURRENCY = DATA.get("currency", "USD")
+
+# Quantity breaks, applied per cart line (one compound at one pack size) rather
+# than across the order, because that is what the customer can see themselves
+# in the cart and what the checkout function can verify without trusting a
+# total the browser worked out. Sorted ascending so the highest tier a line
+# qualifies for is the last one that matches.
+VOLUME_TIERS = sorted(
+    ({"minQty": int(t["minQty"]), "percent": float(t["percent"])}
+     for t in DATA.get("volumeTiers", [])),
+    key=lambda t: t["minQty"])
+# Goods subtotal, excluding shipping and tax, above which standard shipping is
+# free. 0 or absent turns it off everywhere, including the checkout function.
+FREE_SHIPPING_OVER = float(DATA.get("freeShippingOver") or 0)
+
+
+def tier_for(qty: int) -> dict | None:
+    """The best quantity break a line of `qty` units qualifies for."""
+    best = None
+    for t in VOLUME_TIERS:
+        if qty >= t["minQty"]:
+            best = t
+    return best
 CAT_LABEL = {c["id"]: c["label"] for c in CATEGORIES}
 CAT_TINT = {c["id"]: (c["tint"], c["tintDeep"]) for c in CATEGORIES}
 
@@ -294,10 +316,17 @@ def footer(depth):
         <h3>Company</h3>
         <ul>
           <li><a href="{p}about.html">About</a></li>
-          <li><a href="{p}quality.html">Analytical programme</a></li>
           <li><a href="{p}faq.html">FAQ</a></li>
           <li><a href="{p}contact.html">Contact</a></li>
           <li><a href="{p}pay.html">Ordering &amp; payment</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Documentation</h3>
+        <ul>
+          <li><a href="{p}coa.html">Certificates of analysis</a></li>
+          <li><a href="{p}specimen-coa.html">Specimen certificate</a></li>
+          <li><a href="{p}quality.html">Analytical programme</a></li>
         </ul>
       </div>
       <div>
@@ -310,6 +339,9 @@ def footer(depth):
         </ul>
       </div>
     </div>
+    <p class="footer-fda">
+      <strong>FDA disclaimer.</strong> Statements made about these products have not been evaluated by the US Food and Drug Administration. These products are not intended to diagnose, treat, cure or prevent any disease. All products are supplied strictly for laboratory research use by qualified professionals and are not for human, veterinary or food use in any form. Nothing on this site is a substitute for advice from a qualified healthcare practitioner.
+    </p>
     <div class="footer-bottom">
       <span>&copy; {datetime.date.today().year} {BRAND}. All rights reserved.</span>
       <span>Products are supplied for laboratory research use only. Not for human or veterinary use, food, or household use.</span>
@@ -863,6 +895,16 @@ def build_products():
             buy_note = ("Not currently supplied. Tell us what you need and we will say when this "
                         "compound returns to the catalogue.")
 
+        # Quantity breaks are worth nothing if they are only discovered in the
+        # cart. Stated here, from the same table the cart and the checkout
+        # function use, so the three cannot drift apart.
+        volume_note = ""
+        if buyable(p) and VOLUME_TIERS:
+            breaks = ", ".join(f"{int(t['minQty'])}+ units &minus;{t['percent']:g}%"
+                               for t in VOLUME_TIERS)
+            volume_note = (f'<p class="volume-note no-print">Volume pricing: {breaks}. '
+                           f'Applied automatically in the cart.</p>')
+
         restricted = ""
         if p.get("restricted"):
             restricted = """
@@ -914,6 +956,7 @@ def build_products():
         </div>
 
         <div class="detail-price"><span data-price-display>{initial_price(p)}</span><small>{price_caption}</small></div>
+        {volume_note}
         {'' if p.get("available", True) else '<p class="stock-note">Not currently supplied. Contact us and we will tell you when this compound returns to the catalogue.</p>'}
 
         <div class="field no-print" style="margin-bottom:1.5rem">
@@ -930,7 +973,7 @@ def build_products():
 
         <h2 style="font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin:2.5rem 0 1rem">Release assay panel</h2>
         <ul style="list-style:none;display:flex;flex-wrap:wrap;gap:.5rem">{assay_rows.replace('<li>', '<li class="chip" style="padding:.3rem .6rem">')}</ul>
-        <p class="muted" style="font-size:.78rem;margin-top:1rem;line-height:1.7">The certificate of analysis for the supplied lot reproduces the HPLC trace and mass spectrum, and is issued with the shipment. <a href="../quality.html" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">How lots are released</a>, or <a href="../specimen-coa.html" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">see a specimen certificate</a>.</p>
+        <p class="muted" style="font-size:.78rem;margin-top:1rem;line-height:1.7">The certificate of analysis for the supplied lot reproduces the HPLC trace and mass spectrum, and is issued with the shipment. <a href="../coa.html" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">Request the certificate for the current lot</a>, read <a href="../quality.html" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">how lots are released</a>, or <a href="../specimen-coa.html" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">see a specimen</a>.</p>
       </div>
     </div>
   </div>
@@ -1776,6 +1819,91 @@ def build_order_received():
                 body, "", extra_body=clear)
 
 
+# --------------------------------------------------------------------------- certificates
+# The site promises a certificate of analysis with every lot on every page, and
+# had nowhere to get one. This is the index.
+#
+# It publishes no lot numbers. The ones printed on the vial illustrations are
+# generated from a hash of the product id so that the artwork looks right; they
+# are not real lots, and listing them here as though they were would turn a
+# label mock-up into a false document. A certificate is lot-specific, so what
+# this page can honestly offer is the document for whatever lot is in stock
+# now, by asking.
+#
+# Where the operator has a real certificate, dropping the PDF at
+# assets/coa/<product-id>.pdf makes this page link it on the next build. No
+# code change, no list to maintain: the file existing is the whole switch.
+
+
+def build_coa_index():
+    have = ROOT / "assets/coa"
+    rows = []
+    published = 0
+    for p in PRODUCTS:
+        pdf = f"assets/coa/{p['id']}.pdf"
+        exists = (ROOT / pdf).exists()
+        published += exists
+        action = (f'<a class="link-action" href="{pdf}">Download PDF</a>' if exists
+                  else f'<a class="link-action" href="contact.html?item={p["id"]}">Request</a>')
+        rows.append(f"""
+        <tr>
+          <td><a href="products/{p['id']}.html">{E(p['name'])}</a></td>
+          <td class="mono">{E(p.get('cas') or 'Blend')}</td>
+          <td class="mono">{E(p['purity'])}</td>
+          <td>{action}</td>
+        </tr>""")
+
+    note = ("" if published else """
+    <div class="notice" style="margin-bottom:2.5rem">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+      <div>
+        <h3>No certificates are published here yet</h3>
+        <p>Certificates are issued with the shipment and on request. When a lot's certificate is published on this page, its row will offer the PDF directly.</p>
+      </div>
+    </div>""")
+
+    body = f"""
+<section class="section section--tight">
+  <div class="shell">
+    <nav class="crumb" aria-label="Breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>Certificates of analysis</span></nav>
+    <div class="sec-head">
+      <span class="eyebrow">Certificates of analysis</span>
+      <h1 class="display h-sec">Every lot, <em>documented.</em></h1>
+      <p class="lede">A certificate of analysis is issued for the lot supplied and travels with the shipment. Ask for the certificate covering the lot currently in stock and we will send it before you order.</p>
+    </div>
+    {note}
+    <div class="coa-table-wrap">
+      <table class="spec coa-index">
+        <caption>All {len(PRODUCTS)} catalogue compounds</caption>
+        <thead>
+          <tr><th scope="col">Compound</th><th scope="col">CAS</th><th scope="col">Purity specification</th><th scope="col">Certificate</th></tr>
+        </thead>
+        <tbody>{''.join(rows)}</tbody>
+      </table>
+    </div>
+
+    <div class="prose" style="margin-top:3rem">
+      <h2>Why there is no single certificate per compound</h2>
+      <p>A certificate reports on a lot, not on a product. Two lots of the same compound are two different batches of material with their own chromatograms, their own water content and their own release date, and a certificate that did not name a lot would be telling you nothing about the vial in your hand. That is why this page asks rather than publishes a fixed document: the certificate you want is the one for the material you will actually receive.</p>
+      <h2>What a certificate reports</h2>
+      <p>Identity and lot number, appearance, RP-HPLC chromatographic purity with the integrated trace, ESI-MS mass confirmation, Karl Fischer water content, counter-ion content where it applies, storage conditions, retest date, and the signature of the analyst who released it. <a href="specimen-coa.html">See a worked specimen</a>, or read <a href="quality.html">how a lot is released</a>.</p>
+      <h2>For supplier qualification</h2>
+      <p>If you need the full data package rather than the certificate alone &mdash; raw chromatograms, the mass spectrum, method parameters &mdash; <a href="contact.html">ask</a> and we will send it.</p>
+    </div>
+
+    <div style="margin-top:2.5rem;display:flex;gap:.75rem;flex-wrap:wrap">
+      <a class="btn btn--primary" href="specimen-coa.html">See a specimen certificate</a>
+      <a class="btn btn--ghost" href="quality.html">The analytical programme</a>
+    </div>
+  </div>
+</section>
+"""
+    return page("coa.html", f"Certificates of Analysis — {BRAND}",
+                "A certificate of analysis is issued for every lot supplied. Request the certificate covering the lot currently in stock for any catalogue compound.",
+                body, "", extra_head=breadcrumbs([("Home", "index.html"),
+                                                  ("Certificates of analysis", None)]) + "\n")
+
+
 # --------------------------------------------------------------------------- 404
 def build_404():
     body = f"""
@@ -1816,6 +1944,8 @@ def build_meta(pages):
              "checkoutEndpoint": "/.netlify/functions/create-checkout-session",
              "currency": CURRENCY,
              "noCart": NO_CART_IDS,
+             "volumeTiers": VOLUME_TIERS,
+             "freeShippingOver": FREE_SHIPPING_OVER,
              "demo": DEMO}, indent=2
         ) + ";\n", encoding="utf-8")
 
@@ -1826,6 +1956,8 @@ def build_meta(pages):
     # needs is written out — no prose, no assay panels.
     catalog = {
         "currency": CURRENCY,
+        "volumeTiers": VOLUME_TIERS,
+        "freeShippingOver": FREE_SHIPPING_OVER,
         "products": {
             p["id"]: {
                 "name": p["name"],
@@ -1859,7 +1991,7 @@ def main():
 
     pages = [build_home(), build_catalog(), build_quality(), build_about(),
              build_faq(), build_contact(), build_compliance(), build_coa(),
-             build_pay(), build_order_received(), build_404()]
+             build_coa_index(), build_pay(), build_order_received(), build_404()]
     pages += build_products()
     pages += build_legal()
 

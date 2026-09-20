@@ -110,8 +110,15 @@ BANNED = [
     (r"\bfor human (?:use|consumption)\b(?!\s*,? *(?:food|or))", "human-use framing"),
     (r"\bcures?\b|\btreats\s+(?:your|the\s+\w+\s+condition)", "therapeutic claim"),
 ]
+# The FDA disclaimer in the footer says "not intended to diagnose, treat, cure
+# or prevent any disease" — the standard wording, and the opposite of a
+# therapeutic claim. Left in, it matches on every page and buries the finding
+# this scan exists for. Cut the block out before scanning rather than weakening
+# the pattern, which would also stop catching the real thing.
+FOOTER_FDA = re.compile(r'<p class="footer-fda">.*?</p>', re.S)
+
 for page in PAGES:
-    low = page.read_text(encoding="utf-8").lower()
+    low = FOOTER_FDA.sub("", page.read_text(encoding="utf-8")).lower()
     for pattern, label in BANNED:
         if re.search(pattern, low):
             # "not for human use" phrasing is expected; flag for review only
@@ -283,6 +290,32 @@ else:
     for _pid in _c.get("products", {}):
         if _pid not in {_p["id"] for _p in _src["products"]}:
             fail(f"checkout catalog carries {_pid}, which is not in products.json")
+
+    # Quantity breaks and the free-shipping threshold are computed twice: once
+    # by assets/js/site.js for the cart, once by the function for the charge. A
+    # disagreement means the customer is quoted one figure and billed another,
+    # so both must come from products.json unchanged.
+    _want_tiers = sorted(({"minQty": int(_t["minQty"]), "percent": float(_t["percent"])}
+                          for _t in _src.get("volumeTiers", [])),
+                         key=lambda _t: _t["minQty"])
+    if _c.get("volumeTiers") != _want_tiers:
+        fail("checkout catalog volume tiers disagree with products.json")
+    if float(_c.get("freeShippingOver") or 0) != float(_src.get("freeShippingOver") or 0):
+        fail("checkout catalog free-shipping threshold disagrees with products.json")
+
+    _cfg = (ROOT / "assets/js/config.js").read_text(encoding="utf-8")
+    for _t in _want_tiers:
+        if f'"minQty": {_t["minQty"]}' not in _cfg:
+            fail(f"the page config is missing the {_t['minQty']}+ volume tier")
+
+    for _t in _want_tiers:
+        if not (0 < _t["percent"] < 100):
+            fail(f"volume tier {_t['minQty']}+ has an impossible discount of {_t['percent']}%")
+    if len({_t["minQty"] for _t in _want_tiers}) != len(_want_tiers):
+        fail("two volume tiers share a minimum quantity")
+    if _want_tiers != sorted(_want_tiers, key=lambda _t: _t["percent"]):
+        fail("volume tiers do not increase with quantity: a larger order would "
+             "get a smaller discount")
 
 # ------------------------------------------------------------- generated
 for extra in ("sitemap.xml", "robots.txt", "assets/img/favicon.svg",

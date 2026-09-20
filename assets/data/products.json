@@ -1,5 +1,17 @@
 {
   "note": "Catalog reference data. Lot-specific purity, COA documents and pricing are populated from the LIMS export and are not hard-coded here.",
+  "currency": "USD",
+  "volumeTiers": [
+    {
+      "minQty": 10,
+      "percent": 10
+    },
+    {
+      "minQty": 25,
+      "percent": 15
+    }
+  ],
+  "freeShippingOver": 250,
   "categories": [
     {
       "id": "metabolic",
@@ -885,6 +897,5 @@
         "10 mg": 55
       }
     }
-  ],
-  "currency": "USD"
+  ]
 }

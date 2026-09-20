@@ -39,6 +39,7 @@ compliance.html         Research use policy
 404.html                Not found
 products/<id>.html      27 generated specification pages
 specimen-coa.html       Worked example of a certificate of analysis
+coa.html                Certificate index; links a PDF where one exists
 pay.html                How ordering and payment work
 order-received.html     Stripe success_url; confirms and empties the cart
 legal/                  terms.html, privacy.html, shipping.html
@@ -47,7 +48,8 @@ assets/
   js/site.js            Nav, reveal, accordion, cart, drawer, checkout
   js/catalog.js         Filtering and search
   js/contact.js         Form validation and submission
-  data/products.json    Single source of truth for the catalog
+  data/products.json    Catalog, prices, volume tiers, shipping threshold
+  coa/<id>.pdf          Optional; publishes that compound's certificate
   fonts/                Self-hosted Barlow Semi Condensed (label face)
   css/fonts.css         @font-face rules for the above (generated)
   img/vial.{png,webp}   Product photograph, matted (generated)
@@ -285,6 +287,15 @@ product classes to the public is a licensing matter — and, for scheduled
 substances, a criminal one — that a website cannot paper over. Adding those SKUs
 would undermine everything the rest of the site is built on.
 
+**Volume pricing** is `volumeTiers` in `products.json`, applied per cart line
+and computed three times from that one source: the product page states the
+breaks, the cart shows the discount and the saving, and the checkout function
+recalculates it for the charge. Only the third is authoritative — a discount in
+the request is ignored. `freeShippingOver` zeroes the standard shipping rate
+once the goods subtotal clears it, measured after discount. `check.py` refuses
+impossible or non-monotonic tiers, and a browser test asserts the cart's
+subtotal equals what the function independently arrives at for the same cart.
+
 **Two product flags, deliberately separate.** `"restricted": true` marks a
 compound that corresponds to an approved or investigational pharmaceutical
 substance — retatrutide, tirzepatide and oxytocin carry it. It puts a notice on
@@ -426,7 +437,8 @@ Audited with axe-core (WCAG 2.1 A/AA) across fifteen representative pages plus
 the open cart drawer in its error state: **0 violations**.
 
 Browser tests (Playwright, Chromium) cover the entry affirmation (what it
-blocks, what it remembers, and all three fail-open paths), catalog filtering,
+blocks, what it remembers, and all three fail-open paths), volume pricing and
+free shipping end to end, catalog filtering,
 CAS search, sorting, out-of-stock state, pack-size to price and label sync, cart
 persistence, the `"cart": false` refusal, the checkout consent gate, the
 redirect to Stripe, what the browser actually posts, cart clearing after
@@ -434,7 +446,9 @@ payment, checkout failure handling, demo mode, form validation and submission,
 the accordion and mobile nav.
 
 The checkout function has its own suite: the amount charged comes from the
-server-side table and not from the request, every pack size of the multi-size
+server-side table and not from the request, every volume tier is checked at its
+own boundary, a discount sent by the browser is ignored, free shipping is
+measured on what is actually charged, every pack size of the multi-size
 compound prices independently, and every refusal path — a compound marked
 non-buyable, unknown id or size, bad quantity, duplicate lines, missing consent,
 oversized body, wrong method, missing key, Stripe errors — is asserted. Stripe

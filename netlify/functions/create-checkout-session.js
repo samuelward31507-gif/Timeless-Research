@@ -69,6 +69,19 @@ function encode(obj, prefix, out) {
   return out;
 }
 
+/* The best quantity break a line qualifies for, from the table build.py wrote
+   into catalog.json. The browser shows the same figure in the cart, but this is
+   the one that sets the charge: a discount arriving in the request would be a
+   discount the customer chose for themselves. */
+function tierFor(qty) {
+  const tiers = (CATALOG.volumeTiers || []).slice().sort((a, b) => a.minQty - b.minQty);
+  let best = null;
+  for (const t of tiers) {
+    if (qty >= t.minQty) best = t;
+  }
+  return best;
+}
+
 function shippingRate(name, cents, currency, minDays, maxDays) {
   return {
     shipping_rate_data: {
@@ -86,6 +99,22 @@ function shippingRate(name, cents, currency, minDays, maxDays) {
 function intEnv(name, fallback) {
   const raw = parseInt(process.env[name], 10);
   return Number.isFinite(raw) && raw >= 0 ? raw : fallback;
+}
+
+/* Standard shipping goes to zero once the goods subtotal clears the threshold
+   in catalog.json. Computed from the prices this function just worked out, not
+   from anything the request said it was spending. */
+function shippingOptions(goodsCents, currency) {
+  const freeOver = Number(CATALOG.freeShippingOver || 0);
+  const standardCents = intEnv('TR_SHIP_STANDARD_CENTS', 1500);
+  const free = freeOver > 0 && goodsCents >= Math.round(freeOver * 100);
+  return [
+    free
+      ? shippingRate('Tracked courier — standard (free on this order)', 0, currency, 3, 7)
+      : shippingRate('Tracked courier — standard', standardCents, currency, 3, 7),
+    shippingRate('Tracked courier — express',
+                 intEnv('TR_SHIP_EXPRESS_CENTS', 3500), currency, 1, 3)
+  ];
 }
 
 exports.handler = async function (event) {
@@ -124,6 +153,7 @@ exports.handler = async function (event) {
   const currency = (CATALOG.currency || 'USD').toLowerCase();
   const lineItems = [];
   const seen = new Set();
+  let goodsCents = 0;
 
   for (const item of items) {
     const id = typeof item.id === 'string' ? item.id : '';
@@ -155,15 +185,28 @@ exports.handler = async function (event) {
     if (seen.has(key)) return json(400, { error: 'That cart has the same item on it twice.' });
     seen.add(key);
 
+    const tier = tierFor(qty);
+    const unitCents = tier
+      ? Math.round(price * 100 * (1 - tier.percent / 100))
+      : Math.round(price * 100);
+
+    goodsCents += unitCents * qty;
+
     lineItems.push({
       quantity: qty,
       price_data: {
         currency,
-        unit_amount: Math.round(price * 100),
+        unit_amount: unitCents,
+        // Stripe shows this name on the payment page and on the receipt, so the
+        // discount is named there rather than silently baked into a lower
+        // number the customer cannot account for.
         product_data: {
-          name: `${product.name} — ${size}`,
+          name: `${product.name} — ${size}` +
+                (tier ? ` (${tier.percent}% volume discount, ${tier.minQty}+ units)` : ''),
           description: 'Analytical-grade reference material. For laboratory research use only; not for human or veterinary use.',
-          metadata: { sku: id, pack_size: size }
+          metadata: tier
+            ? { sku: id, pack_size: size, volume_discount_percent: String(tier.percent) }
+            : { sku: id, pack_size: size }
         }
       }
     });
@@ -188,12 +231,7 @@ exports.handler = async function (event) {
     shipping_address_collection: {
       allowed_countries: countries.length ? countries : DEFAULT_COUNTRIES
     },
-    shipping_options: [
-      shippingRate('Tracked courier — standard',
-                   intEnv('TR_SHIP_STANDARD_CENTS', 1500), currency, 3, 7),
-      shippingRate('Tracked courier — express',
-                   intEnv('TR_SHIP_EXPRESS_CENTS', 3500), currency, 1, 3)
-    ],
+    shipping_options: shippingOptions(goodsCents, currency),
     custom_text: {
       submit: {
         message: 'Research use only. By paying you confirm this material is for in vitro laboratory research and will not be administered to a human or an animal.'

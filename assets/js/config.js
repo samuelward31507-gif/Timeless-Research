@@ -7,5 +7,16 @@ window.TR_CONFIG = {
   "checkoutEndpoint": "/.netlify/functions/create-checkout-session",
   "currency": "USD",
   "noCart": [],
+  "volumeTiers": [
+    {
+      "minQty": 10,
+      "percent": 10.0
+    },
+    {
+      "minQty": 25,
+      "percent": 15.0
+    }
+  ],
+  "freeShippingOver": 250.0,
   "demo": true
 };

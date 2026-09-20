@@ -58,6 +58,28 @@
      generated pages and the stylesheet; the behaviour is a cart. */
   var CFG = window.TR_CONFIG || {};
   var NO_CART = CFG.noCart || [];
+  var TIERS = (CFG.volumeTiers || []).slice().sort(function (a, b) { return a.minQty - b.minQty; });
+  var FREE_OVER = Number(CFG.freeShippingOver || 0);
+
+  /* The best quantity break a line qualifies for, or null. Mirrored exactly in
+     netlify/functions/create-checkout-session.js, which is the one that counts
+     — this copy only decides what the drawer says. If the two ever disagree the
+     customer sees one number and is charged another, so both read their tiers
+     from the same place: products.json, via the build. */
+  function tierFor(qty) {
+    var best = null;
+    for (var i = 0; i < TIERS.length; i++) {
+      if (qty >= TIERS[i].minQty) best = TIERS[i];
+    }
+    return best;
+  }
+
+  function lineTotal(item) {
+    if (item.price == null) return null;
+    var t = tierFor(item.qty);
+    var unit = t ? item.price * (1 - t.percent / 100) : item.price;
+    return Math.round(unit * item.qty * 100) / 100;
+  }
   var KEY = 'tr_cart_v1';
 
   function read() {
@@ -119,10 +141,21 @@
       return;
     }
     body.innerHTML = list.map(function (i, idx) {
+      var t = tierFor(i.qty);
+      var next = null;
+      for (var n = 0; n < TIERS.length; n++) {
+        if (i.qty < TIERS[n].minQty) { next = TIERS[n]; break; }
+      }
       return '<div class="rfq-line">' +
         '<div class="rfq-line-main"><div class="rfq-line-name">' + esc(i.name) + '</div>' +
         '<div class="rfq-line-size">' + esc(i.size) +
-        (i.price != null ? ' &middot; ' + money(i.price) : '') + '</div></div>' +
+        (i.price != null ? ' &middot; ' + money(i.price) : '') + '</div>' +
+        (t ? '<div class="rfq-line-tier">' + t.percent + '% volume discount &middot; ' +
+             money(lineTotal(i)) + '</div>' : '') +
+        (!t && next && i.price != null
+          ? '<div class="rfq-line-next">Add ' + (next.minQty - i.qty) +
+            ' more for ' + next.percent + '% off this line</div>' : '') +
+        '</div>' +
         '<div class="qty"><button type="button" data-q="-1" data-i="' + idx + '" aria-label="Decrease quantity">−</button>' +
         '<span>' + i.qty + '</span>' +
         '<button type="button" data-q="1" data-i="' + idx + '" aria-label="Increase quantity">+</button></div>' +
@@ -135,11 +168,25 @@
        than showing a total the checkout page will disagree with. */
     var priced = list.filter(function (i) { return i.price != null; });
     if (priced.length) {
-      var sum = priced.reduce(function (t, i) { return t + i.price * i.qty; }, 0);
+      var gross = priced.reduce(function (t, i) { return t + i.price * i.qty; }, 0);
+      var sum = priced.reduce(function (t, i) { return t + lineTotal(i); }, 0);
+      var saved = Math.round((gross - sum) * 100) / 100;
       var partial = priced.length < list.length;
-      body.innerHTML += '<div class="rfq-total"><span>Subtotal' +
-        (partial ? ' (priced items)' : '') + '</span><strong>' + money(sum) + '</strong></div>' +
-        '<p class="rfq-total-note">Shipping and any tax are added at checkout, before you pay.</p>';
+      var extra = '';
+      if (saved > 0) {
+        extra += '<div class="rfq-total rfq-total--sub"><span>Volume discount</span>' +
+                 '<strong>&minus;' + money(saved) + '</strong></div>';
+      }
+      extra += '<div class="rfq-total"><span>Subtotal' +
+        (partial ? ' (priced items)' : '') + '</span><strong>' + money(sum) + '</strong></div>';
+      if (FREE_OVER > 0) {
+        extra += sum >= FREE_OVER
+          ? '<p class="rfq-total-note rfq-free">Standard shipping is free on this order.</p>'
+          : '<p class="rfq-total-note">Add ' + money(Math.round((FREE_OVER - sum) * 100) / 100) +
+            ' for free standard shipping.</p>';
+      }
+      extra += '<p class="rfq-total-note">Shipping and any tax are added at checkout, before you pay.</p>';
+      body.innerHTML += extra;
     }
     if (foot) foot.hidden = false;
   }
