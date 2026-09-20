@@ -10,6 +10,7 @@ pages. No third-party dependencies — standard library only.
 """
 from __future__ import annotations
 
+import hashlib
 import html
 import json
 import os
@@ -2013,6 +2014,46 @@ def build_meta(pages):
 
 
 # --------------------------------------------------------------------------- main
+ASSET_REF = re.compile(r'(?P<attr>href|src)="(?P<up>(?:\.\./)*)assets/(?P<path>[^"?#]+)"')
+
+
+def version_assets(pages):
+    """Stamp every asset URL with a hash of the file's own contents.
+
+    Filenames here are not hashed, and netlify.toml serves /assets/* with
+    max-age=31536000, immutable. Those two facts together are a trap: a browser
+    that loaded the site once is entitled to keep that copy of site.js for a
+    year, and no amount of redeploying can reach it. The page stays current
+    because *.html revalidates, so the symptom is a fresh page running stale
+    JavaScript — which is indistinguishable, from the outside, from a deploy
+    that did not happen.
+
+    Appending ?v=<hash of the bytes> means a changed asset is a different URL,
+    so the immutable header becomes true rather than merely fast: unchanged
+    files still hit the cache, changed ones cannot.
+    """
+    digests: dict[str, str] = {}
+
+    def stamp(m):
+        rel_asset = m["path"]
+        if rel_asset not in digests:
+            f = ROOT / "assets" / rel_asset
+            digests[rel_asset] = (
+                hashlib.sha256(f.read_bytes()).hexdigest()[:8] if f.exists() else "")
+        d = digests[rel_asset]
+        if not d:  # referenced but absent: leave it alone for the link sweep to catch
+            return m[0]
+        return f'{m["attr"]}="{m["up"]}assets/{rel_asset}?v={d}"'
+
+    for rel_path in pages:
+        f = ROOT / rel_path
+        txt = f.read_text(encoding="utf-8")
+        new = ASSET_REF.sub(stamp, txt)
+        if new != txt:
+            f.write_text(new, encoding="utf-8")
+    return digests
+
+
 def main():
     for d in ("products", "legal"):
         p = ROOT / d
@@ -2043,10 +2084,14 @@ def main():
             print(f"Removed stale page: {stale.name}")
 
     build_meta(pages)
+    # After build_meta, because it generates assets/js/config.js and a hash of
+    # a file that does not exist yet would pin the previous build's config.
+    stamped = version_assets(pages)
     print(f"Built {len(pages)} pages:")
     for p in pages:
         print(f"  {p}")
     print("  sitemap.xml\n  robots.txt")
+    print(f"Cache-stamped {len(stamped)} assets")
 
 
 if __name__ == "__main__":
