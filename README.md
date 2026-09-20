@@ -418,6 +418,28 @@ Verified with Playwright + Chromium and axe-core (WCAG 2.1 A/AA):
 - No horizontal overflow at 360 / 390 / 768 / 1024 / 1440 px.
 - Phones use a 2-up catalog grid with smaller vials; one column at full size
   made the catalog ~23,000px tall.
+- Touch targets: every control is at least 40px on a coarse pointer. Inline
+  links in prose are exempt and are left at their type size.
+
+**The mobile spacing scale steps down at 720px.** The large steps (`--s-7`
+through `--s-10`) are sized for a 1240px page; used unchanged on a phone they
+cost a third of the viewport before any content appeared. Redefining the tokens
+in one media query fixes every section, section head, hero and grid at once,
+because they are all expressed in those tokens. The small steps are untouched —
+they set the rhythm inside a component and that is right at any width.
+
+**Two layouts lead with text on mobile, not the photograph.** Every vial on the
+site is the same photograph with a different label printed on it, so it is the
+weakest thing to lead with. Stacked, it put a product's price 1.50 screens down
+and the home page's own headline 0.89 screens down. Measured before and after:
+
+| | before | after |
+|---|---|---|
+| Product name | 1.06 screens | 0.30 |
+| Product price | 1.50 | 0.74 |
+| Add to cart | 1.77 | 1.01 |
+| Catalog, first card | 1.30 | 1.08 |
+| Home, hero headline | 0.89 | 0.26 |
 
 Re-run the structural checks at any time (no server or browser needed):
 
@@ -435,6 +457,13 @@ reappears. It exits non-zero, so it can gate a deploy.
 
 Audited with axe-core (WCAG 2.1 A/AA) across fifteen representative pages plus
 the open cart drawer in its error state: **0 violations**.
+
+Contrast is measured on rendered pixels, not read off the stylesheet: 712
+control states across two viewports, every `.btn`, `.filter-btn`,
+`.link-action`, `.chip` and `select` at rest, on hover, and — for the filters —
+in their selected state. That sweep used to cover `.btn` at 1440px only, which
+is why it did not see the selected filter chip render as near-black text on a
+near-black fill the first time that state was written.
 
 Browser tests (Playwright, Chromium) cover the entry affirmation (what it
 blocks, what it remembers, and all three fail-open paths), volume pricing and

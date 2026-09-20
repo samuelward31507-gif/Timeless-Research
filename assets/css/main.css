@@ -61,6 +61,10 @@
   --s-5: 1.5rem;  --s-6: 2rem;    --s-7: 3rem;    --s-8: 4.5rem;
   --s-9: 7rem;    --s-10: 10rem;
 
+  /* --vial-h is set per instance by the markup; this is the ceiling a narrow
+     viewport imposes on it, overridden below. */
+  --vial-max: none;
+
   --radius: 2px;
 
   --shell:   1240px;
@@ -169,6 +173,25 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .shell   { max-width: var(--shell);   margin-inline: auto; padding-inline: var(--s-6); }
 .shell-n { max-width: var(--shell-n); margin-inline: auto; padding-inline: var(--s-6); }
 
+/* The large steps of the scale are sized for a 1240px page. Used unchanged on
+   a 390px phone they cost more than a third of the viewport before any content
+   appears: the home page's own headline sat 0.89 screens down, and a product's
+   price 1.50 screens down, behind a full-height photograph of the vial.
+   Stepping the top of the scale down here fixes every section, section head,
+   hero and grid at once, because they are all expressed in these tokens — the
+   alternative was a mobile override per rule, which is how a design system
+   stops being one. The small steps are untouched: they set the rhythm inside a
+   component, and that rhythm is right at any width. */
+@media (max-width: 720px) {
+  :root {
+    --s-7:  2.25rem;   /* 3    */
+    --s-8:  3rem;      /* 4.5  */
+    --s-9:  4rem;      /* 7    */
+    --s-10: 5rem;      /* 10   */
+    --vial-max: 46vh;
+  }
+}
+
 .section        { padding-block: var(--s-9); }
 .section--tight { padding-block: var(--s-8); }
 /* editorial: sections are separated by a single hairline, never a filled box */
@@ -184,6 +207,22 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 
 .split { display: grid; grid-template-columns: minmax(0,.82fr) minmax(0,1.18fr); gap: var(--s-8); align-items: start; }
 @media (max-width: 900px) { .split { grid-template-columns: 1fr; gap: var(--s-6); } }
+
+/* Stacked, the product page led with a full-height photograph of the vial, so
+   a phone reached the compound's own name at 0.96 screens and its price at
+   1.40 — you scrolled past a picture to find out what the thing cost. Every
+   vial on the site is the same photograph with a different label printed on
+   it, so it is the weakest thing on the page to lead with. Name, price and the
+   buy control come first; the photograph follows, smaller, where it still
+   reads. Only on the product page: .split elsewhere is an unrelated layout. */
+@media (max-width: 900px) {
+  .split--product > .detail-figure { order: 2; }
+  .split--product > :not(.detail-figure) { order: 1; }
+}
+@media (max-width: 720px) {
+  .split--product .detail-media { padding: var(--s-6) var(--s-5); }
+  .split--product .vial { max-height: 34vh; }
+}
 
 /* --- Catalog sort --------------------------------------------------------- */
 .catalog-meta { display: flex; justify-content: space-between; align-items: center;
@@ -397,6 +436,7 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 }
 .link-action:hover { color: var(--accent); border-color: var(--accent); }
 
+
 @media (max-width: 520px) {
   .btn { white-space: normal; text-align: center; line-height: 1.35; }
   .hero-actions .btn { width: 100%; }
@@ -412,8 +452,12 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 }
 .rfq-count.is-on { display: flex; }
 @media (max-width: 560px) {
+  /* Dropping the word "Cart" left the two header controls at 39x33 and 38x38 —
+     under every platform's minimum, and they are the only two controls on the
+     page. The icons stay their size; the hit area is what grows. */
   .rfq-label { display: none; }
-  .rfq-btn { padding-inline: .7rem; }
+  .rfq-btn { padding-inline: .7rem; min-width: 44px; min-height: 44px; justify-content: center; }
+  .nav-toggle { min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
   .header .shell { gap: var(--s-3); }
   .brand-text { font-size: .625rem; letter-spacing: .14em; }
 }
@@ -427,7 +471,11 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 @media (max-width: 900px) {
   .hero { padding-block: var(--s-8) var(--s-7); }
   .hero-grid { grid-template-columns: 1fr; gap: var(--s-7); }
-  .hero-figure { order: -1; }
+  /* The vial led on mobile, which put the headline 0.76 screens down: a phone
+     arriving from a search scrolled past a photograph before reading what this
+     company does. The proposition goes first and the vial follows it, still
+     within the first scroll. */
+  .hero-figure { order: 1; }
 }
 
 .rule-tag {
@@ -466,16 +514,45 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 
 .filters { position: sticky; top: 88px; }
 @media (max-width: 900px) { .filters { position: static; } }
+
 .filters h2 { font-size: var(--t-xs); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-4); margin-bottom: var(--s-4); }
 .filter-list { list-style: none; display: flex; flex-direction: column; }
-@media (max-width: 900px) { .filter-list { flex-direction: row; flex-wrap: wrap; gap: var(--s-2); } }
+/* One scrolling line rather than several wrapped rows: the eight research
+   areas were a block of chips between the page heading and the first product.
+   Bleeding to the screen edge is what makes it read as scrollable rather than
+   clipped, and the inline padding has to match .shell's so the row stays on
+   the grid. Hiding the scrollbar costs nothing here — the row still moves by
+   drag, wheel, trackpad and keyboard, and every button keeps its focus ring. */
+@media (max-width: 900px) {
+  .filter-list {
+    flex-direction: row; flex-wrap: nowrap; gap: var(--s-2);
+    overflow-x: auto; scrollbar-width: none;
+    /* No negative-margin bleed to the screen edge. The row is wider than its
+       column by design, and nothing in the ancestor chain clips, so the bleed
+       widened the document instead: 1119px of scrollWidth on a 390px phone,
+       on every viewport below 900px. Correctness beats the edge-to-edge look. */
+    padding-bottom: var(--s-2);
+    scroll-snap-type: x proximity;
+  }
+  .filter-list::-webkit-scrollbar { display: none; }
+  .filter-list li { flex: 0 0 auto; scroll-snap-align: start; }
+  .filters h2 { margin-bottom: var(--s-3); }
+  /* A grid item defaults to min-width: auto, which resolves to min-content —
+     for a nowrap flex row that is the whole row, so the column sized to 1087px
+     and overflow-x never got the chance to scroll. */
+  .filters { min-width: 0; }
+}
 .filter-btn {
   width: 100%; text-align: left; font-size: var(--t-sm); color: var(--ink-3);
   padding: var(--s-2) 0; border-bottom: 1px solid var(--line);
   transition: color var(--dur) var(--ease);
 }
 @media (max-width: 900px) {
-  .filter-btn { width: auto; padding: var(--s-2) var(--s-3); border: 1px solid var(--line); border-radius: var(--radius); }
+  .filter-btn {
+    width: auto; padding: var(--s-2) var(--s-4); white-space: nowrap;
+    border: 1px solid var(--line); border-radius: 999px; min-height: 40px;
+  }
+  .filter-btn .n { float: none; margin-left: var(--s-2); }
 }
 .filter-btn:hover { color: var(--ink); }
 .filter-btn[aria-pressed="true"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--ink); }
@@ -586,7 +663,8 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
    printed INTO the real paper label with multiply blending, so it inherits
    the label's own curvature shading instead of sitting on a flat rectangle.
    Geometry measured from the asset's alpha channel. */
-.vial { position: relative; display: block; height: var(--vial-h, 240px); width: auto; }
+.vial { position: relative; display: block; height: var(--vial-h, 240px);
+        max-height: var(--vial-max, none); width: auto; }
 /* the studio shadow was cut with the black backdrop, so the vial needs a
    contact shadow or it floats above the tile */
 .vial::after {
@@ -945,6 +1023,34 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
    stays, and a footer carries the source URL so a printed sheet can be traced
    back. ------------------------------------------------------------------ */
 @page { margin: 14mm 14mm 16mm; }
+
+/* --- Narrow-viewport overrides ------------------------------------------ */
+/* Below the component rules they override, for the same reason as the touch
+   targets: at equal specificity the later rule wins, and `.filter-btn
+   [aria-pressed="true"] { color: var(--ink) }` is defined further down the
+   file than the mobile media query. Written up there, the selected chip came
+   out as near-black text on a near-black fill. */
+@media (max-width: 900px) {
+  /* The desktop selected state is a bottom rule under a square button. On a
+     pill it draws as a dark arc hanging off the bottom edge, which reads as a
+     rendering fault rather than a selection. A filled chip is the same signal
+     in the shape this actually is. */
+  .filter-btn[aria-pressed="true"] {
+    border-color: var(--ink); background: var(--ink); color: var(--paper);
+  }
+  .filter-btn[aria-pressed="true"] .n { color: var(--paper); opacity: .75; }
+}
+
+/* --- Touch targets ------------------------------------------------------ */
+/* Last on purpose: these override component rules defined above, and at equal
+   specificity the later rule wins. Written higher up, the pack-size select
+   kept its .35rem padding and stayed 28px tall. */
+@media (pointer: coarse), (max-width: 720px) {
+  .link-action { display: inline-flex; align-items: center; min-height: 44px; }
+  .product-foot select { padding-block: .7rem; }
+  .sort-field select { padding-block: .6rem; }
+  .coa-index .link-action { min-height: 40px; }
+}
 
 @media print {
   .header, .footer, .announce, .demo-bar, .drawer, .drawer-scrim, .toast,

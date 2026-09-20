@@ -934,8 +934,8 @@ def build_products():
       <span>{E(p['name'])}</span>
     </nav>
 
-    <div class="split">
-      <div>
+    <div class="split split--product">
+      <div class="detail-figure">
         <div class="detail-media" style="--tint:{CAT_TINT[p['category']][0]};--tint-deep:{CAT_TINT[p['category']][1]}">
           {vial(p.get('label') or p['name'], p['sizes'][0], 400, alt=f"{p['name']} research vial, {p['sizes'][0]}", purity=p.get('purity'), pid=p['id'])}
         </div>
