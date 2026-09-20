@@ -179,12 +179,21 @@ contract forms when you confirm or despatch. That wording is what lets you
 cancel and refund an order you do not want to fill, which is the only
 enforcement the research-use condition has.
 
-**Three compounds are deliberately not in the cart** — retatrutide, tirzepatide
-and oxytocin, flagged `"restricted": true` in `products.json`. They have an
-Enquire button instead, which lands on the contact form with the compound
-preselected. The exclusion is enforced twice: no page renders an add control
-for them, and the checkout function refuses their ids outright. Do not remove
-either check without reading §4 first.
+**The whole catalogue is in the cart, including the three restricted standards.**
+Retatrutide, tirzepatide and oxytocin carry `"restricted": true` in
+`products.json`, which puts a notice on their specification pages saying what
+they are — an approved or investigational pharmaceutical substance supplied as
+an analytical reference standard. That flag describes the material. It does not
+change how the compound is bought.
+
+**If you need to pull one SKU out of the cart**, that is a separate flag:
+`"cart": false` on the product in `products.json`. It keeps the compound listed
+and priced but replaces its add control with an Enquire button that lands on the
+contact form with the compound preselected, and the checkout function refuses
+the id outright. Nothing carries it today. Reach for it if a payment processor
+objects to a specific compound, or if you decide you want an order in front of a
+person before it ships — it is one line and a rebuild, and `tools/check.py`
+fails if any page still offers to cart something marked that way.
 
 ### How the checkout works
 
@@ -226,7 +235,10 @@ smaller**, because the volume runs through Stripe rather than through invoices
 you raise by hand. Find out before you depend on it:
 
 1. Apply describing the business accurately: analytical reference material sold
-   for laboratory research use only.
+   for laboratory research use only. Do not omit the GLP-1 analogues from that
+   description — an account approved on an incomplete picture is an account that
+   gets frozen later, with the balance held, which is worse than being declined
+   up front.
 2. Say plainly that you do not sell for human consumption, and that research use
    is a condition of sale confirmed at checkout and written into the terms. The
    site, its research use policy and the checkout confirmation are your
@@ -269,15 +281,30 @@ anything else that lands in the repository.
 ## 4. Decisions only you can make
 
 **The three restricted compounds.** Retatrutide, tirzepatide and oxytocin are
-flagged `"restricted": true` in `assets/data/products.json`, kept out of the
-cart in the interface, and refused by name in the checkout function. They carry
-by far the highest regulatory exposure in the catalog: the two GLP-1 analogues
-are covered by active patents held by Eli Lilly, which has litigated against
-sellers, and FDA has issued warning letters to research-peptide vendors over
-research-use-only framing. Removing them is three lines in the JSON and a
-rebuild. Keeping them should be a decision you make deliberately, ideally having
-taken advice — and selling them through the cart instead would be a different
-and much larger decision, which is why it takes more than a config change.
+flagged `"restricted": true` in `assets/data/products.json` and sold through the
+cart like everything else. That was an explicit decision by the operator, taken
+on the basis that competing vendors sell them the same way, and it is recorded
+here so it is not mistaken for an oversight.
+
+They carry by far the highest exposure in the catalog, and the cart does not
+change most of it:
+
+- **Patents.** Retatrutide and tirzepatide are Eli Lilly compounds under active
+  patent, and Lilly has litigated against sellers. This exposure comes from
+  listing them at all, not from how they are paid for.
+- **FDA.** Tirzepatide is an approved drug (Mounjaro, Zepbound) and oxytocin is
+  prescription-only. Research-use-only framing over a compound with an approved
+  counterpart is exactly the shape of the warning letters FDA has sent
+  research-peptide vendors. Again: listing, not checkout.
+- **Your payment processor.** This one *is* worse with a cart. Card volume on
+  GLP-1 analogues is among the most common reasons these accounts get frozen,
+  and Stripe holds the balance while it reviews. Before the cart, that volume
+  would have arrived as invoices you raised by hand. Now it runs on card rails
+  on your highest-value SKU.
+
+Removing them is three lines in the JSON and a rebuild. Taking just those three
+out of the cart while keeping them listed is `"cart": false` on each, which is
+the lever described in §3c. Both are config changes; the judgement is not.
 
 **Research use is a condition, not a check — and the site says so.** With a card
 checkout there is no vetting step, and every page has been written to stop

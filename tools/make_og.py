@@ -46,7 +46,7 @@ SECTIONS = [
                             "research. What we will not supply, and why."]),
     ("faq", "Questions.", ["Ordering, documentation, shipping and storage,",
                            "answered plainly."]),
-    ("contact", "Get in touch.", ["Restricted standards, certificates of analysis",
+    ("contact", "Get in touch.", ["Certificates of analysis, bulk quantities",
                                   "and technical questions."]),
     ("pay", "Placing an order.", ["Catalogue prices, a card payment on a page",
                                   "hosted by Stripe, and nothing in between."]),

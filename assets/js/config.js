@@ -6,10 +6,6 @@ window.TR_CONFIG = {
   "formEndpoint": "",
   "checkoutEndpoint": "/.netlify/functions/create-checkout-session",
   "currency": "USD",
-  "restricted": [
-    "oxytocin",
-    "retatrutide",
-    "tirzepatide"
-  ],
+  "noCart": [],
   "demo": true
 };

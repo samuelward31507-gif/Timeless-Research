@@ -57,7 +57,7 @@
      this was a request-for-quote list. They are load-bearing across the
      generated pages and the stylesheet; the behaviour is a cart. */
   var CFG = window.TR_CONFIG || {};
-  var RESTRICTED = CFG.restricted || [];
+  var NO_CART = CFG.noCart || [];
   var KEY = 'tr_cart_v1';
 
   function read() {
@@ -74,11 +74,12 @@
   var CART = {
     all: read,
     add: function (id, name, size, price) {
-      /* Belt and braces: a restricted compound has no add control on any page,
-         so reaching here means the markup was edited or the console was used.
-         The checkout function refuses it again on the server, where it counts. */
-      if (RESTRICTED.indexOf(id) !== -1) {
-        toast(name + ' is a restricted standard — please enquire');
+      /* Belt and braces: a compound the operator has taken out of the cart has
+         no add control on any page, so reaching here means the markup was
+         edited or the console was used. The checkout function refuses it again
+         on the server, where it counts. */
+      if (NO_CART.indexOf(id) !== -1) {
+        toast(name + ' is not sold through the cart — please enquire');
         return;
       }
       var list = read();

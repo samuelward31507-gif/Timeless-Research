@@ -225,21 +225,33 @@ for page in PAGES:
         if phrase in low:
             fail(f"{rel}: {why} (\"{phrase}\")")
 
-# ------------------------------------- restricted compounds stay out of the cart
-# A restricted compound corresponds to an approved or investigational
-# pharmaceutical and is released against a stated protocol, so no page may offer
-# to put one in the cart. The checkout function refuses it again server-side;
-# this catches the markup before it ships.
-_restricted = {_p["id"] for _p in
-               _json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8"))["products"]
-               if _p.get("restricted")}
+# ------------------------------- what the operator took out of the cart stays out
+# `"cart": false` in products.json means the compound is listed and priced but
+# ordered by email, not by card — the lever to pull if a payment processor
+# objects to one SKU, or if the operator wants an order in front of a person
+# first. No page may then offer to put it in the cart. The checkout function
+# refuses it again server-side; this catches the markup before it ships.
+#
+# Note this is NOT keyed on `"restricted"`. That flag marks a compound that
+# corresponds to an approved or investigational pharmaceutical, which earns it a
+# notice saying so — a fact about the material, not a route to the checkout.
+_products = _json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8"))["products"]
+_no_cart = {_p["id"] for _p in _products if _p.get("cart") is False}
 for page in PAGES:
     rel = page.relative_to(ROOT).as_posix()
     for _id in re.findall(r'data-add="([^"]+)"', page.read_text(encoding="utf-8")):
-        if _id in _restricted:
-            fail(f"{rel}: restricted compound {_id} carries an add-to-cart control")
-if not _restricted:
-    notes.append("no compound is marked restricted; the enquiry route is unused")
+        if _id in _no_cart:
+            fail(f"{rel}: {_id} is marked \"cart\": false but carries an add-to-cart control")
+
+# A compound flagged restricted must say what that means. Carrying the badge
+# without the explanation is the worst of both: it looks like a warning and
+# tells the reader nothing.
+for _p in _products:
+    if not _p.get("restricted"):
+        continue
+    _page = ROOT / "products" / f"{_p['id']}.html"
+    if _page.exists() and "Restricted reference standard" not in _page.read_text(encoding="utf-8"):
+        fail(f"products/{_p['id']}.html is flagged restricted but carries no notice explaining it")
 
 # --------------------------------------------------- checkout price table
 # The function charges from netlify/functions/catalog.json, which build.py
@@ -261,7 +273,7 @@ else:
         if _entry is None:
             fail(f"checkout catalog is missing {_p['id']}")
             continue
-        _want = not _p.get("restricted") and _p.get("available", True)
+        _want = _p.get("available", True) and _p.get("cart", True) is not False
         if _entry.get("buyable") is not _want:
             fail(f"checkout catalog marks {_p['id']} buyable={_entry.get('buyable')}, "
                  f"products.json says {_want}")

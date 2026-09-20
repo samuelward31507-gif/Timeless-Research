@@ -73,7 +73,7 @@
     },
     "retatrutide": {
       "name": "Retatrutide",
-      "buyable": false,
+      "buyable": true,
       "prices": {
         "30 mg": 150,
         "60 mg": 240,
@@ -83,7 +83,7 @@
     },
     "tirzepatide": {
       "name": "Tirzepatide",
-      "buyable": false,
+      "buyable": true,
       "prices": {
         "100 mg": 180
       }
@@ -188,7 +188,7 @@
     },
     "oxytocin": {
       "name": "Oxytocin",
-      "buyable": false,
+      "buyable": true,
       "prices": {
         "10 mg": 55
       }

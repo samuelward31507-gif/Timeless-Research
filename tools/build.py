@@ -370,17 +370,28 @@ def offers_for(p) -> dict:
 def buyable(p) -> bool:
     """Whether a product can be put in the cart and paid for on the site.
 
-    Two separate reasons say no, and they are not interchangeable. `available`
-    is stock: the compound is ours to sell but we have none. `restricted` is
-    policy: the compound corresponds to an approved or investigational
-    pharmaceutical, so it is released against a stated protocol rather than a
-    card. Both routes are kept out of the cart here so that no page can offer a
-    checkout the terms of sale do not back.
+    Two independent flags can say no, and they are deliberately separate:
+
+      `available: false`  stock. The compound is ours to sell but we have none.
+      `cart: false`       how it is sold. The compound is listed and priced, but
+                          the order is taken by email rather than by card.
+
+    `restricted` is neither of those and does not appear here. It marks a
+    compound that corresponds to an approved or investigational pharmaceutical,
+    which earns it a notice and a badge saying what it is — a fact about the
+    material, not a route to the checkout. Conflating the two was a mistake:
+    the notice belongs on the page whatever the payment mechanics are, and the
+    operator needs to be able to pull one SKU out of the cart (if a processor
+    objects to it, say) without deleting what the page says about it.
     """
-    return bool(p.get("available", True)) and not p.get("restricted")
+    return bool(p.get("available", True)) and p.get("cart", True) is not False
 
 
-RESTRICTED_IDS = sorted(p["id"] for p in PRODUCTS if p.get("restricted"))
+# Ids the browser is told not to put in the cart, so the UI can refuse early
+# with a sentence rather than a failed request. Not the enforcement: the
+# checkout function re-checks every id against its own copy of the catalogue,
+# because anything the browser is told, the browser can be made to ignore.
+NO_CART_IDS = sorted(p["id"] for p in PRODUCTS if p.get("cart") is False)
 
 
 def initial_price(p) -> str:
@@ -558,9 +569,6 @@ def build_home():
 
     hero_vial = vial("BPC-157", "5 mg", 470, purity="\u226598%",
                      alt="A Timeless Research vial of BPC-157, 5 mg")
-    n_restricted = len(RESTRICTED_IDS)
-    restricted_n = {1: "One compound is", 2: "Two compounds are",
-                    3: "Three compounds are"}.get(n_restricted, f"{n_restricted} compounds are")
     body = f"""
 <section class="hero">
   <div class="shell">
@@ -636,7 +644,7 @@ def build_home():
       <div class="prose" data-reveal data-reveal-delay="1">
         <p>Every pack size carries its list price. Add what you need to the cart and pay by card — checkout is hosted by Stripe, which collects your name, email, phone number and shipping address and takes the payment. There is no account to apply for and no quotation to wait on.</p>
         <p>Research use is a condition of every sale, not a formality. You confirm it at checkout, it is written into the <a href="legal/terms.html">terms of sale</a>, and an order we have reason to believe is destined for human or veterinary use is cancelled and refunded rather than shipped.</p>
-        <p>{restricted_n} not sold this way. They correspond to approved or investigational pharmaceutical substances, so they are supplied as analytical reference standards against a stated research protocol — they carry an <strong>Enquire</strong> button instead of a cart, and we come back to you by email.</p>
+        <p>Some compounds correspond to approved or investigational pharmaceutical substances. Those are flagged as <strong>restricted reference standards</strong> on their specification pages, because what they are is worth stating plainly. The conditions of sale are the same for them as for everything else: supplied for <strong>in vitro</strong> method development, never for administration.</p>
         <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:2rem">
           <a class="btn btn--primary" href="catalog.html">Browse the catalog</a>
           <a class="btn btn--ghost" href="pay.html">How ordering works</a>
@@ -663,7 +671,7 @@ def build_catalog():
         hay = " ".join(filter(None, [p["name"], p.get("cas") or "", " ".join(p.get("synonyms") or []),
                                      CAT_LABEL[p["category"]], p["research"]])).lower()
         sizes = size_options(p)
-        if p.get("restricted"):
+        if p.get("cart") is False:
             action = f'<a class="link-action" href="contact.html?item={p["id"]}">Enquire</a>'
         elif p.get("available", True):
             action = (f'<button class="link-action" data-add="{p["id"]}" '
@@ -700,7 +708,7 @@ def build_catalog():
     <div class="sec-head">
       <span class="eyebrow">Catalog</span>
       <h1 class="display h-sec">Research <em>compounds.</em></h1>
-      <p class="lede">{len(PRODUCTS)} characterised compounds, priced by pack size and paid for by card at checkout. Compounds marked <strong>Restricted</strong> are supplied as reference standards against a stated research protocol, so they are quoted by email rather than sold from the page.</p>
+      <p class="lede">{len(PRODUCTS)} characterised compounds, priced by pack size and paid for by card at checkout. Compounds marked <strong>Restricted</strong> correspond to an approved or investigational pharmaceutical substance and are supplied as analytical reference standards for <strong>in vitro</strong> method development.</p>
     </div>
   </div>
 </section>
@@ -789,12 +797,12 @@ def build_products():
         syn = ", ".join(p.get("synonyms") or []) or "—"
         sizes_opt = size_options(p)
 
-        if p.get("restricted"):
+        if p.get("cart") is False:
             price_caption = "indicative list price, confirmed on enquiry"
             buy_control = (f'<a class="btn btn--primary" href="../contact.html?item={p["id"]}">'
-                           f'Enquire about this standard</a>')
-            buy_note = ("Supplied as an analytical reference standard against a stated research "
-                        "protocol, so it is quoted by email rather than sold from this page.")
+                           f'Enquire about this compound</a>')
+            buy_note = ("Not sold through the cart. Tell us what you need and we will reply by "
+                        "email with availability and a price.")
         elif p.get("available", True):
             price_caption = "per vial, excluding shipping and tax"
             buy_control = (f'<button class="btn btn--primary" data-add="{p["id"]}" '
@@ -814,7 +822,7 @@ def build_products():
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
           <div>
             <h3>Restricted reference standard</h3>
-            <p>This compound corresponds to an approved or investigational pharmaceutical substance and is supplied strictly as an analytical reference standard for <strong>in vitro</strong> method development. It is not sold through the cart. Release is against a stated research protocol, so tell us what the material is for and we will come back to you by email with availability and a price.</p>
+            <p>This compound corresponds to an approved or investigational pharmaceutical substance. It is supplied strictly as an analytical reference standard for <strong>in vitro</strong> method development: it is not a medicine, it is not manufactured to pharmaceutical standards, it has not been evaluated by any regulatory authority for safety or efficacy, and it must not be administered to a human or an animal. Buying it is your confirmation of that — see our <a href="../compliance.html">research use policy</a>.</p>
           </div>
         </div>"""
 
@@ -996,7 +1004,7 @@ def build_about():
         <p>If you are looking for material to use on yourself or another person, we are the wrong supplier, and there is no version of this conversation in which we become the right one. Speak to a licensed clinician.</p>
         <h3>How we handle uncertainty</h3>
         <p>Some compounds in this catalog are well characterised with decades of literature behind them. Others are recent, and the preclinical record is thin. We describe each one at the level the evidence actually supports, and the product descriptions say what a compound has been <em>studied for</em> — not what it does, and never what it treats.</p>
-        <p>Where a compound corresponds to an approved or investigational pharmaceutical, we flag it as a restricted reference standard, keep it out of the cart, and require a stated research protocol before release.</p>
+        <p>Where a compound corresponds to an approved or investigational pharmaceutical, we flag it as a restricted reference standard on its specification page and say what that means, rather than listing it as though it were any other reagent.</p>
       </div>
     </div>
   </div>
@@ -1021,11 +1029,11 @@ def build_about():
 # --------------------------------------------------------------------------- faq
 FAQ = [
     ("Can I just add something to the cart and pay?",
-     "Yes, for everything on the catalog except the three restricted reference standards. Prices are published against every pack size, the cart totals them, and checkout is hosted by Stripe. There is no account to apply for and nothing to wait on."),
+     "Yes, for everything on the catalog. Prices are published against every pack size, the cart totals them, and checkout is hosted by Stripe. There is no account to apply for and nothing to wait on."),
     ("What does checkout ask me for?",
      "Your name, email address, phone number and a shipping address, all collected by Stripe on their own page, plus card details we never see. You also confirm on this site, before checkout opens, that the material is for laboratory research use. That is the whole of it."),
-    ("Why are three compounds not in the cart?",
-     "Retatrutide, tirzepatide and oxytocin correspond to approved or investigational pharmaceutical substances. We supply them as analytical reference standards for in vitro method development, against a stated research protocol, which is a conversation rather than a checkout. Use the Enquire button on those pages and we come back by email."),
+    ("What does the Restricted flag on some compounds mean?",
+     "That the compound corresponds to an approved or investigational pharmaceutical substance \u2014 retatrutide, tirzepatide and oxytocin carry it. They are supplied as analytical reference standards for in vitro method development, on exactly the same conditions as everything else on the catalog. The flag is there because a buyer is entitled to know that what they are ordering has a pharmaceutical counterpart, not because the ordering route is different."),
     ("What does \u201cresearch use only\u201d actually mean here?",
      "It means the material is intended exclusively for in vitro laboratory research and analytical method development by qualified professionals. It is not a drug, supplement, cosmetic or medical device; it has not been evaluated for safety or efficacy in humans or animals; and it must not be administered to either. This is a statement about what the material is, not a disclaimer that unlocks another use."),
     ("You cannot verify who I am, so is that confirmation worth anything?",
@@ -1086,10 +1094,10 @@ def build_faq():
 
 # --------------------------------------------------------------------------- contact
 # Since the catalogue is bought from the page, this form is no longer a gate in
-# front of a purchase: it is for the restricted standards, for technical
-# questions, and for anything the FAQ does not answer. It therefore asks for the
-# three things the operator needs to reply — name, email, phone — and the
-# question itself, and nothing else.
+# front of a purchase: it is for certificates, technical questions, bulk and
+# purchase-order enquiries, and anything the FAQ does not answer. It therefore
+# asks for the three things the operator needs to reply — name, email, phone —
+# and the question itself, and nothing else.
 #
 # The compound select is prefilled from ?item=, which is matched against the
 # option values built here. An id that is not in the catalogue simply leaves the
@@ -1108,7 +1116,7 @@ def build_contact():
     <div class="sec-head">
       <span class="eyebrow">Enquiries</span>
       <h1 class="display h-sec">Get in <em>touch.</em></h1>
-      <p class="lede">For the restricted reference standards, for a certificate of analysis, or for anything the catalogue does not answer. We reply within two business days.</p>
+      <p class="lede">For a certificate of analysis, a bulk quantity, a purchase order, or anything the catalogue does not answer. We reply within two business days.</p>
     </div>
   </div>
 </section>
@@ -1119,9 +1127,9 @@ def build_contact():
       <div>
         <div class="prose">
           <h3>Ordering does not go through here</h3>
-          <p>Everything on the catalogue except the restricted standards is bought from its own page: add it to the cart and pay by card. <a href="pay.html">How ordering works</a>.</p>
-          <h3>Restricted reference standards</h3>
-          <p>Retatrutide, tirzepatide and oxytocin correspond to approved or investigational pharmaceutical substances. They are supplied as analytical reference standards for <strong>in vitro</strong> method development against a stated research protocol, so tell us the assay or model the material is for and we will reply with availability and a price.</p>
+          <p>The whole catalogue is bought from its own page: add a pack size to the cart and pay by card. <a href="pay.html">How ordering works</a>.</p>
+          <h3>Bulk quantities and purchase orders</h3>
+          <p>Checkout takes up to 99 units of a pack size across 20 lines. For more than that, or to be invoiced against a purchase order instead of paying by card, ask here and we will quote it.</p>
           <h3>Certificates and technical questions</h3>
           <p>Ask for the certificate covering the lot currently in stock and we will send it, with the full data package if you need it for supplier qualification. We answer questions on identity, purity, solubility, stability, storage and handling.</p>
           <h3>What we cannot help with</h3>
@@ -1166,7 +1174,7 @@ def build_contact():
           <div class="field">
             <label for="f-message">Your enquiry <span class="req" aria-hidden="true">*</span></label>
             <textarea id="f-message" name="message" rows="5" required></textarea>
-            <p class="field-hint">For a restricted standard, one line on the assay or model it is for is enough.</p>
+            <p class="field-hint">One line is usually enough.</p>
             <p class="field-error">Please tell us what you need.</p>
           </div>
 
@@ -1188,7 +1196,7 @@ def build_contact():
 </section>
 """
     return page("contact.html", f"Contact — {BRAND}",
-                "Enquire about a restricted reference standard, request a certificate of analysis, or ask a technical question on identity, purity, storage or handling.",
+                "Request a certificate of analysis, quote a bulk quantity or purchase order, or ask a technical question on identity, purity, storage or handling.",
                 body, "contact.html", extra_body='<script src="assets/js/contact.js" defer></script>')
 
 
@@ -1222,7 +1230,8 @@ def build_compliance():
       <p>Material is sold to purchasers who are buying it for laboratory research use. Before checkout opens you confirm that the material is for <strong>in vitro</strong> laboratory research and will not be administered to a human or an animal. That confirmation is a condition of sale and is incorporated into the <a href="legal/terms.html">terms of sale</a>.</p>
       <p>We are direct about what that is and is not. It is a contractual condition, not an identity check: we do not operate a vetting or credentialing process, and we do not claim to. What we do is refuse the sale where we have reason to believe the material is destined for human or veterinary use — before shipping, by cancelling and refunding the order; after shipping, by declining further business. We may decline any order at our discretion and without giving a reason.</p>
       <h2>4. Restricted reference standards</h2>
-      <p>Certain catalog items correspond to approved or investigational pharmaceutical substances. These are supplied strictly as analytical reference standards for <strong>in vitro</strong> method development, require a stated research protocol prior to release, and are flagged as restricted on their specification pages. They cannot be added to the cart and are not sold through checkout under any circumstances; they are released only against an enquiry we have accepted in writing.</p>
+      <p>Certain catalog items correspond to approved or investigational pharmaceutical substances. They are flagged as restricted on their specification pages and are supplied strictly as analytical reference standards for <strong>in vitro</strong> method development. They are not medicines, are not manufactured to pharmacopoeial or GMP standards, and have not been evaluated by any regulatory authority for safety or efficacy in humans or animals.</p>
+      <p>Section 2 applies to them without exception. That a compound has an approved or investigational counterpart is a reason for more care in handling and disposal, not a suggestion that it may be used as that counterpart is used. Any order of one of these compounds that we have reason to believe is destined for human or veterinary use is cancelled and refunded rather than shipped, and we may decline further business.</p>
       <h2>5. What we will not advise on</h2>
       <p>We provide technical support on identity, purity, solubility, stability, storage and handling. We do <strong>not</strong> provide guidance on dosing, administration routes, cycles, combinations, or therapeutic application, for any species. Enquiries seeking such guidance will be declined, and may result in an account being refused or closed.</p>
       <h2>6. Responsibility of the recipient</h2>
@@ -1282,7 +1291,7 @@ def build_legal():
       <h2>2. How an order is made and accepted</h2>
       <p>Placing an order through checkout is your offer to buy. A contract is formed when we send you an order confirmation or despatch the material, whichever happens first. Payment being authorised or captured at checkout is not by itself our acceptance: until we confirm or despatch, we may cancel the order and refund you in full.</p>
       <p>We may decline any order at our discretion, including where the stated research use falls outside our <a href="../compliance.html">research use policy</a>, where we have reason to believe the material is destined for human or veterinary use, where we cannot lawfully ship to the destination, or where a price or availability shown on the site was wrong.</p>
-      <p>Compounds marked as restricted reference standards are not sold through checkout. They are supplied only against an enquiry we have accepted in writing, on the terms of that acceptance and these terms together.</p>
+      <p>Some compounds are marked as restricted reference standards because they correspond to an approved or investigational pharmaceutical substance. They are sold on these terms like anything else on the catalogue, and section 3 applies to them with particular force: they are supplied as analytical reference standards for <strong>in vitro</strong> method development and for no other purpose.</p>
 
       <h2>3. Research use is a condition of every sale</h2>
       <p>Every sale is conditional on your agreement to our <a href="../compliance.html">research use policy</a>, which forms part of these terms. Material supplied is for <strong>in vitro</strong> laboratory research by qualified professionals. It is not a drug, dietary supplement, cosmetic, food or medical device, and it is not for human or veterinary use, clinical or diagnostic procedures, or household use. Breach of that policy is a material breach of these terms, entitling us to cancel outstanding orders, terminate your account and decline future business.</p>
@@ -1645,8 +1654,10 @@ def build_pay():
 
     <div class="prose" style="margin-top:2.5rem">
       <h2>Questions we are asked</h2>
-      <h3>Which compounds cannot be bought this way?</h3>
-      <p>The three flagged as restricted reference standards — retatrutide, tirzepatide and oxytocin. They correspond to approved or investigational pharmaceutical substances and are released against a stated research protocol, so they carry an <strong>Enquire</strong> button and are quoted by email. Everything else on the catalogue is in the cart.</p>
+      <h3>Is the whole catalogue in the cart?</h3>
+      <p>Yes. Some compounds carry a <strong>Restricted</strong> flag, which says that they correspond to an approved or investigational pharmaceutical substance and are supplied as analytical reference standards &mdash; it describes the material, not a different way of buying it.</p>
+      <h3>What if I need more than checkout allows?</h3>
+      <p>Checkout takes up to 99 units of a pack size across 20 separate lines. Beyond that, <a href="contact.html">ask us</a> and we will quote and invoice it.</p>
       <h3>What does shipping cost?</h3>
       <p>You choose a tracked standard or express courier service at checkout and the cost is added there, before you pay. Import duties and clearance charges at the destination are separate and are yours to pay.</p>
       <h3>Do you take purchase orders?</h3>
@@ -1756,12 +1767,7 @@ def build_meta(pages):
              "formEndpoint": FORM_ENDPOINT,
              "checkoutEndpoint": "/.netlify/functions/create-checkout-session",
              "currency": CURRENCY,
-             # The browser is told which ids it must not put in the cart so the
-             # UI can refuse early with a sentence rather than a failed request.
-             # It is not the enforcement: the function re-checks every id
-             # against its own copy of the catalogue, because anything the
-             # browser is told, the browser can be made to ignore.
-             "restricted": RESTRICTED_IDS,
+             "noCart": NO_CART_IDS,
              "demo": DEMO}, indent=2
         ) + ";\n", encoding="utf-8")
 

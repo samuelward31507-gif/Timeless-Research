@@ -256,8 +256,8 @@ and DKIM on the sending domain or the notifications will land in spam.
 Everything an operator must supply, deploy or decide is in
 **[HANDOVER.md](HANDOVER.md)**: the build variables that `check.py` refuses to
 deploy without, the Netlify steps, the commercial claims the copy makes, and
-the decisions — the three restricted compounds, what to do with an order that
-reads wrong, legal review — that are not the builder's to make.
+the decisions — carrying the three restricted compounds, what to do with an
+order that reads wrong, legal review — that are not the builder's to make.
 
 `tools/check.py` fails while any legal document still carries an unfilled
 field, so an unconfigured site cannot reach production by accident.
@@ -278,12 +278,19 @@ product classes to the public is a licensing matter — and, for scheduled
 substances, a criminal one — that a website cannot paper over. Adding those SKUs
 would undermine everything the rest of the site is built on.
 
-**Three compounds in the catalog have no checkout either.** Retatrutide,
-tirzepatide and oxytocin correspond to approved or investigational
-pharmaceutical substances; they are flagged `"restricted": true`, rendered with
-an Enquire button instead of a cart control, and refused by id in the checkout
-function. `tools/check.py` fails the build if any page renders an add-to-cart
-control for one.
+**Two product flags, deliberately separate.** `"restricted": true` marks a
+compound that corresponds to an approved or investigational pharmaceutical
+substance — retatrutide, tirzepatide and oxytocin carry it. It puts a notice on
+the specification page saying what the material is and is not; it says nothing
+about how the compound is bought, and `check.py` fails the build if a flagged
+compound has no such notice. `"cart": false` is the other one: it keeps a
+compound listed and priced but replaces its add control with an Enquire link and
+has the checkout function refuse the id. Nothing carries it today; it is the
+lever for pulling one SKU off card payment without delisting it. `check.py`
+fails if a page still offers to cart something marked that way.
+
+Conflating those two was a bug in an earlier version of this site: the notice
+belongs on the page whatever the payment mechanics are.
 
 **What the site does not claim.** There is no account verification, no vetting
 and no credentialing step, and no page says otherwise — research use is a
@@ -404,13 +411,15 @@ the open cart drawer in its error state: **0 violations**.
 
 Browser tests (Playwright, Chromium) cover catalog filtering, CAS search,
 sorting, out-of-stock state, pack-size to price and label sync, cart
-persistence, the checkout consent gate, the redirect to Stripe, what the browser
-actually posts, cart clearing after payment, checkout failure handling, demo
-mode, form validation and submission, the accordion and mobile nav.
+persistence, the `"cart": false` refusal, the checkout consent gate, the
+redirect to Stripe, what the browser actually posts, cart clearing after
+payment, checkout failure handling, demo mode, form validation and submission,
+the accordion and mobile nav.
 
 The checkout function has its own suite: the amount charged comes from the
-server-side table and not from the request, and every refusal path — restricted
-compound, unknown id or size, bad quantity, duplicate lines, missing consent,
+server-side table and not from the request, every pack size of the multi-size
+compound prices independently, and every refusal path — a compound marked
+non-buyable, unknown id or size, bad quantity, duplicate lines, missing consent,
 oversized body, wrong method, missing key, Stripe errors — is asserted. Stripe
 itself is stubbed; see HANDOVER §3c for the live test that is still owed.
 
