@@ -32,11 +32,22 @@
   # Set to "1" once Stripe Tax is configured on the Stripe account.
   TR_STRIPE_TAX = ""
   #
-  # STRIPE_SECRET_KEY is deliberately NOT set here. It is a secret, this file is
-  # in the repository, and a live key in version control is a live key on the
-  # internet. Set it in Netlify under Site configuration > Environment variables.
-  # Without it the checkout button reports that checkout is unavailable rather
-  # than failing silently.
+  # Four secrets are deliberately NOT set here. This file is in the repository,
+  # and a key in version control is a key on the internet. All four go in
+  # Netlify under Site configuration > Environment variables:
+  #
+  #   STRIPE_SECRET_KEY          sk_test_... for a demo, sk_live_... to trade.
+  #                              Without it the checkout button says checkout is
+  #                              unavailable rather than failing silently.
+  #   STRIPE_WEBHOOK_SECRET      whsec_... from the Stripe webhook endpoint you
+  #                              create. Without it orders are never recorded —
+  #                              the payment still works, you just have no record
+  #                              of it outside Stripe.
+  #   SUPABASE_URL               https://<ref>.supabase.co
+  #   SUPABASE_SERVICE_ROLE_KEY  The service role key, not the anon key. It
+  #                              bypasses row level security, which is the whole
+  #                              point: the orders table has RLS on with no
+  #                              policies, so nothing else can read it at all.
   # Identity used in the legal documents. These must be your real trading
   # details. The build renders anything missing as a visible marker in the page
   # and tools/check.py fails while one is present, so filling these in is not

@@ -246,6 +246,11 @@ exports.handler = async function (event) {
     success_url: `${site}/order-received.html?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${site}/catalog.html`,
     billing_address_collection: 'required',
+    // Discount codes are created and managed in the Stripe dashboard, which
+    // means adding one is a dashboard job rather than a deploy. Stripe checks
+    // validity, expiry and usage limits itself; nothing here has to know what
+    // codes exist, which is why this is one line rather than a feature.
+    allow_promotion_codes: true,
     phone_number_collection: { enabled: true },
     shipping_address_collection: {
       allowed_countries: countries.length ? countries : DEFAULT_COUNTRIES

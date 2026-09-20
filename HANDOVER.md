@@ -297,6 +297,43 @@ than 20 lines, or a body over 20 KB. It never passes a Stripe error message
 back to the customer — those go to the function log, because they name account
 problems the customer cannot act on.
 
+### Recording orders
+
+Payment works without this; **order records do not.** Until the webhook is
+wired, a completed order exists only in the Stripe dashboard — no order history,
+no customer list, nothing to build a status page or a review request on, and
+nothing you own if you ever change processor.
+
+1. **Create the database.** Apply `supabase/migrations/0001_orders.sql` to a
+   Supabase project — SQL editor, CLI, or the MCP tools. It is written to be
+   safe to run twice.
+2. **Set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`** in Netlify. The
+   *service role* key, not the anon key. It is the only key that can read these
+   tables, and it must never appear anywhere a browser can reach.
+3. **Stripe → Developers → Webhooks → Add endpoint**, pointed at
+   `https://your-site/.netlify/functions/stripe-webhook`, subscribed to
+   **`checkout.session.completed`**.
+4. **Copy the signing secret** Stripe shows you (`whsec_...`) into
+   `STRIPE_WEBHOOK_SECRET`, and redeploy.
+5. **Test it.** Place a test order. Stripe's webhook page shows the delivery and
+   the response; the `orders` table should gain one row and `order_items` the
+   lines. Use Stripe's "Resend" button — the row must update, not duplicate.
+
+⚠️ **The signing secret is not optional.** That URL is public and it writes to
+your database. Without the secret the function refuses every request, which is
+the safe failure; with the wrong one, the same. What it never does is accept an
+unsigned request, because anyone who found the URL could then post invented
+orders — fake addresses to ship to, fake revenue in your records.
+
+**Row level security is on with no policies**, deliberately. These rows are
+names, emails, phone numbers and home addresses of people buying research
+chemicals. A readable orders table is the worst leak this site could have.
+Anything that needs to read an order — a status page, an admin view — goes
+through a function that checks who is asking first. Do not add a policy that
+grants `anon` read access to make something work.
+
+---
+
 ### Test it before you take a real order
 
 1. Put a **test** key (`sk_test_…`) in `STRIPE_SECRET_KEY` and deploy.
