@@ -130,6 +130,17 @@ exports.handler = async function (event) {
     return json(503, { error: 'Checkout is temporarily unavailable.' });
   }
 
+  /* A demonstration build says on every page that it is not trading and that
+     nothing here can be ordered. Pairing that with a live key would make the
+     site take real money from someone it has just told not to expect a real
+     order — so the two are refused together, here, where the key actually is.
+     TR_DEMO comes through catalog.json because the build is what knows it. */
+  if (CATALOG.demo && !/^sk_test_/.test(secret)) {
+    console.error('Refusing to run a demonstration build against a live Stripe key. ' +
+                  'Use a test key (sk_test_...) for a demo, or set TR_DEMO=0 to trade.');
+    return json(503, { error: 'Checkout is not available on this demonstration site.' });
+  }
+
   const raw = event.body || '';
   if (raw.length > MAX_BODY) return json(413, { error: 'That request was too large.' });
 

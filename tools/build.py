@@ -248,6 +248,19 @@ def head(title, desc, depth, canonical, extra=""):
 {gate()}"""
 
 
+# The cart's footnote changes with the build, because on a demonstration copy
+# the sentence "card payment is taken by Stripe" would be a lie by omission: no
+# money moves, and a prospective operator clicking through deserves to be told
+# what will actually happen and how to try it.
+CART_NOTE = (
+    "<strong>Demonstration.</strong> Checkout runs in Stripe&rsquo;s test mode &mdash; "
+    "no money moves. Pay with card <span class=\"mono\">4242&nbsp;4242&nbsp;4242&nbsp;4242</span>, "
+    "any future expiry, any CVC."
+) if DEMO else (
+    "Card payment is taken by Stripe on their own page. Shipping and any tax are added there."
+)
+
+
 def header(depth, active, canonical=""):
     p = rel(depth)
     CUR = ' aria-current="page"'
@@ -364,7 +377,7 @@ def footer(depth):
       </label>
     </div>
     <button class="btn btn--primary btn--block" id="cart-checkout">Checkout</button>
-    <p class="cart-foot-note">Card payment is taken by Stripe on their own page. Shipping and any tax are added there.</p>
+    <p class="cart-foot-note">{CART_NOTE}</p>
     <p class="cart-error" id="cart-error" role="alert" hidden></p>
     <button class="btn btn--quiet btn--sm btn--block" id="rfq-clear">Clear cart</button>
   </div>
@@ -1956,6 +1969,7 @@ def build_meta(pages):
     # needs is written out — no prose, no assay panels.
     catalog = {
         "currency": CURRENCY,
+        "demo": DEMO,
         "volumeTiers": VOLUME_TIERS,
         "freeShippingOver": FREE_SHIPPING_OVER,
         "products": {

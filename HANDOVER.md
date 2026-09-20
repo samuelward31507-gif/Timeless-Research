@@ -80,6 +80,17 @@ supplier, `noindex,nofollow` on every page, and a `robots.txt` that disallows
 everything. The unfilled legal fields in section 1 become a warning instead of
 a build failure, so a demo deploys without inventing details.
 
+Checkout still works on a demo build, against Stripe's **test** mode, so the
+thing the site is a demonstration *of* can actually be demonstrated. The cart
+says so and gives the test card to use. This needs a test key
+(`sk_test_...`) in `STRIPE_SECRET_KEY`.
+
+⚠️ The checkout function **refuses to run a demo build against a live key**, and
+logs why. A site that tells every visitor it is not trading must not be able to
+take real money from one of them. The four combinations are covered by a test:
+demo+live is refused before Stripe is contacted at all; demo+test, live+live and
+live+test all proceed.
+
 This matters for a live demo. A peptide storefront that looks open for business
 will be found by people trying to place real orders, and a demo left in the
 search index competes with the eventual live site. Set `TR_DEMO = "0"` in

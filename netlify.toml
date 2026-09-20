@@ -48,6 +48,12 @@
   # the site is not trading, search engines are asked to stay away, and the
   # unfilled legal fields above become a warning instead of a build failure.
   # Remove it, or set it to "0", for the real thing.
+  #
+  # Checkout still works on a demo, against Stripe's TEST mode, so the main
+  # feature can actually be shown. That needs a test key (sk_test_...) in
+  # STRIPE_SECRET_KEY. The function refuses to run a demo build against a live
+  # key and says so in the function log: a site telling every visitor it is not
+  # trading must not be able to take real money.
   TR_DEMO = "1"
 
 # Hashed filenames are not used, so pages must revalidate while the static

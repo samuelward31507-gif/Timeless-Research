@@ -321,10 +321,6 @@
         consent.focus();
         return;
       }
-      if (CFG.demo) {
-        showCartError('This is a demonstration site. No order can be placed and no payment is taken.');
-        return;
-      }
       showCartError('');
       checkoutBtn.disabled = true;
       var label = checkoutBtn.textContent;

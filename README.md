@@ -226,7 +226,7 @@ python3 tools/build.py && python3 tools/dist.py
 | `TR_FORM_ENDPOINT` | *(empty)* | Target when `TR_FORM_PROVIDER=endpoint` |
 | `TR_ANALYTICS_HEAD` | *(empty)* | Raw `<head>` markup for an analytics tag |
 | `TR_LEGAL_ENTITY` / `TR_LEGAL_ADDRESS` / `TR_LEGAL_STATE` / `TR_LEGAL_EMAIL` | see *Legal documents* | Parties, controller and governing-law clauses |
-| `TR_DEMO` | *(off)* | `1` marks the build a demonstration: a not-trading bar on every page, `noindex`, `robots.txt` disallowing all, and a checkout button that says so instead of calling Stripe |
+| `TR_DEMO` | *(off)* | `1` marks the build a demonstration: a not-trading bar on every page, `noindex`, `robots.txt` disallowing all, and a checkout that runs against Stripe's test mode and says so |
 
 The checkout function reads its own, set on the deploy rather than at build time:
 
