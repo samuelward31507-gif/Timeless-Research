@@ -92,6 +92,12 @@ Free, and nothing here touches a live key or a real domain.
 3. **Site configuration → Environment variables → add `STRIPE_SECRET_KEY`**
    with that test key. Then **Deploys → Trigger deploy**, because a variable
    added after the first build does not apply until the next one.
+
+   **To check you got it right, open `/.netlify/functions/health` on the
+   deploy.** It says in plain words whether the key is set, whether it is the
+   right kind of key, whether a stray space got pasted with it, and what to do
+   next. It never shows the key itself. Setting a variable is the one step in
+   this that otherwise gives no feedback at all until a purchase fails.
 4. That is it. The deploy gets a `something.netlify.app` address and the site
    figures out it lives there: canonical tags, the sitemap, the link-preview
    image and Stripe's return URL all follow the real address rather than the
