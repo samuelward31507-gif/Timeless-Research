@@ -359,7 +359,11 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .demo-bar .shell { display: flex; gap: var(--s-3); align-items: baseline; flex-wrap: wrap; padding-block: var(--s-3); }
 .demo-bar strong { color: #FFFFFF; font-weight: 600; }
 .demo-bar span { color: #D9D5CD; }
-@media (max-width: 620px) { .demo-bar .shell { display: block; } .demo-bar span { display: block; margin-top: .25rem; } }
+/* `> span` rather than a descendant selector: this is meant to stack the
+   banner's own two parts, but as `.demo-bar span` it also claimed every span
+   nested inside them — at specificity (0,1,1), which silently outranks any
+   single-class utility such as .wide-only however far down the file it sits. */
+@media (max-width: 620px) { .demo-bar .shell { display: block; } .demo-bar .shell > span { display: block; margin-top: .25rem; } }
 
 /* --- Announcement ------------------------------------------------------- */
 .announce { border-bottom: 1px solid var(--line); font-size: var(--t-xs); color: var(--ink-4); letter-spacing: .015em; }
@@ -1050,7 +1054,54 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
   .product-foot select { padding-block: .7rem; }
   .sort-field select { padding-block: .6rem; }
   .coa-index .link-action { min-height: 40px; }
+  /* 44px is the Apple HIG floor. These were the three controls a customer
+     actually taps on a phone, and all three sat under it: the filter chips at
+     40px, and both selects at 38-39px. */
+  .filter-btn { min-height: 44px; }
+  .product-foot select { min-height: 44px; }
+  .sort-field select { min-height: 44px; }
+  /* The logo is the way back to the home page on a phone, where there is no
+     visible nav until the menu is opened. 28px was not a target. */
+  .brand { min-height: 44px; }
 }
+
+/* --- Phone layout ------------------------------------------------------- */
+/* Also last on purpose, for the same reason as the block above.
+ *
+ * Two columns at 393px leaves each card 152px wide. The pack-size select and
+ * "Add to cart" cannot both fit on that row, so the button's text rendered
+ * outside the card and was clipped by the viewport; the CAS number, held at
+ * white-space: nowrap, was cut mid-value; and the compound name wrapped to
+ * four lines. One column gives the card the width its content was designed
+ * for, and it is the layout that shows the vial photography at a size worth
+ * looking at.
+ */
+@media (max-width: 560px) {
+  .product-grid { grid-template-columns: 1fr; gap: var(--s-6); }
+  /* A full-width tile would be over 300px tall and push the name and price
+     off the screen; the vial does not need that much room to read. */
+  .product-media { padding: var(--s-6) var(--s-4) var(--s-5); }
+  .product-media .vial { max-width: min(var(--vial-max), 44vw); }
+  /* The subtitle reserves two lines to keep card feet aligned across a row.
+     In one column there is no row to align to, and the gap reads as a fault. */
+  .product-sub { min-height: 0; }
+
+  /* Second sentences. On a phone the demo banner and the catalogue lede
+     together stood 363px tall and pushed the first product 1.64 screens down
+     — on the one page whose job is to show products. Neither sentence is a
+     required disclosure: the research-use strip, the entry affirmation and
+     the per-product Restricted notice all still carry on every width. */
+  .wide-only { display: none; }
+}
+
+/* Defensive, at every width: neither of these may overflow the card again,
+   whatever the column count or the length of a future compound name. */
+.product-head { flex-wrap: wrap; }
+/* min-width: 0 because a flex item will not shrink below its content width
+   without it, which is what forced the overflow rather than a truncation. */
+.product-cas { overflow: hidden; text-overflow: ellipsis; min-width: 0; max-width: 100%; }
+.product-foot { flex-wrap: wrap; }
+.product-foot select { min-width: 8rem; }
 
 @media print {
   .header, .footer, .announce, .demo-bar, .drawer, .drawer-scrim, .toast,

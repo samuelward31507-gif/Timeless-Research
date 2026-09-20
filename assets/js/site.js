@@ -51,6 +51,11 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { toastEl.classList.remove('is-on'); }, 2400);
   }
+  function dismissToast() {
+    if (!toastEl) return;
+    clearTimeout(toastTimer);
+    toastEl.classList.remove('is-on');
+  }
 
   /* -------------------------------------------------------------- cart store */
   /* The DOM ids and CSS classes below still carry the `rfq-` prefix from when
@@ -203,6 +208,12 @@
   function openDrawer() {
     if (!drawer) return;
     lastFocus = document.activeElement;
+    /* The toast sits bottom-centre and the drawer is full-width on a phone, so
+       an "added to cart" message raised a moment earlier lands on top of the
+       drawer's own footnote — on a demo build that is the line carrying the
+       test card number. The open cart is a better confirmation than the toast
+       was, so retire it rather than stack the two. */
+    dismissToast();
     render();
     drawer.classList.add('is-open');
     drawer.setAttribute('aria-hidden', 'false');

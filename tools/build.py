@@ -288,7 +288,7 @@ def header(depth, active, canonical=""):
     demo = """<div class="demo-bar">
   <div class="shell">
     <strong>Demonstration site.</strong>
-    <span>Not a trading business. Nothing here can be ordered, and no enquiry sent through this site reaches a supplier.</span>
+    <span>Not a trading business.<span class="wide-only"> Nothing here can be ordered, and no enquiry sent through this site reaches a supplier.</span></span>
   </div>
 </div>
 """ if DEMO else ""
@@ -817,7 +817,7 @@ def build_catalog():
     <div class="sec-head">
       <span class="eyebrow">Catalog</span>
       <h1 class="display h-sec">Research <em>compounds.</em></h1>
-      <p class="lede">{len(PRODUCTS)} characterised compounds, priced by pack size and paid for by card at checkout. Compounds marked <strong>Restricted</strong> correspond to an approved or investigational pharmaceutical substance and are supplied as analytical reference standards for <strong>in vitro</strong> method development.</p>
+      <p class="lede">{len(PRODUCTS)} characterised compounds, priced by pack size and paid for by card at checkout.<span class="wide-only"> Compounds marked <strong>Restricted</strong> correspond to an approved or investigational pharmaceutical substance and are supplied as analytical reference standards for <strong>in vitro</strong> method development.</span></p>
     </div>
   </div>
 </section>
