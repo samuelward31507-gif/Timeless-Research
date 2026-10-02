@@ -666,17 +666,6 @@ tasks, campaigns, customer records or inbox.
 | Recent activity (6) | `admin-audit?limit=6` | `audit.read` |
 | Low stock products | `admin-inventory?active=true&low=1` | `inventory.read` |
 
-**One order** opens on its own page, `console/order.html?id=<uuid>`
-(`assets/js/console/order.js`), from a recent order, an order needing
-attention, or an order's activity. It reads `admin-orders?id=` and nothing
-else, and is read-only: status and history, what needs attention, customer and
-phone, shipping address, totals in the order's currency, the payment
-reference, items (including lines with no product matched), notes, stock drawn
-from lots, line matches, and, with `finance.read`, cost of goods (without a
-currency: lot costs carry their own). Only a valid order id is ever requested
-or linked; anything else in the address makes no request. Phone and address
-appear here only, never on the overview.
-
 Everything shown is a value the API returns; the screen adds nothing up. A
 part the signed-in person has no permission for is left out rather than shown
 as refused; any other failure shows in that part with *Try again*. An answer to
@@ -755,8 +744,7 @@ the server only, so the console opens with a session. It listens on
 127.0.0.1, serves nothing else in the repository, and nothing it does
 reaches the network; the browser tests also fail if a page requests any other
 host, or leaves anything in browser storage. `tests/console/command.spec.mjs`
-covers the business overview and `order.spec.mjs` one order (`helpers.mjs`
-holds the shared fixtures);
+covers the business overview (`helpers.mjs` holds the shared fixtures);
 `tests/test_console_rules.py` covers the page rules and the deployment
 wiring.
 

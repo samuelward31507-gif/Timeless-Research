@@ -112,10 +112,7 @@ class ConsoleBuild(unittest.TestCase):
             js = f.read_text(encoding="utf-8")
             self.assertNotIn("console.", js, f"{f.name} logs")
             self.assertNotIn("fetch(", js, f"{f.name} fetches outside requestAdmin")
-            # The API's own field name is the one allowed mention; the screens
-            # label it "Payment reference" (order.spec.mjs checks the page).
-            self.assertNotRegex(js.replace("stripe_session_id", ""), r"(?i)stripe",
-                                f"{f.name} names the payment provider")
+            self.assertNotRegex(js, r"(?i)stripe", f"{f.name} names the payment provider")
 
 
 if __name__ == "__main__":

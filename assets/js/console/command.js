@@ -54,14 +54,6 @@
 
   function plural(n, one, many) { return f.count(n) + ' ' + (n === 1 ? one : many); }
 
-  // A link to an order's own page, only for an id that is a real UUID;
-  // otherwise the same words, unlinked.
-  function toOrder(id, words, cls) {
-    return f.isUuid(id)
-      ? el('a', { className: cls, href: 'order.html?id=' + encodeURIComponent(id), text: words })
-      : el('span', { className: cls, text: words });
-  }
-
   function isObject(v) { return v !== null && typeof v === 'object' && !Array.isArray(v); }
   function list(v) { return Array.isArray(v) ? v : []; }
 
@@ -248,7 +240,7 @@
       }).slice(0, ATTENTION_LIST) : [];
       var sub = rows.length ? el('ul', { className: 'cc-alert-list' }, rows.map(function (o) {
         return el('li', null, [
-          toOrder(o.order_id, f.dash(o.name), 'cc-alert-who'),
+          el('span', { className: 'cc-alert-who', text: f.dash(o.name) }),
           el('span', { className: 'cc-alert-why', text: o.attention_reason })
         ]);
       })) : null;
@@ -291,7 +283,7 @@
     var trs = rows.map(function (o) {
       return el('tr', null, [
         el('td', { 'data-label': 'Received', className: 'cc-num', text: f.when(o.created_at) }),
-        el('td', { 'data-label': 'Customer' }, toOrder(o.order_id, f.dash(o.name), 'cc-order-link')),
+        el('td', { 'data-label': 'Customer', text: f.dash(o.name) }),
         el('td', { 'data-label': 'Total', className: 'cc-num', text: f.money(o.amount_total, o.currency) }),
         el('td', { 'data-label': 'Status' }, badge(o.status))
       ]);
@@ -320,8 +312,7 @@
     body.appendChild(el('ol', { className: 'cc-activity' }, rows.map(function (e) {
       var meta = f.when(e.occurred_at) + (e.actor_email ? ' \u00b7 ' + e.actor_email : '');
       return el('li', { className: 'cc-activity-item' }, [
-        e.entity_type === 'order' ? toOrder(e.entity_id, describe(e), 'cc-activity-what')
-                                  : el('span', { className: 'cc-activity-what', text: describe(e) }),
+        el('span', { className: 'cc-activity-what', text: describe(e) }),
         el('span', { className: 'cc-activity-meta cc-num', text: meta })
       ]);
     })));
