@@ -907,6 +907,26 @@ the branch must give the same digests. `npm run test:neon` in `tests/db`
 runs the database tests on the Neon role model, and
 `tests/db/neon-roles.test.mjs` checks the roles themselves.
 
+**The access layer.** `netlify/lib/db.js` is how the functions will reach
+this database; none of them uses it yet. It reads `DATABASE_URL`, a
+server-side environment variable that must log in as `peptide_app` (it
+refuses any other role), and talks to Neon over HTTPS with the official
+driver, `@neondatabase/serverless`: the only runtime dependency, in the root
+`package.json`, which Netlify installs on deploy. It returns values in the
+form the functions return today (numbers for bigint and numeric, `YYYY-MM-DD`
+dates, UTC timestamps with microseconds), and every failure as a `DbError`
+with a fixed message and a kind (config, connection, permission, constraint,
+not found and so on). The comment at its top has the details.
+`tests/db/db.test.mjs` runs it against a stand-in for Neon's HTTP endpoint
+backed by the tested schema.
+
+Before it can be used on staging:
+
+- `peptide_app` needs a password (the Neon console can reset it, or
+  `ALTER ROLE` as the database owner), and the connection string goes into
+  Netlify's environment as `DATABASE_URL`, never into the repository;
+- the functions need Node 20 or later (the driver needs 19).
+
 ## 4. Decisions only you can make
 
 **The three restricted compounds.** Retatrutide, tirzepatide and oxytocin are
@@ -1108,7 +1128,8 @@ node --test tests/admin-api.test.js tests/admin-read.test.js   # console read AP
 node --test tests/admin-write.test.js   # console write API, offline
 node --test tests/notify.test.js        # new-order notifications, offline
 python3 -m unittest discover -s tests -p 'test_*.py'   # add-on configuration
-(cd tests/db && npm ci && npm test)   # database migrations, against PostgreSQL 16
+npm ci                                # the functions' one dependency (the Neon driver)
+(cd tests/db && npm ci && npm test)   # database migrations and db.js, against PostgreSQL 16
 ```
 
 `check.py` exits non-zero on failure, so it can gate a deploy. It verifies that
