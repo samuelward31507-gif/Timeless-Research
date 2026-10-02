@@ -113,12 +113,15 @@ test('add-on tables, views and functions are closed to browser roles', async () 
   const db = await setup();
   const { id } = await insertOrder(db);
   await asRole(db, 'anon', async () => {
-    assert.equal((await rows(db, 'select * from public.addon_stock_movements')).length, 0);
+    const visible = await rows(db, 'select * from public.addon_stock_movements').catch((e) => (/permission denied/.test(e.message) ? [] : Promise.reject(e)));
+    assert.equal(visible.length, 0);
     for (const v of ['addon_stock_levels', 'addon_revenue', 'addon_attach_rate']) {
       assert.match(await errorOf(() => db.query(`select * from public.${v}`)) || 'readable', /permission denied/);
     }
     assert.match(await errorOf(() => db.query('select public.record_addon_sales($1)', [id])) || 'callable', /permission denied/);
+    // Supabase grants browser roles the table and row level security stops
+    // them; on Neon they hold no grant at all. Either refusal will do.
     assert.match(await errorOf(() => db.query(`insert into public.addon_stock_movements (addon_id, delta, reason) values ('x', 1000, 'restock')`)) || 'writable',
-                 /row-level security/);
+                 /row-level security|permission denied/);
   });
 });

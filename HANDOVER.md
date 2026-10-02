@@ -869,6 +869,44 @@ its Stripe session is a live one (`cs_live_…`) and this is not a demo deploy.
 - that the scheduled function runs every minute on the production deploy,
   and what calling its URL directly does (it takes no input either way).
 
+## 3i. Neon staging database (schema only; the site does not use it yet)
+
+The schema also lives on the Neon project `peptide`, branch `peptide-staging`
+(PostgreSQL 18). Nothing in the site or its functions connects to it yet:
+they still use Supabase.
+
+**Roles.** Neon has no `service_role` and grants nothing by default, so
+`db/neon/00_roles.sql` sets up the roles first:
+
+- `peptide_owner` owns every table, view and function, and is used only to
+  apply migrations. It cannot log in.
+- `peptide_app` is what the server will connect as. It holds exactly what
+  `service_role` holds on Supabase, through membership of a `service_role`
+  group: read everything, write orders and order lines, record add-on
+  sales, and call the console and notification functions. It cannot create,
+  truncate or delete orders, and it is not the owner.
+- `peptide_readonly` reads everything and can change nothing, for reports
+  and checks. Its sessions are read-only by default.
+- `anon` and `authenticated` exist only so the migrations' revokes apply.
+  They hold nothing.
+
+Row level security stays on with no policies, as on Supabase: the app and
+read-only roles bypass it deliberately, and every other role sees nothing.
+Neither login role has a password yet.
+
+**Applying the schema to a new branch,** as the project owner:
+
+1. `db/neon/00_roles.sql`;
+2. `supabase/migrations/0001` to `0006`, each after `set role peptide_owner`;
+3. `db/neon/99_access.sql`, also as `peptide_owner`.
+
+**Checking a branch.** `tests/db/schema-snapshot.mjs` holds catalogue
+queries that reduce the schema and every role's privileges to digests. Run
+directly, it prints the digests of the tested build; the same queries run on
+the branch must give the same digests. `npm run test:neon` in `tests/db`
+runs the database tests on the Neon role model, and
+`tests/db/neon-roles.test.mjs` checks the roles themselves.
+
 ## 4. Decisions only you can make
 
 **The three restricted compounds.** Retatrutide, tirzepatide and oxytocin are

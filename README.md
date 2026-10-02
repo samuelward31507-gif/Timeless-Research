@@ -96,9 +96,13 @@ netlify/functions/notify-dispatch.js  Sends due notifications (scheduled, every 
 tools/addons.py         Reads, validates and resolves assets/data/addons.json
 supabase/migrations/    0001 orders; 0002 add-ons; 0003 order lifecycle,
                         inventory and lots, financials, customer views;
-                        0004 console data layer; 0005 notification outbox
+                        0004 console data layer; 0005 notification outbox;
+                        0006 the server's privileges, stated explicitly
+db/neon/                Neon only: roles before the migrations, read-only
+                        access after them (see HANDOVER, 3i)
 tests/                  Node and Python tests (no dependencies)
-tests/db/               Database tests against PostgreSQL 16 (PGlite, test-only)
+tests/db/               Database tests against PostgreSQL 16 (PGlite, test-only),
+                        on the Supabase and the Neon role model
 sitemap.xml, robots.txt Generated
 ```
 
