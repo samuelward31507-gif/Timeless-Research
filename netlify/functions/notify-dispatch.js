@@ -27,10 +27,15 @@
  *
  * It logs the notification id, channel, outcome and an error code. Never a
  * message, a provider's answer, a name, address, email, phone or key.
+ *
+ * The outbox is read and updated through netlify/lib/db.js (Neon, as
+ * peptide_app, from DATABASE_URL), which may run both functions and nothing
+ * else on that table.
  */
 'use strict';
 
 const notify = require('../lib/notify.js');
+const db = require('../lib/db.js');
 
 let CATALOG = null;
 try {
@@ -42,7 +47,6 @@ try {
 const CLAIM_LIMIT = 5;
 const LEASE_SECONDS = 120;
 const BUDGET_MS = 20000;
-const FETCH_TIMEOUT_MS = 8000;
 
 const clock = { now: () => Date.now() };
 
@@ -54,53 +58,28 @@ function log(fields) {
   console.log(JSON.stringify(Object.assign({ notify: 'dispatch' }, fields)));
 }
 
-/* A database function, with the service role key, on the server. */
-async function rpc(name, args) {
-  const url = new URL(process.env.SUPABASE_URL);
-  const base = `${url.origin}${url.pathname.replace(/\/+$/, '')}`;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-  try {
-    const res = await fetch(`${base}/rest/v1/rpc/${name}`, {
-      method: 'POST',
-      headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(args),
-      signal: controller.signal
-    });
-    if (!res.ok) throw new Error(`db_${res.status}`);
-    return await res.json();
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-function supabaseConfigured() {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) return false;
-  try {
-    return new URL(url).protocol === 'https:';
-  } catch (e) {
-    return false;
-  }
-}
+/* The outbox's two functions (migration 0005). Replaceable in tests. */
+const store = {
+  claim: (limit, leaseSeconds) => db.call('claim_order_notifications', { p_limit: limit, p_lease_seconds: leaseSeconds }),
+  complete: (args) => db.scalar('select public.complete_order_notification($1, $2, $3, $4)',
+    [args.p_id, args.p_outcome, args.p_provider_message_id, args.p_error_code])
+};
 
 exports.handler = async function () {
   const config = notify.configState(process.env);
   if (!config.enabled) return json(200, { enabled: false });
-  if (!supabaseConfigured()) {
-    log({ outcome: 'not_configured', reason: 'supabase' });
-    return json(500, { error: 'not configured' });
-  }
 
   const started = clock.now();
   const demo = !!(CATALOG && CATALOG.demo);
   let rows;
   try {
-    rows = await rpc('claim_order_notifications', { p_limit: CLAIM_LIMIT, p_lease_seconds: LEASE_SECONDS });
+    rows = await store.claim(CLAIM_LIMIT, LEASE_SECONDS);
   } catch (e) {
-    log({ outcome: 'claim_failed', reason: /^db_\d{3}$/.test(e.message) ? e.message : 'unreachable' });
+    if (e instanceof db.DbError && e.kind === 'config') {
+      log({ outcome: 'not_configured', reason: 'database' });
+      return json(500, { error: 'not configured' });
+    }
+    log({ outcome: 'claim_failed', reason: e instanceof db.DbError ? (e.code || e.reason || e.kind) : 'unexpected' });
     return json(500, { error: 'claim failed' });
   }
   if (!Array.isArray(rows)) {
@@ -126,7 +105,7 @@ exports.handler = async function () {
 
     let status = null;
     try {
-      status = await rpc('complete_order_notification', {
+      status = await store.complete({
         p_id: row.notification_id,
         p_outcome: result.outcome,
         p_provider_message_id: result.outcome === 'sent' ? result.providerMessageId || null : null,
@@ -147,6 +126,7 @@ exports.handler = async function () {
 // For the test suite; not part of the handler contract.
 exports._internals = {
   clock,
+  store,
   setCatalog(c) {
     CATALOG = c;
   },

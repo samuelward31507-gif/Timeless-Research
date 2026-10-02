@@ -4,7 +4,8 @@
  * Orders are written the way the payment webhook writes them (harness.mjs
  * recordPaidOrder replays its PostgREST upsert), as the service role. The
  * dispatcher (netlify/functions/notify-dispatch.js) is then run against this
- * database: its two rpc calls are answered here, as PostgREST would, and
+ * database on the Neon role model: its calls go through netlify/lib/db.js to
+ * the Neon SQL-over-HTTP stand-in (neon-http.mjs), as peptide_app, and
  * Postmark and Twilio are stubbed.
  */
 import { test } from 'node:test';
@@ -13,6 +14,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { freshDb, rows, one, recordPaidOrder, insertOrder, productLine, errorOf, asRole, reapplyFrom } from './harness.mjs';
+import { neonHttp, TEST_URL } from './neon-http.mjs';
 
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -223,10 +225,13 @@ test('failed is final at once; outcomes and codes are checked', async () => {
 /* ------------------------------------------------ the dispatcher, end to end */
 
 test('the dispatcher, end to end: one email and one text per new order, never twice', async () => {
-  const db = await freshDb();
-  const BASE = 'https://test-ref.supabase.co';
+  const db = await freshDb({ platform: 'neon' });
+  const dbLib = require(path.join(ROOT, 'netlify', 'lib', 'db.js'));
+  const fake = await neonHttp({ db });
+  const originalDbFetch = dbLib._internals.fetch;
+  dbLib._internals.fetch = fake.fetch;
   const env = {
-    SUPABASE_URL: BASE, SUPABASE_SERVICE_ROLE_KEY: 'k', NOTIFY_ENABLED: '1',
+    DATABASE_URL: TEST_URL, NOTIFY_ENABLED: '1',
     POSTMARK_SERVER_TOKEN: '0a1b2c3d-1111-2222-3333-444455556666', NOTIFY_EMAIL_FROM: 'orders@shop.example',
     NOTIFY_EMAIL_TO: 'owner@owner.example', TWILIO_ACCOUNT_SID: 'AC' + 'a'.repeat(32), TWILIO_AUTH_TOKEN: 'b'.repeat(32),
     TWILIO_FROM: '+15550001111', NOTIFY_SMS_TO: '+15559998888'
@@ -238,20 +243,6 @@ test('the dispatcher, end to end: one email and one text per new order, never tw
   const original = global.fetch;
   global.fetch = async (url, init) => {
     url = String(url);
-    const m = /\/rest\/v1\/rpc\/(claim_order_notifications|complete_order_notification)$/.exec(url);
-    if (m) {
-      const a = JSON.parse(init.body);
-      const sql = m[1] === 'claim_order_notifications'
-        ? ['select * from public.claim_order_notifications($1, $2)', [a.p_limit, a.p_lease_seconds]]
-        : ['select public.complete_order_notification($1, $2, $3, $4) as r', [a.p_id, a.p_outcome, a.p_provider_message_id, a.p_error_code]];
-      try {
-        const out = await asServer(db, () => rows(db, sql[0], sql[1]));
-        const value = m[1] === 'claim_order_notifications' ? out : out[0].r;
-        return { ok: true, status: 200, json: async () => JSON.parse(JSON.stringify(value, (k, x) => (typeof x === 'bigint' ? Number(x) : x))) };
-      } catch (e) {
-        return { ok: false, status: 400, json: async () => ({ code: e.code, message: e.message }) };
-      }
-    }
     if (url === 'https://api.postmarkapp.com/email') {
       sends.push({ channel: 'email', body: JSON.parse(init.body) });
       return { ok: postmarkStatus === 200, status: postmarkStatus, json: async () => (postmarkStatus === 200 ? { ErrorCode: 0, MessageID: `pm-${sends.length}` } : {}) };
@@ -305,8 +296,10 @@ test('the dispatcher, end to end: one email and one text per new order, never tw
     await db.query(`update public.order_notifications set next_attempt_at = now()`);
     assert.deepEqual(JSON.parse((await dispatch.handler({})).body), { enabled: false });
     assert.equal((await notes(db, second))[0].status, 'pending');
+    assert.ok(fake.requests.every((r) => new URL(r.headers.get('Neon-Connection-String')).username === 'peptide_app'));
   } finally {
     global.fetch = original;
+    dbLib._internals.fetch = originalDbFetch;
     for (const [k, v] of Object.entries(saved)) { if (v === undefined) delete process.env[k]; else process.env[k] = v; }
   }
 });

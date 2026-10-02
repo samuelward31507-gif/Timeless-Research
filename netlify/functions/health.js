@@ -76,6 +76,26 @@ exports.handler = async function () {
 
   const canCheckOut = stripe.status === 'ok';
 
+  // The Neon database (netlify/lib/db.js): read by the notification
+  // dispatcher and the add-on stock check. Reports only whether the value is
+  // a postgres URL for the runtime role, never the value or any part of it.
+  const database = check('DATABASE_URL', (v) => {
+    let u;
+    try {
+      u = new URL(v);
+    } catch (e) {
+      return { set: true, status: 'invalid', note: 'DATABASE_URL is not a URL.' };
+    }
+    if (!/^postgres(ql)?:$/.test(u.protocol) || !u.hostname || !u.password) {
+      return { set: true, status: 'invalid', note: 'DATABASE_URL must be a postgresql:// connection string with a password.' };
+    }
+    if (decodeURIComponent(u.username) !== 'peptide_app') {
+      return { set: true, status: 'wrong-role',
+               note: 'DATABASE_URL must log in as peptide_app, the runtime role. Any other role is refused.' };
+    }
+    return { set: true, status: 'ok', note: 'DATABASE_URL is set for peptide_app.' };
+  });
+
   // The support assistant. Optional: without a key it tells visitors it is
   // unavailable and points them to the contact page.
   const anthropic = check('ANTHROPIC_API_KEY', (v) => v.startsWith('sk-ant-')
@@ -112,6 +132,7 @@ exports.handler = async function () {
       mode: demo ? 'demonstration' : 'trading',
       checkout: { working: canCheckOut, stripe },
       order_records: { working: ordersReady, ...orders },
+      database: { working: database.status === 'ok', url: database },
       support_assistant: { working: anthropic.status === 'ok', key: anthropic },
       notifications,
       next_step: canCheckOut

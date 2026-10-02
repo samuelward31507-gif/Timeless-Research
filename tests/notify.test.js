@@ -4,10 +4,11 @@
  *
  *   node --test tests/notify.test.js
  *
- * Offline: Postmark, Twilio and the two outbox functions are stubbed through
- * global.fetch. What the outbox itself does (one row per channel per new
- * order, leases, retries) is proven against the real schema in
- * tests/db/notifications.test.mjs.
+ * Offline: Postmark and Twilio are stubbed through global.fetch, and the two
+ * outbox functions through the dispatcher's store. What the outbox itself does
+ * (one row per channel per new order, leases, retries) is proven against the
+ * real schema in tests/db/notifications.test.mjs, and the store's SQL against
+ * it, as peptide_app, in tests/db/runtime-stores.test.mjs.
  */
 'use strict';
 
@@ -15,11 +16,9 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 
-const BASE = 'https://test-ref.supabase.co';
-const SERVICE_KEY = 'test-service-role-key-not-real';
+const DB_PASSWORD = 'test-db-password-not-real';
 const ENV = {
-  SUPABASE_URL: BASE,
-  SUPABASE_SERVICE_ROLE_KEY: SERVICE_KEY,
+  DATABASE_URL: `postgresql://peptide_app:${DB_PASSWORD}@ep-test.example.invalid/neondb`,
   NOTIFY_ENABLED: '1',
   POSTMARK_SERVER_TOKEN: '0a1b2c3d-1111-2222-3333-444455556666',
   NOTIFY_EMAIL_FROM: 'orders@shop.example',
@@ -33,7 +32,7 @@ const NOTIFY_KEYS = ['NOTIFY_ENABLED', 'POSTMARK_SERVER_TOKEN', 'NOTIFY_EMAIL_FR
   'TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_FROM', 'TWILIO_MESSAGING_SERVICE_SID', 'NOTIFY_SMS_TO'];
 
 function setEnv(over) {
-  for (const k of NOTIFY_KEYS.concat(['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'])) delete process.env[k];
+  for (const k of NOTIFY_KEYS.concat(['DATABASE_URL'])) delete process.env[k];
   Object.assign(process.env, ENV, over || {});
   for (const [k, v] of Object.entries(over || {})) if (v === undefined) delete process.env[k];
 }
@@ -85,16 +84,6 @@ global.fetch = async (url, init) => {
   const call = { url, method: init.method, headers: init.headers || {}, rawBody: init.body };
   calls.push(call);
   const reply = (status, body) => ({ ok: status >= 200 && status < 300, status, json: async () => body });
-  if (url === `${BASE}/rest/v1/rpc/claim_order_notifications`) {
-    call.body = JSON.parse(init.body);
-    if (claimError) return reply(claimError, { code: 'XX000', message: 'secret db text' });
-    return reply(200, claimRows);
-  }
-  if (url === `${BASE}/rest/v1/rpc/complete_order_notification`) {
-    call.body = JSON.parse(init.body);
-    if (completeError) return reply(completeError, { code: 'XX000' });
-    return reply(200, call.body.p_outcome === 'sent' ? 'sent' : 'pending');
-  }
   if (url === notify._internals.POSTMARK_URL) {
     call.body = JSON.parse(init.body);
     const r = providers.postmark(call);
@@ -110,12 +99,33 @@ global.fetch = async (url, init) => {
   throw new Error(`unexpected fetch ${url}`);
 };
 
+/* The outbox's two database functions, as the dispatcher's store calls them.
+   A refusal is a DbError carrying the database's text, to prove that text is
+   never logged. */
+const db = require(path.join(__dirname, '..', 'netlify', 'lib', 'db.js'));
+const realStore = Object.assign({}, dispatchMod._internals.store);
+const dbFailure = () => new db.DbError('database', { code: 'XX000', dbMessage: 'secret db text' });
+function stubStore() {
+  dispatchMod._internals.store.claim = async (limit, leaseSeconds) => {
+    const call = { url: 'db:claim_order_notifications', body: { p_limit: limit, p_lease_seconds: leaseSeconds } };
+    calls.push(call);
+    if (claimError) throw dbFailure();
+    return claimRows;
+  };
+  dispatchMod._internals.store.complete = async (args) => {
+    calls.push({ url: 'db:complete_order_notification', body: args });
+    if (completeError) throw dbFailure();
+    return args.p_outcome === 'sent' ? 'sent' : 'pending';
+  };
+}
+
 let logs;
 const origLog = console.log;
 const origWarn = console.warn;
 test.beforeEach(() => {
   setEnv();
   resetStubs();
+  stubStore();
   dispatchMod._internals.setCatalog(Object.assign({}, CATALOG, { demo: false }));
   dispatchMod._internals.clock.now = () => Date.now();
   logs = [];
@@ -128,8 +138,8 @@ test.afterEach(() => {
 });
 
 const dispatch = () => dispatchMod.handler({});
-const providerCalls = () => calls.filter((c) => !c.url.startsWith(BASE));
-const completes = () => calls.filter((c) => c.url.endsWith('/rpc/complete_order_notification')).map((c) => c.body);
+const providerCalls = () => calls.filter((c) => !c.url.startsWith('db:'));
+const completes = () => calls.filter((c) => c.url === 'db:complete_order_notification').map((c) => c.body);
 
 /* ----------------------------------------------------- configuration */
 
@@ -329,14 +339,16 @@ test('switched off: nothing is claimed and nothing is sent', async () => {
   }
 });
 
-test('enabled without Supabase settings: refuses, sends nothing', async () => {
-  setEnv({ SUPABASE_URL: undefined });
-  claimRows = [row()];
-  assert.equal((await dispatch()).statusCode, 500);
-  assert.equal(calls.length, 0);
-  setEnv({ SUPABASE_URL: 'http://test-ref.supabase.co' });
-  assert.equal((await dispatch()).statusCode, 500);
-  assert.equal(calls.length, 0);
+test('enabled without a usable DATABASE_URL: refuses, sends nothing, reaches nothing', async () => {
+  Object.assign(dispatchMod._internals.store, realStore);
+  for (const value of [undefined, 'not a url', `postgresql://neondb_owner:${DB_PASSWORD}@ep-test.example.invalid/neondb`]) {
+    setEnv({ DATABASE_URL: value });
+    resetStubs();
+    logs = [];
+    assert.equal((await dispatch()).statusCode, 500);
+    assert.equal(calls.length, 0, String(value));
+    assert.deepEqual(JSON.parse(logs[0]), { notify: 'dispatch', outcome: 'not_configured', reason: 'database' });
+  }
 });
 
 test('a run claims a bounded batch with a lease, sends each on its channel, and reports each outcome', async () => {
@@ -345,19 +357,18 @@ test('a run claims a bounded batch with a lease, sends each on its channel, and 
   assert.equal(res.statusCode, 200);
   assert.deepEqual(JSON.parse(res.body), { enabled: true, claimed: 2, sent: 2, retry: 0, failed: 0, deferred: 0 });
   const claim = calls[0];
-  assert.equal(claim.url, `${BASE}/rest/v1/rpc/claim_order_notifications`);
+  assert.equal(claim.url, 'db:claim_order_notifications');
   // A small batch within the database's own bound (1-20), and a lease long
   // enough to outlast a run's 20-second budget.
   assert.deepEqual(claim.body, { p_limit: 5, p_lease_seconds: 120 });
   assert.ok(claim.body.p_lease_seconds * 1000 > dispatchMod._internals.BUDGET_MS * 2);
-  assert.equal(claim.headers.apikey, SERVICE_KEY);
   assert.deepEqual(providerCalls().map((c) => new URL(c.url).hostname), ['api.postmarkapp.com', 'api.twilio.com']);
   assert.deepEqual(completes(), [
     { p_id: 1, p_outcome: 'sent', p_provider_message_id: 'pm-msg-1', p_error_code: null },
     { p_id: 2, p_outcome: 'sent', p_provider_message_id: 'SM' + 'c'.repeat(32), p_error_code: null }
   ]);
-  for (const c of calls.filter((x) => x.url.startsWith(BASE))) {
-    assert.ok(/\/rest\/v1\/rpc\/(claim_order_notifications|complete_order_notification)$/.test(c.url), c.url);
+  for (const c of calls.filter((x) => x.url.startsWith('db:'))) {
+    assert.ok(/^db:(claim_order_notifications|complete_order_notification)$/.test(c.url), c.url);
   }
 });
 
@@ -442,7 +453,7 @@ test('the dispatcher logs ids, channels, outcomes and codes: never a message, ad
   assert.ok(logs.length >= 3);
   for (const s of ['Jo Bloggs', '1 Main St', 'Springfield', 'BPC-157', 'buyer-private', '5551234567', '5559998888',
                    ENV.NOTIFY_EMAIL_TO, ENV.NOTIFY_EMAIL_FROM, ENV.POSTMARK_SERVER_TOKEN, ENV.TWILIO_AUTH_TOKEN, ENV.TWILIO_ACCOUNT_SID,
-                   SERVICE_KEY, 'New order', 'secret db text', 'invalid']) {
+                   DB_PASSWORD, 'New order', 'secret db text', 'invalid']) {
     assert.equal(all.includes(s), false, s);
   }
   for (const line of logs) {

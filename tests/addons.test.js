@@ -229,44 +229,44 @@ test('availability function: GET only', async () => {
 
 test('availability function: reads stock levels and returns booleans, never counts', async () => {
   const fn = loadFunction(TABLE);
-  const orig = global.fetch;
-  let called = null;
-  global.fetch = async (url, init) => {
-    called = { url, init };
-    return { ok: true, json: async () => [
-      { addon_id: 'insulated-shipper', available: 7 }, { addon_id: 'moisture-barrier-pouch', available: 0 }] };
+  let asked = null;
+  fn._internals.store.levels = async (ids) => {
+    asked = ids;
+    return [{ addon_id: 'insulated-shipper', available: 7 }, { addon_id: 'moisture-barrier-pouch', available: 0 }];
   };
-  try {
-    await withEnv({ SUPABASE_URL: 'https://example.supabase.co/', SUPABASE_SERVICE_ROLE_KEY: 'service-key' }, async () => {
-      const res = await fn.handler({ httpMethod: 'GET' });
-      assert.equal(res.statusCode, 200);
-      assert.deepEqual(JSON.parse(res.body), { available: { 'insulated-shipper': true, 'moisture-barrier-pouch': false } });
-      assert.ok(!/7/.test(res.body), 'a stock count leaked');
-      assert.match(res.headers['Cache-Control'], /max-age=60/);
-      assert.match(called.url, /^https:\/\/example\.supabase\.co\/rest\/v1\/addon_stock_levels\?/);
-      assert.equal(called.init.headers.apikey, 'service-key');
-    });
-  } finally { global.fetch = orig; }
+  const res = await fn.handler({ httpMethod: 'GET' });
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(JSON.parse(res.body), { available: { 'insulated-shipper': true, 'moisture-barrier-pouch': false } });
+  assert.ok(!/7/.test(res.body), 'a stock count leaked');
+  assert.match(res.headers['Cache-Control'], /max-age=60/);
+  assert.deepEqual(asked, ['insulated-shipper', 'moisture-barrier-pouch'], 'only tracked add-ons are asked for');
 });
 
-test('availability function: fails closed without config or on a database error', async () => {
-  const fn = loadFunction(TABLE);
+test('availability function: fails closed without a database or on a database error', async () => {
+  const db = require(path.join(ROOT, 'netlify/lib/db.js'));
+  const password = 'test-db-password-not-real';
   const orig = global.fetch;
   const errors = [];
   const origErr = console.error;
   console.error = (...a) => errors.push(a.join(' '));
+  global.fetch = async () => { throw new Error('the database must not be reached'); };
   try {
-    await withEnv({ SUPABASE_URL: undefined, SUPABASE_SERVICE_ROLE_KEY: undefined }, async () => {
-      const res = await fn.handler({ httpMethod: 'GET' });
-      assert.deepEqual(JSON.parse(res.body).available, { 'insulated-shipper': false, 'moisture-barrier-pouch': false });
-      assert.equal(res.headers['Cache-Control'], 'no-store');
-    });
-    global.fetch = async () => ({ ok: false, status: 500, json: async () => ({}) });
-    await withEnv({ SUPABASE_URL: 'https://x.supabase.co', SUPABASE_SERVICE_ROLE_KEY: 'k' }, async () => {
-      const res = await fn.handler({ httpMethod: 'GET' });
-      assert.deepEqual(JSON.parse(res.body).available, { 'insulated-shipper': false, 'moisture-barrier-pouch': false });
-    });
-    assert.ok(errors.every((e) => !e.includes('service-key') && !e.includes(' k ')), 'a key was logged');
+    // The real store, with no usable DATABASE_URL: refused before any request.
+    for (const value of [undefined, `postgresql://neondb_owner:${password}@ep-test.example.invalid/neondb`]) {
+      const fn = loadFunction(TABLE);
+      await withEnv({ DATABASE_URL: value }, async () => {
+        const res = await fn.handler({ httpMethod: 'GET' });
+        assert.deepEqual(JSON.parse(res.body).available, { 'insulated-shipper': false, 'moisture-barrier-pouch': false });
+        assert.equal(res.headers['Cache-Control'], 'no-store');
+      });
+    }
+    const fn = loadFunction(TABLE);
+    fn._internals.store.levels = async () => { throw new db.DbError('connection', { reason: 'unreachable' }); };
+    const res = await fn.handler({ httpMethod: 'GET' });
+    assert.deepEqual(JSON.parse(res.body).available, { 'insulated-shipper': false, 'moisture-barrier-pouch': false });
+    assert.equal(res.headers['Cache-Control'], 'no-store');
+    assert.ok(errors.length >= 3);
+    assert.ok(errors.every((e) => !e.includes(password) && !/postgres(ql)?:\/\//.test(e)), 'a credential was logged');
   } finally { global.fetch = orig; console.error = origErr; }
 });
 

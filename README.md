@@ -513,7 +513,7 @@ only: prices, quantities and the rule an add-on counts under are decided on
 the server. `orderItemRows()` produces the `order_items` rows, product lines
 carrying the add-ons they were offered.
 
-**Inventory** is a ledger in Supabase (`supabase/migrations/0002_addons.sql`):
+**Inventory** is a ledger in the database (`supabase/migrations/0002_addons.sql`):
 stock is the sum of `addon_stock_movements`. Restock or correct by inserting a
 row. `record_addon_sales(order_id)` takes a confirmed order's add-ons out of
 stock and is idempotent, including across a retry that rewrites the order's
@@ -521,7 +521,8 @@ items. Cancelling or refunding an order puts them back, once, by trigger.
 Stock is not reserved while a customer pays, so two buyers of the last unit
 can both succeed; the sale is recorded and the level goes negative, which is
 how an oversell shows. `/.netlify/functions/addon-availability` tells the
-cart which tracked add-ons are in stock, as booleans, never counts.
+cart which tracked add-ons are in stock, as booleans, never counts; it reads
+the ledger through `netlify/lib/db.js` (Neon, `DATABASE_URL`).
 
 **Reporting** needs no tracking of visitors. Two views, readable only with the
 service role (the Supabase dashboard): `addon_revenue` (units and revenue per
@@ -959,12 +960,17 @@ never logs a message, a provider's answer, a name, address, email, phone or
 key. Provider error messages are reduced to their numeric code, because they
 quote recipients.
 
-Browser roles have no access to the outbox. The service role can read it
-and call the two functions, but cannot write it directly.
+Browser roles have no access to the outbox. The service role (on Neon,
+`peptide_app`) can read it and call the two functions, but cannot write it
+directly. The dispatcher reaches it through `netlify/lib/db.js`, so it needs
+`DATABASE_URL`; without a usable one it logs `not_configured` and sends
+nothing.
 
 **Health.** `/.netlify/functions/health` has a `notifications` section. It
 shows whether notifications are switched on, and each Postmark and Twilio
-setting as `ok`, `missing` or `invalid`. It never shows a value.
+setting as `ok`, `missing` or `invalid`. It never shows a value. Its
+`database` section says whether `DATABASE_URL` is set and logs in as
+`peptide_app` (`ok`, `missing`, `invalid` or `wrong-role`), never the value.
 
 **Testing.**
 

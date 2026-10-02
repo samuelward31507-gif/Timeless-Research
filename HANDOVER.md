@@ -515,8 +515,8 @@ but switched off,** and stays off until two things are done:
 
 ### Stock
 
-Stock-tracked add-ons are counted in Supabase. Apply
-`supabase/migrations/0002_addons.sql` after `0001`. Then, in the SQL editor:
+Stock-tracked add-ons are counted in the database (Neon, §3i; the schema is
+already on the staging branch). Then, in the SQL editor:
 
 ```sql
 -- receive stock
@@ -533,7 +533,7 @@ moved stock (the database refuses); cancel or refund it. Stock is not held
 while a customer pays, so the last unit can sell twice; that shows as a
 negative level, and you decide whether to source one more or refund it.
 
-If Supabase is not configured, stock-tracked add-ons are not offered at all.
+If `DATABASE_URL` is not set (§3i), stock-tracked add-ons are not offered at all.
 
 ### Reports
 
@@ -781,9 +781,10 @@ Nothing is sent until you switch it on.
 
 ### Setting it up
 
-1. **Apply `supabase/migrations/0005_order_notifications.sql`** after 0001 to
-   0004. It adds the outbox and the trigger that fills it. Orders that already
-   exist are not notified.
+1. **The outbox** is `supabase/migrations/0005_order_notifications.sql`,
+   already on the Neon staging branch (§3i). The dispatcher reaches it through
+   `DATABASE_URL`, which must be set as in §3i. Orders that already existed
+   when it was applied are not notified.
 2. **Postmark:** create a server, and verify the sending domain (DNS records
    Postmark gives you). Note the server API token.
 3. **Twilio:** buy a number, or set up a messaging service. **Texting a US
