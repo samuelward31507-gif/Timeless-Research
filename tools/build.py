@@ -22,6 +22,7 @@ import datetime
 from html.parser import HTMLParser
 
 import addons as ADDONS_CFG  # tools/addons.py
+import console_build  # tools/console_build.py: the operations console's pages
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8"))
@@ -2073,7 +2074,7 @@ def build_meta(pages):
 
     (ROOT / "robots.txt").write_text(
         ("User-agent: *\nDisallow: /\n" if DEMO else
-         f"User-agent: *\nAllow: /\nDisallow: /tools/\n\nSitemap: {SITE}/sitemap.xml\n"),
+         f"User-agent: *\nAllow: /\nDisallow: /tools/\nDisallow: /console/\n\nSitemap: {SITE}/sitemap.xml\n"),
         encoding="utf-8")
 
     # Netlify and Cloudflare Pages both read _redirects; without it a static
@@ -2284,11 +2285,17 @@ def main():
 
     build_meta(pages)
     build_chat_knowledge()
+    # The operations console: its own shell, never in the sitemap (build_meta
+    # above sees only the storefront's pages) and disallowed in robots.txt.
+    console_pages = console_build.build_console()
     # After build_meta, because it generates assets/js/config.js and a hash of
     # a file that does not exist yet would pin the previous build's config.
-    stamped = version_assets(pages)
+    stamped = version_assets(pages + console_pages)
     print(f"Built {len(pages)} pages:")
     for p in pages:
+        print(f"  {p}")
+    print(f"Built {len(console_pages)} console pages:")
+    for p in console_pages:
         print(f"  {p}")
     print("  sitemap.xml\n  robots.txt")
     print(f"Cache-stamped {len(stamped)} assets")

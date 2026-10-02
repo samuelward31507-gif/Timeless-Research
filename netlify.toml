@@ -105,6 +105,19 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Frame-Options = "SAMEORIGIN"
 
+# The operations console (console/, tools/console_build.py): private, never
+# cached, never indexed, and allowed to run only its own files. These pages
+# also match "/*.html" above, which keeps X-Frame-Options: SAMEORIGIN and
+# nosniff on them; frame-ancestors says the same thing to browsers that read
+# the CSP. tools/check.py fails if this block loses any of these.
+[[headers]]
+  for = "/console/*"
+  [headers.values]
+    Cache-Control = "no-store"
+    X-Robots-Tag = "noindex, nofollow"
+    Referrer-Policy = "no-referrer"
+    Content-Security-Policy = "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'self'; base-uri 'none'"
+
 [[headers]]
   for = "/assets/*"
   [headers.values]

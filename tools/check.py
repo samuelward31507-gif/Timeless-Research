@@ -24,6 +24,15 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 # too would double every count and report every fault twice.
 SKIP_DIRS = {".claude", "dist", "node_modules"}
 PAGES = sorted(p for p in ROOT.rglob("*.html") if not SKIP_DIRS & set(p.parts))
+# The operations console (console/, tools/console_build.py) is a private shell
+# with its own rules (tools/console_rules.py); the storefront's per-page rules
+# below (research-use wording, the support assistant, canonical links) are for
+# the public pages only. Links, titles, landmarks, labels and alt text apply
+# to both.
+CONSOLE_PAGES = [p for p in PAGES if p.relative_to(ROOT).parts[0] == "console"]
+STORE_PAGES = [p for p in PAGES if p not in CONSOLE_PAGES]
+sys.path.insert(0, str(ROOT / "tools"))
+import console_rules as _console_rules  # noqa: E402
 
 failures: list[str] = []
 notes: list[str] = []
@@ -60,6 +69,7 @@ STANDING_RUO = "research use only"
 for page in PAGES:
     rel = page.relative_to(ROOT).as_posix()
     txt = page.read_text(encoding="utf-8")
+    store = page in STORE_PAGES
 
     if "{PREFIX}" in txt or "{p}" in txt:
         fail(f"unresolved placeholder in {rel}")
@@ -67,7 +77,7 @@ for page in PAGES:
         fail(f"missing <title> in {rel}")
     if 'name="description"' not in txt:
         fail(f"missing meta description in {rel}")
-    if 'rel="canonical"' not in txt:
+    if store and 'rel="canonical"' not in txt:
         fail(f"missing canonical link in {rel}")
     if "<main" not in txt:
         fail(f"missing <main> landmark in {rel}")
@@ -99,8 +109,11 @@ for page in PAGES:
 
     if rel in NEEDS_NOTICE and "For laboratory research use only" not in txt:
         fail(f"compliance notice missing from {rel}")
-    if STANDING_RUO not in txt.lower():
+    if store and STANDING_RUO not in txt.lower():
         fail(f"no research-use-only wording anywhere on {rel}")
+    if not store:
+        for _msg in _console_rules.check(rel, txt):
+            fail(_msg)
 
 # ------------------------------------------------------- claims hygiene
 # The site must not publish dosing guidance or human-use framing.
@@ -322,7 +335,7 @@ else:
 # built by build.py's page() — or the chrome was edited and lost it. Either
 # way the page is missing the drawer that carries the research-use line.
 _CHAT_SCRIPT = re.compile(r'<script src="(?:\.\./)*assets/js/chat\.js(?:\?v=[0-9a-f]+)?" defer></script>')
-for _page in PAGES:
+for _page in STORE_PAGES:
     _rel = _page.relative_to(ROOT).as_posix()
     _txt = _page.read_text(encoding="utf-8")
     if not _CHAT_SCRIPT.search(_txt):
@@ -408,12 +421,44 @@ for _f in ("netlify/lib/addons.js", "netlify/functions/addon-availability.js"):
     if not (ROOT / _f).exists():
         fail(f"missing {_f}")
 
+# ------------------------------------------------- operations console wiring
+# The console is private: never in the sitemap, disallowed for crawlers on a
+# trading build (a demo build disallows everything), served with its own
+# security headers, and copied into the publish directory by dist.py.
+if "/console/" in (ROOT / "sitemap.xml").read_text(encoding="utf-8"):
+    fail("sitemap.xml lists a console page")
+_robots = (ROOT / "robots.txt").read_text(encoding="utf-8")
+if "Disallow: /\n" not in _robots and "Disallow: /console/" not in _robots:
+    fail("robots.txt does not disallow /console/")
+_toml = (ROOT / "netlify.toml").read_text(encoding="utf-8")
+_block = re.search(r'\[\[headers\]\]\s*\n\s*for = "/console/\*"\s*\n\s*\[headers\.values\]\s*\n((?:\s*[A-Za-z-]+ = "[^"]*"\s*\n)+)', _toml)
+if not _block:
+    fail('netlify.toml has no headers block for "/console/*"')
+else:
+    _hdrs = dict(re.findall(r'([A-Za-z-]+) = "([^"]*)"', _block.group(1)))
+    _csp = _hdrs.get("Content-Security-Policy", "")
+    for _want in ("script-src 'self'", "connect-src 'self'", "style-src 'self'", "frame-ancestors 'self'",
+                  "default-src 'none'"):
+        if _want not in _csp:
+            fail(f"console Content-Security-Policy is missing {_want}")
+    if "unsafe-inline" in _csp or "unsafe-eval" in _csp:
+        fail("console Content-Security-Policy allows unsafe-inline or unsafe-eval")
+    if "noindex" not in _hdrs.get("X-Robots-Tag", ""):
+        fail("console headers do not send X-Robots-Tag: noindex")
+    if "no-store" not in _hdrs.get("Cache-Control", ""):
+        fail("console headers do not send Cache-Control: no-store")
+if '"console"' not in (ROOT / "tools/dist.py").read_text(encoding="utf-8"):
+    fail("tools/dist.py does not publish console/")
+
 # ------------------------------------------------------------- generated
 for extra in ("sitemap.xml", "robots.txt", "assets/img/favicon.svg",
               "assets/data/products.json", "assets/css/main.css",
               "assets/js/site.js", "assets/js/catalog.js", "assets/js/contact.js",
               "assets/js/chat.js",
-              "assets/css/fonts.css", "order-received.html", "pay.html"):
+              "assets/css/fonts.css", "order-received.html", "pay.html",
+              "console/index.html", "assets/css/console.css",
+              "assets/js/console/auth.js", "assets/js/console/api.js",
+              "assets/js/console/ui.js", "assets/js/console/shell.js"):
     if not (ROOT / extra).exists():
         fail(f"missing generated asset: {extra}")
 

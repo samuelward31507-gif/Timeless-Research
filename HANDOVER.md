@@ -773,6 +773,14 @@ Also to check on the staging project, once 0003 and 0004 are applied:
   `23514`, `23505`, `23503`) in the response body, with the functions' own
   messages, as the offline tests assume.
 
+### The console's pages (foundation only)
+
+`/console/` exists but has no screens yet and no sign-in: it says so, and
+makes no requests. It is private (never indexed, never cached, a strict
+Content-Security-Policy) and nothing on the public site links to it. README,
+*Operations console: the UI foundation*, says what is there and how to work
+on it offline.
+
 ## 3h. New-order notifications (email and text to the owner)
 
 When a paid order arrives, the owner is emailed (Postmark) and texted
@@ -1143,6 +1151,7 @@ node --test tests/notify.test.js        # new-order notifications, offline
 python3 -m unittest discover -s tests -p 'test_*.py'   # add-on configuration
 npm ci                                # the functions' one dependency (the Neon driver)
 (cd tests/db && npm ci && npm test)   # database migrations and db.js, against PostgreSQL 16
+(cd tests/console && npm ci && npm test)  # console UI foundation in Chromium, offline (build first)
 ```
 
 `check.py` exits non-zero on failure, so it can gate a deploy. It verifies that

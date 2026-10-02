@@ -1,0 +1,100 @@
+/* ==========================================================================
+   Operations console shell (console/, tools/console_build.py)
+   Built on main.css: its tokens (colour, type, spacing), reset, typography,
+   buttons, focus ring and skip link. Only the shell lives here. No inline
+   styles anywhere in the console: its CSP allows stylesheets from 'self' only.
+   ========================================================================== */
+
+.console [hidden] { display: none !important; }
+
+body.console { background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+/* --- Header ------------------------------------------------------------- */
+.console-header {
+  display: flex; align-items: center; gap: var(--s-4);
+  padding: var(--s-3) var(--s-5);
+  border-bottom: 1px solid var(--line);
+  background: var(--white);
+  position: sticky; top: 0; z-index: 20;
+}
+.console-brand { font-family: var(--f-display); font-size: 1.35rem; color: var(--ink); text-decoration: none; }
+.console-brand-sub { font-family: var(--f-ui); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-left: var(--s-2); }
+.console-session { margin: 0 0 0 auto; font-size: .875rem; color: var(--ink-3); }
+.console-menu-btn {
+  display: none;
+  font: inherit; font-size: .875rem; padding: .45rem .9rem;
+  border: 1px solid var(--line-strong); border-radius: 2px; background: transparent; color: var(--ink); cursor: pointer;
+}
+
+.console-alert {
+  margin: 0; padding: var(--s-3) var(--s-5);
+  background: var(--warn-bg); color: var(--warn-ink); border-bottom: 1px solid var(--warn-line);
+  font-size: .9rem;
+}
+
+/* --- Layout ------------------------------------------------------------- */
+.console-layout { display: grid; grid-template-columns: 15rem minmax(0, 1fr); min-height: calc(100vh - 3.5rem); }
+.console-nav { border-right: 1px solid var(--line); background: var(--tile); padding: var(--s-5) 0; }
+.console-nav-list { list-style: none; margin: 0; padding: 0; }
+.console-nav-link {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2);
+  padding: .55rem var(--s-5); font-size: .95rem; color: var(--ink-2); text-decoration: none;
+}
+a.console-nav-link:hover { color: var(--ink); background: var(--deep); }
+.console-nav-link[aria-current="page"] { color: var(--ink); font-weight: 600; box-shadow: inset 3px 0 0 var(--accent); background: var(--white); }
+.console-nav-link.is-pending { color: var(--ink-3); cursor: default; }
+.console-nav-tag { font-size: .7rem; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
+
+.console-main { padding: var(--s-6) var(--s-6) var(--s-8); max-width: 72rem; }
+.console-main:focus { outline: none; }
+.console-title { font-family: var(--f-display); font-size: clamp(1.9rem, 4vw, 2.6rem); margin: 0 0 var(--s-6); }
+
+/* --- Panels and states -------------------------------------------------- */
+.console-panel { border: 1px solid var(--line); background: var(--white); padding: var(--s-5); margin-bottom: var(--s-5); }
+.console-panel-title { font-family: var(--f-ui); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 var(--s-3); }
+.console-note { margin: 0 0 var(--s-3); color: var(--ink-2); }
+.console-list { margin: 0; padding-left: 1.25rem; color: var(--ink-2); }
+
+.console-view { min-height: 3rem; }
+.console-state-title { font-weight: 600; margin: 0 0 var(--s-1); }
+.console-state-text { margin: 0 0 var(--s-2); color: var(--ink-2); }
+.console-view[data-state="loading"] .console-state-text { color: var(--ink-3); }
+.console-view[data-state="error"] .console-state-title { color: var(--danger); }
+
+.btn--danger { background: var(--danger); color: var(--white); }
+.btn--danger:hover { background: var(--ink); }
+
+/* --- Confirmation dialog ------------------------------------------------ */
+.console-dialog {
+  border: 1px solid var(--line-strong); border-radius: 2px; padding: 0;
+  width: min(32rem, calc(100vw - 2rem)); background: var(--white); color: var(--ink);
+}
+.console-dialog::backdrop { background: rgba(28, 26, 23, .45); }
+.console-dialog-form { padding: var(--s-5); margin: 0; }
+.console-dialog-title { font-family: var(--f-ui); font-size: 1.1rem; font-weight: 600; margin: 0 0 var(--s-3); }
+.console-dialog-body { margin: 0 0 var(--s-4); color: var(--ink-2); }
+.console-dialog-reason { margin-bottom: var(--s-4); }
+.console-dialog-reason label { display: block; font-size: .875rem; margin-bottom: var(--s-1); }
+.console-dialog-reason textarea {
+  width: 100%; font: inherit; padding: var(--s-2); border: 1px solid var(--line-strong); border-radius: 2px; resize: vertical;
+}
+.console-dialog-actions { display: flex; justify-content: flex-end; gap: var(--s-2); }
+
+/* --- Toast -------------------------------------------------------------- */
+.console-toast {
+  position: fixed; right: var(--s-5); bottom: var(--s-5); z-index: 30;
+  max-width: 24rem; padding: var(--s-3) var(--s-4);
+  background: var(--ink); color: var(--paper); font-size: .9rem; border-radius: 2px;
+}
+
+/* --- Narrow screens: navigation behind the Menu button ------------------ */
+@media (max-width: 860px) {
+  .console-header { padding: var(--s-3) var(--s-4); flex-wrap: wrap; }
+  .console-menu-btn { display: inline-block; }
+  .console-session { order: 3; width: 100%; margin: 0; }
+  .console-layout { grid-template-columns: 1fr; }
+  .console-nav { display: none; border-right: 0; border-bottom: 1px solid var(--line); padding: var(--s-2) 0; }
+  .console-nav.is-open { display: block; }
+  .console-main { padding: var(--s-5) var(--s-4) var(--s-7); }
+  .console-toast { left: var(--s-4); right: var(--s-4); bottom: var(--s-4); max-width: none; }
+}

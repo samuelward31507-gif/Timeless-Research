@@ -107,6 +107,11 @@ db/neon/                Neon only: roles before the migrations, read-only
 tests/                  Node and Python tests (no dependencies)
 tests/db/               Database tests against PostgreSQL 16 (PGlite, test-only),
                         on the Supabase and the Neon role model
+console/                Operations console pages (generated; private, noindex)
+tools/console_build.py  Builds console/: its own shell, not the storefront's page()
+tools/console_rules.py  What check.py requires of every console page
+assets/js/console/      Console scripts: auth seam, request layer, UI pieces, shell
+tests/console/          Console browser tests (Playwright) and offline dev server
 sitemap.xml, robots.txt Generated
 ```
 
@@ -639,6 +644,65 @@ cd tests/db && npm ci && npm test     # PostgreSQL 16 in-process; test-only depe
 `tests/db` is the one place with a package: PGlite, pinned, so the migrations
 are tested against a real database without a server. Nothing in it is
 deployed; the site and its functions still have no runtime dependencies.
+
+## Operations console: the UI foundation
+
+The console's screens are not built yet. What exists is the foundation they
+will be built on, and it is private by construction:
+
+- **Its own pages.** `tools/console_build.py` writes `console/` with its own
+  document shell, not the storefront's `page()`: no entry gate, cart,
+  assistant, Open Graph or canonical; always `noindex,nofollow`; never in
+  `sitemap.xml`; disallowed in `robots.txt` on a trading build. The navigation
+  lists every documented area (dashboard, orders, fulfilment, inventory, lots,
+  expenses, CSV import, financials, customers, audit) as *not built yet* until
+  its screen exists.
+- **Served privately.** `netlify.toml` gives `/console/*` `Cache-Control:
+  no-store`, `X-Robots-Tag: noindex, nofollow`, `Referrer-Policy: no-referrer`
+  and a Content-Security-Policy that runs only the console's own files
+  (`default-src 'none'; script-src 'self'; style-src 'self'; connect-src
+  'self'; frame-ancestors 'self'`). No inline script or style anywhere.
+  `tools/check.py` applies `tools/console_rules.py` to every console page and
+  fails if the headers block, the robots rule or `dist.py`'s `console` entry
+  goes missing.
+- **An authentication seam, with no provider.** `assets/js/console/auth.js`:
+  a provider (when one is chosen) registers once with
+  `TRConsole.auth.setTokenProvider(fn)`; everything else asks
+  `getAccessToken()`. The token lives in memory only and goes nowhere but the
+  `Authorization: Bearer` header. As shipped there is no provider, so the
+  console has no session and makes no requests.
+- **One request layer.** `TRConsole.api.requestAdmin(endpoint, { params })`
+  for a read, `{ action, fields }` for a write, to the seven `admin-*`
+  endpoints only. No cookies, no caching, no redirects. Every documented
+  answer becomes a `ConsoleError` kind: `signin` (401), `mfa` (403
+  `mfa_required`), `forbidden` (403), `invalid` (400/405/413/415),
+  `not_found`, `conflict`/`retry` (409), `rejected` (422, with the API's own
+  sentence), `unavailable` (500) or `network`.
+- **Shared pieces.** `assets/js/console/ui.js`: loading, empty and error
+  states; a modal confirmation dialog (focus starts on Cancel, Escape
+  cancels, an optional required reason); a polite toast. Everything is built
+  with DOM nodes and `textContent`: names, addresses and notes are always
+  text, never markup. `shell.js`: the header, the session notice, and the
+  navigation folding behind a Menu button on narrow screens.
+
+**Offline development and tests.**
+
+```bash
+python3 tools/build.py
+(cd tests/console && npm ci && npm run dev)   # http://127.0.0.1:4317/console/index.html
+(cd tests/console && npm test)                # Playwright, Chromium, offline
+```
+
+`tests/console/server.mjs` serves `console/` and `assets/` with
+`netlify.toml`'s own headers, and runs the **real** `admin-*` handlers in
+process on `tests/helpers/admin-fixtures.js` (a throwaway signing key, a fake
+staff lookup and canned rows): there is no second API to drift from the real
+one. `npm run dev` also registers a development token provider, injected by
+the server only, so the console opens with a session. It listens on
+127.0.0.1, serves nothing else in the repository, and nothing it does
+reaches the network; the browser tests also fail if a page requests any other
+host. `tests/test_console_rules.py` covers the page rules and the deployment
+wiring.
 
 ## Operations console: authentication
 

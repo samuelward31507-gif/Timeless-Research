@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 dist/
 node_modules/
+
+# Playwright output (tests/console)
+test-results/
+playwright-report/
