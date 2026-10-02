@@ -354,6 +354,29 @@
     }
   }
 
+  /* --------------------------------------------------------------------- CSV */
+
+  // Every order, as a file (csv.js). The button waits while one is being
+  // built, so a second click cannot start a second export.
+  function downloadCsv() {
+    var btn = $('cc-csv');
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.textContent = 'Preparing…';
+    C.csv.exportOrders().then(function (r) {
+      ui.toast(r.capped
+        ? 'Downloaded the ' + f.count(r.count) + ' most recent orders. Older orders are not in this file.'
+        : 'Downloaded ' + plural(r.count, 'order', 'orders') + '.');
+    }, function (err) {
+      var kind = err && err.kind === 'forbidden' ? 'Your account does not have access to orders.'
+        : 'The orders could not all be read, so nothing was downloaded. Try again shortly.';
+      ui.toast(kind, 8000);
+    }).then(function () {
+      btn.disabled = false;
+      btn.textContent = 'Download CSV';
+    });
+  }
+
   /* -------------------------------------------------------------------- start */
 
   C.ready(function () {
@@ -361,6 +384,7 @@
     ui = C.ui;
     f = C.format;
     $('cc-refresh').addEventListener('click', load);
+    $('cc-csv').addEventListener('click', downloadCsv);
     C.page.signedIn($('cc-notice')).then(function (ok) {
       if (!ok) return;
       $('cc-refresh').hidden = false;

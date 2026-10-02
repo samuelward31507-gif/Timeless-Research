@@ -778,8 +778,10 @@ Also to check on the staging project, once 0003 and 0004 are applied:
 `/console/` is a single screen for the owner: sales, orders, customers and
 stock at a glance, the orders in each stage, what needs attention, recent
 orders and recent activity, with each order opening on its own read-only page
-(README, *Operations console: the business overview*). It is read-only and
-private (never indexed, never cached, a strict
+(README, *Operations console: the business overview*). **Download CSV**
+saves every order (up to the 10,000 most recent) as a UTF-8 file with fixed
+columns, for importing elsewhere; its column list is in the README. It is
+read-only and private (never indexed, never cached, a strict
 Content-Security-Policy), and nothing on the public site links to it.
 
 **It cannot be used on the live site yet.** No sign-in provider is chosen, so

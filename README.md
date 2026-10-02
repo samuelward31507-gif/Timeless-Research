@@ -677,6 +677,27 @@ currency: lot costs carry their own). Only a valid order id is ever requested
 or linked; anything else in the address makes no request. Phone and address
 appear here only, never on the overview.
 
+**Download CSV** (in Recent orders) saves every order, newest first, as one
+file (`assets/js/console/csv.js`). It is built in the browser from
+`admin-orders` (100 at a time, by cursor; at most the 10,000 most recent, and
+the screen says when there were more), so there is no export endpoint, and
+nothing is saved unless every page arrives. It is meant to be imported into
+another system, so its shape is a contract:
+
+- UTF-8 with a byte-order mark, comma-separated, CRLF line ends, RFC 4180
+  quoting; one header row, then one row per order;
+- columns, in this order: `order_id, created_at, status, status_since,
+  customer_name, customer_email, currency, amount_total_minor, amount_total,
+  product_lines, product_units, addon_lines, carrier, tracking_number,
+  shipped_at, delivered_at, payment_reference, needs_attention, note_count`;
+- timestamps as the API gives them (ISO 8601, UTC); `amount_total_minor` is
+  the integer the database holds and `amount_total` the same in the currency's
+  decimals (empty if the code is not one the browser knows);
+- no phone number or address;
+- a text cell that a spreadsheet would run as a formula (starting `=`, `+`,
+  `-`, `@`, tab or carriage return, other than a plain number) is prefixed with
+  an apostrophe.
+
 Everything shown is a value the API returns; the screen adds nothing up. A
 part the signed-in person has no permission for is left out rather than shown
 as refused; any other failure shows in that part with *Try again*. An answer to
@@ -755,8 +776,8 @@ the server only, so the console opens with a session. It listens on
 127.0.0.1, serves nothing else in the repository, and nothing it does
 reaches the network; the browser tests also fail if a page requests any other
 host, or leaves anything in browser storage. `tests/console/command.spec.mjs`
-covers the business overview and `order.spec.mjs` one order (`helpers.mjs`
-holds the shared fixtures);
+covers the business overview, `order.spec.mjs` one order and
+`csv.spec.mjs` the CSV (`helpers.mjs` holds the shared fixtures);
 `tests/test_console_rules.py` covers the page rules and the deployment
 wiring.
 

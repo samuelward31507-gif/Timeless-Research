@@ -116,7 +116,12 @@ def document(path: str, title: str, active: str, body: str, page_scripts=(), pag
 """
 
 
-COMMAND_SCRIPTS = ["format.js", "page.js", "command.js"]
+COMMAND_SCRIPTS = ["format.js", "page.js", "csv.js", "command.js"]
+
+
+# Every order as a CSV (assets/js/console/csv.js): next to the orders, not in a menu.
+CSV_BUTTON = """
+          <button type="button" class="btn btn--ghost btn--sm" id="cc-csv">Download CSV</button>"""
 
 
 def section(key: str, title: str, extra: str = "", cls: str = "") -> str:
@@ -149,7 +154,7 @@ def command() -> str:
 {section("stages", "Order stages", cls="cc-section--stages")}
       <div class="cc-row">
 {section("attention", "Needs attention", cls="cc-section--attention")}
-{section("recent", "Recent orders", cls="cc-section--recent")}
+{section("recent", "Recent orders", cls="cc-section--recent", extra=CSV_BUTTON)}
         <div class="cc-stack">
 {section("activity", "Recent activity")}
 {section("stock", "Low stock")}
