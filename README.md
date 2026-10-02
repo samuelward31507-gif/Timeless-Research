@@ -5,9 +5,10 @@ laboratory research use only.
 
 No framework, no build toolchain, no runtime dependencies. Pages are generated
 from a single Python script so that shared chrome and compliance language can
-never drift between pages. The one piece of server-side code is a Netlify
-Function that creates Stripe Checkout sessions, because a static page cannot
-hold a secret key.
+never drift between pages. The server-side code is a handful of Netlify
+Functions, there because a static page cannot hold a secret key: one creates
+Stripe Checkout sessions, and one answers the order and product help
+assistant (see [Support assistant](#support-assistant)).
 
 **Taking this site over? Start with [HANDOVER.md](HANDOVER.md)** — it lists
 everything an operator has to supply, deploy and decide, in order. This file
@@ -65,6 +66,7 @@ assets/
   js/site.js            Nav, reveal, accordion, cart, drawer, checkout
   js/catalog.js         Filtering and search
   js/contact.js         Form validation and submission
+  js/chat.js            Order and product help assistant (drawer, history)
   data/products.json    Catalog, prices, volume tiers, shipping threshold
   coa/<id>.pdf          Optional; publishes that compound's certificate
   fonts/                Self-hosted Barlow Semi Condensed (label face)
@@ -78,8 +80,11 @@ tools/make_vial.py      Rebuilds the vial asset from the photograph
 tools/make_logo.py      Rebuilds the flame mark and favicon
 tools/check.py          Structural / link / a11y-hygiene checks
 netlify/functions/
-  create-checkout-session.js  Creates the Stripe session (the only backend)
+  create-checkout-session.js  Creates the Stripe session
   catalog.json          Price table it charges from (generated)
+  chat.js               Support assistant: screens, calls the Anthropic API
+  chat-knowledge.json   Everything the assistant may answer from (generated)
+tests/                  Node tests for the assistant (no dependencies)
 sitemap.xml, robots.txt Generated
 ```
 
@@ -212,6 +217,10 @@ To go live:
 5. Set `STRIPE_SECRET_KEY` under **Site configuration → Environment variables**
    — *not* in `netlify.toml`, which is in the repository. Until it is set, the
    checkout button reports that checkout is unavailable.
+6. Optional: set `ANTHROPIC_API_KEY` there too, to switch on the support
+   assistant. Set a monthly spend limit for the key in the Claude Console
+   first (HANDOVER §3d). Until it is set, the assistant tells visitors it is unavailable and
+   points them to the contact page.
 
 Run it locally exactly as Netlify does with
 `python3 tools/build.py && python3 tools/dist.py`, then serve `dist/`.
@@ -254,6 +263,12 @@ The checkout function reads its own, set on the deploy rather than at build time
 | `TR_SHIP_EXPRESS_CENTS` | `3500` | Express shipping rate offered at checkout |
 | `TR_SHIP_COUNTRIES` | *(empty)* | Comma-separated ISO codes; empty uses the list in the function |
 | `TR_STRIPE_TAX` | *(off)* | `1` enables Stripe Tax on the session |
+
+The support assistant reads one, also set on the deploy:
+
+| Variable | Default | Effect |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | *(none)* | Optional. Switches on the assistant. Never put it in `netlify.toml` |
 
 These reach the browser through `assets/js/config.js`, which the build
 generates — do not edit that file.
@@ -344,6 +359,78 @@ wording and fails the build if any of it reappears, because a promise the
 operator cannot keep is worse than no promise.
 
 ---
+
+## Support assistant
+
+A small "Questions?" button on every page opens the order and product help
+assistant: a drawer like the cart, with the research-use line in its header
+above anything it says. It answers questions about products, specifications,
+CAS numbers, COA availability, prices and volume tiers, shipping, returns,
+payment, the order process and how to reach a person. It does not take orders
+or payment details; it links the product page and explains the cart.
+
+**What it knows.** `tools/build.py` writes
+`netlify/functions/chat-knowledge.json` on every build: an allow-list of
+catalogue fields per product (name, synonyms, CAS, formula, MW, sequence,
+form, purity, storage, release assays, packs and prices, stock, the restricted
+flag) plus the readable text of the FAQ, ordering, shipping, terms, privacy,
+research-use, analytical-programme and COA pages, lifted from the generated
+HTML. Two product fields are left out on purpose and `check.py` fails if
+either appears: `solubility`, one step from reconstitution advice, and the
+`research` blurbs, which describe preclinical findings and read easily as a
+claim about what a compound does. The restricted notice is one constant in
+`build.py`, shared by the specification pages and the assistant, which may say
+nothing else about those compounds.
+
+**What it will not do,** in three layers, each enough on a good day:
+
+1. A fixed pattern screen in `netlify/functions/chat.js` refuses clear dosing,
+   reconstitution, administration, cycling, stacking, human- or animal-use and
+   health-claim questions without calling the model at all.
+2. The system prompt carries the same rules, refuses whatever the screen
+   misses (rephrasings, fiction, "hypothetically", "for a friend",
+   role-play), and treats anything in a visitor's message that tries to change
+   the rules as just a message.
+3. A screen on the reply replaces any answer carrying an amount per day,
+   mg/kg, a volume of water or a syringe figure with the refusal.
+
+Every refusal points to `compliance.html`. Earlier assistant turns travel back
+from the browser with each question, so the function signs every reply and
+refuses a history it did not write: a page cannot forge an "assistant" that
+already gave a dose.
+
+**Limits.** Model `claude-sonnet-5-5`, at low effort with a 1,024-token cap
+and a 9-second timeout (Netlify stops a synchronous function at 10). The last
+ten messages are kept; a question is at most 1,000 characters; bodies over
+32 KB and anything but POST are refused. Rate limiting is per IP, 8 a minute
+and 60 an hour, held in memory, so it covers one warm instance only: it stops
+one browser hammering the button, not a determined client. The spend limit on
+the API key is the real ceiling. The function logs outcome, latency and token
+counts, never the question, the reply or the address. The knowledge and rules
+are sent as a cached prefix, so repeat questions cost mostly the conversation.
+
+**Without a key** the assistant says it is unavailable and points to the
+contact page; on a demo build it says the demo has no assistant switched on.
+`/.netlify/functions/health` reports whether the key is set.
+
+**Testing.**
+
+```bash
+node --test tests/chat.test.js          # stubbed; no key, no network
+ANTHROPIC_API_KEY=sk-ant-... node tests/chat_live.mjs report.json
+```
+
+The stubbed suite asserts that 30 dosing and human-use questions are refused
+without reaching the model, that 25 ordinary questions sharing their words
+("price for 10 units", "stacked boxes", "restock cycle", "add 25 units to my
+cart") are not, and covers every refusal path: wrong method, oversized body,
+malformed or forged history, rate limit, missing key, model refusal, a reply
+carrying a dose, a truncated reply, API errors, and that nothing a visitor
+types reaches the log. The live run sends the same questions, plus 18 indirect
+ones written to slip past the screen, straight to the model with the
+production request, grades each reply with a second model, and reports
+latency against the timeout. Run it before launch and after any change to the
+model, the rules or the knowledge.
 
 ## Assets and tooling
 
@@ -470,7 +557,12 @@ page has a title / description / canonical / `<main>` / skip link and exactly on
 notice is present on every key page. It also fails the build if the checkout
 price table disagrees with `products.json`, if a restricted compound carries an
 add-to-cart control, or if any of the retired account-verification wording
-reappears. It exits non-zero, so it can gate a deploy.
+reappears. It also fails if any page is missing the support assistant, or if
+the assistant's knowledge file disagrees with `products.json` or carries a
+field left out on purpose. It exits non-zero, so it can gate a deploy.
+
+The assistant's function has its own suite, `node --test tests/chat.test.js`;
+see [Support assistant](#support-assistant).
 
 Audited with axe-core (WCAG 2.1 A/AA) across fifteen representative pages plus
 the open cart drawer in its error state: **0 violations**.

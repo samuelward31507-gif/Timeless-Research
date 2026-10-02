@@ -1,0 +1,932 @@
+{
+ "brand": "Timeless Research",
+ "demo": true,
+ "site": "https://www.timelessresearch.com",
+ "contactEmail": "accounts@timelessresearch.com",
+ "contactPage": "contact.html",
+ "compliancePage": "compliance.html",
+ "currency": "USD",
+ "volumeTiers": [
+  {
+   "minQty": 10,
+   "percent": 10.0
+  },
+  {
+   "minQty": 25,
+   "percent": 15.0
+  }
+ ],
+ "freeShippingOver": 250.0,
+ "restrictedNotice": "Restricted reference standard. This compound corresponds to an approved or investigational pharmaceutical substance. It is supplied strictly as an analytical reference standard for in vitro method development: it is not a medicine, it is not manufactured to pharmaceutical standards, it has not been evaluated by any regulatory authority for safety or efficacy, and it must not be administered to a human or an animal. Buying it is your confirmation of that — see our research use policy.",
+ "products": [
+  {
+   "id": "cjc-1295",
+   "name": "CJC-1295 (no DAC)",
+   "synonyms": [
+    "Modified GRF (1-29)",
+    "Mod GRF 1-29"
+   ],
+   "cas": "863288-34-0",
+   "formula": "C152H252N44O42",
+   "mw": "3367.90",
+   "sequence": "Tetrasubstituted GRF (1-29) analogue",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer",
+    "Acetate content"
+   ],
+   "category": "Growth Axis",
+   "page": "products/cjc-1295.html",
+   "packs": [
+    {
+     "size": "10 mg",
+     "price": 60
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "cjc-1295-dac",
+   "name": "CJC-1295 DAC",
+   "synonyms": [
+    "DAC:GRF",
+    "Drug Affinity Complex GRF"
+   ],
+   "cas": "863288-34-0",
+   "mw": "3647.28",
+   "sequence": "GRF (1-29) analogue with maleimidopropionyl DAC linker",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer"
+   ],
+   "category": "Growth Axis",
+   "page": "products/cjc-1295-dac.html",
+   "packs": [
+    {
+     "size": "5 mg",
+     "price": 65
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "igf-1-lr3",
+   "name": "IGF-1 LR3",
+   "synonyms": [
+    "Long R3 IGF-1"
+   ],
+   "cas": "946870-92-4",
+   "mw": "9111.00",
+   "sequence": "83-residue IGF-1 analogue (Arg³ substitution, 13-residue N-terminal extension)",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥95%",
+   "storage": "-20 °C, desiccated, protected from light",
+   "assays": [
+    "RP-HPLC",
+    "SDS-PAGE",
+    "ESI-MS",
+    "Endotoxin"
+   ],
+   "category": "Growth Axis",
+   "page": "products/igf-1-lr3.html",
+   "packs": [
+    {
+     "size": "1 mg",
+     "price": 85
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "ipamorelin",
+   "name": "Ipamorelin",
+   "synonyms": [
+    "NNC 26-0161"
+   ],
+   "cas": "170851-70-4",
+   "formula": "C38H49N9O5",
+   "mw": "711.85",
+   "sequence": "Aib-His-D-2-Nal-D-Phe-Lys-NH₂",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer",
+    "Acetate content"
+   ],
+   "category": "Growth Axis",
+   "page": "products/ipamorelin.html",
+   "packs": [
+    {
+     "size": "10 mg",
+     "price": 45
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "mots-c",
+   "name": "MOTS-c",
+   "synonyms": [
+    "Mitochondrial ORF of the 12S rRNA type-c"
+   ],
+   "cas": "1627580-64-6",
+   "formula": "C101H152N28O22S2",
+   "mw": "2174.62",
+   "sequence": "Met-Arg-Trp-Gln-Glu-Met-Gly-Tyr-Ile-Phe-Tyr-Pro-Arg-Lys-Leu-Arg",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated, protected from light",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer"
+   ],
+   "category": "Growth Axis",
+   "page": "products/mots-c.html",
+   "packs": [
+    {
+     "size": "10 mg",
+     "price": 25
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "tesamorelin",
+   "name": "Tesamorelin",
+   "synonyms": [
+    "TH9507"
+   ],
+   "cas": "218949-48-5",
+   "formula": "C221H366N72O67S",
+   "mw": "5135.90",
+   "sequence": "trans-3-hexenoyl-GRF (1-44) analogue",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated, protected from light",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer",
+    "Acetate content"
+   ],
+   "category": "Growth Axis",
+   "page": "products/tesamorelin.html",
+   "packs": [
+    {
+     "size": "20 mg",
+     "price": 190
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "epithalon",
+   "name": "Epithalon",
+   "synonyms": [
+    "Epitalon",
+    "AEDG peptide"
+   ],
+   "cas": "307297-39-8",
+   "formula": "C14H22N4O9",
+   "mw": "390.35",
+   "sequence": "Ala-Glu-Asp-Gly",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer",
+    "Acetate content"
+   ],
+   "category": "Cellular & Longevity",
+   "page": "products/epithalon.html",
+   "packs": [
+    {
+     "size": "50 mg",
+     "price": 80
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "ghk-cu",
+   "name": "GHK-Cu",
+   "synonyms": [
+    "Copper tripeptide-1",
+    "Gly-His-Lys copper complex"
+   ],
+   "cas": "89030-95-5",
+   "formula": "C14H22N6O4·Cu",
+   "mw": "403.94",
+   "sequence": "Gly-His-Lys (Cu²⁺ complex)",
+   "form": "Lyophilised powder",
+   "appearance": "Deep blue solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated, protected from light",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "ICP-MS (copper)",
+    "Karl Fischer"
+   ],
+   "category": "Cellular & Longevity",
+   "page": "products/ghk-cu.html",
+   "packs": [
+    {
+     "size": "100 mg",
+     "price": 25
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "glutathione",
+   "name": "Glutathione (reduced)",
+   "synonyms": [
+    "GSH",
+    "L-Glutathione"
+   ],
+   "cas": "70-18-8",
+   "formula": "C10H17N3O6S",
+   "mw": "307.32",
+   "sequence": "γ-Glu-Cys-Gly",
+   "form": "Lyophilised powder",
+   "appearance": "White crystalline solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated, protected from light and air",
+   "assays": [
+    "RP-HPLC",
+    "Titration (free thiol)",
+    "Karl Fischer"
+   ],
+   "category": "Cellular & Longevity",
+   "page": "products/glutathione.html",
+   "packs": [
+    {
+     "size": "1500 mg",
+     "price": 85
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "nad",
+   "name": "NAD⁺",
+   "synonyms": [
+    "β-Nicotinamide adenine dinucleotide"
+   ],
+   "cas": "53-84-9",
+   "formula": "C21H27N7O14P2",
+   "mw": "663.43",
+   "form": "Lyophilised powder",
+   "appearance": "White to pale yellow solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated, protected from light",
+   "assays": [
+    "RP-HPLC",
+    "UV/Vis",
+    "Karl Fischer"
+   ],
+   "category": "Cellular & Longevity",
+   "page": "products/nad.html",
+   "packs": [
+    {
+     "size": "1000 mg",
+     "price": 100
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "retatrutide",
+   "name": "Retatrutide",
+   "synonyms": [
+    "LY3437943"
+   ],
+   "cas": "2381089-83-2",
+   "mw": "4731.30",
+   "sequence": "39-residue GIP/GLP-1/glucagon receptor triagonist",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated, protected from light",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer"
+   ],
+   "category": "Metabolic & Incretin",
+   "page": "products/retatrutide.html",
+   "packs": [
+    {
+     "size": "30 mg",
+     "price": 150
+    },
+    {
+     "size": "60 mg",
+     "price": 240
+    },
+    {
+     "size": "90 mg",
+     "price": 360
+    },
+    {
+     "size": "300 mg",
+     "price": 600
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": true
+  },
+  {
+   "id": "tirzepatide",
+   "name": "Tirzepatide",
+   "synonyms": [
+    "LY3298176"
+   ],
+   "cas": "2023788-19-2",
+   "formula": "C225H348N48O68",
+   "mw": "4813.45",
+   "sequence": "39-residue dual GIP/GLP-1 receptor agonist, C20 diacid conjugate",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated, protected from light",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer",
+    "Acetate content"
+   ],
+   "category": "Metabolic & Incretin",
+   "page": "products/tirzepatide.html",
+   "packs": [
+    {
+     "size": "100 mg",
+     "price": 180
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": true
+  },
+  {
+   "id": "dsip",
+   "name": "DSIP",
+   "synonyms": [
+    "Delta sleep-inducing peptide"
+   ],
+   "cas": "62568-57-4",
+   "formula": "C35H48N10O15",
+   "mw": "848.81",
+   "sequence": "Trp-Ala-Gly-Gly-Asp-Ala-Ser-Gly-Glu",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer"
+   ],
+   "category": "Neuropeptides",
+   "page": "products/dsip.html",
+   "packs": [
+    {
+     "size": "10 mg",
+     "price": 50
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "kpv",
+   "name": "KPV",
+   "synonyms": [
+    "α-MSH (11-13)",
+    "Lys-Pro-Val"
+   ],
+   "cas": "67727-97-3",
+   "formula": "C16H29N5O4",
+   "mw": "355.43",
+   "sequence": "Lys-Pro-Val",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer"
+   ],
+   "category": "Neuropeptides",
+   "page": "products/kpv.html",
+   "packs": [
+    {
+     "size": "10 mg",
+     "price": 26
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "selank",
+   "name": "Selank",
+   "synonyms": [
+    "TP-7"
+   ],
+   "cas": "129954-34-3",
+   "formula": "C33H57N11O9",
+   "mw": "751.87",
+   "sequence": "Thr-Lys-Pro-Arg-Pro-Gly-Pro",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer",
+    "Acetate content"
+   ],
+   "category": "Neuropeptides",
+   "page": "products/selank.html",
+   "packs": [
+    {
+     "size": "10 mg",
+     "price": 55
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "semax",
+   "name": "Semax",
+   "synonyms": [
+    "ACTH (4-10) Pro-Gly-Pro"
+   ],
+   "cas": "80714-61-0",
+   "formula": "C37H51N9O10S",
+   "mw": "813.92",
+   "sequence": "Met-Glu-His-Phe-Pro-Gly-Pro",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer",
+    "Acetate content"
+   ],
+   "category": "Neuropeptides",
+   "page": "products/semax.html",
+   "packs": [
+    {
+     "size": "10 mg",
+     "price": 55
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "bac-water",
+   "name": "Bacteriostatic Water",
+   "synonyms": [
+    "0.9% benzyl alcohol water"
+   ],
+   "formula": "H₂O + 0.9% C7H8O",
+   "form": "Sterile solution",
+   "appearance": "Clear colourless liquid",
+   "purity": "USP grade",
+   "storage": "15–30 °C, do not freeze",
+   "assays": [
+    "Sterility",
+    "Endotoxin",
+    "pH"
+   ],
+   "category": "Reagents & Supplies",
+   "page": "products/bac-water.html",
+   "packs": [
+    {
+     "size": "3 mL x 3 vials",
+     "price": 15
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "sterile-water",
+   "name": "Sterile Water",
+   "synonyms": [
+    "Water for reconstitution"
+   ],
+   "cas": "7732-18-5",
+   "formula": "H₂O",
+   "mw": "18.02",
+   "form": "Sterile solution",
+   "appearance": "Clear colourless liquid",
+   "purity": "USP grade",
+   "storage": "15–30 °C, do not freeze",
+   "assays": [
+    "Sterility",
+    "Endotoxin",
+    "Conductivity"
+   ],
+   "category": "Reagents & Supplies",
+   "page": "products/sterile-water.html",
+   "packs": [
+    {
+     "size": "10 mL",
+     "price": 15
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "bpc-157",
+   "name": "BPC-157",
+   "synonyms": [
+    "Pentadecapeptide BPC 157",
+    "Body Protection Compound 157"
+   ],
+   "cas": "137525-51-0",
+   "formula": "C62H98N16O22",
+   "mw": "1419.53",
+   "sequence": "Gly-Glu-Pro-Pro-Pro-Gly-Lys-Pro-Ala-Asp-Asp-Ala-Gly-Leu-Val",
+   "form": "Lyophilised powder",
+   "appearance": "White to off-white solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated, protected from light",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer",
+    "Acetate content"
+   ],
+   "category": "Tissue Repair",
+   "page": "products/bpc-157.html",
+   "packs": [
+    {
+     "size": "10 mg",
+     "price": 26
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "bpc-157-tb-500-blend",
+   "name": "BPC-157 / TB-500 Blend",
+   "synonyms": [
+    "Wolverine blend"
+   ],
+   "form": "Co-lyophilised powder",
+   "appearance": "White to off-white solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated, protected from light",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer"
+   ],
+   "components": [
+    "BPC-157 30 mg",
+    "TB-500 30 mg"
+   ],
+   "category": "Tissue Repair",
+   "page": "products/bpc-157-tb-500-blend.html",
+   "packs": [
+    {
+     "size": "60 mg",
+     "price": 245
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "ghk-cu-tb-bpc-kpv-blend",
+   "name": "GHK-Cu / TB-500 / BPC-157 / KPV Blend",
+   "synonyms": [
+    "KLOW blend"
+   ],
+   "form": "Co-lyophilised powder",
+   "appearance": "White to off-white solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated, protected from light",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer"
+   ],
+   "components": [
+    "GHK-Cu 50 mg",
+    "TB-500 10 mg",
+    "BPC-157 10 mg",
+    "KPV 10 mg"
+   ],
+   "category": "Tissue Repair",
+   "page": "products/ghk-cu-tb-bpc-kpv-blend.html",
+   "packs": [
+    {
+     "size": "80 mg",
+     "price": 140
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "ghk-cu-tb-bpc-blend",
+   "name": "GHK-Cu / TB-500 / BPC-157 Blend",
+   "synonyms": [
+    "GLOW blend"
+   ],
+   "form": "Co-lyophilised powder",
+   "appearance": "White to off-white solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated, protected from light",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer"
+   ],
+   "components": [
+    "GHK-Cu 50 mg",
+    "TB-500 10 mg",
+    "BPC-157 10 mg"
+   ],
+   "category": "Tissue Repair",
+   "page": "products/ghk-cu-tb-bpc-blend.html",
+   "packs": [
+    {
+     "size": "70 mg",
+     "price": 120
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "tb-500",
+   "name": "TB-500",
+   "synonyms": [
+    "Thymosin β4 fragment",
+    "Ac-LKKTETQ"
+   ],
+   "cas": "77591-33-4",
+   "formula": "C44H74N12O16",
+   "mw": "1050.13",
+   "sequence": "Ac-Leu-Lys-Lys-Thr-Glu-Thr-Gln",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated, protected from light",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer",
+    "Acetate content"
+   ],
+   "category": "Tissue Repair",
+   "page": "products/tb-500.html",
+   "packs": [
+    {
+     "size": "30 mg",
+     "price": 180
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "kisspeptin-10",
+   "name": "Kisspeptin-10",
+   "synonyms": [
+    "Metastin (45-54)",
+    "KISS1 (112-121)"
+   ],
+   "cas": "374675-21-5",
+   "formula": "C63H83N17O14",
+   "mw": "1302.45",
+   "sequence": "Tyr-Asn-Trp-Asn-Ser-Phe-Gly-Leu-Arg-Phe-NH₂",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer",
+    "Acetate content"
+   ],
+   "category": "Signalling Peptides",
+   "page": "products/kisspeptin-10.html",
+   "packs": [
+    {
+     "size": "10 mg",
+     "price": 55
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "melanotan-1",
+   "name": "Melanotan I",
+   "synonyms": [
+    "Afamelanotide",
+    "NDP-α-MSH"
+   ],
+   "cas": "75921-69-6",
+   "formula": "C78H111N21O19",
+   "mw": "1646.86",
+   "sequence": "Ac-Ser-Tyr-Ser-Nle-Glu-His-D-Phe-Arg-Trp-Gly-Lys-Pro-Val-NH₂",
+   "form": "Lyophilised powder",
+   "appearance": "White to off-white solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated, protected from light",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer"
+   ],
+   "category": "Signalling Peptides",
+   "page": "products/melanotan-1.html",
+   "packs": [
+    {
+     "size": "10 mg",
+     "price": 32
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "melanotan-2",
+   "name": "Melanotan II",
+   "synonyms": [
+    "MT-II"
+   ],
+   "cas": "121062-08-6",
+   "formula": "C50H69N15O9",
+   "mw": "1024.18",
+   "sequence": "Ac-Nle-cyclo[Asp-His-D-Phe-Arg-Trp-Lys]-NH₂",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated, protected from light",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer"
+   ],
+   "category": "Signalling Peptides",
+   "page": "products/melanotan-2.html",
+   "packs": [
+    {
+     "size": "10 mg",
+     "price": 32
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": false
+  },
+  {
+   "id": "oxytocin",
+   "name": "Oxytocin",
+   "synonyms": [
+    "OXT"
+   ],
+   "cas": "50-56-6",
+   "formula": "C43H66N12O12S2",
+   "mw": "1007.19",
+   "sequence": "Cys-Tyr-Ile-Gln-Asn-Cys-Pro-Leu-Gly-NH₂ (disulfide bridge 1-6)",
+   "form": "Lyophilised powder",
+   "appearance": "White solid",
+   "purity": "≥98%",
+   "storage": "-20 °C, desiccated, protected from light",
+   "assays": [
+    "RP-HPLC",
+    "ESI-MS",
+    "Karl Fischer",
+    "Acetate content"
+   ],
+   "category": "Signalling Peptides",
+   "page": "products/oxytocin.html",
+   "packs": [
+    {
+     "size": "10 mg",
+     "price": 55
+    }
+   ],
+   "inStock": true,
+   "buyableOnline": true,
+   "restricted": true
+  }
+ ],
+ "pages": [
+  {
+   "path": "faq.html",
+   "title": "FAQ",
+   "text": "FAQ\nCommon questions.\nOrdering, documentation, handling and the limits of what we will advise on.\nCan I just add something to the cart and pay?\nYes, for everything on the catalog. Prices are published against every pack size, the cart totals them, and checkout is hosted by Stripe. There is no account to apply for and nothing to wait on.\nWhat does checkout ask me for?\nYour name, email address, phone number and a shipping address, all collected by Stripe on their own page, plus card details we never see. You also confirm on this site, before checkout opens, that the material is for laboratory research use. That is the whole of it.\nWhat does the Restricted flag on some compounds mean?\nThat the compound corresponds to an approved or investigational pharmaceutical substance — retatrutide, tirzepatide and oxytocin carry it. They are supplied as analytical reference standards for in vitro method development, on exactly the same conditions as everything else on the catalog. The flag is there because a buyer is entitled to know that what they are ordering has a pharmaceutical counterpart, not because the ordering route is different.\nWhat does “research use only” actually mean here?\nIt means the material is intended exclusively for in vitro laboratory research and analytical method development by qualified professionals. It is not a drug, supplement, cosmetic or medical device; it has not been evaluated for safety or efficacy in humans or animals; and it must not be administered to either. This is a statement about what the material is, not a disclaimer that unlocks another use.\nYou cannot verify who I am, so is that confirmation worth anything?\nIt is a condition of sale, not an identity check, and we say so rather than implying a vetting process we do not run. It binds you contractually, it is what the terms of sale are built on, and where we have reason to believe an order is destined for human or veterinary use we cancel and refund it instead of shipping. We would rather state the limit of that plainly than dress it up.\nWill you advise on dosing or administration?\nNo — for any compound, under any framing, for any species. We answer questions about identity, purity, solubility, stability, storage and handling. We do not answer questions about dosing, administration routes, cycles or therapeutic use, and a request for that guidance will end the enquiry.\nDo you supply anabolic steroids, hormones or prescription medicines?\nNo. We do not supply controlled substances, anabolic steroids, finished-dose pharmaceuticals or prescription medicines of any kind. The catalog is limited to research peptides, small-molecule research compounds and laboratory reagents.\nWhat is on the certificate of analysis?\nProduct identity, lot number and release date, appearance, RP-HPLC chromatographic purity with the integrated trace, ESI-MS mass confirmation, Karl Fischer water content, counter-ion content where applicable, storage conditions, retest date, and the releasing analyst's signature. Certificates are lot-specific and are never reused across lots.\nCan I see the COA before I order?\nYes. Ask us for the certificate covering the lot currently in stock and we will send it, along with the full data package if you need it for supplier qualification.\nIs the material sterile or endotoxin-tested?\nOnly where the certificate for that lot says so and reports the test. Reagent solutions are tested for sterility and endotoxin. Lyophilised research peptides generally are not, and should not be assumed to be.\nHow should material be stored on arrival?\nLyophilised peptides should be transferred to -20 °C, kept desiccated and protected from light. Storage conditions specific to each compound are listed on its specification page and on the certificate. Repeated freeze–thaw cycles of reconstituted material should be avoided.\nHow long does shipping take, and what does it cost?\nOrders placed against material in stock leave us within one to three business days. Shipping is charged at checkout, where you choose between a standard and an express tracked courier service; the cost is shown before you pay.\nDo you ship internationally?\nWe ship to the countries offered at checkout, where the material may lawfully be imported for research use. Import permits, customs classification and local restrictions are yours to deal with, and we will not mis-declare the contents or value of a shipment under any circumstances.\nWhat if a lot does not meet specification?\nTell us within 30 days of delivery with the lot number and the data. If the material is out of specification we replace it or refund it. See the shipping and returns policy for the full procedure.\nQuestion not answered here? Contact the technical team."
+  },
+  {
+   "path": "pay.html",
+   "title": "Ordering & Payment",
+   "text": "Ordering & payment\nPlacing an order.\nCatalogue prices are the prices you pay. Add pack sizes to the cart, confirm the research use condition, and pay by card on a page hosted by Stripe. There is no account to open and no quotation to wait for.\nCart\nChoose a pack size on any catalogue or product page and add it to the cart. The cart totals what you have chosen; shipping and any tax are added at checkout, where the full amount is shown before you pay.\nResearch use confirmation\nBefore checkout opens you confirm that the material is for laboratory research use and will not be administered to a human or an animal. That confirmation is a condition of sale under our terms and our research use policy — it is not a formality, and an order we have reason to believe is destined for human or veterinary use is cancelled and refunded rather than shipped.\nCheckout\nCheckout is hosted by Stripe on their own page. They collect your name, email address, phone number and shipping address, and take the card payment. Your card details never reach this site: we receive the order and your delivery details, and nothing else.\nConfirmation\nStripe emails you a receipt immediately, and we follow it with an order confirmation. The contract is formed at that confirmation or at despatch, whichever comes first — see terms of sale, section 2.\nRelease and despatch\nMaterial in stock leaves us within one to three business days, tracked. The certificate of analysis for the supplied lot travels with the shipment.\nHow to know a payment request is really ours\nThe only payment page we use is the one the checkout button opens, hosted by Stripe on a stripe.com address. Our email reaches you only from accounts@timelessresearch.com. We will never telephone you for card details, never email you a link to a payment page on another domain, and never send instructions that change bank details at short notice. If anything about a payment request looks wrong, stop and contact us on the address above before paying.\nQuestions we are asked\nIs the whole catalogue in the cart?\nYes. Some compounds carry a Restricted flag, which says that they correspond to an approved or investigational pharmaceutical substance and are supplied as analytical reference standards — it describes the material, not a different way of buying it.\nWhat if I need more than checkout allows?\nCheckout takes up to 99 units of a pack size across 20 separate lines. Beyond that, ask us and we will quote and invoice it.\nWhat does shipping cost?\nYou choose a tracked standard or express courier service at checkout and the cost is added there, before you pay. Import duties and clearance charges at the destination are separate and are yours to pay.\nDo you take purchase orders?\nYes. Contact us with the PO and we will invoice it. Credit terms have to be agreed in writing first; otherwise payment is due at checkout.\nWhat currency?\nAll prices and charges are in USD. Your bank may apply its own conversion and charges.\nCan I see a certificate of analysis before I order?\nYes — ask us for the certificate covering the lot currently in stock and we will send it.\nWhat if I need to change or cancel an order?\nTell us before it ships and we will cancel and refund it in full. Once it has shipped, the returns policy applies.\nBrowse the catalog\nTerms of sale"
+  },
+  {
+   "path": "legal/shipping.html",
+   "title": "Shipping & Returns",
+   "text": "Logistics\nShipping & returns.\nHow material is packed, shipped and received, and the narrow circumstances in which it can be returned. Last updated 2026-10-02.\n1. Where we ship\nWe ship to the countries offered at checkout, to the address you give there. Where the material may not lawfully be imported into a destination for research use, we will cancel the order and refund it rather than ship it.\n2. Processing\nOrders are released once payment has cleared, or once agreed credit terms are in place. Material in stock usually leaves within one to three business days. Shipments requiring cold chain are released to match carrier schedules, so that material is not sitting in a depot over a weekend.\n3. Packing and cold chain\nMaterial ships lyophilised unless stated otherwise. Where stability requires it, shipments are packed in insulated containers with gel packs or dry ice; dry-ice shipments are declared as required for carriage. Store material on arrival as its certificate of analysis specifies.\n4. Carriage and tracking\nWe use tracked courier services domestically and internationally, and send tracking details when a shipment leaves us. Transit times are estimates: customs, weather and carrier backlogs are outside our control.\n5. Title, risk and receipt\nRisk of loss passes to you when the material is delivered to the carrier; title passes when we have received payment in full. Someone must be available to receive cold-chain shipments, because material left at an unattended address may no longer be fit for use.\nShipments carry a research-reagent declaration and are addressed exactly as you enter the address at checkout, so give an address where a parcel can be signed for during business hours.\n6. Customs, duties and permits\nImport duties, taxes and clearance charges are yours to pay, as are any import permits your jurisdiction requires. We declare shipments accurately and will not alter a declaration, undervalue a shipment or describe it as a gift on request. Where a shipment is seized or refused entry because a required permit was not in place, we cannot refund it.\n7. Checking a shipment on arrival\nInspect the shipment when it arrives. Report shortages, visible damage or a failed cold chain in writing within 10 business days of delivery, quoting the lot number and including photographs of the packaging and its contents. Keep the packaging until the claim is settled.\n8. Returns\nOnce material has left us we cannot verify how it has been stored or handled, so it cannot re-enter stock. Shipped material is therefore not returnable because you have changed your mind or ordered the wrong item.\nWe will replace the material or refund what you paid for it, at our option, where: it does not conform to its certificate of analysis; we shipped the wrong item or quantity; it arrived damaged and you told us within the period in section 7; or the cold chain demonstrably failed in transit. Contact us before returning anything — material sent back without a return authorisation cannot be credited.\n9. Refused and undeliverable shipments\nWhere a shipment is refused or cannot be delivered for a reason within your control, you are responsible for the outbound and return carriage and for any cold-chain packaging consumed. Material that has been out of controlled storage cannot be credited.\n10. Cancelling an order\nYou may cancel at no charge any time before the shipment leaves us. Once it has left, section 8 applies.\n11. Contact\naccounts@timelessresearch.com"
+  },
+  {
+   "path": "legal/terms.html",
+   "title": "Terms of Sale",
+   "text": "Legal\nTerms of sale.\nThe terms on which Timeless Research accepts orders and supplies material. Last updated 2026-10-02.\n1. Who these terms are between\nThese terms govern every sale by Timeless Research, a sole proprietorship operating from operator business address (“we”, “us”, “our”), to the account holder placing the order (“you”). They apply instead of any purchase-order or vendor terms you send us. Our beginning work on an order is not acceptance of those terms.\n2. How an order is made and accepted\nPlacing an order through checkout is your offer to buy. A contract is formed when we send you an order confirmation or despatch the material, whichever happens first. Payment being authorised or captured at checkout is not by itself our acceptance: until we confirm or despatch, we may cancel the order and refund you in full.\nWe may decline any order at our discretion, including where the stated research use falls outside our research use policy, where we have reason to believe the material is destined for human or veterinary use, where we cannot lawfully ship to the destination, or where a price or availability shown on the site was wrong.\nSome compounds are marked as restricted reference standards because they correspond to an approved or investigational pharmaceutical substance. They are sold on these terms like anything else on the catalogue, and section 3 applies to them with particular force: they are supplied as analytical reference standards for in vitro method development and for no other purpose.\n3. Research use is a condition of every sale\nEvery sale is conditional on your agreement to our research use policy, which forms part of these terms. Material supplied is for in vitro laboratory research by qualified professionals. It is not a drug, dietary supplement, cosmetic, food or medical device, and it is not for human or veterinary use, clinical or diagnostic procedures, or household use. Breach of that policy is a material breach of these terms, entitling us to cancel outstanding orders, terminate your account and decline future business.\n4. Prices and payment\nCatalogue prices are in USD and exclude shipping and any sales, use or import taxes and duties; shipping and any tax we are required to collect are added at checkout and shown before you pay. Payment is due in full at checkout and is taken by Stripe on their own hosted page. We do not receive, process or store your card details, and we will never ask for them by telephone or email.\nPrices may change without notice, but the price you are charged is the one shown at checkout. Where a price is obviously wrong, we may cancel the order under section 2 and refund you rather than supply at that price.\nWhere we have agreed credit terms with you in writing, payment is due 30 days from the invoice date; overdue amounts accrue interest at 1.5% per month or the maximum rate permitted by applicable law, whichever is lower, and you are responsible for reasonable costs of collection, including attorneys' fees.\n5. Shipping, title and risk\nShipments are made as described in our shipping and returns policy, to the address you give at checkout. Delivery dates are estimates, not guarantees, and we are not liable for delay. Risk of loss passes to you on delivery of the material to the carrier. Title passes when we have received payment in full.\n6. Inspection and notice\nInspect each shipment on arrival. Tell us in writing within 10 business days of delivery about any shortage, visible damage or nonconformity, with the lot number and, for damage, photographs. Material not rejected within that period is accepted.\n7. Limited warranty\nWe warrant that, at the time it leaves us, the material conforms in all material respects to the specification on its certificate of analysis. If it does not, and you have given notice under section 6, we will at our option replace the material or refund what you paid for it. That is your sole and exclusive remedy, and our entire liability, for nonconforming material. The warranty does not apply to material stored or handled outside the conditions on its certificate of analysis, used after its retest date, or altered, reconstituted or repackaged after delivery.\n8. Disclaimer of other warranties\nEXCEPT FOR THE LIMITED WARRANTY IN SECTION 7, THE MATERIAL IS PROVIDED “AS IS” AND WE DISCLAIM ALL OTHER WARRANTIES, EXPRESS OR IMPLIED, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT.\nWE DO NOT WARRANT THAT THE MATERIAL IS SAFE OR SUITABLE FOR ANY USE IN OR ON HUMANS OR ANIMALS. NO SUCH USE IS AUTHORISED, AND ANY SUCH USE IS ENTIRELY AT THE RISK OF THE PERSON MAKING IT.\n9. Limitation of liability\nTO THE FULLEST EXTENT PERMITTED BY LAW, OUR TOTAL LIABILITY ARISING OUT OF OR RELATING TO ANY ORDER, WHETHER IN CONTRACT, TORT, STRICT LIABILITY OR OTHERWISE, WILL NOT EXCEED THE AMOUNT YOU PAID FOR THE MATERIAL GIVING RISE TO THE CLAIM.\nWE WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY OR PUNITIVE DAMAGES, OR FOR LOST PROFITS, LOST DATA OR LOST OR INVALIDATED RESEARCH, EVEN IF WE HAVE BEEN ADVISED THAT THEY WERE POSSIBLE.\nNothing in these terms excludes or limits liability that cannot lawfully be excluded or limited, including liability for fraud, or for death or personal injury caused by our negligence.\n10. Your responsibilities\nYou are responsible for handling the material safely: restricting it to trained personnel, working in appropriate containment, reviewing the safety data sheet before use, obtaining any institutional approvals your research requires, and disposing of material and waste in accordance with federal, state and local law.\n11. Indemnity\nYou will indemnify and hold us harmless against claims, losses, damages and expenses (including reasonable attorneys' fees) arising out of your use, handling, storage, disposal, resale or transfer of the material, any administration of it to a human or an animal, and any breach by you of these terms or of the research use policy.\n12. Export control and sanctions\nThe material may be subject to the US Export Administration Regulations and to sanctions administered by the Office of Foreign Assets Control. You will not export, re-export, transfer or divert it contrary to those rules, and you confirm that you are not, and are not acting for, a party on a US restricted-party list or located in an embargoed destination.\n13. Licences and permits\nYou are responsible for holding any licence, permit or registration your jurisdiction requires in order to receive, hold or use the material, including import permits where it crosses a border, and for producing evidence of them on request.\n14. No resale or transfer for human use\nYou will not resell the material to the general public, offer it for human or veterinary use, or transfer it to anyone who intends such use. Where you transfer it lawfully to another research entity, you will bind that recipient to restrictions at least as protective as these terms and the research use policy.\n15. Events outside our control\nWe are not liable for failure or delay caused by events beyond our reasonable control, including supplier or carrier failure, loss of cold chain in transit, natural events, labour disputes, epidemics, acts of government, or interruption of utilities or communications.\n16. Governing law and venue\nThese terms and any dispute arising out of them are governed by the laws of the State of operator state, without regard to its conflict-of-laws rules. The state and federal courts located in operator state have exclusive jurisdiction, and both of us consent to their venue. The United Nations Convention on Contracts for the International Sale of Goods does not apply.\n17. General\nThese terms, the research use policy, the shipping and returns policy and our order confirmation are the entire agreement between us on their subject matter. Changes must be in writing and signed by us. Failing to enforce a provision does not waive it. If a provision is held unenforceable, the rest continues in force. You may not assign your rights without our written consent. Notices go to the addresses on the order confirmation. Sections 3, 7 to 14, 16 and 17 survive termination.\n18. Contact\naccounts@timelessresearch.com"
+  },
+  {
+   "path": "legal/privacy.html",
+   "title": "Privacy Policy",
+   "text": "Legal\nPrivacy policy.\nWhat personal information this site collects, why, and what you can ask us to do with it. Last updated 2026-10-02.\n1. Who we are\nTimeless Research is a sole proprietorship operating from operator business address. We are responsible for the personal information described in this policy. Contact us at accounts@timelessresearch.com.\n2. What we collect\nWhat you give us when you order. Checkout is hosted by Stripe, who collect your name, email address, telephone number, shipping address and payment details in order to take the payment. Stripe then passes us everything except your card details, which we never receive, hold or have access to. We record that, what you ordered, what you paid, and the research use confirmation you gave before checkout, as our order record of the sale.\nWhat you give us when you write to us. The enquiry form collects your name, email address, telephone number, the compound your question is about and the message itself.\nWhat you type into the order and product help assistant. Your questions, and the assistant's earlier replies in the same conversation, are sent to our AI provider to produce an answer. We do not store the conversation or write its content to our logs; it is held in your browser only until you close the tab.\nWhat is collected automatically. Our hosting provider records standard server logs — IP address, browser user-agent, pages requested and timestamps — which are used to keep the site available and to investigate abuse.\nWhat stays on your device. Your cart is held in your browser's local storage so it survives moving between pages. It remains on your device until you clear it, check out, or clear your browser data. We cannot see it until you start checkout.\nWhat we do not do. We set no advertising or analytics cookies, we run no tracking pixels, and we do not build profiles of visitors.\n3. Why we use it\nTo take payment for, process and fulfil your order; to reply to your enquiry; to apply the conditions of supply in our research use policy; to keep the commercial, tax and lot-traceability records our business needs; and to protect the site against abuse.\n4. Who else sees it\nOur payment processor. Checkout and payment are handled by Stripe, Inc. as an independent controller of the payment data it collects. Their privacy policy governs that processing. We receive from Stripe the name, email address, telephone number and shipping address you gave them, and the fact and amount of the payment — never your card number.\nOur hosting and form provider. The site is hosted on Netlify, which serves the pages, runs the small functions behind checkout, keeps the server logs described above, and receives enquiries from the contact form on our behalf as a service provider.\nOur order database. Once a payment completes, the order is recorded in a database hosted by Supabase, acting as our service provider. It holds what Stripe passed us — your name, email address, telephone number and shipping address — together with what you ordered and what you paid. It does not hold, and never receives, your card details. The records are not readable from this website: they are reachable only by our own server-side code holding a key that is never sent to a browser.\nOur AI provider. The order and product help assistant is powered by Anthropic, PBC, acting as our service provider. When you send a question, our server passes it and the earlier messages of that conversation to Anthropic's API to generate the reply; no name, email address, order or payment detail is attached. Anthropic's privacy policy describes how it handles API data. Do not type personal or payment details into the assistant.\nNo other third party. Typefaces, stylesheets, scripts and images are all served from this site itself, so loading a page contacts nobody but our hosting provider. We do not sell personal information, and we do not share it for cross-context behavioural advertising. We disclose it only where the law requires it, where we must to establish or defend a legal claim, or to a carrier where that is necessary to deliver your order.\n5. How long we keep it\nEnquiries that do not become orders: 24 months from your last contact with us. Order records: seven years in our order database, which is what tax and commercial record-keeping requires. Server logs: as retained by our hosting provider, typically around 30 days.\n6. Your rights\nWherever you are, you can ask us for a copy of the personal information we hold about you, ask us to correct it, or ask us to delete it. Email accounts@timelessresearch.com. We will respond within 45 days and will verify your identity against the information we already hold before acting.\nIf you are in California, the CCPA as amended by the CPRA gives you the right to know what we collect and why, to receive a copy, to correct it, to delete it, to opt out of sale or sharing, and not to be treated differently for exercising any of them. In the last 12 months we have collected identifiers (name, email address, telephone number), commercial information (the compounds you enquired about) and internet activity information (server logs), from you and from your device, for the purposes in section 3, and have disclosed them only to the payment processor, the order database and the service providers in section 4. We have not sold or shared personal information, and we do not collect sensitive personal information as the CPRA defines it. An authorised agent may make a request on your behalf with your written permission.\nIf you are in another US state with a comprehensive privacy law — including Virginia, Colorado, Connecticut, Utah, Texas, Oregon and Montana — you have broadly equivalent rights of access, correction, deletion and portability, and you may appeal a refusal by replying to our decision.\nGlobal Privacy Control. Because we neither sell nor share personal information, there is nothing to opt out of; we honour GPC signals in any case.\n7. Security\nThe site is served over TLS, and access to enquiries is limited to people who need it. No method of transmission or storage is completely secure, and we cannot guarantee absolute security.\n8. Children\nThis site is directed at research professionals and is not intended for anyone under 18. We do not knowingly collect personal information from children. If you believe a child has given us information, contact us and we will delete it.\n9. Where your information is processed\nWe operate in the United States and our service providers process information there. If you contact us from outside the United States, your information will be transferred to and processed in the United States, where privacy law differs from your own.\n10. Changes\nIf we change this policy we will post the revised version here with a new date at the top. Where a change materially affects how we use information you have already given us, we will tell you directly.\n11. Contact\naccounts@timelessresearch.com"
+  },
+  {
+   "path": "compliance.html",
+   "title": "Research Use Policy",
+   "text": "Policy\nResearch use policy.\nThe conditions under which material is supplied, who may receive it, and what it may be used for. Last reviewed 2026-10-02.\n1. Intended use\nAll material supplied by Timeless Research is intended exclusively for in vitro laboratory research and analytical method development carried out by qualified professionals in an appropriate laboratory setting.\nMaterial supplied by Timeless Research is not: a medicinal product or drug; a dietary supplement; a cosmetic; a food or food ingredient; a medical device; or a veterinary product. It has not been evaluated by any regulatory authority for safety or efficacy in humans or animals, and it is not manufactured to pharmacopoeial or GMP standards unless the certificate of analysis for a specific lot expressly states otherwise.\n2. Prohibited uses\nBy purchasing, you agree that material will not be used for, and will not be resold or transferred for:\nadministration to humans by any route, in any quantity, under any circumstances;\nadministration to animals outside an approved institutional animal-care protocol;\nany clinical, diagnostic or therapeutic procedure;\ncompounding, formulation or repackaging into any product intended for human or animal use;\nincorporation into food, beverages, supplements or cosmetics;\nresale to the general public, or to any party that has not agreed to equivalent restrictions;\nany purpose prohibited by applicable law in your jurisdiction.\n3. Who may buy, and on what condition\nMaterial is sold to purchasers who are buying it for laboratory research use. Before checkout opens you confirm that the material is for in vitro laboratory research and will not be administered to a human or an animal. That confirmation is a condition of sale and is incorporated into the terms of sale.\nWe are direct about what that is and is not. It is a contractual condition, not an identity check: we do not operate a vetting or credentialing process, and we do not claim to. What we do is refuse the sale where we have reason to believe the material is destined for human or veterinary use — before shipping, by cancelling and refunding the order; after shipping, by declining further business. We may decline any order at our discretion and without giving a reason.\n4. Restricted reference standards\nCertain catalog items correspond to approved or investigational pharmaceutical substances. They are flagged as restricted on their specification pages and are supplied strictly as analytical reference standards for in vitro method development. They are not medicines, are not manufactured to pharmacopoeial or GMP standards, and have not been evaluated by any regulatory authority for safety or efficacy in humans or animals.\nSection 2 applies to them without exception. That a compound has an approved or investigational counterpart is a reason for more care in handling and disposal, not a suggestion that it may be used as that counterpart is used. Any order of one of these compounds that we have reason to believe is destined for human or veterinary use is cancelled and refunded rather than shipped, and we may decline further business.\n5. What we will not advise on\nWe provide technical support on identity, purity, solubility, stability, storage and handling. We do not provide guidance on dosing, administration routes, cycles, combinations, or therapeutic application, for any species. Enquiries seeking such guidance will be declined, and may result in an account being refused or closed.\n6. Responsibility of the recipient\nThe buyer is responsible for handling material in accordance with applicable laboratory safety requirements, for any institutional approvals the intended work requires, for determining that receipt and use are lawful in their jurisdiction, and for any import permits or customs requirements. We will not mis-declare the contents, value or classification of a shipment.\n7. Enforcement\nWhere we have reason to believe material has been diverted to human use, resold to the public, or otherwise used in breach of this policy, we will cancel and refund any order not yet shipped, decline future orders from that buyer, and, where the law requires it, report the matter to the relevant authority.\n8. Changes\nThis policy may be updated. The version in force is the one published here on the date an order is accepted.\nQuestions about this policy: contact us."
+  },
+  {
+   "path": "quality.html",
+   "title": "Analytical Programme",
+   "text": "Analytical programme\nData, not adjectives.\nA purity figure is a claim. The chromatogram behind it is evidence. Every lot we release carries the evidence, and the analyst who signed it is named on the record.\n01\nSupplier qualification\nSynthesis partners are audited against documented process controls, change-control procedures and batch-record practice before a first order is placed. Requalification is periodic, not one-off.\n02\nIncoming quarantine\nMaterial is received into a quarantine hold and is not available for allocation until the identity and purity package is complete and reviewed.\n03\nIdentity — ESI-MS\nElectrospray ionisation mass spectrometry confirms the observed molecular ion against the theoretical monoisotopic or average mass. A lot that does not match its theoretical mass is rejected outright.\n04\nPurity — RP-HPLC\nReverse-phase HPLC with UV detection establishes chromatographic purity as area percent. The integrated chromatogram — not just the number — is reproduced on the certificate.\n05\nWater content — Karl Fischer\nCoulometric Karl Fischer titration quantifies residual water in lyophilised material, so that peptide content can be corrected rather than assumed.\n06\nCounter-ion — acetate content\nAcetate is determined for peptides supplied as acetate salts. Together with water content this establishes net peptide content, which matters whenever a molar concentration is being prepared.\n07\nLot release\nA named analyst reviews the complete data package against the specification and signs the release. The signature is recorded against the lot number; nothing ships on an unsigned lot.\n08\nStorage and distribution\nReleased material is stored lyophilised at -20 °C under desiccation. Shipments use insulated packaging with coolant where stability data indicates it, and cold-chain handling is noted on the packing documentation.\nCertificate of analysis\nWhat the COA contains.\nA certificate of analysis is issued for every lot and accompanies the shipment. Each certificate is specific to the lot number printed on the vial — it is not a generic product datasheet, and we do not reuse a certificate across lots.\nProduct identity — name, CAS number where assigned, molecular formula and theoretical mass\nLot number and release date, matched to the vial label\nAppearance as assessed at release\nChromatographic purity by RP-HPLC, expressed as area percent, with the integrated trace\nMass confirmation by ESI-MS, observed against theoretical\nWater content by Karl Fischer titration\nCounter-ion content where the material is supplied as a salt\nRecommended storage and retest date\nAnalyst signature and release authorisation\nCertificates for a specific lot are available to account holders on request before purchase. If you need to review the data package as part of a supplier-qualification process, ask and we will provide it.\nSee a specimen certificate\nRetest, not expiry\nLyophilised peptides stored correctly do not simply expire on a date. We publish a retest date rather than an expiry: at that point the lot is re-assayed against its original specification and either re-released with updated data or withdrawn.\nWhat we do not claim\nWe do not certify our material as sterile, endotoxin-free or pharmaceutical grade unless the certificate for that specific lot says so and reports the test that established it. Reagent solutions are tested for sterility and endotoxin; lyophilised research peptides generally are not, and should not be treated as though they were."
+  },
+  {
+   "path": "coa.html",
+   "title": "Certificates of Analysis",
+   "text": "Certificates of analysis\nEvery lot, documented.\nA certificate of analysis is issued for the lot supplied and travels with the shipment. Ask for the certificate covering the lot currently in stock and we will send it before you order.\nNo certificates are published here yet\nCertificates are issued with the shipment and on request. When a lot's certificate is published on this page, its row will offer the PDF directly.\nAll 27 catalogue compounds\nCompound | CAS | Purity specification | Certificate\nCJC-1295 (no DAC)\n863288-34-0\n≥98%\nRequest\nCJC-1295 DAC\n863288-34-0\n≥98%\nRequest\nIGF-1 LR3\n946870-92-4\n≥95%\nRequest\nIpamorelin\n170851-70-4\n≥98%\nRequest\nMOTS-c\n1627580-64-6\n≥98%\nRequest\nTesamorelin\n218949-48-5\n≥98%\nRequest\nEpithalon\n307297-39-8\n≥98%\nRequest\nGHK-Cu\n89030-95-5\n≥98%\nRequest\nGlutathione (reduced)\n70-18-8\n≥98%\nRequest\nNAD⁺\n53-84-9\n≥98%\nRequest\nRetatrutide\n2381089-83-2\n≥98%\nRequest\nTirzepatide\n2023788-19-2\n≥98%\nRequest\nDSIP\n62568-57-4\n≥98%\nRequest\nKPV\n67727-97-3\n≥98%\nRequest\nSelank\n129954-34-3\n≥98%\nRequest\nSemax\n80714-61-0\n≥98%\nRequest\nBacteriostatic Water\nBlend\nUSP grade\nRequest\nSterile Water\n7732-18-5\nUSP grade\nRequest\nBPC-157\n137525-51-0\n≥98%\nRequest\nBPC-157 / TB-500 Blend\nBlend\n≥98%\nRequest\nGHK-Cu / TB-500 / BPC-157 / KPV Blend\nBlend\n≥98%\nRequest\nGHK-Cu / TB-500 / BPC-157 Blend\nBlend\n≥98%\nRequest\nTB-500\n77591-33-4\n≥98%\nRequest\nKisspeptin-10\n374675-21-5\n≥98%\nRequest\nMelanotan I\n75921-69-6\n≥98%\nRequest\nMelanotan II\n121062-08-6\n≥98%\nRequest\nOxytocin\n50-56-6\n≥98%\nRequest\nWhy there is no single certificate per compound\nA certificate reports on a lot, not on a product. Two lots of the same compound are two different batches of material with their own chromatograms, their own water content and their own release date, and a certificate that did not name a lot would be telling you nothing about the vial in your hand. That is why this page asks rather than publishes a fixed document: the certificate you want is the one for the material you will actually receive.\nWhat a certificate reports\nIdentity and lot number, appearance, RP-HPLC chromatographic purity with the integrated trace, ESI-MS mass confirmation, Karl Fischer water content, counter-ion content where it applies, storage conditions, retest date, and the signature of the analyst who released it. See a worked specimen, or read how a lot is released.\nFor supplier qualification\nIf you need the full data package rather than the certificate alone — raw chromatograms, the mass spectrum, method parameters — ask and we will send it.\nSee a specimen certificate\nThe analytical programme"
+  }
+ ]
+}

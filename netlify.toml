@@ -5,14 +5,16 @@
   command = "python3 tools/build.py && python3 tools/dist.py"
   publish = "dist"
   # Checkout needs a server, because Stripe sessions are created with the secret
-  # key. This is the only server-side code in the project.
+  # key; so does the support assistant, because it calls the Anthropic API with
+  # one. Those are the only server-side code in the project.
   functions = "netlify/functions"
 
 [functions]
-  # The price table the checkout function charges from. tools/build.py
-  # regenerates it from assets/data/products.json on every deploy, so it cannot
-  # drift from the catalogue.
-  included_files = ["netlify/functions/catalog.json"]
+  # The price table the checkout function charges from, and everything the
+  # support assistant may answer from. tools/build.py regenerates both from
+  # assets/data/products.json and the site's own pages on every deploy, so
+  # neither can drift from the catalogue.
+  included_files = ["netlify/functions/catalog.json", "netlify/functions/chat-knowledge.json"]
 
 [build.environment]
   PYTHON_VERSION = "3.11"
@@ -32,8 +34,8 @@
   # Set to "1" once Stripe Tax is configured on the Stripe account.
   TR_STRIPE_TAX = ""
   #
-  # Four secrets are deliberately NOT set here. This file is in the repository,
-  # and a key in version control is a key on the internet. All four go in
+  # Five secrets are deliberately NOT set here. This file is in the repository,
+  # and a key in version control is a key on the internet. All five go in
   # Netlify under Site configuration > Environment variables:
   #
   #   STRIPE_SECRET_KEY          sk_test_... for a demo, sk_live_... to trade.
@@ -48,6 +50,11 @@
   #                              bypasses row level security, which is the whole
   #                              point: the orders table has RLS on with no
   #                              policies, so nothing else can read it at all.
+  #   ANTHROPIC_API_KEY          sk-ant-... for the order and product help
+  #                              assistant. Optional: without it the assistant
+  #                              says it is unavailable and points to the contact
+  #                              page. Put the key in its own Claude Console
+  #                              workspace with a monthly spend limit first.
   # Identity used in the legal documents. These must be your real trading
   # details. The build renders anything missing as a visible marker in the page
   # and tools/check.py fails while one is present, so filling these in is not

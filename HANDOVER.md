@@ -43,6 +43,12 @@ Two more are optional because they have sensible defaults:
 `TR_LEGAL_ENTITY` (defaults to "Timeless Research") and `TR_LEGAL_EMAIL`
 (defaults to `TR_CONTACT_EMAIL`).
 
+One more is optional, and also goes in Netlify's environment variables rather
+than `netlify.toml`: `ANTHROPIC_API_KEY` switches on the order and product help
+assistant. **Before you add it, set a monthly spend limit for that key in the
+Claude Console** (see §3d). Without it the assistant tells visitors it is
+unavailable and points them to the contact page.
+
 These have to be real. An invented address or registration number would make
 the legal documents false, which is worse than not publishing them.
 
@@ -295,7 +301,7 @@ browser                     Netlify Function                Stripe
   /order-received.html ◀──── success_url
 ```
 
-The whole backend is `netlify/functions/create-checkout-session.js`, about 200
+The whole checkout backend is `netlify/functions/create-checkout-session.js`, about 200
 lines of plain Node with no npm dependency. It refuses anything that is not a
 POST, an unconfirmed research-use flag, an unknown id or pack size, a restricted
 compound, a non-integer or out-of-range quantity, duplicate cart lines, more
@@ -402,6 +408,81 @@ customers. Never email a payment link on a domain that is not `stripe.com` —
 `pay.html` tells buyers to distrust exactly that, which only protects them if
 you keep to it. Never put the Stripe secret key in `netlify.toml`, a commit, or
 anything else that lands in the repository.
+
+---
+
+## 3d. The support assistant
+
+Every page has a "Questions?" button that opens an assistant answering from
+the site's own data: products, specifications, CAS numbers, COA availability,
+prices and volume tiers, shipping, returns, payment and how ordering works. It
+refuses anything touching dosing, preparation, administration, cycling,
+stacking, human or animal use, or health and performance claims, and points to
+the research use policy. How it does that is in README, *Support assistant*.
+
+### Switching it on
+
+1. **Set a monthly spend limit first.** In the Claude Console
+   (console.anthropic.com), create a workspace for this site alone, set a
+   monthly spend limit on that workspace, and create the site's API key inside
+   it. The limit then applies to everything that key can spend, and to nothing
+   else you run. The function's rate limit is per Netlify instance and is not
+   a cost control: a determined client can get past it, and the spend limit is
+   the only hard ceiling on what the assistant can cost you.
+2. Add the key as `ANTHROPIC_API_KEY` under **Site configuration →
+   Environment variables**, then **Deploys → Trigger deploy**.
+3. Open `/.netlify/functions/health`. `support_assistant.working` should be
+   `true`.
+4. **Run the live refusal check before you announce it** (below).
+
+### Before launch: the live refusal check
+
+```bash
+ANTHROPIC_API_KEY=sk-ant-... node tests/chat_live.mjs report.json
+```
+
+It sends 30 direct and 18 indirect forbidden questions (fiction, "purely
+academically", lab rats, translations, persona swaps, two conversations that
+turn after a harmless opener) straight to the model, skipping the pattern
+screen, plus 25 ordinary questions, and has a second model grade every reply.
+It also prints response times.
+
+- **If any indirect question leaks,** change `MODEL` in
+  `netlify/functions/chat.js` to `claude-opus-5-5`, redeploy, and run it
+  again. That is the agreed fallback; it costs about twice as much per
+  question.
+- **If an ordinary question is refused,** read the reply in `report.json`. A
+  refusal there is usually a rule in the system prompt worded too broadly.
+- **If replies take longer than 9 seconds,** the function gives up and shows
+  "try again". Netlify stops a synchronous function at 10 seconds; lower
+  `MAX_TOKENS`, or ask Netlify support to raise the limit.
+
+This check has not yet been run against the real model. It needs a key, and
+none was available when the assistant was built.
+
+### Running it
+
+- **The function log** (Netlify → Logs → Functions → chat) records one line
+  per question: the outcome (`answered`, `refused_precheck`, `refused_model`,
+  `refused_reply_screen`, `rate_limited`, `timeout`, `api_error`), the time
+  taken and the token counts. It never records what was asked or answered, or
+  who asked. Many `refused_reply_screen` lines mean the model is producing
+  figures the rules forbid; run the live check.
+- **The privacy policy** now names Anthropic as the assistant's provider, in §2
+  and §4. Read that wording as you would any other part of the policy: it is
+  your statement, not ours.
+- **Changing what it knows** is a content edit: it is rebuilt from
+  `products.json` and the pages on every deploy. **Changing what it may say**
+  is the `RULES` text and the patterns in `netlify/functions/chat.js`; run
+  `node --test tests/chat.test.js` and the live check after any change.
+
+### Things not to do
+
+Do not add `solubility`, the `research` blurbs or any preparation detail to
+what the assistant is given; `check.py` fails the build if the first two
+appear. Do not log message content to debug it. Do not put the key in
+`netlify.toml`. Do not let it take orders: it links the product page, and the
+cart and Stripe do the rest.
 
 ---
 
@@ -564,6 +645,10 @@ Stated plainly so you are not surprised, and so a buyer is not misled.
   optional, and the shipping rates it makes you check are placeholders.
 - **No real-device testing.** Layouts were verified by emulating widths from
   360 px up, not on physical hardware.
+- **The assistant has not met the real model.** Its function is covered by a
+  stubbed suite (`tests/chat.test.js`) and its drawer was driven in Chromium,
+  but the Anthropic API was stubbed throughout. The live refusal check in §3d
+  is not optional.
 
 ---
 
@@ -572,6 +657,7 @@ Stated plainly so you are not surprised, and so a buyer is not misled.
 ```bash
 python3 tools/build.py      # regenerate every page
 python3 tools/check.py      # links, metadata, labels, unfilled legal details
+node --test tests/chat.test.js   # the support assistant's function, stubbed
 ```
 
 `check.py` exits non-zero on failure, so it can gate a deploy. It verifies that

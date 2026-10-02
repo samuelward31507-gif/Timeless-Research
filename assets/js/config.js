@@ -5,6 +5,7 @@ window.TR_CONFIG = {
   "formProvider": "netlify",
   "formEndpoint": "",
   "checkoutEndpoint": "/.netlify/functions/create-checkout-session",
+  "chatEndpoint": "/.netlify/functions/chat",
   "currency": "USD",
   "noCart": [],
   "volumeTiers": [

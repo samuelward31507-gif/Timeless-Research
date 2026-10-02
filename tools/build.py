@@ -19,6 +19,7 @@ import re
 import shutil
 import struct
 import datetime
+from html.parser import HTMLParser
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8"))
@@ -258,6 +259,7 @@ def head(title, desc, depth, canonical, extra=""):
 <link rel="stylesheet" href="{p}assets/css/fonts.css">
 <link rel="stylesheet" href="{p}assets/css/main.css">
 <script src="{p}assets/js/site.js" defer></script>
+<script src="{p}assets/js/chat.js" defer></script>
 {extra}</head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -399,9 +401,42 @@ def footer(depth):
   </div>
 </aside>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
+{chat_chrome(p)}
 </body>
 </html>
+"""
+
+
+# The support assistant. Shipped on every page as part of the shared chrome so
+# tools/check.py can insist on it everywhere. The launcher starts `hidden` and
+# assets/js/chat.js reveals it, so with JavaScript off there is no button that
+# does nothing. The research-use line sits in the drawer header, above anything
+# the assistant says, because it is the frame every answer is given in.
+def chat_chrome(p):
+    return f"""<button class="chat-launcher" id="chat-open" type="button" aria-haspopup="dialog" aria-controls="chat-drawer" hidden>
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12Z"/></svg>
+  <span>Questions?</span>
+</button>
+<div class="drawer-scrim chat-scrim" id="chat-scrim"></div>
+<aside class="drawer chat-drawer" id="chat-drawer" data-root="{p}" role="dialog" aria-modal="true" aria-labelledby="chat-title" aria-describedby="chat-ruo" aria-hidden="true">
+  <div class="drawer-head chat-head">
+    <div>
+      <h2 id="chat-title">Order &amp; product help</h2>
+      <p class="chat-ruo" id="chat-ruo"><b>Research use only.</b> Every product is supplied for <em>in vitro</em> laboratory research and is not for human or veterinary use. This assistant cannot advise on dosing, preparation or use &mdash; see our <a href="{p}compliance.html">research use policy</a>.</p>
+    </div>
+    <button class="btn btn--quiet btn--sm" id="chat-close" type="button" aria-label="Close order and product help">Close</button>
+  </div>
+  <div class="drawer-body chat-log" id="chat-log" role="log" aria-live="polite" aria-relevant="additions"></div>
+  <form class="drawer-foot chat-form" id="chat-form" novalidate>
+    <label class="sr-only" for="chat-input">Your question</label>
+    <textarea id="chat-input" name="message" rows="2" maxlength="1000" placeholder="Ask about products, pricing, shipping or orders" autocomplete="off"></textarea>
+    <div class="chat-actions">
+      <button class="btn btn--quiet btn--sm" id="chat-reset" type="button">Start over</button>
+      <button class="btn btn--primary btn--sm" id="chat-send" type="submit">Send</button>
+    </div>
+    <p class="chat-note">Answers come from this site&rsquo;s own pages and may be incomplete. For anything else, <a href="{p}contact.html">contact us</a>. Messages are processed by our AI provider and not kept by us.</p>
+  </form>
+</aside>
 """
 
 
@@ -867,6 +902,20 @@ def build_catalog():
 
 
 # --------------------------------------------------------------------------- product detail
+# What a restricted compound's specification page says about it. One constant,
+# because the chat assistant is allowed to repeat this notice about those
+# compounds and nothing else, and it has to be the same words the page shows.
+RESTRICTED_NOTICE_TITLE = "Restricted reference standard"
+RESTRICTED_NOTICE_HTML = (
+    "This compound corresponds to an approved or investigational pharmaceutical "
+    "substance. It is supplied strictly as an analytical reference standard for "
+    "<strong>in vitro</strong> method development: it is not a medicine, it is not "
+    "manufactured to pharmaceutical standards, it has not been evaluated by any "
+    "regulatory authority for safety or efficacy, and it must not be administered "
+    "to a human or an animal. Buying it is your confirmation of that — see our "
+    '<a href="../compliance.html">research use policy</a>.')
+
+
 def build_products():
     written = []
     for p in PRODUCTS:
@@ -936,12 +985,12 @@ def build_products():
 
         restricted = ""
         if p.get("restricted"):
-            restricted = """
+            restricted = f"""
         <div class="notice" style="margin-bottom:1.5rem">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
           <div>
-            <h3>Restricted reference standard</h3>
-            <p>This compound corresponds to an approved or investigational pharmaceutical substance. It is supplied strictly as an analytical reference standard for <strong>in vitro</strong> method development: it is not a medicine, it is not manufactured to pharmaceutical standards, it has not been evaluated by any regulatory authority for safety or efficacy, and it must not be administered to a human or an animal. Buying it is your confirmation of that — see our <a href="../compliance.html">research use policy</a>.</p>
+            <h3>{RESTRICTED_NOTICE_TITLE}</h3>
+            <p>{RESTRICTED_NOTICE_HTML}</p>
           </div>
         </div>"""
 
@@ -1479,6 +1528,7 @@ def build_legal():
       <h2>2. What we collect</h2>
       <p><strong>What you give us when you order.</strong> Checkout is hosted by Stripe, who collect your name, email address, telephone number, shipping address and payment details in order to take the payment. Stripe then passes us everything except your card details, which we never receive, hold or have access to. We record that, what you ordered, what you paid, and the research use confirmation you gave before checkout, as our order record of the sale.</p>
       <p><strong>What you give us when you write to us.</strong> The enquiry form collects your name, email address, telephone number, the compound your question is about and the message itself.</p>
+      <p><strong>What you type into the order and product help assistant.</strong> Your questions, and the assistant's earlier replies in the same conversation, are sent to our AI provider to produce an answer. We do not store the conversation or write its content to our logs; it is held in your browser only until you close the tab.</p>
       <p><strong>What is collected automatically.</strong> Our hosting provider records standard server logs — IP address, browser user-agent, pages requested and timestamps — which are used to keep the site available and to investigate abuse.</p>
       <p><strong>What stays on your device.</strong> Your cart is held in your browser's local storage so it survives moving between pages. It remains on your device until you clear it, check out, or clear your browser data. We cannot see it until you start checkout.</p>
       <p><strong>What we do not do.</strong> We set no advertising or analytics cookies, we run no tracking pixels, and we do not build profiles of visitors.</p>
@@ -1490,6 +1540,7 @@ def build_legal():
       <p><strong>Our payment processor.</strong> Checkout and payment are handled by Stripe, Inc. as an independent controller of the payment data it collects. Their <a href="https://stripe.com/privacy" rel="noopener">privacy policy</a> governs that processing. We receive from Stripe the name, email address, telephone number and shipping address you gave them, and the fact and amount of the payment — never your card number.</p>
       <p><strong>Our hosting and form provider.</strong> The site is hosted on Netlify, which serves the pages, runs the small functions behind checkout, keeps the server logs described above, and receives enquiries from the contact form on our behalf as a service provider.</p>
       <p><strong>Our order database.</strong> Once a payment completes, the order is recorded in a database hosted by Supabase, acting as our service provider. It holds what Stripe passed us &mdash; your name, email address, telephone number and shipping address &mdash; together with what you ordered and what you paid. It does not hold, and never receives, your card details. The records are not readable from this website: they are reachable only by our own server-side code holding a key that is never sent to a browser.</p>
+      <p><strong>Our AI provider.</strong> The order and product help assistant is powered by Anthropic, PBC, acting as our service provider. When you send a question, our server passes it and the earlier messages of that conversation to Anthropic's API to generate the reply; no name, email address, order or payment detail is attached. Anthropic's <a href="https://www.anthropic.com/legal/privacy" rel="noopener">privacy policy</a> describes how it handles API data. Do not type personal or payment details into the assistant.</p>
       <p><strong>No other third party.</strong> Typefaces, stylesheets, scripts and images are all served from this site itself, so loading a page contacts nobody but our hosting provider. We do not sell personal information, and we do not share it for cross-context behavioural advertising. We disclose it only where the law requires it, where we must to establish or defend a legal claim, or to a carrier where that is necessary to deliver your order.</p>
 
       <h2>5. How long we keep it</h2>
@@ -1972,6 +2023,7 @@ def build_meta(pages):
             {"contactEmail": CONTACT_EMAIL, "formProvider": FORM_PROVIDER,
              "formEndpoint": FORM_ENDPOINT,
              "checkoutEndpoint": "/.netlify/functions/create-checkout-session",
+             "chatEndpoint": "/.netlify/functions/chat",
              "currency": CURRENCY,
              "noCart": NO_CART_IDS,
              "volumeTiers": VOLUME_TIERS,
@@ -2011,6 +2063,113 @@ def build_meta(pages):
     # Netlify and Cloudflare Pages both read _redirects; without it a static
     # host returns its own 404 rather than the one in this repo.
     (ROOT / "_redirects").write_text("/*  /404.html  404\n", encoding="utf-8")
+
+
+# --------------------------------------------------------------- chat knowledge
+# The pages the support assistant may answer from, besides the catalogue itself.
+# Their text is lifted from the generated HTML, so the assistant reads exactly
+# what a visitor would and cannot drift from the site.
+CHAT_PAGES = ["faq.html", "pay.html", "legal/shipping.html", "legal/terms.html",
+              "legal/privacy.html", "compliance.html", "quality.html", "coa.html"]
+
+# Product fields the assistant is given. An allow-list, not a deny-list, so a
+# field added to products.json later stays out until someone decides otherwise.
+# Deliberately absent: `solubility` (one step from reconstitution advice) and
+# `research` (preclinical descriptions, easily restated as a claim about what a
+# compound does). tools/check.py fails the build if either appears.
+CHAT_PRODUCT_FIELDS = ["id", "name", "synonyms", "cas", "formula", "mw", "sequence",
+                       "form", "appearance", "purity", "storage", "assays", "components"]
+CHAT_EXCLUDED_FIELDS = ("solubility", "research")
+
+
+class _MainText(HTMLParser):
+    """Readable text of a page's <main>, with block elements on their own lines.
+    Scripts, styles, SVG, forms and the breadcrumb are skipped: none of it is
+    prose. Buttons are kept, because the FAQ questions are accordion buttons."""
+    BLOCK = {"p", "li", "h1", "h2", "h3", "h4", "tr", "dt", "dd", "summary",
+             "div", "section", "br", "table", "ul", "ol", "details", "figcaption"}
+    SKIP = {"script", "style", "svg", "nav", "form"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.in_main = 0
+        self.skip = 0
+        self.out = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "main":
+            self.in_main += 1
+        elif self.in_main and tag in self.SKIP:
+            self.skip += 1
+        elif self.in_main and tag in self.BLOCK:
+            self.out.append("\n")
+        elif self.in_main and tag in ("td", "th"):
+            self.out.append(" | ")
+
+    def handle_endtag(self, tag):
+        if tag == "main":
+            self.in_main -= 1
+        elif self.in_main and tag in self.SKIP:
+            self.skip = max(0, self.skip - 1)
+        elif self.in_main and tag in self.BLOCK:
+            self.out.append("\n")
+
+    def handle_data(self, data):
+        if self.in_main and not self.skip:
+            self.out.append(data)
+
+    def text(self) -> str:
+        raw = "".join(self.out)
+        lines = (re.sub(r"[ \t\r\f\v]+", " ", ln).strip(" |") for ln in raw.split("\n"))
+        return "\n".join(ln for ln in lines if ln)
+
+
+def page_text(rel_path: str) -> tuple[str, str]:
+    doc = (ROOT / rel_path).read_text(encoding="utf-8")
+    m = re.search(r"<title>(.*?)</title>", doc, re.S)
+    parser = _MainText()
+    parser.feed(doc)
+    # Titles pass through E() twice on the way into <title>, hence two unescapes.
+    title = html.unescape(html.unescape(m.group(1))).split(" — ")[0].strip() if m else rel_path
+    return title, parser.text()
+
+
+def build_chat_knowledge():
+    """netlify/functions/chat-knowledge.json: everything the assistant may say.
+
+    Regenerated on every build, like catalog.json, so prices, pack sizes and
+    restricted flags cannot disagree with the pages."""
+    def product(p):
+        entry = {k: p[k] for k in CHAT_PRODUCT_FIELDS if p.get(k) not in (None, "", [])}
+        prices = p.get("prices") or {}
+        entry["category"] = CAT_LABEL[p["category"]]
+        entry["page"] = f"products/{p['id']}.html"
+        entry["packs"] = [{"size": s, "price": prices.get(s)} for s in p["sizes"]]
+        entry["inStock"] = bool(p.get("available", True))
+        entry["buyableOnline"] = buyable(p)
+        entry["restricted"] = bool(p.get("restricted"))
+        return entry
+
+    notice = re.sub(r"<[^>]+>", "", RESTRICTED_NOTICE_HTML)
+    knowledge = {
+        "brand": BRAND,
+        "demo": DEMO,
+        "site": SITE,
+        "contactEmail": CONTACT_EMAIL,
+        "contactPage": "contact.html",
+        "compliancePage": "compliance.html",
+        "currency": CURRENCY,
+        "volumeTiers": VOLUME_TIERS,
+        "freeShippingOver": FREE_SHIPPING_OVER,
+        "restrictedNotice": f"{RESTRICTED_NOTICE_TITLE}. {notice}",
+        "products": [product(p) for p in PRODUCTS],
+        "pages": [dict(zip(("path", "title", "text"), (rel, *page_text(rel))))
+                  for rel in CHAT_PAGES],
+    }
+    fn = ROOT / "netlify/functions"
+    fn.mkdir(parents=True, exist_ok=True)
+    (fn / "chat-knowledge.json").write_text(
+        json.dumps(knowledge, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 # --------------------------------------------------------------------------- main
@@ -2084,6 +2243,7 @@ def main():
             print(f"Removed stale page: {stale.name}")
 
     build_meta(pages)
+    build_chat_knowledge()
     # After build_meta, because it generates assets/js/config.js and a hash of
     # a file that does not exist yet would pin the previous build's config.
     stamped = version_assets(pages)

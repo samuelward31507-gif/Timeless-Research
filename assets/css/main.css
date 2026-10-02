@@ -1010,6 +1010,76 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 [data-reveal-delay="2"] { transition-delay: .14s; }
 [data-reveal-delay="3"] { transition-delay: .21s; }
 
+/* --- Order and product help ---------------------------------------------
+   Shares .drawer with the cart, so the two open from the same edge and only
+   one is ever open. The launcher sits under the drawers and the entry
+   affirmation (z-index 200) and under the toast (300), so nothing it covers
+   is more important than it. */
+.chat-launcher {
+  position: fixed; right: var(--s-4); bottom: var(--s-4); z-index: 150;
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  min-height: 44px; padding: 0 var(--s-4);
+  background: var(--ink); color: var(--paper);
+  border: 1px solid var(--ink); border-radius: var(--radius);
+  font: 600 var(--t-sm)/1 var(--f-ui); cursor: pointer;
+  box-shadow: 0 6px 18px rgba(28,26,23,.16);
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.chat-launcher:hover { background: var(--accent); border-color: var(--accent); }
+.chat-launcher:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.chat-launcher[hidden] { display: none; }
+
+/* .drawer animates visibility along with the slide, so for the first frame of
+   opening it is still hidden and cannot take focus: focus() lands nowhere and
+   stays on the launcher, and Escape then goes to the page instead of here.
+   Becoming visible at once (and still hiding only after sliding out) fixes it. */
+.chat-drawer.is-open { transition: transform .28s var(--ease), visibility 0s; }
+.chat-head { align-items: flex-start; gap: var(--s-4); }
+.chat-ruo {
+  margin-top: var(--s-3); padding: var(--s-2) var(--s-3);
+  background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: var(--radius);
+  font-size: var(--t-xs); line-height: 1.55; color: var(--warn-ink);
+}
+.chat-ruo a:not(.btn) { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+.chat-log { display: flex; flex-direction: column; gap: var(--s-3); }
+.chat-msg {
+  max-width: 88%; padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  font-size: var(--t-base); line-height: 1.6; color: var(--ink);
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.chat-msg p { margin: 0; }
+.chat-msg--bot { align-self: flex-start; background: var(--tile); }
+.chat-msg--user { align-self: flex-end; background: var(--accent-soft); border-color: var(--line-accent); }
+.chat-msg--note { color: var(--ink-2); }
+.chat-msg a:not(.btn) { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.chat-typing { color: var(--ink-3); font-style: italic; }
+
+.chat-form { display: flex; flex-direction: column; gap: var(--s-3); }
+.chat-form textarea {
+  width: 100%; min-height: 3.4rem; max-height: 9rem; padding: .6rem .75rem;
+  border: 1px solid var(--line-strong); border-radius: var(--radius);
+  background: var(--white); color: var(--ink);
+  font-family: inherit; font-size: var(--t-md); line-height: 1.5; resize: vertical;
+}
+.chat-form textarea:focus { outline: none; border-color: var(--ink); }
+.chat-actions { display: flex; justify-content: space-between; gap: var(--s-3); }
+.chat-actions .btn[disabled] { opacity: .5; cursor: progress; }
+.chat-note { font-size: var(--t-xs); line-height: 1.55; color: var(--ink-3); }
+.chat-note a:not(.btn) { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+
+@media (max-width: 480px) {
+  .chat-launcher { right: var(--s-3); bottom: var(--s-3); }
+  .chat-head, .chat-log, .chat-form { padding: var(--s-4); }
+  .chat-msg { max-width: 94%; }
+}
+/* 16px stops iOS zooming the page when the field takes focus. */
+@media (pointer: coarse) {
+  .chat-form textarea { font-size: 1rem; }
+  .chat-actions .btn { min-height: 44px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
@@ -1104,7 +1174,7 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .product-foot select { min-width: 8rem; }
 
 @media print {
-  .header, .footer, .announce, .demo-bar, .drawer, .drawer-scrim, .toast,
+  .header, .footer, .announce, .demo-bar, .drawer, .drawer-scrim, .toast, .chat-launcher,
   .skip-link, .btn, .filter-bar, .search-field, .rfq-btn, .nav-toggle,
   .reveal-on-scroll, .crumb, .product-actions, .link-action,
   .no-print { display: none !important; }

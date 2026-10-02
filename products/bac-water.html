@@ -23,10 +23,11 @@
 <link rel="preload" href="../assets/fonts/inter-var-latin.woff2?v=dc736864" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../assets/fonts/cormorant-garamond-var-latin.woff2?v=9fa994b6" as="font" type="font/woff2" crossorigin>
 <script>document.documentElement.className+=" js";(function(){var K='tr_ruo_ack_v1',d=document;try{if(localStorage.getItem(K)==='1')return;}catch(e){return;}d.documentElement.className+=' gate-on';d.addEventListener('click',function(e){var t=e.target;if(t.id==='gate-enter'){try{localStorage.setItem(K,'1');}catch(x){}d.documentElement.className=d.documentElement.className.replace(/ ?gate-on/,'');var m=d.getElementById('main');if(m)m.focus();return;}if(t.name==='gate-ack'){var b=d.querySelectorAll('input[name=gate-ack]'),ok=true,i;for(i=0;i<b.length;i++){if(!b[i].checked)ok=false;}var g=d.getElementById('gate-enter');if(g)g.disabled=!ok;}});})();</script>
-<script src="../assets/js/config.js?v=626e4c8d"></script>
+<script src="../assets/js/config.js?v=a47fcdb5"></script>
 <link rel="stylesheet" href="../assets/css/fonts.css?v=c5c0eaef">
-<link rel="stylesheet" href="../assets/css/main.css?v=68e97bf5">
+<link rel="stylesheet" href="../assets/css/main.css?v=f63d09bb">
 <script src="../assets/js/site.js?v=7668c63d" defer></script>
+<script src="../assets/js/chat.js?v=c0fbd20e" defer></script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Product", "name": "Bacteriostatic Water", "description": "Multi-dose reconstitution solvent containing 0.9% benzyl alcohol as a bacteriostatic agent. Laboratory reconstitution use only.", "category": "Reagents & Supplies", "sku": "bac-water", "brand": {"@type": "Brand", "name": "Timeless Research"}, "offers": {"@type": "Offer", "name": "Bacteriostatic Water, 3 mL x 3 vials", "sku": "bac-water-3mLx3vials", "price": "15.00", "priceCurrency": "USD", "availability": "https://schema.org/InStock", "itemCondition": "https://schema.org/NewCondition", "url": "https://www.timelessresearch.com/products/bac-water.html", "seller": {"@type": "Organization", "name": "Timeless Research"}}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://www.timelessresearch.com/index.html"},{"@type":"ListItem","position":2,"name":"Catalog","item":"https://www.timelessresearch.com/catalog.html"},{"@type":"ListItem","position":3,"name":"Reagents & Supplies","item":"https://www.timelessresearch.com/catalog.html#reagents"},{"@type":"ListItem","position":4,"name":"Bacteriostatic Water"}]}</script>
 </head>
@@ -230,6 +231,30 @@
   </div>
 </aside>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<button class="chat-launcher" id="chat-open" type="button" aria-haspopup="dialog" aria-controls="chat-drawer" hidden>
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12Z"/></svg>
+  <span>Questions?</span>
+</button>
+<div class="drawer-scrim chat-scrim" id="chat-scrim"></div>
+<aside class="drawer chat-drawer" id="chat-drawer" data-root="../" role="dialog" aria-modal="true" aria-labelledby="chat-title" aria-describedby="chat-ruo" aria-hidden="true">
+  <div class="drawer-head chat-head">
+    <div>
+      <h2 id="chat-title">Order &amp; product help</h2>
+      <p class="chat-ruo" id="chat-ruo"><b>Research use only.</b> Every product is supplied for <em>in vitro</em> laboratory research and is not for human or veterinary use. This assistant cannot advise on dosing, preparation or use &mdash; see our <a href="../compliance.html">research use policy</a>.</p>
+    </div>
+    <button class="btn btn--quiet btn--sm" id="chat-close" type="button" aria-label="Close order and product help">Close</button>
+  </div>
+  <div class="drawer-body chat-log" id="chat-log" role="log" aria-live="polite" aria-relevant="additions"></div>
+  <form class="drawer-foot chat-form" id="chat-form" novalidate>
+    <label class="sr-only" for="chat-input">Your question</label>
+    <textarea id="chat-input" name="message" rows="2" maxlength="1000" placeholder="Ask about products, pricing, shipping or orders" autocomplete="off"></textarea>
+    <div class="chat-actions">
+      <button class="btn btn--quiet btn--sm" id="chat-reset" type="button">Start over</button>
+      <button class="btn btn--primary btn--sm" id="chat-send" type="submit">Send</button>
+    </div>
+    <p class="chat-note">Answers come from this site&rsquo;s own pages and may be incomplete. For anything else, <a href="../contact.html">contact us</a>. Messages are processed by our AI provider and not kept by us.</p>
+  </form>
+</aside>
 
 </body>
 </html>

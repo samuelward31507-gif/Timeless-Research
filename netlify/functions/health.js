@@ -74,6 +74,12 @@ exports.handler = async function () {
 
   const canCheckOut = stripe.status === 'ok';
 
+  // The support assistant. Optional: without a key it tells visitors it is
+  // unavailable and points them to the contact page.
+  const anthropic = check('ANTHROPIC_API_KEY', (v) => v.startsWith('sk-ant-')
+    ? { set: true, status: 'ok', note: 'Anthropic API key is set. Make sure its Claude Console workspace has a monthly spend limit.' }
+    : { set: true, status: 'wrong-key', note: 'An Anthropic API key starts with sk-ant-. This does not.' });
+
   return {
     statusCode: 200,
     headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
@@ -86,6 +92,7 @@ exports.handler = async function () {
       mode: demo ? 'demonstration' : 'trading',
       checkout: { working: canCheckOut, stripe },
       order_records: { working: ordersReady, ...orders },
+      support_assistant: { working: anthropic.status === 'ok', key: anthropic },
       next_step: canCheckOut
         ? (ordersReady ? 'Nothing. Place a test order to confirm.'
                        : 'Optional: set the three order settings to record orders in a database.')
