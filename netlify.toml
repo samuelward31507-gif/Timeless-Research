@@ -10,11 +10,12 @@
   functions = "netlify/functions"
 
 [functions]
-  # The price table the checkout function charges from, and everything the
-  # support assistant may answer from. tools/build.py regenerates both from
-  # assets/data/products.json and the site's own pages on every deploy, so
-  # neither can drift from the catalogue.
-  included_files = ["netlify/functions/catalog.json", "netlify/functions/chat-knowledge.json"]
+  # The price table the checkout function charges from, everything the
+  # support assistant may answer from, and the optional add-on table.
+  # tools/build.py regenerates all three from assets/data/ and the site's own
+  # pages on every deploy, so none can drift from its source.
+  included_files = ["netlify/functions/catalog.json", "netlify/functions/chat-knowledge.json",
+                    "netlify/functions/addons.json"]
 
 [build.environment]
   PYTHON_VERSION = "3.11"

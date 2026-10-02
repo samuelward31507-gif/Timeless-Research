@@ -484,6 +484,80 @@ appear. Do not log message content to debug it. Do not put the key in
 `netlify.toml`. Do not let it take orders: it links the product page, and the
 cart and Stripe do the rest.
 
+## 3e. Optional add-ons
+
+The cart can offer shipping, documentation and packaging add-ons on each line
+(an insulated shipper, a certified copy of the certificate of analysis, a
+moisture-barrier pouch). How it works is in README, *Add-ons*. **It is built
+but switched off,** and stays off until two things are done:
+
+1. **The payment integration charges for add-ons.** It does not yet. Until it
+   does, `PAYMENT_INTEGRATION_READY` in `tools/addons.py` is `False`, the
+   cart shows no add-ons, and the build fails if one is enabled. That is on
+   purpose: an add-on the customer ticks and checkout ignores is either a
+   service you give away or one you fail to provide.
+2. **You define real add-ons.** The three in `assets/data/addons.json` are
+   examples, disabled, with no price. Replace them with services you actually
+   provide, at prices you have set, and only then set `"enabled": true`.
+
+### Defining add-ons
+
+- Only shipping, documentation or packaging services. The build refuses
+  anything that prepares, measures or administers material (diluents, water,
+  syringes, needles, swabs), and any wording about dosing, cycles or effects.
+  Do not try to word around it: an add-on that pairs a diluent or a syringe
+  with a peptide is exactly what a processor or regulator reads as intent.
+- A paid service is a promise. If you sell "an insulated shipper" or
+  "signature on delivery", your terms of sale should say what it covers and
+  what happens if it fails. That wording is yours to add.
+- Rules decide where each add-on is offered: by product, by category, or on
+  everything buyable.
+
+### Stock
+
+Stock-tracked add-ons are counted in Supabase. Apply
+`supabase/migrations/0002_addons.sql` after `0001`. Then, in the SQL editor:
+
+```sql
+-- receive stock
+insert into addon_stock_movements (addon_id, delta, reason, note)
+values ('insulated-shipper', 200, 'restock', 'PO 1182');
+
+-- current levels
+select * from addon_stock_levels;
+```
+
+Sales come off automatically when an order is recorded, and go back when you
+mark the order `cancelled` or `refunded`. Do not delete an order whose add-ons
+moved stock (the database refuses); cancel or refund it. Stock is not held
+while a customer pays, so the last unit can sell twice; that shows as a
+negative level, and you decide whether to source one more or refund it.
+
+If Supabase is not configured, stock-tracked add-ons are not offered at all.
+
+### Reports
+
+```sql
+select * from addon_revenue order by month desc;      -- units and revenue
+select * from addon_attach_rate;                      -- offered vs taken
+```
+
+Both count paid and shipped orders. Neither involves tracking visitors: what
+was offered is recorded with the order, by the server.
+
+### Before switching it on: the payment integration
+
+The integration has to: accept the add-on ids the cart sends per line; call
+`priceAddons()` from `netlify/lib/addons.js` with stock from
+`addon_stock_levels`; charge each returned line as its own line item; keep the
+free-shipping calculation on products only; on confirmed payment, write the
+rows from `orderItemRows()` and call `record_addon_sales(order_id)`. Then set
+`PAYMENT_INTEGRATION_READY = True` in the same change. Today that means the
+checkout function (`netlify/functions/create-checkout-session.js`), the
+order-recording webhook (`netlify/functions/stripe-webhook.js`) and the
+checkout handler in `assets/js/site.js`, or whatever replaces them if the
+site moves to another processor.
+
 ---
 
 ## 4. Decisions only you can make
@@ -649,6 +723,10 @@ Stated plainly so you are not surprised, and so a buyer is not misled.
   stubbed suite (`tests/chat.test.js`) and its drawer was driven in Chromium,
   but the Anthropic API was stubbed throughout. The live refusal check in §3d
   is not optional.
+- **Add-ons have not been through a payment.** The configuration, cart,
+  server-side pricing, stock ledger and reports are tested, the SQL against
+  Postgres 16, but no payment integration charges for add-ons yet, so none
+  has been bought end to end.
 
 ---
 
@@ -658,6 +736,8 @@ Stated plainly so you are not surprised, and so a buyer is not misled.
 python3 tools/build.py      # regenerate every page
 python3 tools/check.py      # links, metadata, labels, unfilled legal details
 node --test tests/chat.test.js   # the support assistant's function, stubbed
+node --test tests/addons.test.js # add-ons, server side
+python3 -m unittest discover -s tests -p 'test_*.py'   # add-on configuration
 ```
 
 `check.py` exits non-zero on failure, so it can gate a deploy. It verifies that

@@ -370,6 +370,44 @@ else:
     if _k.get("demo") != DEMO:
         fail("chat knowledge was built for a different TR_DEMO setting than this check")
 
+# ----------------------------------------------------------------- add-ons
+# assets/data/addons.json is validated by tools/addons.py: shape, prices,
+# rules, the compliance guard (shipping, documentation and packaging services
+# only), and the gate that keeps every add-on disabled until the payment
+# integration can charge for it. The generated copies must match the source,
+# and a preview build must never be what gets checked, let alone deployed.
+sys.path.insert(0, str(ROOT / "tools"))
+import addons as _addons  # noqa: E402
+
+_asrc = _json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8"))
+try:
+    _acfg = _addons.load()
+except (OSError, ValueError) as _e:
+    fail(f"assets/data/addons.json cannot be read: {_e}")
+    _acfg = None
+if _acfg is not None:
+    for _e in _addons.validate(_acfg, _asrc["products"], _asrc["categories"]):
+        fail(f"addons.json: {_e}")
+    _want_server, _want_browser = _addons.tables(_acfg, _asrc["products"], _asrc.get("currency", "USD"))
+    _afile = ROOT / "netlify/functions/addons.json"
+    if not _afile.exists():
+        fail("missing netlify/functions/addons.json (run tools/build.py)")
+    elif _json.loads(_afile.read_text(encoding="utf-8")) != _want_server:
+        fail("netlify/functions/addons.json is out of date with assets/data/addons.json (run tools/build.py)")
+    _cfgjs = (ROOT / "assets/js/config.js").read_text(encoding="utf-8")
+    _m = re.search(r"window\.TR_CONFIG = (\{.*\});", _cfgjs, re.S)
+    _browser = _json.loads(_m.group(1)).get("addons") if _m else None
+    if _browser is None:
+        fail("assets/js/config.js carries no add-on table (run tools/build.py)")
+    elif _browser.get("preview"):
+        fail("this is an add-on PREVIEW build (TR_ADDONS_PREVIEW): the cart shows add-ons checkout "
+             "does not charge. Rebuild without it before deploying")
+    elif _browser != _want_browser:
+        fail("assets/js/config.js add-ons are out of date with assets/data/addons.json (run tools/build.py)")
+for _f in ("netlify/lib/addons.js", "netlify/functions/addon-availability.js"):
+    if not (ROOT / _f).exists():
+        fail(f"missing {_f}")
+
 # ------------------------------------------------------------- generated
 for extra in ("sitemap.xml", "robots.txt", "assets/img/favicon.svg",
               "assets/data/products.json", "assets/css/main.css",

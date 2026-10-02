@@ -68,6 +68,7 @@ assets/
   js/contact.js         Form validation and submission
   js/chat.js            Order and product help assistant (drawer, history)
   data/products.json    Catalog, prices, volume tiers, shipping threshold
+  data/addons.json      Optional add-ons and the rules that offer them
   coa/<id>.pdf          Optional; publishes that compound's certificate
   fonts/                Self-hosted Barlow Semi Condensed (label face)
   css/fonts.css         @font-face rules for the above (generated)
@@ -84,7 +85,12 @@ netlify/functions/
   catalog.json          Price table it charges from (generated)
   chat.js               Support assistant: screens, calls the Anthropic API
   chat-knowledge.json   Everything the assistant may answer from (generated)
-tests/                  Node tests for the assistant (no dependencies)
+  addon-availability.js In stock or not, per stock-tracked add-on (read-only)
+  addons.json           Add-on prices and eligibility (generated)
+netlify/lib/addons.js   Add-on validation and pricing, payment-provider agnostic
+tools/addons.py         Reads, validates and resolves assets/data/addons.json
+supabase/migrations/    0001 orders; 0002 add-on lines, stock ledger, reports
+tests/                  Node and Python tests (no dependencies)
 sitemap.xml, robots.txt Generated
 ```
 
@@ -432,6 +438,99 @@ production request, grades each reply with a second model, and reports
 latency against the timeout. Run it before launch and after any change to the
 model, the rules or the knowledge.
 
+## Add-ons
+
+Optional add-ons are shipping, documentation or packaging services a customer
+can attach to a cart line: an insulated shipper for a cold-chain compound, a
+certified copy of the certificate of analysis, a moisture-barrier pouch per
+vial. They are configured in `assets/data/addons.json`, apart from the
+catalogue, so they can be added, repriced or retired as a data edit.
+
+**Status: built, not switched on.** Everything up to the payment step exists
+and is tested. The payment integration does not yet charge for add-ons, so
+`PAYMENT_INTEGRATION_READY` in `tools/addons.py` is `False`. While it is, the
+cart shows no add-ons, and the build and `check.py` both refuse an enabled
+one, so a customer can never be shown an add-on that checkout would drop.
+Every entry in the shipped file is an example, disabled, with no price.
+
+**The flow.** Product → eligible add-on offered on its cart line → customer
+ticks it → cart → server-side validation and pricing → the payment processor
+→ confirmed payment → the order records the add-on as its own line →
+inventory is updated. Nothing in it is specific to a payment processor:
+`netlify/lib/addons.js` returns neutral line objects in cents, and the
+database records and counts them however the order was paid for.
+
+**Configuring.** Each add-on has an `id`, `name`, `description`, `kind`
+(`shipping`, `documentation` or `packaging`), `quantity` (`per-line`: one per
+line; `per-unit`: one per unit on the line), `price`, `trackInventory` and
+`enabled`. Rules say where add-ons are offered:
+
+```json
+{ "id": "cold-chain", "recommend": ["insulated-shipper"],
+  "when": { "categories": ["metabolic", "growth"] } }
+```
+
+`when` takes `products` (ids), `categories` (ids), or `"allBuyable": true`.
+The build resolves the rules into a product → add-ons map that the cart and
+the server both read, so they cannot disagree. An add-on offered by two rules
+is credited to the first, for reporting.
+
+**What add-ons never do.** Change their line's price, its volume tier, or the
+free-shipping threshold, which counts products only; the cart shows products
+and add-ons as separate rows once an add-on is ticked, and says "more in
+products" in the free-shipping line. Attach to the order as a whole: every
+add-on belongs to a line.
+
+**The compliance guard.** `tools/addons.py` refuses any add-on whose id, name
+or description mentions a diluent or water, a syringe, needle, swab or other
+means of preparing or administering material, dosing, cycling or stacking, or
+an effect or claim (weight loss, recovery, health and so on), and any kind
+other than the three above. It is a guard against a data edit, not a
+substitute for judgement: it fails the build, and the list is in the file.
+
+**Server side.** `priceAddons()` takes product lines the caller has already
+validated, and refuses: add-ons while the integration is not ready; unknown
+or disabled add-ons; an add-on not offered on that product; duplicates;
+malformed selections; and stock-tracked add-ons that are out of stock, or
+whose stock cannot be read (it fails closed). The browser sends add-on ids
+only: prices, quantities and the rule an add-on counts under are decided on
+the server. `orderItemRows()` produces the `order_items` rows, product lines
+carrying the add-ons they were offered.
+
+**Inventory** is a ledger in Supabase (`supabase/migrations/0002_addons.sql`):
+stock is the sum of `addon_stock_movements`. Restock or correct by inserting a
+row. `record_addon_sales(order_id)` takes a confirmed order's add-ons out of
+stock and is idempotent, including across a retry that rewrites the order's
+items. Cancelling or refunding an order puts them back, once, by trigger.
+Stock is not reserved while a customer pays, so two buyers of the last unit
+can both succeed; the sale is recorded and the level goes negative, which is
+how an oversell shows. `/.netlify/functions/addon-availability` tells the
+cart which tracked add-ons are in stock, as booleans, never counts.
+
+**Reporting** needs no tracking of visitors. Two views, readable only with the
+service role (the Supabase dashboard): `addon_revenue` (units and revenue per
+add-on per month) and `addon_attach_rate` (of the product lines an add-on was
+offered on, how many took it). "Offered" is recorded by the server on each
+product line at order time. Paid and shipped orders only.
+
+**Previewing.** To see add-ons in the cart before the integration exists,
+build locally from the test fixture:
+
+```bash
+TR_ADDONS_FILE=tests/fixtures/addons.json TR_ADDONS_PREVIEW=1 python3 tools/build.py
+```
+
+The cart then carries a "preview build, not charged" notice, `check.py`
+fails, and the build refuses to run on Netlify. Rebuild without the variables
+afterwards.
+
+**Testing.**
+
+```bash
+node --test tests/addons.test.js                        # server side, no network
+python3 -m unittest discover -s tests -p 'test_*.py'    # configuration and guard
+```
+
 ## Assets and tooling
 
 Every asset is generated and committed; a build and a deploy never touch the
@@ -559,10 +658,15 @@ price table disagrees with `products.json`, if a restricted compound carries an
 add-to-cart control, or if any of the retired account-verification wording
 reappears. It also fails if any page is missing the support assistant, or if
 the assistant's knowledge file disagrees with `products.json` or carries a
-field left out on purpose. It exits non-zero, so it can gate a deploy.
+field left out on purpose; if `assets/data/addons.json` is invalid, enables
+an add-on before the payment integration can charge for it, offers anything
+the compliance guard refuses, or disagrees with its generated copies; or if
+the build is an add-on preview. It exits non-zero, so it can gate a deploy.
 
 The assistant's function has its own suite, `node --test tests/chat.test.js`;
 see [Support assistant](#support-assistant).
+Add-ons have two, `node --test tests/addons.test.js` and
+`python3 -m unittest discover -s tests -p 'test_*.py'`; see [Add-ons](#add-ons).
 
 Audited with axe-core (WCAG 2.1 A/AA) across fifteen representative pages plus
 the open cart drawer in its error state: **0 violations**.

@@ -66,6 +66,46 @@
   var TIERS = (CFG.volumeTiers || []).slice().sort(function (a, b) { return a.minQty - b.minQty; });
   var FREE_OVER = Number(CFG.freeShippingOver || 0);
 
+  /* Optional add-ons (tools/addons.py, assets/data/addons.json). Which add-ons
+     a product may carry was resolved at build time into ADDON_ELIG, the same
+     map the server prices from, so the cart never offers what checkout would
+     refuse. Shown only once the payment integration charges for them
+     (ADDONS.show), or in a local preview build that says so. An add-on is
+     priced on its own: it never changes its line's price, the line's volume
+     tier, or the free-shipping threshold, which counts products only. */
+  var ADDONS = CFG.addons || {};
+  var ADDON_DEFS = ADDONS.addons || {};
+  var ADDON_ELIG = ADDONS.eligibility || {};
+  var SHOW_ADDONS = !!ADDONS.show;
+  var addonStock = null;      // { id: true|false } once known; null until fetched
+  var addonStockLoading = false;
+
+  function offeredOn(item) {
+    if (!SHOW_ADDONS || !Object.prototype.hasOwnProperty.call(ADDON_ELIG, item.id)) return [];
+    return ADDON_ELIG[item.id].filter(function (o) { return ADDON_DEFS[o.addon]; });
+  }
+  function addonUnits(def, item) { return def.quantity === 'per-unit' ? item.qty : 1; }
+  /* true / false / null (not known yet). Untracked add-ons are always in stock. */
+  function addonInStock(id) {
+    var d = ADDON_DEFS[id];
+    if (!d || !d.trackInventory) return true;
+    if (addonStock === null) return null;
+    return addonStock[id] === true;
+  }
+  /* The add-ons a line actually carries: still offered on it, and in stock. */
+  function addonsOn(item) {
+    var offered = offeredOn(item).map(function (o) { return o.addon; });
+    return (item.addons || []).filter(function (id) {
+      return offered.indexOf(id) !== -1 && addonInStock(id) === true;
+    });
+  }
+  function addonsTotal(item) {
+    var t = addonsOn(item).reduce(function (sum, id) {
+      return sum + Math.round(ADDON_DEFS[id].price * 100) * addonUnits(ADDON_DEFS[id], item);
+    }, 0);
+    return t / 100;
+  }
+
   /* The best quantity break a line qualifies for, or null. Mirrored exactly in
      netlify/functions/create-checkout-session.js, which is the one that counts
      — this copy only decides what the drawer says. If the two ever disagree the
@@ -112,7 +152,7 @@
       var list = read();
       var hit = list.filter(function (i) { return i.id === id && i.size === size; })[0];
       if (hit) { hit.qty += 1; hit.price = price; }
-      else { list.push({ id: id, name: name, size: size, qty: 1, price: price }); }
+      else { list.push({ id: id, name: name, size: size, qty: 1, price: price, addons: [] }); }
       write(list); sync(); toast(name + ' · ' + size + ' added to cart');
     },
     setQty: function (idx, delta) {
@@ -122,6 +162,14 @@
       write(list); sync();
     },
     remove: function (idx) { var l = read(); l.splice(idx, 1); write(l); sync(); },
+    setAddon: function (idx, addonId, on) {
+      var list = read();
+      if (!list[idx]) return;
+      var cur = (list[idx].addons || []).filter(function (a) { return a !== addonId; });
+      if (on) cur.push(addonId);
+      list[idx].addons = cur;
+      write(list); sync();
+    },
     clear: function () { write([]); sync(); },
     count: function () { return read().reduce(function (t, i) { return t + i.qty; }, 0); }
   };
@@ -135,6 +183,49 @@
   var countEl = document.getElementById('rfq-count');
   var lastFocus = null;
 
+  /* The add-ons offered on one cart line, as a labelled group of checkboxes.
+     A tracked add-on stays disabled until its stock is known, and says why. */
+  function addonFieldset(item, idx) {
+    var offered = offeredOn(item);
+    if (!offered.length) return '';
+    var rows = offered.map(function (o) {
+      var d = ADDON_DEFS[o.addon];
+      var id = 'ad-' + idx + '-' + o.addon;
+      var stock = addonInStock(o.addon);
+      var on = stock === true && (item.addons || []).indexOf(o.addon) !== -1;
+      var units = addonUnits(d, item);
+      var price = money(d.price) + (d.quantity === 'per-unit' ? ' each' : '') +
+        (units > 1 ? ' &middot; ' + money(Math.round(d.price * 100 * units) / 100) : '');
+      var status = stock === null ? 'Checking availability\u2026' : (stock === false ? 'Out of stock' : '');
+      return '<div class="addon">' +
+        '<label class="check" for="' + id + '"><input type="checkbox" id="' + id + '" data-addon="' + esc(o.addon) +
+        '" data-i="' + idx + '"' + (on ? ' checked' : '') + (stock !== true ? ' disabled' : '') +
+        ' aria-describedby="' + id + '-d">' +
+        '<span><span class="addon-name">' + esc(d.name) + '</span> <span class="addon-price">' + price + '</span></span></label>' +
+        '<p class="addon-desc" id="' + id + '-d">' + esc(d.description) +
+        (status ? ' <strong class="addon-status">' + status + '</strong>' : '') + '</p></div>';
+    }).join('');
+    return '<fieldset class="addons"><legend>Optional add-ons<span class="sr-only"> for ' + esc(item.name) +
+      ', ' + esc(item.size) + '</span></legend>' + rows + '</fieldset>';
+  }
+
+  /* Stock for tracked add-ons, fetched once per page when the cart first
+     needs it. Fails closed: if it cannot be read, tracked add-ons show as out
+     of stock, which is also what the server would decide. */
+  function loadAddonStock() {
+    if (!SHOW_ADDONS || addonStock !== null || addonStockLoading) return;
+    var needs = read().some(function (i) {
+      return offeredOn(i).some(function (o) { return ADDON_DEFS[o.addon].trackInventory; });
+    });
+    if (!needs) return;
+    addonStockLoading = true;
+    fetch(CFG.addonAvailabilityEndpoint || '/.netlify/functions/addon-availability')
+      .then(function (r) { if (!r.ok) throw new Error('stock'); return r.json(); })
+      .then(function (d) { addonStock = (d && d.available) || {}; })
+      .catch(function () { addonStock = {}; })
+      .then(function () { addonStockLoading = false; render(); });
+  }
+
   function render() {
     if (!body) return;
     var list = read();
@@ -145,13 +236,17 @@
       if (foot) foot.hidden = true;
       return;
     }
-    body.innerHTML = list.map(function (i, idx) {
+    var previewNote = ADDONS.preview
+      ? '<p class="addon-preview" role="note">Add-on preview build: add-ons are shown here but are not charged at checkout. Do not deploy.</p>'
+      : '';
+    body.innerHTML = previewNote + list.map(function (i, idx) {
       var t = tierFor(i.qty);
       var next = null;
       for (var n = 0; n < TIERS.length; n++) {
         if (i.qty < TIERS[n].minQty) { next = TIERS[n]; break; }
       }
-      return '<div class="rfq-line">' +
+      var addonRow = addonFieldset(i, idx);
+      return '<div class="rfq-line' + (addonRow ? ' rfq-line--addons' : '') + '">' +
         '<div class="rfq-line-main"><div class="rfq-line-name">' + esc(i.name) + '</div>' +
         '<div class="rfq-line-size">' + esc(i.size) +
         (i.price != null ? ' &middot; ' + money(i.price) : '') + '</div>' +
@@ -165,6 +260,7 @@
         '<span>' + i.qty + '</span>' +
         '<button type="button" data-q="1" data-i="' + idx + '" aria-label="Increase quantity">+</button></div>' +
         '<button class="rfq-remove" type="button" data-rm="' + idx + '" aria-label="Remove ' + esc(i.name) + '">✕</button>' +
+        addonRow +
         '</div>';
     }).join('');
 
@@ -177,18 +273,26 @@
       var sum = priced.reduce(function (t, i) { return t + lineTotal(i); }, 0);
       var saved = Math.round((gross - sum) * 100) / 100;
       var partial = priced.length < list.length;
+      var addonSum = Math.round(list.reduce(function (t, i) { return t + addonsTotal(i); }, 0) * 100) / 100;
       var extra = '';
       if (saved > 0) {
         extra += '<div class="rfq-total rfq-total--sub"><span>Volume discount</span>' +
                  '<strong>&minus;' + money(saved) + '</strong></div>';
       }
+      if (addonSum > 0) {
+        /* Products and add-ons shown apart, because the free-shipping
+           threshold is measured on products alone. */
+        extra += '<div class="rfq-total rfq-total--part"><span>Products</span><strong>' + money(sum) + '</strong></div>' +
+                 '<div class="rfq-total rfq-total--part"><span>Add-ons</span><strong>' + money(addonSum) + '</strong></div>';
+      }
       extra += '<div class="rfq-total"><span>Subtotal' +
-        (partial ? ' (priced items)' : '') + '</span><strong>' + money(sum) + '</strong></div>';
+        (partial ? ' (priced items)' : '') + '</span><strong>' +
+        money(Math.round((sum + addonSum) * 100) / 100) + '</strong></div>';
       if (FREE_OVER > 0) {
         extra += sum >= FREE_OVER
           ? '<p class="rfq-total-note rfq-free">Standard shipping is free on this order.</p>'
           : '<p class="rfq-total-note">Add ' + money(Math.round((FREE_OVER - sum) * 100) / 100) +
-            ' for free standard shipping.</p>';
+            (addonSum > 0 ? ' more in products' : '') + ' for free standard shipping.</p>';
       }
       extra += '<p class="rfq-total-note">Shipping and any tax are added at checkout, before you pay.</p>';
       body.innerHTML += extra;
@@ -215,6 +319,7 @@
        was, so retire it rather than stack the two. */
     dismissToast();
     render();
+    loadAddonStock();
     drawer.classList.add('is-open');
     drawer.setAttribute('aria-hidden', 'false');
     if (scrim) scrim.classList.add('is-open');
@@ -240,6 +345,17 @@
   if (clearBtn) clearBtn.addEventListener('click', function () { CART.clear(); });
 
   if (body) {
+    /* Re-rendering replaces the checkbox, so put focus back on its successor:
+       otherwise a keyboard user is thrown to the top of the page per tick. */
+    body.addEventListener('change', function (e) {
+      var cb = e.target.closest('[data-addon]');
+      if (!cb) return;
+      var addonId = cb.getAttribute('data-addon');
+      var i = +cb.getAttribute('data-i');
+      CART.setAddon(i, addonId, cb.checked);
+      var again = body.querySelector('[data-addon="' + addonId + '"][data-i="' + i + '"]');
+      if (again) again.focus();
+    });
     body.addEventListener('click', function (e) {
       var q = e.target.closest('[data-q]');
       if (q) { CART.setQty(+q.dataset.i, +q.dataset.q); return; }

@@ -21,6 +21,8 @@ import struct
 import datetime
 from html.parser import HTMLParser
 
+import addons as ADDONS_CFG  # tools/addons.py
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8"))
 PRODUCTS = DATA["products"]
@@ -39,6 +41,15 @@ VOLUME_TIERS = sorted(
 # Goods subtotal, excluding shipping and tax, above which standard shipping is
 # free. 0 or absent turns it off everywhere, including the checkout function.
 FREE_SHIPPING_OVER = float(DATA.get("freeShippingOver") or 0)
+
+# Optional add-ons live in their own file (tools/addons.py explains why).
+# TR_ADDONS_FILE points the build at another file, which the tests use;
+# TR_ADDONS_PREVIEW=1 shows enabled add-ons in the cart before the payment
+# integration can charge for them, for local review only. A preview build says
+# so in its config, tools/check.py fails on it, and it refuses to run on Netlify,
+# so it cannot be deployed by accident.
+ADDONS_FILE = pathlib.Path(os.environ.get("TR_ADDONS_FILE") or ADDONS_CFG.SOURCE)
+ADDONS_PREVIEW = os.environ.get("TR_ADDONS_PREVIEW", "").strip() in ("1", "true", "yes")
 
 
 def tier_for(qty: int) -> dict | None:
@@ -2024,6 +2035,8 @@ def build_meta(pages):
              "formEndpoint": FORM_ENDPOINT,
              "checkoutEndpoint": "/.netlify/functions/create-checkout-session",
              "chatEndpoint": "/.netlify/functions/chat",
+             "addonAvailabilityEndpoint": "/.netlify/functions/addon-availability",
+             "addons": ADDONS_BROWSER,
              "currency": CURRENCY,
              "noCart": NO_CART_IDS,
              "volumeTiers": VOLUME_TIERS,
@@ -2054,6 +2067,9 @@ def build_meta(pages):
     fn.mkdir(parents=True, exist_ok=True)
     (fn / "catalog.json").write_text(
         json.dumps(catalog, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    # The add-on price and eligibility table netlify/lib/addons.js reads.
+    (fn / "addons.json").write_text(
+        json.dumps(ADDONS_SERVER, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     (ROOT / "robots.txt").write_text(
         ("User-agent: *\nDisallow: /\n" if DEMO else
@@ -2213,7 +2229,31 @@ def version_assets(pages):
     return digests
 
 
+ADDONS_SERVER: dict = {}
+ADDONS_BROWSER: dict = {}
+
+
+def load_addons():
+    """Validate assets/data/addons.json and resolve it into the two tables.
+    A bad file stops the build: an add-on with no price, an unknown product in
+    a rule, or anything the compliance guard refuses must not reach a cart."""
+    global ADDONS_SERVER, ADDONS_BROWSER
+    if ADDONS_PREVIEW and os.environ.get("NETLIFY"):
+        raise SystemExit("TR_ADDONS_PREVIEW is for local review only and cannot be deployed.")
+    config = ADDONS_CFG.load(ADDONS_FILE)
+    ready = ADDONS_CFG.PAYMENT_INTEGRATION_READY
+    errors = ADDONS_CFG.validate(config, PRODUCTS, CATEGORIES, ready=ready or ADDONS_PREVIEW)
+    if errors:
+        raise SystemExit("addons.json is not usable:\n  " + "\n  ".join(errors))
+    ADDONS_SERVER, ADDONS_BROWSER = ADDONS_CFG.tables(
+        config, PRODUCTS, CURRENCY, ready=ready, preview=ADDONS_PREVIEW)
+    if ADDONS_PREVIEW:
+        print("ADD-ON PREVIEW BUILD: the cart shows enabled add-ons that checkout does not charge. "
+              "Do not deploy; rebuild without TR_ADDONS_PREVIEW.")
+
+
 def main():
+    load_addons()
     for d in ("products", "legal"):
         p = ROOT / d
         if p.exists():

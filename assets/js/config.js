@@ -6,6 +6,13 @@ window.TR_CONFIG = {
   "formEndpoint": "",
   "checkoutEndpoint": "/.netlify/functions/create-checkout-session",
   "chatEndpoint": "/.netlify/functions/chat",
+  "addonAvailabilityEndpoint": "/.netlify/functions/addon-availability",
+  "addons": {
+    "show": false,
+    "preview": false,
+    "addons": {},
+    "eligibility": {}
+  },
   "currency": "USD",
   "noCart": [],
   "volumeTiers": [

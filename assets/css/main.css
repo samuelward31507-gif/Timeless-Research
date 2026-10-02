@@ -973,6 +973,30 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .qty span { font-family: var(--f-mono); font-size: var(--t-sm); min-width: 18px; text-align: center; }
 .rfq-remove { color: var(--ink-4); padding: var(--s-1); align-self: flex-start; }
 .rfq-remove:hover { color: var(--danger); }
+/* Optional add-ons on a cart line (assets/data/addons.json). */
+/* A full-width row under the product row, so the line's own controls keep
+   the height they have without add-ons. */
+.rfq-line--addons { flex-wrap: wrap; row-gap: 0; }
+.addons { flex: 0 0 100%; border: 0; margin: var(--s-3) 0 0; padding: var(--s-3) 0 0; border-top: 1px dashed var(--line); min-width: 0; }
+.addons legend { padding: 0; font-size: var(--t-xs); font-weight: 600; color: var(--ink-3); letter-spacing: .04em; text-transform: uppercase; }
+.addon + .addon { margin-top: var(--s-2); }
+.addons .check { margin-top: var(--s-2); font-size: var(--t-sm); color: var(--ink-2); }
+.addons .check input[disabled] + span { color: var(--ink-4); }
+.addon-name { color: var(--ink); }
+.addon-price { font-family: var(--f-mono); font-size: var(--t-xs); color: var(--ink-3); white-space: nowrap; }
+.addon-desc { margin: 2px 0 0 calc(16px + var(--s-3)); font-size: var(--t-xs); line-height: 1.5; color: var(--ink-3); }
+.addon-status { font-weight: 600; color: var(--warn-ink); }
+.addon-preview {
+  margin-bottom: var(--s-4); padding: var(--s-2) var(--s-3);
+  background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: var(--radius);
+  font-size: var(--t-xs); line-height: 1.5; color: var(--warn-ink);
+}
+.rfq-total--part span, .rfq-total--part strong { font-size: var(--t-sm); color: var(--ink-3); }
+@media (pointer: coarse) {
+  .addons .check { min-height: 44px; align-items: center; }
+  .addons .check input { width: 20px; height: 20px; margin-top: 0; }
+  .addon-desc { margin-left: calc(20px + var(--s-3)); }
+}
 
 /* --- Toast -------------------------------------------------------------- */
 .toast {
