@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Business overview &middot; Operations &middot; Timeless Research</title>
+<title>Order &middot; Operations &middot; Timeless Research</title>
 <meta name="description" content="The Timeless Research operations console. Private: for staff only.">
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
@@ -18,9 +18,9 @@
 <script src="../assets/js/console/shell.js?v=f6e8dc3d" defer></script>
 <script src="../assets/js/console/format.js?v=bf3ca1c6" defer></script>
 <script src="../assets/js/console/page.js?v=68820bc1" defer></script>
-<script src="../assets/js/console/command.js?v=cd2aad90" defer></script>
+<script src="../assets/js/console/order.js?v=fcd6d104" defer></script>
 </head>
-<body class="console" data-console-page="command">
+<body class="console" data-console-page="order">
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="console-header">
   <a class="console-brand" href="index.html">Timeless Research <span class="console-brand-sub">Operations</span></a>
@@ -31,60 +31,24 @@
 <div class="console-layout">
   <nav class="console-nav" id="console-nav" aria-label="Console">
     <ul class="console-nav-list">
-    <li><a class="console-nav-link" href="index.html" aria-current="page">Business overview</a></li>
+    <li><a class="console-nav-link" href="index.html">Business overview</a></li>
     </ul>
   </nav>
   <main class="console-main console-main--wide" id="main" tabindex="-1">
     <div class="cc-head">
-      <h1 class="console-title">Business overview</h1>
+      <div class="od-head-title">
+        <a class="od-back" href="index.html">&larr; Business overview</a>
+        <h1 class="console-title" id="od-title">Order</h1>
+      </div>
       <div class="cc-head-meta">
-        <p class="cc-updated" id="cc-updated" aria-live="polite"></p>
-        <button type="button" class="btn btn--ghost btn--sm" id="cc-refresh" hidden>Refresh</button>
+        <p class="cc-updated" id="od-updated" aria-live="polite"></p>
+        <button type="button" class="btn btn--ghost btn--sm" id="od-refresh" hidden>Refresh</button>
       </div>
     </div>
-    <div class="console-view cc-notice" id="cc-notice" data-state="loading" aria-busy="true">
+    <div class="console-view cc-notice" id="od-notice" data-state="loading" aria-busy="true">
       <p class="console-state-text">Loading&hellip;</p>
     </div>
-    <div class="cc-workspace" id="cc-workspace" hidden>
-      <section class="cc-snapshot" id="cc-snapshot" aria-labelledby="cc-snapshot-title">
-        <h2 class="sr-only" id="cc-snapshot-title">At a glance</h2>
-        <div class="cc-snapshot-groups" id="cc-snapshot-body"></div>
-      </section>
-      <section class="cc-section cc-section--stages" id="cc-stages" aria-labelledby="cc-stages-title">
-        <div class="cc-section-head">
-          <h2 class="cc-section-title" id="cc-stages-title">Order stages</h2>
-        </div>
-        <div class="console-view cc-body" id="cc-stages-body"></div>
-      </section>
-      <div class="cc-row">
-      <section class="cc-section cc-section--attention" id="cc-attention" aria-labelledby="cc-attention-title">
-        <div class="cc-section-head">
-          <h2 class="cc-section-title" id="cc-attention-title">Needs attention</h2>
-        </div>
-        <div class="console-view cc-body" id="cc-attention-body"></div>
-      </section>
-      <section class="cc-section cc-section--recent" id="cc-recent" aria-labelledby="cc-recent-title">
-        <div class="cc-section-head">
-          <h2 class="cc-section-title" id="cc-recent-title">Recent orders</h2>
-        </div>
-        <div class="console-view cc-body" id="cc-recent-body"></div>
-      </section>
-        <div class="cc-stack">
-      <section class="cc-section" id="cc-activity" aria-labelledby="cc-activity-title">
-        <div class="cc-section-head">
-          <h2 class="cc-section-title" id="cc-activity-title">Recent activity</h2>
-        </div>
-        <div class="console-view cc-body" id="cc-activity-body"></div>
-      </section>
-      <section class="cc-section" id="cc-stock" aria-labelledby="cc-stock-title">
-        <div class="cc-section-head">
-          <h2 class="cc-section-title" id="cc-stock-title">Low stock</h2>
-        </div>
-        <div class="console-view cc-body" id="cc-stock-body"></div>
-      </section>
-        </div>
-      </div>
-    </div>
+    <div class="od-workspace" id="od-workspace" hidden></div>
   </main>
 </div>
 <div class="console-toast" id="console-toast" role="status" aria-live="polite" hidden></div>

@@ -3,7 +3,7 @@
  * in a real browser, offline, on the real admin-* handlers and fixtures.
  */
 import { test, expect } from '@playwright/test';
-import { guard, setState, calls, noOverflow, overviewTables, queue, XSS } from './helpers.mjs';
+import { guard, setState, calls, noOverflow, overviewTables, orderTables, queue, id, ORDER_ID, XSS } from './helpers.mjs';
 
 guard();
 
@@ -150,6 +150,27 @@ test('an unknown status or audit action is shown as itself, not guessed at', asy
   await expect(page.locator('#cc-recent .console-badge')).toHaveAttribute('data-status', 'other');
   await expect(page.locator('.cc-activity-what')).toHaveText(['Change recorded']);
   await expect(page.locator('.cc-activity-meta')).toHaveText(['Oct 2, 9:00 AM']);
+});
+
+test('an order opens on its own page; only a real order id becomes a link', async ({ page, request }) => {
+  const t = overviewTables({ order_queue: queue(3, (i) => (i === 1 ? { order_id: 'not-a-uuid', attention_reason: 'paid over 24 hours, not started' }
+                                                         : { attention_reason: i === 0 ? 'packed over 24 hours, not shipped' : null })) });
+  await load(page, request, t);
+  await ready(page);
+  const links = page.locator('#cc-recent tbody a');
+  await expect(links).toHaveCount(2);
+  await expect(links.first()).toHaveAttribute('href', `order.html?id=${id(1)}`);
+  await expect(page.locator('#cc-recent tbody tr').nth(1).locator('a')).toHaveCount(0);
+  await expect(page.locator('#cc-recent tbody tr').nth(1)).toContainText('Customer 2');
+  await expect(page.locator('.cc-alert-list a')).toHaveAttribute('href', `order.html?id=${id(1)}`);
+  // Activity on an order links to it; activity on anything else does not.
+  await expect(page.locator('#cc-activity a')).toHaveCount(2);
+  await expect(page.locator('#cc-activity a').first()).toHaveAttribute('href', `order.html?id=${ORDER_ID}`);
+
+  await setState(request, { tables: orderTables() });
+  await links.first().click();
+  await expect(page).toHaveURL(new RegExp(`/console/order\\.html\\?id=${id(1)}$`));
+  await expect(page.locator('#od-workspace')).toBeVisible();
 });
 
 /* ------------------------------------------------------------ permissions */

@@ -19,8 +19,9 @@ So the console has its own document shell:
 
 The console is one screen, not a set of modules: the business overview
 (index.html) shows sales, orders, customers, stock, what needs attention and
-what happened recently, from the read API. There is deliberately no
-navigation of screens beyond it.
+what happened recently, from the read API. An order opens on its own page
+(order.html), read-only, because it holds more than a line of the overview
+can. There is deliberately no navigation of screens beyond that.
 
 tools/check.py validates every page under console/ with tools/console_rules.py.
 """
@@ -36,7 +37,7 @@ BRAND = "Timeless Research"
 
 E = html.escape
 
-# The navigation: the overview only.
+# The navigation: the overview only. An order's page is reached from it.
 NAV = [{"key": "overview", "label": "Business overview", "page": "index.html"}]
 
 SCRIPTS = ["auth.js", "api.js", "ui.js", "shell.js"]
@@ -159,9 +160,31 @@ def command() -> str:
                     page_scripts=COMMAND_SCRIPTS, page="command", wide=True)
 
 
+ORDER_SCRIPTS = ["format.js", "page.js", "order.js"]
+
+
+def order() -> str:
+    """One order, read-only: console/order.html?id=<uuid>."""
+    body = """    <div class="cc-head">
+      <div class="od-head-title">
+        <a class="od-back" href="index.html">&larr; Business overview</a>
+        <h1 class="console-title" id="od-title">Order</h1>
+      </div>
+      <div class="cc-head-meta">
+        <p class="cc-updated" id="od-updated" aria-live="polite"></p>
+        <button type="button" class="btn btn--ghost btn--sm" id="od-refresh" hidden>Refresh</button>
+      </div>
+    </div>
+    <div class="console-view cc-notice" id="od-notice" data-state="loading" aria-busy="true">
+      <p class="console-state-text">Loading&hellip;</p>
+    </div>
+    <div class="od-workspace" id="od-workspace" hidden></div>"""
+    return document("console/order.html", "Order", "order", body, page_scripts=ORDER_SCRIPTS, wide=True)
+
+
 def all_pages() -> dict[str, str]:
     """Every console page, by path relative to the root."""
-    return {"console/index.html": command()}
+    return {"console/index.html": command(), "console/order.html": order()}
 
 
 def build_console() -> list[str]:

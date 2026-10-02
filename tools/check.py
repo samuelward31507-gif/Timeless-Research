@@ -460,7 +460,8 @@ for extra in ("sitemap.xml", "robots.txt", "assets/img/favicon.svg",
               "assets/js/console/auth.js", "assets/js/console/api.js",
               "assets/js/console/ui.js", "assets/js/console/shell.js",
               "assets/js/console/format.js", "assets/js/console/page.js",
-              "assets/js/console/command.js"):
+              "assets/js/console/command.js", "assets/js/console/order.js",
+              "console/order.html"):
     if not (ROOT / extra).exists():
         fail(f"missing generated asset: {extra}")
 
