@@ -1,10 +1,10 @@
 /*
- * The operations console's read API: what every admin-* function shares.
+ * The operations console's API: what every admin-* function shares.
  *
- * Each console endpoint is a thin layer over the database. A request is
+ * Each console endpoint is a thin layer over the database. A read (GET) is
  * handled in this order, and stops at the first refusal:
  *
- *   1. Method. Reads are GET; anything else is 405.
+ *   1. Method. GET, or POST on an endpoint that has actions; else 405.
  *   2. Who. authenticateStaff(event) (admin-auth.js) verifies the Supabase
  *      sign-in and resolves it to an active staff member. Its staff.id is the
  *      only actor this API ever uses; nothing in the request can name one.
@@ -18,13 +18,22 @@
  *   5. Read. PostgREST with the service role key, which stays on the server.
  *      Every query names its columns; nothing selects *.
  *
- * Responses are JSON with Cache-Control: no-store. Database errors are mapped
- * to a status and a fixed error code, never the database's own message. The
- * log records the endpoint, the staff id and an error code; never a request
- * or response body, a token or a key.
+ * A write (POST) is a JSON body naming one allow-listed action. Its content
+ * type and size are checked before sign-in; then who, the action, may they
+ * (staff_can), and every body field against the action's own list. It then
+ * calls exactly one protected database function (rpc/<fn>, migration 0004),
+ * with p_actor set here from the session and nowhere else. That function
+ * checks the permission again, makes the change and writes the audit entry
+ * in one transaction. Nothing here writes a table directly.
  *
- * Read-only: nothing here writes. Browser roles still have no database
- * access; every query runs as the service role, on the server.
+ * Responses are JSON with Cache-Control: no-store. Database errors are mapped
+ * to a status and a fixed error code. A read never passes on the database's
+ * message; a write passes on only the migrations' own sentences (see
+ * writeError). The log records the endpoint, the staff id and an error code;
+ * never a request or response body, a token or a key.
+ *
+ * Browser roles still have no database access; every call runs as the
+ * service role, on the server.
  */
 'use strict';
 
@@ -178,6 +187,17 @@ function supabaseBase() {
   return `${url.origin}${url.pathname.replace(/\/+$/, '')}`;
 }
 
+/* A database refusal, carrying the SQLSTATE and the database's message. The
+   message stays inside the server unless writeError() decides it is one of
+   the migrations' own, written for the operator (see below). */
+class DbFailure extends Error {
+  constructor(code, dbMessage) {
+    super(code || 'http_error');
+    this.code = code;
+    this.dbMessage = dbMessage;
+  }
+}
+
 async function call(method, path, body) {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const controller = new AbortController();
@@ -198,12 +218,13 @@ async function call(method, path, body) {
     clearTimeout(timer);
   }
   if (!res || !res.ok) {
-    let code = null;
+    let detail = null;
     try {
-      const detail = await res.json();
-      code = detail && typeof detail.code === 'string' ? detail.code : null;
-    } catch (e) { /* the code is all that is used; a body that is not JSON has none */ }
-    throw dbError(code);
+      detail = await res.json();
+    } catch (e) { /* a body that is not JSON carries no code */ }
+    const code = detail && typeof detail.code === 'string' ? detail.code : null;
+    const message = detail && typeof detail.message === 'string' ? detail.message : null;
+    throw new DbFailure(code, message);
   }
   try {
     return await res.json();
@@ -212,12 +233,45 @@ async function call(method, path, body) {
   }
 }
 
-/* Database errors, by SQLSTATE, to a status and a fixed code. The database's
-   message is never passed on: it can name tables, constraints and values. */
+/* Database errors on a read, by SQLSTATE, to a status and a fixed code. The
+   database's message is never passed on: it can name tables, constraints and
+   values. */
 function dbError(code) {
   if (code === '42501') return new ApiError(403, 'not_authorized', { reason: code });
   if (code === 'P0002') return new ApiError(404, 'not_found', { reason: code });
   if (['22P02', '22007', '22008', '22023'].includes(code)) return new ApiError(400, 'invalid_input', { reason: code });
+  return new ApiError(500, 'unavailable', { reason: code || 'http_error' });
+}
+
+/* Database errors on a write. The console functions in 0003 and 0004 refuse
+   with their own sentences ("only a packed order can be shipped", "lot L1:
+   only 3 on hand, cannot remove 5") as check_violation or no_data_found, and
+   those are what the operator needs to see. PostgreSQL's own constraint
+   messages share those codes but are generated ("new row for relation ...
+   violates check constraint ...", with the failing row in the details), so
+   anything that reads like one gets a fixed message instead. The details and
+   hint are never passed on. */
+const GENERATED = /violates|relation "|constraint "|column "|null value|failing row|duplicate key|syntax|function |permission/i;
+
+function operatorMessage(message) {
+  if (typeof message !== 'string') return null;
+  const text = message.replace(/\s+/g, ' ').trim();
+  if (!text || text.length > 300 || GENERATED.test(text)) return null;
+  return text;
+}
+
+function writeError(code, dbMessage) {
+  if (code === '42501') return new ApiError(403, 'not_authorized', { reason: code });
+  if (code === 'P0002') return new ApiError(404, 'not_found', { reason: code, message: operatorMessage(dbMessage) });
+  if (code === '23514') {
+    return new ApiError(422, 'rejected', { reason: code, message: operatorMessage(dbMessage) || 'The database refused this change.' });
+  }
+  if (code === '23505') return new ApiError(409, 'conflict', { reason: code, message: 'That already exists.' });
+  if (code === '23503') return new ApiError(422, 'rejected', { reason: code, message: 'It refers to something that does not exist.' });
+  if (['23502', '22P02', '22007', '22008', '22023', '22003', '22001'].includes(code)) {
+    return new ApiError(400, 'invalid_input', { reason: code });
+  }
+  if (code === '40001' || code === '40P01') return new ApiError(409, 'retry', { reason: code });
   return new ApiError(500, 'unavailable', { reason: code || 'http_error' });
 }
 
@@ -228,9 +282,121 @@ async function select(table, columns, query) {
   const params = new URLSearchParams();
   params.append('select', columns.join(','));
   for (const [name, value] of query || []) params.append(name, value);
-  const rows = await call('GET', `${table}?${params.toString()}`);
+  let rows;
+  try {
+    rows = await call('GET', `${table}?${params.toString()}`);
+  } catch (e) {
+    throw e instanceof DbFailure ? dbError(e.code) : e;
+  }
   if (!Array.isArray(rows)) throw new ApiError(500, 'unavailable', { reason: 'malformed_response' });
   return rows;
+}
+
+/* --------------------------------------------------------- write fields */
+
+/* Validators for write bodies. Each takes (value, name) and returns the
+   normalized value, or throws 400 invalid_field naming the field. Every
+   validator refuses a missing field or null; optional() lets a missing field
+   through as undefined, nullable() lets an explicit null through. */
+const badField = (name) => new ApiError(400, 'invalid_field', { field: String(name).slice(0, 60) });
+
+// Single-line text: no control characters. Multi-line text may hold newlines
+// and tabs, nothing else below space.
+const SINGLE_LINE = /^[^\u0000-\u001f\u007f]*$/;
+const MULTI_LINE = /^[^\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]*$/;
+
+function fieldOf(check) {
+  return (value, name) => {
+    if (value === undefined || value === null) throw badField(name);
+    return check(value, name);
+  };
+}
+const optional = (f) => (value, name) => (value === undefined ? undefined : f(value, name));
+const nullable = (f) => (value, name) => (value === null ? null : f(value, name));
+
+const field = {
+  text: (min, max, opts) => fieldOf((value, name) => {
+    if (typeof value !== 'string') throw badField(name);
+    const t = value.trim();
+    const re = opts && opts.multiline ? MULTI_LINE : SINGLE_LINE;
+    if (t.length < min || t.length > max || !re.test(t)) throw badField(name);
+    if (opts && opts.pattern && !opts.pattern.test(t)) throw badField(name);
+    return t;
+  }),
+  uuid: () => fieldOf((value, name) => {
+    if (typeof value !== 'string' || !UUID.test(value)) throw badField(name);
+    return value.toLowerCase();
+  }),
+  id: () => fieldOf((value, name) => {
+    if (!Number.isSafeInteger(value) || value <= 0) throw badField(name);
+    return value;
+  }),
+  int: (min, max, opts) => fieldOf((value, name) => {
+    if (!Number.isSafeInteger(value) || value < min || value > max) throw badField(name);
+    if (opts && opts.nonzero && value === 0) throw badField(name);
+    return value;
+  }),
+  bool: () => fieldOf((value, name) => {
+    if (typeof value !== 'boolean') throw badField(name);
+    return value;
+  }),
+  date: () => fieldOf((value, name) => {
+    if (typeof value !== 'string' || !DATE.test(value) || !realDate(value)) throw badField(name);
+    return value;
+  }),
+  oneOf: (choices) => fieldOf((value, name) => {
+    if (typeof value !== 'string' || !choices.includes(value)) throw badField(name);
+    return value;
+  }),
+  currency: () => fieldOf((value, name) => {
+    if (typeof value !== 'string' || !/^[A-Z]{3}$/.test(value)) throw badField(name);
+    return value;
+  }),
+  productId: () => fieldOf((value, name) => {
+    if (typeof value !== 'string' || value.length > 80 || !PRODUCT_ID.test(value)) throw badField(name);
+    return value;
+  }),
+  packSize: () => fieldOf((value, name) => {
+    if (typeof value !== 'string' || value.length > 40 || !PACK_SIZE.test(value)) throw badField(name);
+    return value;
+  }),
+  /* A partial update: an object of at least one allowed key, each validated. */
+  changes: (spec) => fieldOf((value, name) => {
+    if (typeof value !== 'object' || Array.isArray(value)) throw badField(name);
+    const keys = Object.keys(value);
+    if (keys.length === 0) throw badField(name);
+    const out = {};
+    for (const k of keys) {
+      if (!Object.prototype.hasOwnProperty.call(spec, k)) throw badField(`${name}.${k}`);
+      out[k] = spec[k](value[k], `${name}.${k}`);
+    }
+    return out;
+  })
+};
+
+/* --------------------------------------------------------------- bodies */
+
+const BODY_LIMIT = 64 * 1024;
+const MAX_BODY_LIMIT = 1024 * 1024;
+
+function header(event, name) {
+  const headers = (event && event.headers) || {};
+  const found = Object.keys(headers).filter((k) => k.toLowerCase() === name);
+  return found.length === 1 ? headers[found[0]] : (found.length ? null : undefined);
+}
+
+/* The raw body as text, refusing anything that is not a JSON request of a
+   bounded size. Checked before the caller is even authenticated: it costs
+   nothing and says nothing. */
+function rawBody(event) {
+  const type = header(event, 'content-type');
+  if (typeof type !== 'string' || !/^application\/json\s*(;\s*charset=utf-8\s*)?$/i.test(type)) {
+    throw new ApiError(415, 'unsupported_media_type');
+  }
+  if (typeof event.body !== 'string' || event.body.length === 0) throw new ApiError(400, 'invalid_body');
+  const text = event.isBase64Encoded ? Buffer.from(event.body, 'base64').toString('utf8') : event.body;
+  if (Buffer.byteLength(text, 'utf8') > MAX_BODY_LIMIT) throw new ApiError(413, 'body_too_large');
+  return text;
 }
 
 /* ------------------------------------------------------------------ entry */
@@ -239,12 +405,48 @@ function log(fields) {
   console.warn(JSON.stringify(Object.assign({ admin_api: 'error' }, fields)));
 }
 
-/* A read endpoint. route(ctx) returns the response body; ctx carries the
-   authenticated staff member, the validated-parameter reader, the permission
-   check and the PostgREST read. */
-function readEndpoint(name, route) {
+function failure(e, name, staff) {
+  if (!(e instanceof ApiError)) {
+    log({ endpoint: name, staff: staff && staff.id, reason: 'internal_error' });
+    return json(500, { error: 'unavailable' });
+  }
+  if (e.status >= 500 || e.status === 403) {
+    log({ endpoint: name, staff: staff && staff.id, status: e.status, reason: e.extra && e.extra.reason });
+  }
+  const body = { error: e.error };
+  if (e.status === 400 && e.extra && e.extra.parameter) body.parameter = e.extra.parameter;
+  if (e.status === 400 && e.extra && e.extra.field) body.field = e.extra.field;
+  if (e.extra && e.extra.message) body.message = e.extra.message;
+  return json(e.status, body);
+}
+
+/* An endpoint. read(ctx) answers GET; actions, if given, are the POST
+   actions it accepts, each { permission, fn, fields, args, result, maxBytes }:
+
+     permission  checked with staff_can before anything in the body is used;
+                 the database function checks it again (app_require)
+     fn          the protected database function, called as rpc/<fn>
+     fields      every key the body may carry besides "action", each with
+                 its validator; any other key is refused
+     args        builds the function's named arguments from validated fields
+                 (p_actor is added here, from the session, and nowhere else)
+     result      what of the function's answer is returned */
+function endpoint(name, read, actions) {
+  const allow = actions ? 'GET, POST' : 'GET';
   return async function handler(event) {
-    if (!event || event.httpMethod !== 'GET') return json(405, { error: 'method_not_allowed' }, { Allow: 'GET' });
+    const method = event && event.httpMethod;
+    if (method !== 'GET' && !(method === 'POST' && actions)) {
+      return json(405, { error: 'method_not_allowed' }, { Allow: allow });
+    }
+
+    let text = null;
+    if (method === 'POST') {
+      try {
+        text = rawBody(event);
+      } catch (e) {
+        return failure(e, name, null);
+      }
+    }
 
     const who = await authenticateStaff(event);
     if (!who.ok) return denialResponse(who);
@@ -253,7 +455,12 @@ function readEndpoint(name, route) {
     const granted = new Map();
     async function can(permission) {
       if (!granted.has(permission)) {
-        const result = await call('POST', 'rpc/staff_can', { p_actor: staff.id, p_permission: permission });
+        let result;
+        try {
+          result = await call('POST', 'rpc/staff_can', { p_actor: staff.id, p_permission: permission });
+        } catch (e) {
+          throw e instanceof DbFailure ? dbError(e.code) : e;
+        }
         granted.set(permission, result === true);
       }
       return granted.get(permission);
@@ -263,36 +470,91 @@ function readEndpoint(name, route) {
     }
 
     try {
-      const body = await route({
-        staff,
-        params: (allowed) => readParams(event, allowed),
-        can,
-        require,
-        select
-      });
-      return json(200, body);
-    } catch (e) {
-      if (!(e instanceof ApiError)) {
-        log({ endpoint: name, staff: staff.id, reason: 'internal_error' });
-        return json(500, { error: 'unavailable' });
+      if (method === 'GET') {
+        return json(200, await read({ staff, params: (allowed) => readParams(event, allowed), can, require, select }));
       }
-      if (e.status >= 500 || e.status === 403) log({ endpoint: name, staff: staff.id, status: e.status, reason: e.extra && e.extra.reason });
-      const body = { error: e.error };
-      if (e.status === 400 && e.extra && e.extra.parameter) body.parameter = e.extra.parameter;
-      return json(e.status, body);
+      return json(200, await write(event, text, actions, staff, require));
+    } catch (e) {
+      return failure(e, name, staff);
     }
   };
 }
 
+async function write(event, text, actions, staff, require) {
+  // A write takes its input from the body only.
+  const query = Object.assign({}, event.queryStringParameters || {}, event.multiValueQueryStringParameters || {});
+  const firstParam = Object.keys(query)[0];
+  if (firstParam !== undefined) throw badParam(firstParam);
+
+  let body;
+  try {
+    body = JSON.parse(text);
+  } catch (e) {
+    throw new ApiError(400, 'invalid_body');
+  }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) throw new ApiError(400, 'invalid_body');
+  const action = body.action;
+  if (typeof action !== 'string' || !Object.prototype.hasOwnProperty.call(actions, action)) {
+    throw new ApiError(400, 'unknown_action');
+  }
+  const spec = actions[action];
+  if (Buffer.byteLength(text, 'utf8') > (spec.maxBytes || BODY_LIMIT)) throw new ApiError(413, 'body_too_large');
+
+  await require(spec.permission);
+
+  for (const k of Object.keys(body)) {
+    if (k !== 'action' && !Object.prototype.hasOwnProperty.call(spec.fields, k)) throw badField(k);
+  }
+  const values = {};
+  for (const [k, check] of Object.entries(spec.fields)) values[k] = check(body[k], k);
+
+  // The acting staff member: the verified session's, set last so nothing
+  // built from the body can stand in for it.
+  const args = Object.assign({}, spec.args(values), { p_actor: staff.id });
+
+  let result;
+  try {
+    result = await call('POST', `rpc/${spec.fn}`, args);
+  } catch (e) {
+    throw e instanceof DbFailure ? writeError(e.code, e.dbMessage) : e;
+  }
+  return { action, result: spec.result(result) };
+}
+
+/* A read-only endpoint. */
+function readEndpoint(name, route) {
+  return endpoint(name, route, null);
+}
+
+/* For results: keep exactly these keys of a returned row. */
+function pick(row, keys) {
+  if (!row || typeof row !== 'object' || Array.isArray(row)) throw new ApiError(500, 'unavailable', { reason: 'malformed_response' });
+  return Object.fromEntries(keys.map((k) => [k, row[k] === undefined ? null : row[k]]));
+}
+
+/* For results: a function that returns one row as a table. */
+function onlyRow(rows) {
+  if (!Array.isArray(rows) || rows.length !== 1) throw new ApiError(500, 'unavailable', { reason: 'malformed_response' });
+  return rows[0];
+}
+
 module.exports = {
+  endpoint,
   readEndpoint,
   ApiError,
   v,
+  field,
+  optional,
+  nullable,
+  pick,
+  onlyRow,
   decodeCursor,
   encodeCursor,
   afterDesc,
   page,
   DEFAULT_LIMIT,
   MAX_LIMIT,
-  _internals: { readParams, dbError, select, call }
+  BODY_LIMIT,
+  MAX_BODY_LIMIT,
+  _internals: { readParams, dbError, writeError, operatorMessage, select, call }
 };

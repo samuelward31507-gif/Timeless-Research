@@ -1,17 +1,23 @@
 /*
- * Operations console: orders. GET only (writes come in a later pass).
+ * Operations console: orders and fulfilment.
  *
  *   GET ?status=&attention=1&q=&limit=&cursor=   the order queue
  *   GET ?id=<uuid>                               one order in full
+ *   POST {"action": ..., ...}                    the actions below
  *
- * Needs orders.read. The queue never carries a phone number or address; only
- * the single-order view does, because shipping needs them. Cost of goods is
- * included in the single-order view only for finance.read. See
- * netlify/lib/admin-api.js for the request rules.
+ * Reads need orders.read. The queue never carries a phone number or address;
+ * only the single-order view does, because shipping needs them. Cost of goods
+ * is included in the single-order view only for finance.read.
+ *
+ * Each action calls one protected database function (migration 0004), which
+ * checks the permission again, makes the change and writes the audit entry
+ * in one transaction. Setting an order to cancelled or refunded records it;
+ * it does not move money in Stripe. See netlify/lib/admin-api.js for the
+ * request rules.
  */
 'use strict';
 
-const { readEndpoint, ApiError, v, decodeCursor, afterDesc, page } = require('../lib/admin-api.js');
+const { endpoint, ApiError, v, field, optional, pick, decodeCursor, afterDesc, page } = require('../lib/admin-api.js');
 
 const STATUSES = ['paid', 'processing', 'packed', 'shipped', 'delivered', 'completed', 'cancelled', 'refunded'];
 
@@ -91,8 +97,82 @@ async function detail({ params, select, can }) {
   return body;
 }
 
-exports.handler = readEndpoint('admin-orders', async (ctx) => {
+/* --------------------------------------------------------------- writes */
+
+// 'shipped' goes through order.ship, so carrier and tracking are recorded with
+// it; 'paid' is set only by the payment path. The database refuses both here
+// too, and refuses any move order_status_transitions does not allow.
+const SETTABLE = ['processing', 'packed', 'delivered', 'completed', 'cancelled', 'refunded'];
+const TRACKING = /^[A-Za-z0-9][A-Za-z0-9 -]*$/;
+const note = () => optional(field.text(1, 1000, { multiline: true }));
+const reason = () => field.text(1, 1000, { multiline: true });
+const MOVED = ['id', 'status', 'status_changed_at', 'carrier', 'tracking_number', 'shipped_at'];
+
+const ACTIONS = {
+  'order.set_status': {
+    permission: 'orders.write',
+    fn: 'admin_set_order_status',
+    fields: { order_id: field.uuid(), status: field.oneOf(SETTABLE), note: note() },
+    args: (b) => ({ p_order_id: b.order_id, p_status: b.status, p_note: b.note === undefined ? null : b.note }),
+    result: (r) => ({ order: pick(r, MOVED) })
+  },
+  'order.add_note': {
+    permission: 'orders.write',
+    fn: 'admin_add_order_note',
+    fields: { order_id: field.uuid(), body: field.text(1, 4000, { multiline: true }) },
+    args: (b) => ({ p_order_id: b.order_id, p_body: b.body }),
+    result: (r) => ({ note_id: r })
+  },
+  'order.ship': {
+    permission: 'orders.write',
+    fn: 'ship_order',
+    fields: {
+      order_id: field.uuid(),
+      carrier: field.text(1, 60),
+      tracking_number: field.text(1, 100, { pattern: TRACKING }),
+      note: note()
+    },
+    args: (b) => ({ p_order_id: b.order_id, p_carrier: b.carrier, p_tracking_number: b.tracking_number,
+                    p_note: b.note === undefined ? null : b.note }),
+    result: (r) => ({ order: pick(r, MOVED) })
+  },
+  'fulfilment.allocate': {
+    permission: 'fulfilment.write',
+    fn: 'admin_allocate_order_line',
+    fields: { order_id: field.uuid(), product_id: field.productId(), pack_size: field.packSize(),
+              lot_id: field.uuid(), quantity: field.int(1, 100000) },
+    args: (b) => ({ p_order_id: b.order_id, p_product_id: b.product_id, p_pack_size: b.pack_size,
+                    p_lot_id: b.lot_id, p_quantity: b.quantity }),
+    result: (r) => ({ allocation_id: r })
+  },
+  'fulfilment.release': {
+    permission: 'fulfilment.write',
+    fn: 'admin_release_allocation',
+    fields: { allocation_id: field.id(), note: note() },
+    args: (b) => ({ p_allocation_id: b.allocation_id, p_note: b.note === undefined ? null : b.note }),
+    result: (r) => ({ released: r === true })
+  },
+  'fulfilment.map_line': {
+    permission: 'fulfilment.write',
+    fn: 'admin_map_order_line',
+    fields: { order_item_id: field.id(), product_id: field.productId(), pack_size: field.packSize(), note: reason() },
+    args: (b) => ({ p_order_item_id: b.order_item_id, p_product_id: b.product_id, p_pack_size: b.pack_size,
+                    p_note: b.note }),
+    result: (r) => ({ mapping_id: r })
+  },
+  'fulfilment.unmap_line': {
+    permission: 'fulfilment.write',
+    fn: 'admin_unmap_order_line',
+    fields: { mapping_id: field.id(), note: reason() },
+    args: (b) => ({ p_mapping_id: b.mapping_id, p_note: b.note }),
+    result: (r) => ({ unmapped: r === true })
+  }
+};
+
+exports.handler = endpoint('admin-orders', async (ctx) => {
   await ctx.require('orders.read');
   const raw = ctx.params(['id', 'status', 'attention', 'q', 'limit', 'cursor']);
   return raw.id !== undefined ? detail(ctx) : queue(ctx);
-});
+}, ACTIONS);
+
+exports.ACTIONS = ACTIONS;

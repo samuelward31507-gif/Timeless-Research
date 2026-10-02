@@ -44,13 +44,17 @@ function reset() {
                    display_name: 'Owner', role_code: 'owner', active: true }];
   state.tables = {};
   state.errors = {};
+  state.rpc = {};
+  state.rpcErrors = {};
   state.down = false;
 }
 reset();
 
 /* A PostgREST-ish error body: only "code" is ever read by the API. */
-function errorResponse(status, code) {
-  return { ok: false, status, json: async () => ({ code, message: 'relation "secret_table" violates constraint "x"', details: 'internal', hint: null }) };
+function errorResponse(status, code, message) {
+  return { ok: false, status, json: async () => ({
+    code, message: message === undefined ? 'relation "secret_table" violates constraint "x"' : message,
+    details: 'Failing row contains (secret-detail)', hint: 'secret-hint' }) };
 }
 
 global.fetch = async (url, init) => {
@@ -69,6 +73,13 @@ global.fetch = async (url, init) => {
   if (url === `${BASE}/rest/v1/rpc/staff_can`) {
     if (state.errors.staff_can) return errorResponse(state.errors.staff_can.status, state.errors.staff_can.code);
     return { ok: true, status: 200, json: async () => state.permissions.has(call.body.p_permission) };
+  }
+  const rpc = /^https:\/\/test-ref\.supabase\.co\/rest\/v1\/rpc\/([a-z_]+)$/.exec(url);
+  if (rpc) {
+    const err = state.rpcErrors[rpc[1]];
+    if (err) return errorResponse(err.status, err.code, err.message);
+    const value = state.rpc[rpc[1]];
+    return { ok: true, status: 200, json: async () => (typeof value === 'function' ? value(call.body) : (value === undefined ? null : value)) };
   }
   const m = /^https:\/\/test-ref\.supabase\.co\/rest\/v1\/([a-z_]+)\?/.exec(url);
   if (m) {
@@ -97,6 +108,28 @@ function request(handler, query, opts) {
   });
 }
 
+/* A POST of a JSON body, as the console will send a write. */
+function post(handler, body, opts) {
+  opts = opts || {};
+  const headers = Object.assign({}, opts.token === null ? {} : { authorization: `Bearer ${opts.token || token()}` },
+                                { 'content-type': 'application/json' }, opts.headers || {});
+  return handler({
+    httpMethod: 'POST',
+    headers,
+    queryStringParameters: opts.query || null,
+    multiValueQueryStringParameters: null,
+    body: typeof body === 'string' ? body : JSON.stringify(body),
+    isBase64Encoded: !!opts.base64
+  });
+}
+
+/* Database functions called through rpc/ during the last request, staff_can left out. */
+function rpcs() {
+  return state.calls
+    .filter((c) => c.url.startsWith(`${BASE}/rest/v1/rpc/`) && !c.url.endsWith('/rpc/staff_can'))
+    .map((c) => ({ fn: c.url.slice(`${BASE}/rest/v1/rpc/`.length), args: c.body, call: c }));
+}
+
 /* PostgREST reads made during the last request (auth and staff_can left out). */
 function reads() {
   return state.calls
@@ -117,5 +150,5 @@ const param = (r, name) => r.params.filter(([k]) => k === name).map(([, v]) => v
 
 module.exports = {
   BASE, SERVICE_KEY, OWNER_STAFF_ID, OWNER_AUTH_ID, ALL_PERMISSIONS,
-  state, reset, token, request, reads, readOf, param
+  state, reset, token, request, post, rpcs, reads, readOf, param
 };

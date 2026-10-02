@@ -746,6 +746,33 @@ Also to check on the staging project, once 0003 and 0004 are applied there:
 
 ---
 
+### The console's write API (not reachable from any screen yet)
+
+Eighteen `POST` actions on `admin-orders`, `admin-inventory` and
+`admin-expenses` make every change the console will offer (README,
+*Operations console: write API*). Each is one call to a protected database
+function from 0004. That function re-checks the permission, makes the change
+and writes the audit entry in one transaction. The staff member recorded is
+always the one signed in; nothing a browser sends can change that.
+
+Two things to know before using it:
+
+- **Inventory sync uses the deployed catalogue.** It adds a stock item for
+  every product and pack size in `catalog.json` and deactivates any that are
+  no longer listed (their lots and history stay). Run it after a catalogue
+  change, before receiving stock of a new product.
+- **Cancelled and refunded move no money.** They record what happened. Make
+  the refund in Stripe.
+
+Also to check on the staging project, once 0003 and 0004 are applied:
+
+- that every action works through real PostgREST `rpc/` calls with the
+  service key, with the argument names the offline tests prove against the
+  migrations;
+- that PostgREST returns the error codes this API maps (`42501`, `P0002`,
+  `23514`, `23505`, `23503`) in the response body, with the functions' own
+  messages, as the offline tests assume.
+
 ## 4. Decisions only you can make
 
 **The three restricted compounds.** Retatrutide, tirzepatide and oxytocin are
@@ -921,6 +948,9 @@ Stated plainly so you are not surprised, and so a buyer is not misled.
   covered offline with Supabase stubbed, and every table and column they read
   is checked against the migrations in PostgreSQL 16, but none has run against
   a Supabase project or behind real PostgREST. §3g lists what to check.
+- **The console write API has not changed real data.** All eighteen actions
+  are covered offline, including against the migrations in PostgreSQL 16, but
+  none has run against a Supabase project or behind real PostgREST.
 - **Add-ons have not been through a payment.** The configuration, cart,
   server-side pricing, stock ledger and reports are tested, the SQL against
   Postgres 16, but no payment integration charges for add-ons yet, so none
@@ -937,6 +967,7 @@ node --test tests/chat.test.js   # the support assistant's function, stubbed
 node --test tests/addons.test.js # add-ons, server side
 node --test tests/admin-auth.test.js   # console authentication, offline
 node --test tests/admin-api.test.js tests/admin-read.test.js   # console read API, offline
+node --test tests/admin-write.test.js   # console write API, offline
 python3 -m unittest discover -s tests -p 'test_*.py'   # add-on configuration
 (cd tests/db && npm ci && npm test)   # database migrations, against PostgreSQL 16
 ```

@@ -77,13 +77,18 @@ test('every endpoint answers a valid owner request with 200 and no-store', async
 
 /* ------------------------------------------------------------ method */
 
-test('only GET is accepted, and a refused method touches nothing', async () => {
+const WRITERS = ['admin-orders', 'admin-inventory', 'admin-expenses'];
+
+test('read-only endpoints accept only GET; the three that write accept GET and POST; a refused method touches nothing', async () => {
   for (const e of ENDPOINTS) {
-    for (const method of ['POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD']) {
+    const writes = WRITERS.includes(e.name);
+    const refused = ['PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'].concat(writes ? [] : ['POST']);
+    for (const method of refused) {
       fx.reset();
-      const res = await fx.request(fn(e.name), {}, { method, body: { action: 'x' } });
+      const res = await fx.request(fn(e.name), {}, { method, body: { action: 'x' },
+                                                     headers: { 'content-type': 'application/json' } });
       assert.equal(res.statusCode, 405, `${e.name} ${method}`);
-      assert.equal(res.headers.Allow, 'GET');
+      assert.equal(res.headers.Allow, writes ? 'GET, POST' : 'GET');
       noStore(res);
       assert.equal(fx.state.calls.length, 0, `${e.name} ${method} made a call`);
     }

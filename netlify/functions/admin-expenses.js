@@ -1,19 +1,27 @@
 /*
- * Operations console: expenses. GET only (writes and the import itself come
- * in a later pass).
+ * Operations console: expenses.
  *
  *   GET ?from=&to=&category=&include_deleted=1&limit=&cursor=   expenses, newest first
  *   GET ?id=<uuid>                                              one expense
  *   GET ?view=import&status=pending|error|imported|duplicate&limit=&cursor=
  *                                                               staged import rows
  *
- * Needs finance.read. Reads expenses, expense_categories and expense_import
- * (migrations 0003 and 0004). Deleted expenses are left out unless asked for.
- * See netlify/lib/admin-api.js for the request rules.
+ *   POST {"action": ..., ...}                                   the actions below
+ *
+ * Reads need finance.read. Reads expenses, expense_categories and
+ * expense_import (migrations 0003 and 0004). Deleted expenses are left out
+ * unless asked for.
+ *
+ * Each action calls one protected database function (migration 0004), which
+ * checks finance.write again, makes the change and writes the audit entry in
+ * one transaction. Deleting is reversible (restore). A CSV import is two
+ * steps: stage the rows, then import every pending staged row; each row is
+ * validated by the database on its own, and bad rows stay staged with the
+ * reason. See netlify/lib/admin-api.js for the request rules.
  */
 'use strict';
 
-const { readEndpoint, ApiError, v, decodeCursor, afterDesc, page } = require('../lib/admin-api.js');
+const { endpoint, ApiError, v, field, optional, nullable, pick, onlyRow, decodeCursor, afterDesc, page, MAX_BODY_LIMIT } = require('../lib/admin-api.js');
 
 const EXPENSE_COLUMNS = ['id', 'incurred_on', 'category_code', 'description', 'amount_cents', 'currency', 'vendor',
   'reference', 'lot_id', 'notes', 'created_by', 'created_at', 'updated_at', 'updated_by', 'deleted_at', 'deleted_by',
@@ -72,7 +80,111 @@ async function staged({ params, select }) {
   return { rows: result.items, next_cursor: result.next_cursor };
 }
 
-exports.handler = readEndpoint('admin-expenses', async (ctx) => {
+/* --------------------------------------------------------------- writes */
+
+const category = () => field.text(1, 60, { pattern: CATEGORY });
+// Expenses are integer cents in a PostgreSQL integer; negative for a credit.
+const amount = () => field.int(-2000000000, 2000000000, { nonzero: true });
+const maybeText = (max) => optional(nullable(field.text(0, max, { multiline: true })));
+const EXPENSE_RESULT = ['id', 'incurred_on', 'category_code', 'description', 'amount_cents', 'currency', 'vendor',
+  'reference', 'lot_id', 'notes', 'updated_at', 'updated_by'];
+
+/* A staged CSV row: the spreadsheet's own text, each column optional. The
+   database parses and validates every value when the import runs. */
+const ROW_COLUMNS = ['incurred_on', 'category', 'description', 'amount', 'currency', 'vendor', 'reference', 'notes'];
+const MAX_ROWS = 5000;
+
+function rows(value, name) {
+  if (!Array.isArray(value) || value.length === 0 || value.length > MAX_ROWS) {
+    throw new ApiError(400, 'invalid_field', { field: name });
+  }
+  const cell = optional(nullable(field.text(0, 1000)));
+  return value.map((row, i) => {
+    if (!row || typeof row !== 'object' || Array.isArray(row)) throw new ApiError(400, 'invalid_field', { field: `${name}[${i}]` });
+    const out = {};
+    for (const k of Object.keys(row)) {
+      if (!ROW_COLUMNS.includes(k)) throw new ApiError(400, 'invalid_field', { field: `${name}[${i}].${k}` });
+      const c = cell(row[k], `${name}[${i}].${k}`);
+      if (c !== undefined) out[k] = c;
+    }
+    return out;
+  });
+}
+
+function orNull(x) {
+  return x === undefined ? null : x;
+}
+
+const ACTIONS = {
+  'finance.create_expense': {
+    permission: 'finance.write',
+    fn: 'admin_create_expense',
+    fields: {
+      incurred_on: field.date(), category_code: category(), description: field.text(1, 500),
+      amount_cents: amount(), currency: optional(field.currency()), vendor: maybeText(200),
+      reference: maybeText(200), lot_id: optional(nullable(field.uuid())), notes: maybeText(2000)
+    },
+    args(b) {
+      const a = { p_incurred_on: b.incurred_on, p_category_code: b.category_code, p_description: b.description,
+                  p_amount_cents: b.amount_cents, p_vendor: orNull(b.vendor), p_reference: orNull(b.reference),
+                  p_lot_id: orNull(b.lot_id), p_notes: orNull(b.notes) };
+      if (b.currency !== undefined) a.p_currency = b.currency;
+      return a;
+    },
+    result: (r) => ({ expense_id: r })
+  },
+  'finance.update_expense': {
+    permission: 'finance.write',
+    fn: 'admin_update_expense',
+    fields: {
+      expense_id: field.uuid(),
+      changes: field.changes({
+        incurred_on: field.date(),
+        category_code: category(),
+        description: field.text(1, 500),
+        amount_cents: amount(),
+        currency: field.currency(),
+        vendor: nullable(field.text(0, 200, { multiline: true })),
+        reference: nullable(field.text(0, 200, { multiline: true })),
+        lot_id: nullable(field.uuid()),
+        notes: nullable(field.text(0, 2000, { multiline: true }))
+      })
+    },
+    args: (b) => ({ p_expense_id: b.expense_id, p_changes: b.changes }),
+    result: (r) => ({ expense: pick(r, EXPENSE_RESULT) })
+  },
+  'finance.delete_expense': {
+    permission: 'finance.write',
+    fn: 'admin_delete_expense',
+    fields: { expense_id: field.uuid(), reason: field.text(1, 500, { multiline: true }) },
+    args: (b) => ({ p_expense_id: b.expense_id, p_reason: b.reason }),
+    result: (r) => ({ deleted: r === true })
+  },
+  'finance.restore_expense': {
+    permission: 'finance.write',
+    fn: 'admin_restore_expense',
+    fields: { expense_id: field.uuid() },
+    args: (b) => ({ p_expense_id: b.expense_id }),
+    result: (r) => ({ restored: r === true })
+  },
+  'finance.stage_import': {
+    permission: 'finance.write',
+    fn: 'admin_stage_expense_import',
+    maxBytes: MAX_BODY_LIMIT,
+    fields: { rows },
+    args: (b) => ({ p_rows: b.rows }),
+    result: (r) => ({ staged: r })
+  },
+  'finance.import': {
+    permission: 'finance.write',
+    fn: 'admin_import_expenses',
+    fields: {},
+    args: () => ({}),
+    result: (r) => pick(onlyRow(r), ['imported', 'duplicates', 'errors'])
+  }
+};
+
+exports.handler = endpoint('admin-expenses', async (ctx) => {
   await ctx.require('finance.read');
   const raw = ctx.params(['id', 'view', 'from', 'to', 'category', 'include_deleted', 'status', 'limit', 'cursor']);
   if (raw.view !== undefined) {
@@ -81,4 +193,6 @@ exports.handler = readEndpoint('admin-expenses', async (ctx) => {
   }
   if (raw.id !== undefined) return one(ctx);
   return list(ctx);
-});
+}, ACTIONS);
+
+exports.ACTIONS = ACTIONS;

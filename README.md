@@ -90,7 +90,7 @@ netlify/functions/
 netlify/lib/addons.js   Add-on validation and pricing, payment-provider agnostic
 netlify/lib/admin-auth.js  Operations console: who is calling (token + staff)
 netlify/lib/admin-api.js   Operations console: rules shared by the read API
-netlify/functions/admin-*.js  Operations console read API (GET only)
+netlify/functions/admin-*.js  Operations console API (GET reads; POST writes on three)
 tools/addons.py         Reads, validates and resolves assets/data/addons.json
 supabase/migrations/    0001 orders; 0002 add-ons; 0003 order lifecycle,
                         inventory and lots, financials, customer views
@@ -709,9 +709,11 @@ the library expects: that needs the staging project (HANDOVER §3g).
 
 ## Operations console: read API
 
-Seven read-only endpoints serve the console's screens. There are no writes
-yet, and no screens yet; until both exist, nothing calls these. Each is a
-Netlify function at `/.netlify/functions/<name>` and accepts `GET` only.
+Seven endpoints serve the console's screens. There are no screens yet, so
+nothing calls them. Each is a Netlify function at
+`/.netlify/functions/<name>`. All seven answer `GET`. Three of them also take
+the console's writes as `POST`; see
+[Operations console: write API](#operations-console-write-api).
 
 | Endpoint | Needs | Reads |
 |---|---|---|
@@ -725,7 +727,8 @@ Netlify function at `/.netlify/functions/<name>` and accepts `GET` only.
 
 `netlify/lib/admin-api.js` holds the rules every endpoint follows, in order:
 
-1. **Method.** Anything but `GET` is 405, before anything else happens.
+1. **Method.** Anything but `GET` (or `POST` on the three endpoints that
+   write) is 405, before anything else happens.
 2. **Who.** `authenticateStaff(event)` (above). The staff id it returns is the
    only actor; no parameter, header or body can name one, and an actor-like
    parameter (`actor_id`, `staff_id`, `user_id` and the like) is refused.
@@ -771,6 +774,111 @@ migrations in PostgreSQL 16:
 - that it exists;
 - that the service role can read it;
 - that the browser roles cannot.
+
+## Operations console: write API
+
+Every change the console can make is one `POST` action on one of three
+endpoints. Each action calls exactly one protected database function from
+migration 0004. That function checks the permission again, makes the change
+and writes the audit entry, all in one transaction. The API never writes a
+table itself.
+
+| Endpoint | Action | Needs | Database function |
+|---|---|---|---|
+| `admin-orders` | `order.set_status` | `orders.write` | `admin_set_order_status` |
+| | `order.add_note` | `orders.write` | `admin_add_order_note` |
+| | `order.ship` | `orders.write` | `ship_order` |
+| | `fulfilment.allocate` | `fulfilment.write` | `admin_allocate_order_line` |
+| | `fulfilment.release` | `fulfilment.write` | `admin_release_allocation` |
+| | `fulfilment.map_line` | `fulfilment.write` | `admin_map_order_line` |
+| | `fulfilment.unmap_line` | `fulfilment.write` | `admin_unmap_order_line` |
+| `admin-inventory` | `inventory.receive_lot` | `inventory.write` | `receive_lot` |
+| | `inventory.update_item` | `inventory.write` | `admin_update_inventory_item` |
+| | `inventory.update_lot` | `inventory.write` | `admin_update_lot` |
+| | `inventory.record_movement` | `inventory.write` | `admin_record_stock_movement` |
+| | `inventory.sync` | `inventory.write` | `sync_inventory_items` |
+| `admin-expenses` | `finance.create_expense` | `finance.write` | `admin_create_expense` |
+| | `finance.update_expense` | `finance.write` | `admin_update_expense` |
+| | `finance.delete_expense` | `finance.write` | `admin_delete_expense` |
+| | `finance.restore_expense` | `finance.write` | `admin_restore_expense` |
+| | `finance.stage_import` | `finance.write` | `admin_stage_expense_import` |
+| | `finance.import` | `finance.write` | `admin_import_expenses` |
+
+A write is a JSON body naming its action and its fields, for example
+`{"action": "order.ship", "order_id": "…", "carrier": "UPS",
+"tracking_number": "1Z…"}`. It is refused, in this order, before the
+database is asked anything:
+
+1. **Not a JSON request.** The content type must be `application/json`, or
+   the response is 415. The body is at most 64 KB, or 1 MB for
+   `finance.stage_import`; larger is 413. Both are checked before sign-in.
+2. **Not signed in** as an active staff member with MFA (as for reads).
+3. **Not one JSON object naming a known action** of this endpoint (400). Any
+   query parameter on a write is also 400: a write's input is its body.
+4. **Missing the action's permission**, checked with `staff_can` (403). The
+   database function checks it again.
+5. **A field that is unknown, missing, or the wrong type or size** (400,
+   naming the field). This includes any field that could name an actor:
+   `actor_id`, `staff_id`, `p_actor`, `created_by` and the like. Inside
+   `changes`, only the keys the database function edits are accepted, each
+   typed, because the function casts them directly.
+
+The acting staff member (`p_actor`) is added by the server, last, from the
+verified sign-in. Nothing in the body, the query string, a header or a cookie
+can supply or change it.
+
+**Answers.** Each action returns `{"action": …, "result": …}`. The result is
+the new id, a yes/no, counts, or the changed row cut down to named fields.
+Refusals are mapped as follows:
+
+| Database refusal | Response |
+|---|---|
+| Permission (`42501`) | 403 |
+| Not found (`P0002`) | 404 |
+| The migrations' own rules (`23514`) | 422 `rejected` |
+| Already exists (`23505`) | 409 `conflict` |
+| Refers to nothing (`23503`) | 422 |
+| Bad value (`23502`, `22…`) | 400 |
+| Serialization (`40001`) | 409 `retry` |
+| Anything else | 500 |
+
+The migrations' own refusals are written for the operator ("only a packed
+order can be shipped", "lot L1: only 3 on hand, cannot remove 5"), so for
+404 and 422 that sentence is passed on as `message`. PostgreSQL's generated
+messages, and every database detail and hint, never are: they can quote
+table names and the failing row.
+
+**Inventory sync takes no input.** `sync_inventory_items` deactivates every
+stock item missing from the list it is given, so the list never comes from
+the request. It is every product and pack size in this deploy's
+`netlify/functions/catalog.json`, which `tools/build.py` generates. A body
+carrying any field besides `action` is refused. If the catalogue is missing,
+empty or malformed, the sync stops with 500 rather than deactivate stock.
+
+**Cancelled and refunded are records.** Setting either status, from the
+console or anywhere else, moves no money; refunds are made in Stripe.
+
+**Testing.**
+
+```bash
+node --test tests/admin-write.test.js   # offline; every action and refusal
+(cd tests/db && npm ci && npm test)      # includes console-write-contract.test.mjs
+```
+
+`tests/admin-write.test.js` drives every action with signed tokens and
+stubbed Supabase. It checks the exact database function and arguments, and
+that `p_actor` is always the signed-in staff member, whatever the body, query
+string, headers or cookies claim. It also checks every refusal path.
+
+`tests/db/console-write-contract.test.mjs` runs every action through its real
+handler. The Supabase calls are answered by PostgreSQL 16 with the
+migrations applied, acting as the service role. It checks four things:
+
+- each action reaches its function with arguments that function accepts;
+- the change happens;
+- exactly one audit row names the signed-in staff member;
+- a staff member deactivated mid-request is refused by the database itself
+  (403, nothing written).
 
 ## Assets and tooling
 
@@ -913,7 +1021,9 @@ The migrations have their own, `cd tests/db && npm ci && npm test`; see
 `node --test tests/admin-auth.test.js`; see
 [Operations console: authentication](#operations-console-authentication).
 Its read API has `node --test tests/admin-api.test.js tests/admin-read.test.js`;
-see [Operations console: read API](#operations-console-read-api).
+see [Operations console: read API](#operations-console-read-api). Its write
+API has `node --test tests/admin-write.test.js`; see
+[Operations console: write API](#operations-console-write-api).
 
 Audited with axe-core (WCAG 2.1 A/AA) across fifteen representative pages plus
 the open cart drawer in its error state: **0 violations**.
