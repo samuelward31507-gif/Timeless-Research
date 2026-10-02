@@ -558,6 +558,75 @@ order-recording webhook (`netlify/functions/stripe-webhook.js`) and the
 checkout handler in `assets/js/site.js`, or whatever replaces them if the
 site moves to another processor.
 
+## 3f. Operations data (orders, stock, lots, expenses)
+
+Apply `supabase/migrations/0003_operations_foundation.sql` after `0001` and
+`0002`. It keeps every existing order as it is and gives each one a first
+history entry. There are no screens for any of this yet; until the operations
+console exists, use the Supabase SQL editor. README, *Operations data*,
+explains the design.
+
+### Moving an order along
+
+```sql
+select set_order_status('<order id>', 'processing', 'picking today', 'Sam');
+-- then 'packed', 'shipped', 'delivered', 'completed'; or 'cancelled', 'refunded'
+select * from order_status_history where order_id = '<order id>';
+```
+
+A move the business does not make (shipped back to packed, delivered to
+cancelled) is refused with a message. An order cannot be put back to `paid`.
+
+### Receiving stock and packing from a lot
+
+```sql
+-- once per product and pack size you stock
+insert into inventory_items (product_id, pack_size, low_stock_threshold)
+values ('bpc-157', '10 mg', 10);
+
+-- each delivery is a lot: use the supplier's real lot number and the COA's location
+insert into lots (product_id, pack_size, lot_number, quantity_received, retest_date, coa_reference, unit_cost_cents)
+values ('bpc-157', '10 mg', '<lot number>', 100, '<retest date or null>', '<COA file or link>', <cost per unit in cents>);
+
+-- packing an order: draw its line from a lot (twice, from two lots, to split it)
+select allocate_order_line('<order id>', 'bpc-157', '10 mg', '<lot id>', 4);
+
+select * from inventory_levels;   -- on hand, sold but not yet allocated, available
+select * from low_stock;
+select * from lot_levels;         -- per lot, with retest flags
+```
+
+Correct a count, write off a damaged vial, or book a returned parcel with
+`record_stock_movement('<lot id>', <+/- units>, 'adjustment' | 'write_off' | 'return', '<why>')`.
+Nothing in the stock ledger can be edited or deleted; a mistake is corrected
+by another movement. **Allocation needs the order's lines to name their
+product and pack size**, which the current payment integration does not
+record (it writes a description only). That is completed with the payment
+integration; until then, allocation works for orders entered with that detail.
+
+### Expenses
+
+Add rows to `expenses`, or import a CSV: load it into `expense_import` with
+columns `incurred_on` (YYYY-MM-DD), `category` (code or name), `description`,
+`amount`, and optionally `currency`, `vendor`, `reference`, `notes`; then run
+`select * from import_expenses();`. Bad rows stay in `expense_import` with the
+reason; importing the same file again does not double-count. The ten starting
+categories are generic: rename or add your own in `expense_categories`.
+
+### Reports
+
+```sql
+select * from monthly_financial_summary order by month desc;
+select * from monthly_gross_margin;       -- over orders whose cost is fully known
+select * from customer_summary;           -- customers, repeat rate, average lifetime revenue
+select * from customer_aggregates order by lifetime_revenue_cents desc;
+```
+
+Read the limits before relying on the numbers: order totals still include tax
+and are before processor fees, a refund removes the whole order, and margin
+covers only orders allocated to lots with a known unit cost. All three improve
+when the payment processor is chosen and integrated.
+
 ---
 
 ## 4. Decisions only you can make
@@ -723,6 +792,10 @@ Stated plainly so you are not surprised, and so a buyer is not misled.
   stubbed suite (`tests/chat.test.js`) and its drawer was driven in Chromium,
   but the Anthropic API was stubbed throughout. The live refusal check in §3d
   is not optional.
+- **The operations data has no screens and no real data yet.** Its rules,
+  views and calculations are tested against PostgreSQL 16 (`tests/db`), but
+  it has not been applied to the live Supabase project, and revenue figures
+  stay incomplete until the payment integration records fees, tax and skus.
 - **Add-ons have not been through a payment.** The configuration, cart,
   server-side pricing, stock ledger and reports are tested, the SQL against
   Postgres 16, but no payment integration charges for add-ons yet, so none
@@ -738,6 +811,7 @@ python3 tools/check.py      # links, metadata, labels, unfilled legal details
 node --test tests/chat.test.js   # the support assistant's function, stubbed
 node --test tests/addons.test.js # add-ons, server side
 python3 -m unittest discover -s tests -p 'test_*.py'   # add-on configuration
+(cd tests/db && npm ci && npm test)   # database migrations, against PostgreSQL 16
 ```
 
 `check.py` exits non-zero on failure, so it can gate a deploy. It verifies that

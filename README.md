@@ -89,8 +89,10 @@ netlify/functions/
   addons.json           Add-on prices and eligibility (generated)
 netlify/lib/addons.js   Add-on validation and pricing, payment-provider agnostic
 tools/addons.py         Reads, validates and resolves assets/data/addons.json
-supabase/migrations/    0001 orders; 0002 add-on lines, stock ledger, reports
+supabase/migrations/    0001 orders; 0002 add-ons; 0003 order lifecycle,
+                        inventory and lots, financials, customer views
 tests/                  Node and Python tests (no dependencies)
+tests/db/               Database tests against PostgreSQL 16 (PGlite, test-only)
 sitemap.xml, robots.txt Generated
 ```
 
@@ -531,6 +533,68 @@ node --test tests/addons.test.js                        # server side, no networ
 python3 -m unittest discover -s tests -p 'test_*.py'    # configuration and guard
 ```
 
+## Operations data
+
+`supabase/migrations/0003_operations_foundation.sql` is the data layer for
+running the business: order lifecycle, product inventory by lot, expenses,
+cost of goods and margin, and customer summaries. It is schema, rules and
+reporting views only: no screens yet (the operations console is Phase 1), and
+nothing on the public site reads it. It is independent of the payment
+processor. HANDOVER §3f says how to use it day to day.
+
+**Order lifecycle.** `paid → processing → packed → shipped → delivered →
+completed`, with `cancelled` before shipping and `refunded` at any point. The
+allowed moves are rows in `order_status_transitions`; a trigger refuses any
+other, stamps a timestamp per state, and writes `order_status_history` for
+every change. A payment confirmation that arrives again after the order has
+moved on writes `status = 'paid'`; the trigger keeps the order where it is
+instead, so it can never move backward. `set_order_status()` is how the console
+will move orders, with a note and the person's name in the history.
+
+**Inventory and lots.** A stock item is a product and pack size. Stock exists
+only in `lots` (lot number, quantity received, retest date, COA reference,
+unit cost), and a lot's quantity is the sum of its `stock_movements`, an
+append-only ledger: receipts, allocations to orders, releases, returns,
+adjustments and write-offs, none of which can take a lot below zero. An order
+line is drawn from a lot by `allocate_order_line()`; each allocation is one
+(line, lot) row, so splitting a line across lots is more rows, not a new
+schema. Cancelling, or refunding before shipping, returns allocated stock;
+refunding after shipping does not, and a returned parcel is recorded as a
+`return`. Views: `lot_levels`, `inventory_levels` (on hand, sold but not yet
+allocated, available, low stock), `low_stock`, `inventory_velocity`.
+
+**Financials.** `expenses` with `expense_categories` (a generic starting set;
+inventory purchases are a separate treatment so they reach profit as cost of
+goods, not twice). Cost of goods is allocated units times their lot's unit
+cost. Views: `monthly_revenue` (orders, totals, average order value),
+`order_metrics`, `monthly_expenses`, `order_cogs`, `monthly_gross_margin`,
+`monthly_financial_summary`. **Not complete until the payment processor is
+chosen:** processor fees and tax are not separated from order totals, partial
+refunds are not modelled, and revenue by product needs every order line to
+record its sku, which the current payment integration does not. The views say
+so (`fees_and_tax_separated = false`), and gross margin is reported only over
+orders whose cost is fully known (`orders_cost_complete`), never estimated.
+CSV import: load a CSV into `expense_import`, then `select * from
+import_expenses()`; each row is validated on its own and a re-import is marked
+as a duplicate. Export any view as CSV from the Supabase dashboard.
+
+**Customers.** `customer_aggregates` and `customer_summary`, read-only and
+keyed by email: first and last order, order count, lifetime revenue, repeat
+flag and repeat rate. No accounts, no profiles, no marketing fields.
+
+**Access.** As before: row level security on with no policies, views and
+functions revoked from browser roles. Only the service role can read or write.
+
+**Testing.**
+
+```bash
+cd tests/db && npm ci && npm test     # PostgreSQL 16 in-process; test-only dependency
+```
+
+`tests/db` is the one place with a package: PGlite, pinned, so the migrations
+are tested against a real database without a server. Nothing in it is
+deployed; the site and its functions still have no runtime dependencies.
+
 ## Assets and tooling
 
 Every asset is generated and committed; a build and a deploy never touch the
@@ -667,6 +731,8 @@ The assistant's function has its own suite, `node --test tests/chat.test.js`;
 see [Support assistant](#support-assistant).
 Add-ons have two, `node --test tests/addons.test.js` and
 `python3 -m unittest discover -s tests -p 'test_*.py'`; see [Add-ons](#add-ons).
+The migrations have their own, `cd tests/db && npm ci && npm test`; see
+[Operations data](#operations-data).
 
 Audited with axe-core (WCAG 2.1 A/AA) across fifteen representative pages plus
 the open cart drawer in its error state: **0 violations**.

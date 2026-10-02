@@ -1,0 +1,112 @@
+/*
+ * Shared setup for the database tests: a real PostgreSQL (PGlite, Postgres 16
+ * compiled to WebAssembly, in-process, no server) with the migrations applied
+ * the way Supabase would hold them.
+ *
+ * Supabase grants its browser roles (anon, authenticated) access to new
+ * tables, views and functions by default and relies on row level security to
+ * hide rows. Plain Postgres grants nothing, which would make the access tests
+ * pass for the wrong reason, so the same default privileges are set up first.
+ */
+import { PGlite } from '@electric-sql/pglite';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const MIGRATIONS = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'supabase', 'migrations');
+
+export const MIGRATION_FILES = ['0001_orders.sql', '0002_addons.sql', '0003_operations_foundation.sql'];
+
+export function migrationSql(name) {
+  return readFileSync(path.join(MIGRATIONS, name), 'utf8');
+}
+
+/* A fresh database with migrations applied up to and including `upTo`
+   (a file name). `between` runs after each migration, for tests that need
+   data present before a later one is applied. */
+export async function freshDb({ upTo = MIGRATION_FILES[MIGRATION_FILES.length - 1], between } = {}) {
+  const db = new PGlite();
+  await db.exec(`
+    create role anon; create role authenticated; create role service_role;
+    grant usage on schema public to anon, authenticated, service_role;
+    alter default privileges in schema public grant all on tables    to anon, authenticated, service_role;
+    alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
+    alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+  `);
+  for (const name of MIGRATION_FILES) {
+    await db.exec(migrationSql(name));
+    if (between) await between(db, name);
+    if (name === upTo) break;
+  }
+  return db;
+}
+
+export async function rows(db, sql, params) {
+  return (await db.query(sql, params)).rows;
+}
+
+export async function one(db, sql, params) {
+  return (await rows(db, sql, params))[0];
+}
+
+/* The exact write netlify/functions/stripe-webhook.js makes on every delivery
+   of a payment confirmation: a PostgREST upsert on stripe_session_id with
+   Prefer: resolution=merge-duplicates, which PostgREST turns into
+   INSERT ... ON CONFLICT (stripe_session_id) DO UPDATE SET <every column sent>
+   = EXCLUDED.<column>. The columns are the ones that function sends, status
+   'paid' included, so a repeated delivery is reproduced faithfully. */
+const WEBHOOK_COLUMNS = ['stripe_session_id', 'stripe_payment_intent', 'email', 'name', 'phone',
+  'amount_total', 'amount_subtotal', 'amount_shipping', 'amount_discount', 'currency',
+  'shipping_address', 'research_use_confirmed', 'status'];
+
+export async function recordPaidOrder(db, sessionId, over = {}) {
+  const o = Object.assign({
+    stripe_session_id: sessionId, stripe_payment_intent: 'pi_' + sessionId,
+    email: 'buyer@example.org', name: 'A Buyer', phone: null,
+    amount_total: 10000, amount_subtotal: 9000, amount_shipping: 1000, amount_discount: 0,
+    currency: 'USD', shipping_address: null, research_use_confirmed: true, status: 'paid'
+  }, over);
+  const cols = WEBHOOK_COLUMNS;
+  const sql = `insert into public.orders (${cols.join(', ')})
+               values (${cols.map((_, i) => '$' + (i + 1)).join(', ')})
+               on conflict (stripe_session_id) do update set
+               ${cols.map((c) => `${c} = excluded.${c}`).join(', ')}
+               returning id, status`;
+  const params = cols.map((c) => (c === 'shipping_address' && o[c] ? JSON.stringify(o[c]) : o[c]));
+  return one(db, sql, params);
+}
+
+/* An order created directly, for tests that need a particular date. */
+export async function insertOrder(db, over = {}) {
+  const o = Object.assign({
+    stripe_session_id: 'cs_' + Math.random().toString(36).slice(2), email: 'buyer@example.org',
+    amount_total: 10000, amount_subtotal: 9000, amount_shipping: 1000, amount_discount: 0,
+    currency: 'USD', status: 'paid', created_at: new Date().toISOString()
+  }, over);
+  return one(db, `insert into public.orders
+      (stripe_session_id, email, amount_total, amount_subtotal, amount_shipping, amount_discount, currency, status, created_at)
+      values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id`,
+    [o.stripe_session_id, o.email, o.amount_total, o.amount_subtotal, o.amount_shipping,
+     o.amount_discount, o.currency, o.status, o.created_at]);
+}
+
+export async function productLine(db, orderId, sku, packSize, qty, unitCents) {
+  await db.query(`insert into public.order_items
+      (order_id, kind, sku, pack_size, description, quantity, unit_amount, amount_total)
+      values ($1, 'product', $2, $3, $4, $5, $6, $7)`,
+    [orderId, sku, packSize, `${sku} ${packSize}`, qty, unitCents, unitCents * qty]);
+}
+
+export async function setStatus(db, orderId, status, note, actor) {
+  return one(db, `select (public.set_order_status($1, $2, $3, $4)).*`, [orderId, status, note || null, actor || null]);
+}
+
+/* Runs fn and returns the error message, or null if it did not throw. */
+export async function errorOf(fn) {
+  try { await fn(); return null; } catch (e) { return e.message; }
+}
+
+export async function asRole(db, role, fn) {
+  await db.exec(`set role ${role}`);
+  try { return await fn(); } finally { await db.exec('reset role'); }
+}
