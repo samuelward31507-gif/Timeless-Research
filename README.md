@@ -645,58 +645,18 @@ cd tests/db && npm ci && npm test     # PostgreSQL 16 in-process; test-only depe
 are tested against a real database without a server. Nothing in it is
 deployed; the site and its functions still have no runtime dependencies.
 
-## Operations console: the business overview
+## Operations console: the UI foundation
 
-The console is one screen: open it, see the state of the business, see what
-needs attention, close it. It is deliberately not a CRM, and has no pipelines,
-tasks, campaigns, customer records or inbox.
-
-`console/index.html` (`assets/js/console/command.js`) reads, on open and on
-**Refresh** only (no polling):
-
-| Part | From | Needs |
-|---|---|---|
-| Sales today, last 7 and 30 days | `admin-dashboard` | `finance.read` |
-| Orders today, last 7 days, average order (30 days) | `admin-dashboard` | `finance.read` |
-| Customers, repeat customers | `admin-customers?limit=1` (its summary) | `customers.read` |
-| Low stock, retest due, retest overdue | `admin-dashboard` | `inventory.read` |
-| Order stages (all eight, zeros included) | `admin-dashboard` | `orders.read` |
-| Needs attention | `admin-dashboard`, `admin-orders?attention=1&limit=5` | `orders.read` (+ the above) |
-| Recent orders (8) | `admin-orders?limit=8` | `orders.read` |
-| Recent activity (6) | `admin-audit?limit=6` | `audit.read` |
-| Low stock products | `admin-inventory?active=true&low=1` | `inventory.read` |
-
-Everything shown is a value the API returns; the screen adds nothing up. A
-part the signed-in person has no permission for is left out rather than shown
-as refused; any other failure shows in that part with *Try again*. An answer to
-an earlier refresh never overwrites a later one.
-
-What the figures are, and are not:
-
-- **Sales are gross**: order totals including shipping, before fees and tax
-  (the API does not separate them yet). Cancelled and refunded orders are
-  excluded. "Last 7/30 days" are rolling, not calendar weeks or months, and
-  "today" starts at midnight in the database's time zone.
-- **Sales have no currency symbol**: the dashboard API returns the number of
-  currencies, not which one. The amounts are shown with two decimal places;
-  when more than one currency is present, the screen says the totals mix them.
-  Each order's own total is shown in its own currency.
-- **Recent activity is changes made in the console** (the audit log), in plain
-  words. New orders appear under Recent orders.
-- **Notification health is not shown yet.** The email and text outbox is read
-  by the dispatcher on Neon, while orders are still recorded on Supabase and
-  the console reads Supabase (HANDOVER §3h, §3i). The screen will show
-  notification health once both read the same database, and not before.
-
-### The console's foundation
-
-The screen is built on a foundation that is private by construction:
+The console's screens are not built yet. What exists is the foundation they
+will be built on, and it is private by construction:
 
 - **Its own pages.** `tools/console_build.py` writes `console/` with its own
   document shell, not the storefront's `page()`: no entry gate, cart,
   assistant, Open Graph or canonical; always `noindex,nofollow`; never in
-  `sitemap.xml`; disallowed in `robots.txt` on a trading build. The
-  navigation holds the business overview only.
+  `sitemap.xml`; disallowed in `robots.txt` on a trading build. The navigation
+  lists every documented area (dashboard, orders, fulfilment, inventory, lots,
+  expenses, CSV import, financials, customers, audit) as *not built yet* until
+  its screen exists.
 - **Served privately.** `netlify.toml` gives `/console/*` `Cache-Control:
   no-store`, `X-Robots-Tag: noindex, nofollow`, `Referrer-Policy: no-referrer`
   and a Content-Security-Policy that runs only the console's own files
@@ -723,9 +683,7 @@ The screen is built on a foundation that is private by construction:
   cancels, an optional required reason); a polite toast. Everything is built
   with DOM nodes and `textContent`: names, addresses and notes are always
   text, never markup. `shell.js`: the header, the session notice, and the
-  navigation folding behind a Menu button on narrow screens. `page.js`: a
-  screen asks for data only when there is a session. `format.js`: statuses,
-  amounts and dates, the same everywhere.
+  navigation folding behind a Menu button on narrow screens.
 
 **Offline development and tests.**
 
@@ -743,9 +701,7 @@ one. `npm run dev` also registers a development token provider, injected by
 the server only, so the console opens with a session. It listens on
 127.0.0.1, serves nothing else in the repository, and nothing it does
 reaches the network; the browser tests also fail if a page requests any other
-host, or leaves anything in browser storage. `tests/console/command.spec.mjs`
-covers the business overview (`helpers.mjs` holds the shared fixtures);
-`tests/test_console_rules.py` covers the page rules and the deployment
+host. `tests/test_console_rules.py` covers the page rules and the deployment
 wiring.
 
 ## Operations console: authentication

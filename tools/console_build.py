@@ -17,10 +17,10 @@ So the console has its own document shell:
   - the storefront's design tokens and base type (fonts.css, main.css), plus
     console.css for the shell.
 
-The console is one screen, not a set of modules: the business overview
-(index.html) shows sales, orders, customers, stock, what needs attention and
-what happened recently, from the read API. There is deliberately no
-navigation of screens beyond it.
+This pass builds the foundation only: the shell and its overview page. The ten
+business screens are listed in the navigation as not built yet; each becomes a
+page here, with its own entry in AREAS, when it is built. The navigation is
+rendered here, statically, so it is complete without JavaScript.
 
 tools/check.py validates every page under console/ with tools/console_rules.py.
 """
@@ -36,31 +36,46 @@ BRAND = "Timeless Research"
 
 E = html.escape
 
-# The navigation: the overview only.
-NAV = [{"key": "overview", "label": "Business overview", "page": "index.html"}]
+# Every documented console area (README, "Operations console: read API" and
+# "write API"), in the order the navigation shows them. `permission` is the
+# read permission its endpoint checks first; the server enforces it, and the
+# navigation can only ever be a convenience. `page` is None until the screen
+# is built.
+AREAS = [
+    {"key": "dashboard", "label": "Dashboard", "endpoint": "admin-dashboard", "permission": "orders.read", "page": None},
+    {"key": "orders", "label": "Orders", "endpoint": "admin-orders", "permission": "orders.read", "page": None},
+    {"key": "fulfilment", "label": "Fulfilment", "endpoint": "admin-orders", "permission": "orders.read", "page": None},
+    {"key": "inventory", "label": "Inventory", "endpoint": "admin-inventory", "permission": "inventory.read", "page": None},
+    {"key": "lots", "label": "Lots", "endpoint": "admin-inventory", "permission": "inventory.read", "page": None},
+    {"key": "expenses", "label": "Expenses", "endpoint": "admin-expenses", "permission": "finance.read", "page": None},
+    {"key": "import", "label": "CSV import", "endpoint": "admin-expenses", "permission": "finance.read", "page": None},
+    {"key": "financials", "label": "Financials", "endpoint": "admin-financials", "permission": "finance.read", "page": None},
+    {"key": "customers", "label": "Customers", "endpoint": "admin-customers", "permission": "customers.read", "page": None},
+    {"key": "audit", "label": "Audit log", "endpoint": "admin-audit", "permission": "audit.read", "page": None},
+]
 
 SCRIPTS = ["auth.js", "api.js", "ui.js", "shell.js"]
 
 
 def nav(active: str) -> str:
-    items = []
-    for n in NAV:
-        current = ' aria-current="page"' if active == n["key"] else ""
-        items.append(f'<li><a class="console-nav-link" href="{E(n["page"])}"{current}>{E(n["label"])}</a></li>')
+    items = ['<li><a class="console-nav-link" href="index.html"{}>Overview</a></li>'.format(
+        ' aria-current="page"' if active == "overview" else "")]
+    for a in AREAS:
+        if a["page"]:
+            current = ' aria-current="page"' if active == a["key"] else ""
+            items.append(f'<li><a class="console-nav-link" href="{E(a["page"])}"{current} '
+                         f'data-permission="{E(a["permission"])}">{E(a["label"])}</a></li>')
+        else:
+            items.append(f'<li><span class="console-nav-link is-pending" aria-disabled="true" '
+                         f'data-area="{E(a["key"])}">{E(a["label"])}'
+                         f'<span class="console-nav-tag">Not built yet</span></span></li>')
     return "\n    ".join(items)
 
 
-def document(path: str, title: str, active: str, body: str, page_scripts=(), page: str = "",
-             wide: bool = False) -> str:
-    """One console page. `path` is relative to the repository root (console/...).
-
-    `page_scripts` load after the four core scripts, in order; `page` is the
-    body's data-console-page (it defaults to `active`); `wide` lets the main
-    column use the whole screen."""
+def document(path: str, title: str, active: str, body: str) -> str:
+    """One console page. `path` is relative to the repository root (console/...)."""
     up = "../" * path.count("/")
-    scripts = "\n".join(f'<script src="{up}assets/js/console/{s}" defer></script>'
-                        for s in SCRIPTS + list(page_scripts))
-    main_class = "console-main console-main--wide" if wide else "console-main"
+    scripts = "\n".join(f'<script src="{up}assets/js/console/{s}" defer></script>' for s in SCRIPTS)
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,7 +92,7 @@ def document(path: str, title: str, active: str, body: str, page_scripts=(), pag
 <link rel="stylesheet" href="{up}assets/css/console.css">
 {scripts}
 </head>
-<body class="console" data-console-page="{E(page or active)}">
+<body class="console" data-console-page="{E(active)}">
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="console-header">
   <a class="console-brand" href="index.html">{BRAND} <span class="console-brand-sub">Operations</span></a>
@@ -91,7 +106,7 @@ def document(path: str, title: str, active: str, body: str, page_scripts=(), pag
     {nav(active)}
     </ul>
   </nav>
-  <main class="{main_class}" id="main" tabindex="-1">
+  <main class="console-main" id="main" tabindex="-1">
 {body}
   </main>
 </div>
@@ -115,53 +130,22 @@ def document(path: str, title: str, active: str, body: str, page_scripts=(), pag
 """
 
 
-COMMAND_SCRIPTS = ["format.js", "page.js", "command.js"]
-
-
-def section(key: str, title: str, extra: str = "", cls: str = "") -> str:
-    """One part of the overview: a heading and a view the script fills."""
-    return f"""      <section class="cc-section{(' ' + cls) if cls else ''}" id="cc-{key}" aria-labelledby="cc-{key}-title">
-        <div class="cc-section-head">
-          <h2 class="cc-section-title" id="cc-{key}-title">{E(title)}</h2>{extra}
-        </div>
-        <div class="console-view cc-body" id="cc-{key}-body"></div>
-      </section>"""
-
-
-def command() -> str:
-    """The business overview: the console's one screen."""
-    body = f"""    <div class="cc-head">
-      <h1 class="console-title">Business overview</h1>
-      <div class="cc-head-meta">
-        <p class="cc-updated" id="cc-updated" aria-live="polite"></p>
-        <button type="button" class="btn btn--ghost btn--sm" id="cc-refresh" hidden>Refresh</button>
+def overview() -> str:
+    pending = "".join(f"<li>{E(a['label'])}</li>" for a in AREAS if not a["page"])
+    body = f"""    <h1 class="console-title">Operations console</h1>
+    <section class="console-panel" aria-labelledby="console-status-title">
+      <h2 class="console-panel-title" id="console-status-title">Session</h2>
+      <div class="console-view" id="console-status" data-state="loading" aria-busy="true">
+        <p class="console-state-text">Checking for a session&hellip;</p>
       </div>
-    </div>
-    <div class="console-view cc-notice" id="cc-notice" data-state="loading" aria-busy="true">
-      <p class="console-state-text">Loading&hellip;</p>
-    </div>
-    <div class="cc-workspace" id="cc-workspace" hidden>
-      <section class="cc-snapshot" id="cc-snapshot" aria-labelledby="cc-snapshot-title">
-        <h2 class="sr-only" id="cc-snapshot-title">At a glance</h2>
-        <div class="cc-snapshot-groups" id="cc-snapshot-body"></div>
-      </section>
-{section("stages", "Order stages", cls="cc-section--stages")}
-      <div class="cc-row">
-{section("attention", "Needs attention", cls="cc-section--attention")}
-{section("recent", "Recent orders", cls="cc-section--recent")}
-        <div class="cc-stack">
-{section("activity", "Recent activity")}
-{section("stock", "Low stock")}
-        </div>
-      </div>
-    </div>"""
-    return document("console/index.html", "Business overview", "overview", body,
-                    page_scripts=COMMAND_SCRIPTS, page="command", wide=True)
-
-
-def all_pages() -> dict[str, str]:
-    """Every console page, by path relative to the root."""
-    return {"console/index.html": command()}
+    </section>
+    <section class="console-panel" aria-labelledby="console-areas-title">
+      <h2 class="console-panel-title" id="console-areas-title">Screens</h2>
+      <p class="console-note">The console&rsquo;s screens are built in a later phase. Each of these will appear in the
+      navigation when it is ready:</p>
+      <ul class="console-list">{pending}</ul>
+    </section>"""
+    return document("console/index.html", "Overview", "overview", body)
 
 
 def build_console() -> list[str]:
@@ -169,7 +153,7 @@ def build_console() -> list[str]:
     if OUT.exists():
         shutil.rmtree(OUT)
     OUT.mkdir(parents=True)
-    pages = all_pages()
+    pages = {"console/index.html": overview()}
     for rel_path, text in pages.items():
         (ROOT / rel_path).write_text(text, encoding="utf-8")
     return list(pages)

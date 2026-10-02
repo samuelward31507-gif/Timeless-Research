@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Business overview &middot; Operations &middot; Timeless Research</title>
+<title>Overview &middot; Operations &middot; Timeless Research</title>
 <meta name="description" content="The Timeless Research operations console. Private: for staff only.">
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
@@ -11,16 +11,13 @@
 <link rel="icon" href="../assets/img/favicon.svg?v=67cddb16" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/css/fonts.css?v=c5c0eaef">
 <link rel="stylesheet" href="../assets/css/main.css?v=e8ecebd6">
-<link rel="stylesheet" href="../assets/css/console.css?v=a1f749d2">
+<link rel="stylesheet" href="../assets/css/console.css?v=02f6e367">
 <script src="../assets/js/console/auth.js?v=50cd5132" defer></script>
 <script src="../assets/js/console/api.js?v=1ae022a2" defer></script>
 <script src="../assets/js/console/ui.js?v=61e199d1" defer></script>
 <script src="../assets/js/console/shell.js?v=f6e8dc3d" defer></script>
-<script src="../assets/js/console/format.js?v=bf3ca1c6" defer></script>
-<script src="../assets/js/console/page.js?v=68820bc1" defer></script>
-<script src="../assets/js/console/command.js?v=12ff7c4c" defer></script>
 </head>
-<body class="console" data-console-page="command">
+<body class="console" data-console-page="overview">
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="console-header">
   <a class="console-brand" href="index.html">Timeless Research <span class="console-brand-sub">Operations</span></a>
@@ -31,60 +28,33 @@
 <div class="console-layout">
   <nav class="console-nav" id="console-nav" aria-label="Console">
     <ul class="console-nav-list">
-    <li><a class="console-nav-link" href="index.html" aria-current="page">Business overview</a></li>
+    <li><a class="console-nav-link" href="index.html" aria-current="page">Overview</a></li>
+    <li><span class="console-nav-link is-pending" aria-disabled="true" data-area="dashboard">Dashboard<span class="console-nav-tag">Not built yet</span></span></li>
+    <li><span class="console-nav-link is-pending" aria-disabled="true" data-area="orders">Orders<span class="console-nav-tag">Not built yet</span></span></li>
+    <li><span class="console-nav-link is-pending" aria-disabled="true" data-area="fulfilment">Fulfilment<span class="console-nav-tag">Not built yet</span></span></li>
+    <li><span class="console-nav-link is-pending" aria-disabled="true" data-area="inventory">Inventory<span class="console-nav-tag">Not built yet</span></span></li>
+    <li><span class="console-nav-link is-pending" aria-disabled="true" data-area="lots">Lots<span class="console-nav-tag">Not built yet</span></span></li>
+    <li><span class="console-nav-link is-pending" aria-disabled="true" data-area="expenses">Expenses<span class="console-nav-tag">Not built yet</span></span></li>
+    <li><span class="console-nav-link is-pending" aria-disabled="true" data-area="import">CSV import<span class="console-nav-tag">Not built yet</span></span></li>
+    <li><span class="console-nav-link is-pending" aria-disabled="true" data-area="financials">Financials<span class="console-nav-tag">Not built yet</span></span></li>
+    <li><span class="console-nav-link is-pending" aria-disabled="true" data-area="customers">Customers<span class="console-nav-tag">Not built yet</span></span></li>
+    <li><span class="console-nav-link is-pending" aria-disabled="true" data-area="audit">Audit log<span class="console-nav-tag">Not built yet</span></span></li>
     </ul>
   </nav>
-  <main class="console-main console-main--wide" id="main" tabindex="-1">
-    <div class="cc-head">
-      <h1 class="console-title">Business overview</h1>
-      <div class="cc-head-meta">
-        <p class="cc-updated" id="cc-updated" aria-live="polite"></p>
-        <button type="button" class="btn btn--ghost btn--sm" id="cc-refresh" hidden>Refresh</button>
+  <main class="console-main" id="main" tabindex="-1">
+    <h1 class="console-title">Operations console</h1>
+    <section class="console-panel" aria-labelledby="console-status-title">
+      <h2 class="console-panel-title" id="console-status-title">Session</h2>
+      <div class="console-view" id="console-status" data-state="loading" aria-busy="true">
+        <p class="console-state-text">Checking for a session&hellip;</p>
       </div>
-    </div>
-    <div class="console-view cc-notice" id="cc-notice" data-state="loading" aria-busy="true">
-      <p class="console-state-text">Loading&hellip;</p>
-    </div>
-    <div class="cc-workspace" id="cc-workspace" hidden>
-      <section class="cc-snapshot" id="cc-snapshot" aria-labelledby="cc-snapshot-title">
-        <h2 class="sr-only" id="cc-snapshot-title">At a glance</h2>
-        <div class="cc-snapshot-groups" id="cc-snapshot-body"></div>
-      </section>
-      <section class="cc-section cc-section--stages" id="cc-stages" aria-labelledby="cc-stages-title">
-        <div class="cc-section-head">
-          <h2 class="cc-section-title" id="cc-stages-title">Order stages</h2>
-        </div>
-        <div class="console-view cc-body" id="cc-stages-body"></div>
-      </section>
-      <div class="cc-row">
-      <section class="cc-section cc-section--attention" id="cc-attention" aria-labelledby="cc-attention-title">
-        <div class="cc-section-head">
-          <h2 class="cc-section-title" id="cc-attention-title">Needs attention</h2>
-        </div>
-        <div class="console-view cc-body" id="cc-attention-body"></div>
-      </section>
-      <section class="cc-section cc-section--recent" id="cc-recent" aria-labelledby="cc-recent-title">
-        <div class="cc-section-head">
-          <h2 class="cc-section-title" id="cc-recent-title">Recent orders</h2>
-        </div>
-        <div class="console-view cc-body" id="cc-recent-body"></div>
-      </section>
-        <div class="cc-stack">
-      <section class="cc-section" id="cc-activity" aria-labelledby="cc-activity-title">
-        <div class="cc-section-head">
-          <h2 class="cc-section-title" id="cc-activity-title">Recent activity</h2>
-        </div>
-        <div class="console-view cc-body" id="cc-activity-body"></div>
-      </section>
-      <section class="cc-section" id="cc-stock" aria-labelledby="cc-stock-title">
-        <div class="cc-section-head">
-          <h2 class="cc-section-title" id="cc-stock-title">Low stock</h2>
-        </div>
-        <div class="console-view cc-body" id="cc-stock-body"></div>
-      </section>
-        </div>
-      </div>
-    </div>
+    </section>
+    <section class="console-panel" aria-labelledby="console-areas-title">
+      <h2 class="console-panel-title" id="console-areas-title">Screens</h2>
+      <p class="console-note">The console&rsquo;s screens are built in a later phase. Each of these will appear in the
+      navigation when it is ready:</p>
+      <ul class="console-list"><li>Dashboard</li><li>Orders</li><li>Fulfilment</li><li>Inventory</li><li>Lots</li><li>Expenses</li><li>CSV import</li><li>Financials</li><li>Customers</li><li>Audit log</li></ul>
+    </section>
   </main>
 </div>
 <div class="console-toast" id="console-toast" role="status" aria-live="polite" hidden></div>
