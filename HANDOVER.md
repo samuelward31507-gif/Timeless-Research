@@ -705,6 +705,45 @@ against real Supabase, and must be before the console is relied on:
   can be on Supabase; the offline tests have no `auth` schema);
 - that all of it behaves the same inside Netlify's function runtime.
 
+### The console's read API (not reachable from any screen yet)
+
+Seven read-only functions, `admin-dashboard`, `admin-orders`,
+`admin-inventory`, `admin-expenses`, `admin-financials`, `admin-audit` and
+`admin-customers`, serve the screens still to be built (README, *Operations
+console: read API*). Each:
+
+- accepts `GET` only;
+- signs the caller in with the check above;
+- asks the database (`staff_can`) whether that staff member's role allows
+  the read;
+- validates every parameter;
+- reads only named columns, with the service role key, on the server.
+
+They change nothing. Nothing new needs configuring: they use the same two
+Supabase settings as the order webhook.
+
+Also to check on the staging project, once 0003 and 0004 are applied there:
+
+- that each endpoint returns real data for the owner, with every filter and
+  page cursor, and that PostgREST accepts the quoted keyset filters
+  (`or=(created_at.lt."…",…)`) exactly as the offline tests build them;
+- that `POST /rest/v1/rpc/staff_can` answers `true` or `false` for the
+  service role;
+- **which kind of service key the project has.** The API, the sign-in check
+  and the order webhook all send it as both `apikey` and
+  `Authorization: Bearer`. That is right for the legacy JWT-format
+  `service_role` key. Supabase's newer `sb_secret_…` keys may not be accepted
+  in the `Authorization` header. If staging only issues the newer kind,
+  report it before changing anything: the fix touches the payment webhook
+  too;
+- **what the browser roles may do on the 0001-0003 tables.** Those tables
+  rely on row level security with no policies: a browser role sees no rows
+  and can write none, and the offline tests prove that. But if the project
+  still gives `anon` and `authenticated` Supabase's broad default grants, the
+  grant itself is wider than needed. A migration revoking those table
+  privileges outright would be a sensible hardening step; it is not part of
+  this pass.
+
 ---
 
 ## 4. Decisions only you can make
@@ -878,6 +917,10 @@ Stated plainly so you are not surprised, and so a buyer is not misled.
   (`netlify/lib/admin-auth.js`) is covered offline with tokens the tests sign
   themselves; no token from the real project has been verified. §3g lists
   what must be checked on the staging project.
+- **The console read API has not read real data.** Its seven endpoints are
+  covered offline with Supabase stubbed, and every table and column they read
+  is checked against the migrations in PostgreSQL 16, but none has run against
+  a Supabase project or behind real PostgREST. §3g lists what to check.
 - **Add-ons have not been through a payment.** The configuration, cart,
   server-side pricing, stock ledger and reports are tested, the SQL against
   Postgres 16, but no payment integration charges for add-ons yet, so none
@@ -893,6 +936,7 @@ python3 tools/check.py      # links, metadata, labels, unfilled legal details
 node --test tests/chat.test.js   # the support assistant's function, stubbed
 node --test tests/addons.test.js # add-ons, server side
 node --test tests/admin-auth.test.js   # console authentication, offline
+node --test tests/admin-api.test.js tests/admin-read.test.js   # console read API, offline
 python3 -m unittest discover -s tests -p 'test_*.py'   # add-on configuration
 (cd tests/db && npm ci && npm test)   # database migrations, against PostgreSQL 16
 ```

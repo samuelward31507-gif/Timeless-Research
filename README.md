@@ -89,6 +89,8 @@ netlify/functions/
   addons.json           Add-on prices and eligibility (generated)
 netlify/lib/addons.js   Add-on validation and pricing, payment-provider agnostic
 netlify/lib/admin-auth.js  Operations console: who is calling (token + staff)
+netlify/lib/admin-api.js   Operations console: rules shared by the read API
+netlify/functions/admin-*.js  Operations console read API (GET only)
 tools/addons.py         Reads, validates and resolves assets/data/addons.json
 supabase/migrations/    0001 orders; 0002 add-ons; 0003 order lifecycle,
                         inventory and lots, financials, customer views
@@ -585,9 +587,16 @@ flag and repeat rate. No accounts, no profiles, no marketing fields.
 
 **Access.** As changed by `0004_console_foundation.sql`:
 
-- **Browser roles** (`anon`, `authenticated`) have no direct database access:
-  row level security is on with no policies, and every table, view and
-  function is revoked from them.
+- **Browser roles** (`anon`, `authenticated`) can read and change nothing,
+  by one of two means:
+  - every view, every function, and the tables added by 0004 are revoked
+    from them outright;
+  - the tables from 0001 to 0003 keep Supabase's default grant but have row
+    level security on with no policy, so a browser role sees no rows and can
+    write none.
+
+  `tests/db/console-api-contract.test.mjs` checks that every object the
+  console API reads is covered by one or the other.
 - **The server (service role)** reads everything. It still writes `orders`
   and `order_items` directly, because that is how the payment path records a
   paid order. It cannot insert, update, delete or truncate the console and
@@ -697,6 +706,71 @@ The suite generates its own EC and RSA keys, signs tokens with them, and stubs
 the key set and PostgREST. It proves what the library accepts and refuses. It
 does **not** prove that the real Supabase project issues tokens shaped the way
 the library expects: that needs the staging project (HANDOVER §3g).
+
+## Operations console: read API
+
+Seven read-only endpoints serve the console's screens. There are no writes
+yet, and no screens yet; until both exist, nothing calls these. Each is a
+Netlify function at `/.netlify/functions/<name>` and accepts `GET` only.
+
+| Endpoint | Needs | Reads |
+|---|---|---|
+| `admin-dashboard` | `orders.read` (revenue also needs `finance.read`, stock `inventory.read`) | status counts, orders needing attention, revenue, low stock, retests due |
+| `admin-orders` | `orders.read` (cost of goods also `finance.read`) | the order queue (`status`, `attention=1`, `q`, paging); one order with `?id=` |
+| `admin-inventory` | `inventory.read` | stock levels (`active`, `low=1`); one item with `?product_id=&pack_size=`; one lot with `?lot_id=` |
+| `admin-expenses` | `finance.read` | expenses (`from`, `to`, `category`, `include_deleted=1`, paging); one with `?id=`; staged import rows with `?view=import` |
+| `admin-financials` | `finance.read` | monthly summary, gross margin, expenses by category, add-on reports (`from_month`, `to_month`) |
+| `admin-audit` | `audit.read` | the audit log (`entity_type`, `entity_id`, `action`, paging) |
+| `admin-customers` | `customers.read` (one customer's orders also `orders.read`) | customers and the summary; one customer with `?email=` |
+
+`netlify/lib/admin-api.js` holds the rules every endpoint follows, in order:
+
+1. **Method.** Anything but `GET` is 405, before anything else happens.
+2. **Who.** `authenticateStaff(event)` (above). The staff id it returns is the
+   only actor; no parameter, header or body can name one, and an actor-like
+   parameter (`actor_id`, `staff_id`, `user_id` and the like) is refused.
+3. **May they.** `staff_can(staff id, permission)` in the database, before
+   any parameter is looked at, so a refused caller learns nothing about them.
+4. **What.** Each endpoint has an allow-list of parameters. An unknown,
+   repeated or malformed one is 400 with the parameter's name. Every value
+   reaching a PostgREST filter is validated first: UUIDs, real dates, fixed
+   choices, bounded integers (`limit` 1 to 100), and search text without the
+   characters that could change a filter's shape. Values inside an `or=()`
+   are also quoted.
+5. **Read.** PostgREST with the service role key, on the server. Every query
+   names its columns. Lists never include a phone number or an address; only
+   the single-order view does, because shipping needs them.
+
+Paging is by an opaque `cursor`, returned as `next_cursor`. It holds the last
+row's sort key, and is refused if it does not decode to exactly the shape
+that endpoint issues. Customers page by offset, up to 10,000 rows.
+
+Every response has `Cache-Control: no-store`. Database errors become a fixed
+code: 403 `not_authorized`, 404 `not_found`, 400 `invalid_input`, otherwise
+500 `unavailable`. The database's own message is never passed on, because it
+can name tables, constraints and values. Logs record the endpoint, the staff
+id and an error code: never a request, a response, a token or a key.
+
+A customer is their email address, lower-cased and trimmed, as
+`customer_aggregates` keys them. One customer's orders are found with a
+contains-match on email. In that match, `_` is a one-character wildcard, so
+every row it finds is compared exactly before it is returned.
+
+**Testing.**
+
+```bash
+node --test tests/admin-api.test.js tests/admin-read.test.js   # offline
+(cd tests/db && npm ci && npm test)   # includes console-api-contract.test.mjs
+```
+
+The first two drive every endpoint with signed tokens and stubbed Supabase.
+The contract test drives them the same way, records every table, view and
+column they read, filter or sort on, and checks each one against the
+migrations in PostgreSQL 16:
+
+- that it exists;
+- that the service role can read it;
+- that the browser roles cannot.
 
 ## Assets and tooling
 
@@ -838,6 +912,8 @@ The migrations have their own, `cd tests/db && npm ci && npm test`; see
 [Operations data](#operations-data). The console's authentication has
 `node --test tests/admin-auth.test.js`; see
 [Operations console: authentication](#operations-console-authentication).
+Its read API has `node --test tests/admin-api.test.js tests/admin-read.test.js`;
+see [Operations console: read API](#operations-console-read-api).
 
 Audited with axe-core (WCAG 2.1 A/AA) across fifteen representative pages plus
 the open cart drawer in its error state: **0 violations**.
