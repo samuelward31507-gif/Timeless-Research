@@ -94,6 +94,8 @@ netlify/functions/admin-*.js  Operations console API (GET reads; POST writes on 
 netlify/lib/notify.js   New-order notifications: messages, Postmark and Twilio
 netlify/lib/db.js       The database (Neon), server side: queries, transactions,
                         types and errors. Not used by any function yet
+netlify/lib/orders.js   Order intake: records a paid order, whoever took the
+                        payment (one transaction on Neon). Not wired yet
 netlify/functions/notify-dispatch.js  Sends due notifications (scheduled, every minute)
 tools/addons.py         Reads, validates and resolves assets/data/addons.json
 supabase/migrations/    0001 orders; 0002 add-ons; 0003 order lifecycle,

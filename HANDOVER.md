@@ -920,6 +920,18 @@ not found and so on). The comment at its top has the details.
 `tests/db/db.test.mjs` runs it against a stand-in for Neon's HTTP endpoint
 backed by the tested schema.
 
+**Order intake.** `netlify/lib/orders.js` records a paid order without
+knowing who took the payment: a payment integration verifies its own event,
+describes the order as a plain object (its reference, amounts, contact and
+address, and the lines `addons.orderItemRows()` builds) and calls
+`recordPaidOrder()`. The order, its lines and its add-on stock movements are
+written in one transaction, and the database queues the owner's two
+notifications in the same one. A redelivered event changes nothing, not even
+the status of an order that has shipped since. Nothing calls it yet: the
+Stripe webhook still writes to Supabase its own way, and moving it over is
+part of the payment integration, which is on hold. `tests/db/orders.test.mjs`
+covers it.
+
 Before it can be used on staging:
 
 - `peptide_app` needs a password (the Neon console can reset it, or
