@@ -29,7 +29,7 @@ DIST = ROOT / "dist"
 # resolved in the repository, where tools/check.py looks, and 404'd on the
 # deployed site, where nobody was looking. The link sweep at the end of this
 # file is the actual fix — a list like this will go stale again.
-TREES = ["assets", "products", "legal"]
+TREES = ["assets", "products", "legal", "console"]  # console/: the operations console shell
 FILES = ["sitemap.xml", "robots.txt", "_redirects"]
 
 

@@ -1,0 +1,67 @@
+{
+  "note": "Test fixture: enabled add-ons with prices, used by the tests and by an add-on preview build. Not used in production.",
+  "addons": [
+    {
+      "id": "insulated-shipper",
+      "name": "Insulated shipper with cold packs",
+      "description": "Ships this line in an insulated box with frozen gel packs.",
+      "kind": "shipping",
+      "quantity": "per-line",
+      "price": 12,
+      "trackInventory": true,
+      "enabled": true
+    },
+    {
+      "id": "coa-certified-copy",
+      "name": "Additional certified copy of the certificate of analysis",
+      "description": "A second signed paper copy of the certificate for the lot supplied.",
+      "kind": "documentation",
+      "quantity": "per-line",
+      "price": 4.5,
+      "trackInventory": false,
+      "enabled": true
+    },
+    {
+      "id": "moisture-barrier-pouch",
+      "name": "Moisture-barrier pouch with desiccant",
+      "description": "Each vial on this line sealed in a foil pouch with a desiccant sachet.",
+      "kind": "packaging",
+      "quantity": "per-unit",
+      "price": 1.25,
+      "trackInventory": true,
+      "enabled": true
+    },
+    {
+      "id": "tamper-evident-seal",
+      "name": "Tamper-evident outer seal",
+      "description": "Disabled in the fixture, to prove disabled add-ons are never offered.",
+      "kind": "packaging",
+      "quantity": "per-line",
+      "price": 2,
+      "trackInventory": false,
+      "enabled": false
+    }
+  ],
+  "rules": [
+    {
+      "id": "cold-chain-metabolic-growth",
+      "recommend": ["insulated-shipper"],
+      "when": { "categories": ["metabolic", "growth"] }
+    },
+    {
+      "id": "pouch-repair-peptides",
+      "recommend": ["moisture-barrier-pouch", "tamper-evident-seal"],
+      "when": { "products": ["bpc-157", "tb-500"] }
+    },
+    {
+      "id": "coa-copy-everything",
+      "recommend": ["coa-certified-copy"],
+      "when": { "allBuyable": true }
+    },
+    {
+      "id": "coa-copy-repair-duplicate",
+      "recommend": ["coa-certified-copy"],
+      "when": { "products": ["bpc-157"] }
+    }
+  ]
+}

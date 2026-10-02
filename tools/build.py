@@ -19,6 +19,10 @@ import re
 import shutil
 import struct
 import datetime
+from html.parser import HTMLParser
+
+import addons as ADDONS_CFG  # tools/addons.py
+import console_build  # tools/console_build.py: the operations console's pages
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = json.loads((ROOT / "assets/data/products.json").read_text(encoding="utf-8"))
@@ -38,6 +42,15 @@ VOLUME_TIERS = sorted(
 # Goods subtotal, excluding shipping and tax, above which standard shipping is
 # free. 0 or absent turns it off everywhere, including the checkout function.
 FREE_SHIPPING_OVER = float(DATA.get("freeShippingOver") or 0)
+
+# Optional add-ons live in their own file (tools/addons.py explains why).
+# TR_ADDONS_FILE points the build at another file, which the tests use;
+# TR_ADDONS_PREVIEW=1 shows enabled add-ons in the cart before the payment
+# integration can charge for them, for local review only. A preview build says
+# so in its config, tools/check.py fails on it, and it refuses to run on Netlify,
+# so it cannot be deployed by accident.
+ADDONS_FILE = pathlib.Path(os.environ.get("TR_ADDONS_FILE") or ADDONS_CFG.SOURCE)
+ADDONS_PREVIEW = os.environ.get("TR_ADDONS_PREVIEW", "").strip() in ("1", "true", "yes")
 
 
 def tier_for(qty: int) -> dict | None:
@@ -86,6 +99,12 @@ LEGAL_EMAIL = os.environ.get("TR_LEGAL_EMAIL", "") or CONTACT_EMAIL
 # business will be found by people trying to place real orders, and because a
 # demo competing in search with the eventual live site helps nobody.
 DEMO = os.environ.get("TR_DEMO", "").strip() in ("1", "true", "yes")
+
+# TR_CHAT=1 shows the order and product help assistant. Off by default: it
+# needs ANTHROPIC_API_KEY on the deploy and the live refusal check (HANDOVER
+# §3d) first, and a "Questions?" button that only answers "can't be reached"
+# makes the whole site look broken.
+CHAT = os.environ.get("TR_CHAT", "").strip() in ("1", "true", "yes")
 
 # A demonstration deploy does not live at the canonical domain — that domain is
 # a placeholder in netlify.toml which nobody owns yet. Left alone, every
@@ -258,22 +277,19 @@ def head(title, desc, depth, canonical, extra=""):
 <link rel="stylesheet" href="{p}assets/css/fonts.css">
 <link rel="stylesheet" href="{p}assets/css/main.css">
 <script src="{p}assets/js/site.js" defer></script>
+<script src="{p}assets/js/chat.js" defer></script>
 {extra}</head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 {gate()}"""
 
 
-# The cart's footnote changes with the build, because on a demonstration copy
-# the sentence "card payment is taken by Stripe" would be a lie by omission: no
-# money moves, and a prospective operator clicking through deserves to be told
-# what will actually happen and how to try it.
+# The cart's footnote says what checkout will actually do. No payment provider
+# is connected (netlify/lib/payment.js is the boundary one plugs into), so it
+# says payment is not available rather than describing a checkout that does
+# not exist.
 CART_NOTE = (
-    "<strong>Demonstration.</strong> Checkout runs in Stripe&rsquo;s test mode &mdash; "
-    "no money moves. Pay with card <span class=\"mono\">4242&nbsp;4242&nbsp;4242&nbsp;4242</span>, "
-    "any future expiry, any CVC."
-) if DEMO else (
-    "Card payment is taken by Stripe on their own page. Shipping and any tax are added there."
+    "Online payment is not available yet. Email us your cart and we will take the order by hand."
 )
 
 
@@ -399,9 +415,42 @@ def footer(depth):
   </div>
 </aside>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
+{chat_chrome(p)}
 </body>
 </html>
+"""
+
+
+# The support assistant. Shipped on every page as part of the shared chrome so
+# tools/check.py can insist on it everywhere. The launcher starts `hidden` and
+# assets/js/chat.js reveals it, so with JavaScript off there is no button that
+# does nothing. The research-use line sits in the drawer header, above anything
+# the assistant says, because it is the frame every answer is given in.
+def chat_chrome(p):
+    return f"""<button class="chat-launcher" id="chat-open" type="button" aria-haspopup="dialog" aria-controls="chat-drawer" hidden>
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12Z"/></svg>
+  <span>Questions?</span>
+</button>
+<div class="drawer-scrim chat-scrim" id="chat-scrim"></div>
+<aside class="drawer chat-drawer" id="chat-drawer" data-root="{p}" role="dialog" aria-modal="true" aria-labelledby="chat-title" aria-describedby="chat-ruo" aria-hidden="true">
+  <div class="drawer-head chat-head">
+    <div>
+      <h2 id="chat-title">Order &amp; product help</h2>
+      <p class="chat-ruo" id="chat-ruo"><b>Research use only.</b> Every product is supplied for <em>in vitro</em> laboratory research and is not for human or veterinary use. This assistant cannot advise on dosing, preparation or use &mdash; see our <a href="{p}compliance.html">research use policy</a>.</p>
+    </div>
+    <button class="btn btn--quiet btn--sm" id="chat-close" type="button" aria-label="Close order and product help">Close</button>
+  </div>
+  <div class="drawer-body chat-log" id="chat-log" role="log" aria-live="polite" aria-relevant="additions"></div>
+  <form class="drawer-foot chat-form" id="chat-form" novalidate>
+    <label class="sr-only" for="chat-input">Your question</label>
+    <textarea id="chat-input" name="message" rows="2" maxlength="1000" placeholder="Ask about products, pricing, shipping or orders" autocomplete="off"></textarea>
+    <div class="chat-actions">
+      <button class="btn btn--quiet btn--sm" id="chat-reset" type="button">Start over</button>
+      <button class="btn btn--primary btn--sm" id="chat-send" type="submit">Send</button>
+    </div>
+    <p class="chat-note">Answers come from this site&rsquo;s own pages and may be incomplete. For anything else, <a href="{p}contact.html">contact us</a>. Messages are processed by our AI provider and not kept by us.</p>
+  </form>
+</aside>
 """
 
 
@@ -751,7 +800,7 @@ def build_home():
         <h2 class="display h-sec">Priced on the page. <em>Paid by card.</em></h2>
       </div>
       <div class="prose" data-reveal data-reveal-delay="1">
-        <p>Every pack size carries its list price. Add what you need to the cart and pay by card — checkout is hosted by Stripe, which collects your name, email, phone number and shipping address and takes the payment. There is no account to apply for and no quotation to wait on.</p>
+        <p>Every pack size carries its list price. Add what you need to the cart and pay online — checkout is hosted by our payment provider, which collects your name, email, phone number and shipping address and takes the payment. There is no account to apply for and no quotation to wait on.</p>
         <p>Research use is a condition of every sale, not a formality. You confirm it at checkout, it is written into the <a href="legal/terms.html">terms of sale</a>, and an order we have reason to believe is destined for human or veterinary use is cancelled and refunded rather than shipped.</p>
         <p>Some compounds correspond to approved or investigational pharmaceutical substances. Those are flagged as <strong>restricted reference standards</strong> on their specification pages, because what they are is worth stating plainly. The conditions of sale are the same for them as for everything else: supplied for <strong>in vitro</strong> method development, never for administration.</p>
         <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:2rem">
@@ -867,6 +916,20 @@ def build_catalog():
 
 
 # --------------------------------------------------------------------------- product detail
+# What a restricted compound's specification page says about it. One constant,
+# because the chat assistant is allowed to repeat this notice about those
+# compounds and nothing else, and it has to be the same words the page shows.
+RESTRICTED_NOTICE_TITLE = "Restricted reference standard"
+RESTRICTED_NOTICE_HTML = (
+    "This compound corresponds to an approved or investigational pharmaceutical "
+    "substance. It is supplied strictly as an analytical reference standard for "
+    "<strong>in vitro</strong> method development: it is not a medicine, it is not "
+    "manufactured to pharmaceutical standards, it has not been evaluated by any "
+    "regulatory authority for safety or efficacy, and it must not be administered "
+    "to a human or an animal. Buying it is your confirmation of that — see our "
+    '<a href="../compliance.html">research use policy</a>.')
+
+
 def build_products():
     written = []
     for p in PRODUCTS:
@@ -916,8 +979,8 @@ def build_products():
             price_caption = "per vial, excluding shipping and tax"
             buy_control = (f'<button class="btn btn--primary" data-add="{p["id"]}" '
                            f'data-name="{E(p["name"])}">Add to cart</button>')
-            buy_note = ("Shipping and any tax are added at checkout. Payment is taken by Stripe "
-                        "on their own page; we never see your card details.")
+            buy_note = ("Shipping and any tax are added at checkout. Payment is taken by our payment "
+                        "provider on their own page; we never see your card details.")
         else:
             price_caption = "last list price; not currently supplied"
             buy_control = '<a class="btn btn--ghost" href="../contact.html">Ask about availability</a>'
@@ -936,12 +999,12 @@ def build_products():
 
         restricted = ""
         if p.get("restricted"):
-            restricted = """
+            restricted = f"""
         <div class="notice" style="margin-bottom:1.5rem">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
           <div>
-            <h3>Restricted reference standard</h3>
-            <p>This compound corresponds to an approved or investigational pharmaceutical substance. It is supplied strictly as an analytical reference standard for <strong>in vitro</strong> method development: it is not a medicine, it is not manufactured to pharmaceutical standards, it has not been evaluated by any regulatory authority for safety or efficacy, and it must not be administered to a human or an animal. Buying it is your confirmation of that — see our <a href="../compliance.html">research use policy</a>.</p>
+            <h3>{RESTRICTED_NOTICE_TITLE}</h3>
+            <p>{RESTRICTED_NOTICE_HTML}</p>
           </div>
         </div>"""
 
@@ -1149,9 +1212,9 @@ def build_about():
 # --------------------------------------------------------------------------- faq
 FAQ = [
     ("Can I just add something to the cart and pay?",
-     "Yes, for everything on the catalog. Prices are published against every pack size, the cart totals them, and checkout is hosted by Stripe. There is no account to apply for and nothing to wait on."),
+     "Yes, for everything on the catalog. Prices are published against every pack size, the cart totals them, and checkout is hosted by our payment provider. There is no account to apply for and nothing to wait on."),
     ("What does checkout ask me for?",
-     "Your name, email address, phone number and a shipping address, all collected by Stripe on their own page, plus card details we never see. You also confirm on this site, before checkout opens, that the material is for laboratory research use. That is the whole of it."),
+     "Your name, email address, phone number and a shipping address, all collected by our payment provider on their own page, plus payment details we never see. You also confirm on this site, before checkout opens, that the material is for laboratory research use. That is the whole of it."),
     ("What does the Restricted flag on some compounds mean?",
      "That the compound corresponds to an approved or investigational pharmaceutical substance \u2014 retatrutide, tirzepatide and oxytocin carry it. They are supplied as analytical reference standards for in vitro method development, on exactly the same conditions as everything else on the catalog. The flag is there because a buyer is entitled to know that what they are ordering has a pharmaceutical counterpart, not because the ordering route is different."),
     ("What does \u201cresearch use only\u201d actually mean here?",
@@ -1417,7 +1480,7 @@ def build_legal():
       <p>Every sale is conditional on your agreement to our <a href="../compliance.html">research use policy</a>, which forms part of these terms. Material supplied is for <strong>in vitro</strong> laboratory research by qualified professionals. It is not a drug, dietary supplement, cosmetic, food or medical device, and it is not for human or veterinary use, clinical or diagnostic procedures, or household use. Breach of that policy is a material breach of these terms, entitling us to cancel outstanding orders, terminate your account and decline future business.</p>
 
       <h2>4. Prices and payment</h2>
-      <p>Catalogue prices are in {CURRENCY} and exclude shipping and any sales, use or import taxes and duties; shipping and any tax we are required to collect are added at checkout and shown before you pay. Payment is due in full at checkout and is taken by Stripe on their own hosted page. We do not receive, process or store your card details, and we will never ask for them by telephone or email.</p>
+      <p>Catalogue prices are in {CURRENCY} and exclude shipping and any sales, use or import taxes and duties; shipping and any tax we are required to collect are added at checkout and shown before you pay. Payment is due in full at checkout and is taken by our payment provider on their own hosted page. We do not receive, process or store your card details, and we will never ask for them by telephone or email.</p>
       <p>Prices may change without notice, but the price you are charged is the one shown at checkout. Where a price is obviously wrong, we may cancel the order under section 2 and refund you rather than supply at that price.</p>
       <p>Where we have agreed credit terms with you in writing, payment is due 30 days from the invoice date; overdue amounts accrue interest at 1.5% per month or the maximum rate permitted by applicable law, whichever is lower, and you are responsible for reasonable costs of collection, including attorneys' fees.</p>
 
@@ -1477,8 +1540,9 @@ def build_legal():
       <p>{entity} is a sole proprietorship operating from {address}. We are responsible for the personal information described in this policy. Contact us at <a href="mailto:{email}">{email}</a>.</p>
 
       <h2>2. What we collect</h2>
-      <p><strong>What you give us when you order.</strong> Checkout is hosted by Stripe, who collect your name, email address, telephone number, shipping address and payment details in order to take the payment. Stripe then passes us everything except your card details, which we never receive, hold or have access to. We record that, what you ordered, what you paid, and the research use confirmation you gave before checkout, as our order record of the sale.</p>
+      <p><strong>What you give us when you order.</strong> Checkout is hosted by our payment provider, who collect your name, email address, telephone number, shipping address and payment details in order to take the payment. They then pass us everything except your card details, which we never receive, hold or have access to. We record that, what you ordered, what you paid, and the research use confirmation you gave before checkout, as our order record of the sale.</p>
       <p><strong>What you give us when you write to us.</strong> The enquiry form collects your name, email address, telephone number, the compound your question is about and the message itself.</p>
+      <p><strong>What you type into the order and product help assistant.</strong> Your questions, and the assistant's earlier replies in the same conversation, are sent to our AI provider to produce an answer. We do not store the conversation or write its content to our logs; it is held in your browser only until you close the tab.</p>
       <p><strong>What is collected automatically.</strong> Our hosting provider records standard server logs — IP address, browser user-agent, pages requested and timestamps — which are used to keep the site available and to investigate abuse.</p>
       <p><strong>What stays on your device.</strong> Your cart is held in your browser's local storage so it survives moving between pages. It remains on your device until you clear it, check out, or clear your browser data. We cannot see it until you start checkout.</p>
       <p><strong>What we do not do.</strong> We set no advertising or analytics cookies, we run no tracking pixels, and we do not build profiles of visitors.</p>
@@ -1487,9 +1551,10 @@ def build_legal():
       <p>To take payment for, process and fulfil your order; to reply to your enquiry; to apply the conditions of supply in our <a href="../compliance.html">research use policy</a>; to keep the commercial, tax and lot-traceability records our business needs; and to protect the site against abuse.</p>
 
       <h2>4. Who else sees it</h2>
-      <p><strong>Our payment processor.</strong> Checkout and payment are handled by Stripe, Inc. as an independent controller of the payment data it collects. Their <a href="https://stripe.com/privacy" rel="noopener">privacy policy</a> governs that processing. We receive from Stripe the name, email address, telephone number and shipping address you gave them, and the fact and amount of the payment — never your card number.</p>
+      <p><strong>Our payment processor.</strong> Checkout and payment are handled by our payment provider as an independent controller of the payment data it collects, and its own privacy policy governs that processing. We will name the provider here before we take a payment. We receive from it the name, email address, telephone number and shipping address you gave them, and the fact and amount of the payment — never your card number.</p>
       <p><strong>Our hosting and form provider.</strong> The site is hosted on Netlify, which serves the pages, runs the small functions behind checkout, keeps the server logs described above, and receives enquiries from the contact form on our behalf as a service provider.</p>
-      <p><strong>Our order database.</strong> Once a payment completes, the order is recorded in a database hosted by Supabase, acting as our service provider. It holds what Stripe passed us &mdash; your name, email address, telephone number and shipping address &mdash; together with what you ordered and what you paid. It does not hold, and never receives, your card details. The records are not readable from this website: they are reachable only by our own server-side code holding a key that is never sent to a browser.</p>
+      <p><strong>Our order database.</strong> Once a payment completes, the order is recorded in a database hosted by Neon, acting as our service provider. It holds what our payment provider passed us &mdash; your name, email address, telephone number and shipping address &mdash; together with what you ordered and what you paid. It does not hold, and never receives, your card details. The records are not readable from this website: they are reachable only by our own server-side code holding a key that is never sent to a browser.</p>
+      <p><strong>Our AI provider.</strong> The order and product help assistant is powered by Anthropic, PBC, acting as our service provider. When you send a question, our server passes it and the earlier messages of that conversation to Anthropic's API to generate the reply; no name, email address, order or payment detail is attached. Anthropic's <a href="https://www.anthropic.com/legal/privacy" rel="noopener">privacy policy</a> describes how it handles API data. Do not type personal or payment details into the assistant.</p>
       <p><strong>No other third party.</strong> Typefaces, stylesheets, scripts and images are all served from this site itself, so loading a page contacts nobody but our hosting provider. We do not sell personal information, and we do not share it for cross-context behavioural advertising. We disclose it only where the law requires it, where we must to establish or defend a legal claim, or to a carrier where that is necessary to deliver your order.</p>
 
       <h2>5. How long we keep it</h2>
@@ -1721,14 +1786,14 @@ def build_coa():
 
 
 # --------------------------------------------------------------------------- payment
-# Ordering is a card payment on a Stripe-hosted page, so this page explains the
+# Ordering is a payment on the payment provider's own page, so this page explains the
 # sequence and what each step actually collects.
 #
 # Deliberately NOT a redirector. A page that took a session id or a URL in the
 # query string and forwarded the visitor to it would be an open redirect on a
 # domain that takes payments — a ready-made phishing tool aimed at our own
 # customers. The only way to a payment page is the checkout button, which gets
-# its URL from Stripe's API in the response to a request this site made.
+# its URL from the payment provider in the response to a request this site made.
 
 
 def build_pay():
@@ -1739,7 +1804,7 @@ def build_pay():
     <div class="sec-head">
       <span class="eyebrow">Ordering &amp; payment</span>
       <h1 class="display h-sec">Placing <em>an order.</em></h1>
-      <p class="lede">Catalogue prices are the prices you pay. Add pack sizes to the cart, confirm the research use condition, and pay by card on a page hosted by Stripe. There is no account to open and no quotation to wait for.</p>
+      <p class="lede">Catalogue prices are the prices you pay. Add pack sizes to the cart, confirm the research use condition, and pay online on a page hosted by our payment provider. There is no account to open and no quotation to wait for.</p>
     </div>
 
     <ol class="pay-steps">
@@ -1753,11 +1818,11 @@ def build_pay():
       </li>
       <li>
         <h2>Checkout</h2>
-        <p>Checkout is hosted by Stripe on their own page. They collect your name, email address, phone number and shipping address, and take the card payment. Your card details never reach this site: we receive the order and your delivery details, and nothing else.</p>
+        <p>Checkout is hosted by our payment provider on their own page. They collect your name, email address, phone number and shipping address, and take the payment. Your card details never reach this site: we receive the order and your delivery details, and nothing else.</p>
       </li>
       <li>
         <h2>Confirmation</h2>
-        <p>Stripe emails you a receipt immediately, and we follow it with an order confirmation. The contract is formed at that confirmation or at despatch, whichever comes first — see <a href="legal/terms.html">terms of sale</a>, section 2.</p>
+        <p>You receive a payment receipt straight away, and we follow it with an order confirmation. The contract is formed at that confirmation or at despatch, whichever comes first — see <a href="legal/terms.html">terms of sale</a>, section 2.</p>
       </li>
       <li>
         <h2>Release and despatch</h2>
@@ -1769,7 +1834,7 @@ def build_pay():
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
       <div>
         <h3>How to know a payment request is really ours</h3>
-        <p>The only payment page we use is the one the checkout button opens, hosted by Stripe on a <strong>stripe.com</strong> address. Our email reaches you only from <strong>{E(CONTACT_EMAIL)}</strong>. We will never telephone you for card details, never email you a link to a payment page on another domain, and never send instructions that change bank details at short notice. If anything about a payment request looks wrong, stop and contact us on the address above before paying.</p>
+        <p>The only payment page we use is the one the checkout button opens, hosted by our payment provider on its own secure address. Our email reaches you only from <strong>{E(CONTACT_EMAIL)}</strong>. We will never telephone you for card details, never email you a link to a payment page on another domain, and never send instructions that change bank details at short notice. If anything about a payment request looks wrong, stop and contact us on the address above before paying.</p>
       </div>
     </div>
 
@@ -1799,13 +1864,13 @@ def build_pay():
 </section>
 """
     return page("pay.html", f"Ordering &amp; Payment — {BRAND}",
-                "How to order: add pack sizes to the cart, confirm research use, and pay by card on a Stripe-hosted checkout. Shipping and tax are shown before you pay.",
+                "How to order: add pack sizes to the cart, confirm research use, and pay online on a secure hosted checkout. Shipping and tax are shown before you pay.",
                 body, "")
 
 
 # --------------------------------------------------------------------------- order received
-# Stripe's success_url. It confirms nothing it cannot know: the page is reached
-# by a redirect, not by a webhook, so it reports what Stripe has already done
+# The payment provider's return page. It confirms nothing it cannot know: the
+# page is reached by a redirect, so it reports what the provider has already done
 # (taken the payment, emailed a receipt) and does not claim the order has been
 # accepted — under the terms of sale that happens at our confirmation.
 
@@ -1817,7 +1882,7 @@ def build_order_received():
     <div class="sec-head">
       <span class="eyebrow">Order received</span>
       <h1 class="display h-sec">Thank you &mdash; <em>that is paid.</em></h1>
-      <p class="lede">Stripe has taken the payment and emailed you a receipt. Check your spam folder if it has not arrived within a few minutes.</p>
+      <p class="lede">Your payment has been taken and a receipt is on its way by email. Check your spam folder if it has not arrived within a few minutes.</p>
     </div>
 
     <div class="prose">
@@ -1845,7 +1910,7 @@ def build_order_received():
     clear = ('<script>try{localStorage.removeItem("tr_cart_v1");'
              'localStorage.removeItem("tr_rfq_v1");}catch(e){}</script>')
     return page("order-received.html", f"Order received — {BRAND}",
-                "Your payment has been taken by Stripe. What happens next, and how to reach us about an order.",
+                "Your payment has been taken. What happens next, and how to reach us about an order.",
                 body, "", extra_body=clear)
 
 
@@ -1971,7 +2036,13 @@ def build_meta(pages):
         "window.TR_CONFIG = " + json.dumps(
             {"contactEmail": CONTACT_EMAIL, "formProvider": FORM_PROVIDER,
              "formEndpoint": FORM_ENDPOINT,
-             "checkoutEndpoint": "/.netlify/functions/create-checkout-session",
+             # No payment provider is connected: the cart says so instead of
+             # opening a checkout. A provider's adapter sets its endpoint here.
+             "checkoutEndpoint": "",
+             "chatEndpoint": "/.netlify/functions/chat",
+             "chatEnabled": CHAT,
+             "addonAvailabilityEndpoint": "/.netlify/functions/addon-availability",
+             "addons": ADDONS_BROWSER,
              "currency": CURRENCY,
              "noCart": NO_CART_IDS,
              "volumeTiers": VOLUME_TIERS,
@@ -1979,11 +2050,12 @@ def build_meta(pages):
              "demo": DEMO}, indent=2
         ) + ";\n", encoding="utf-8")
 
-    # The checkout function must not take a price from the browser, so it needs
-    # its own copy of the price table. Generating it here keeps products.json the
-    # single source of truth: the function cannot drift from the catalogue
-    # because it is rebuilt from it on every deploy. Only what pricing an order
-    # needs is written out — no prose, no assay panels.
+    # The server must not take a price from the browser, so the functions need
+    # their own copy of the price table (priced by netlify/lib/payment.js).
+    # Generating it here keeps products.json the single source of truth: it
+    # cannot drift from the catalogue because it is rebuilt from it on every
+    # deploy. Only what pricing an order needs is written out — no prose, no
+    # assay panels.
     catalog = {
         "currency": CURRENCY,
         "demo": DEMO,
@@ -2002,15 +2074,125 @@ def build_meta(pages):
     fn.mkdir(parents=True, exist_ok=True)
     (fn / "catalog.json").write_text(
         json.dumps(catalog, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    # The add-on price and eligibility table netlify/lib/addons.js reads.
+    (fn / "addons.json").write_text(
+        json.dumps(ADDONS_SERVER, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     (ROOT / "robots.txt").write_text(
         ("User-agent: *\nDisallow: /\n" if DEMO else
-         f"User-agent: *\nAllow: /\nDisallow: /tools/\n\nSitemap: {SITE}/sitemap.xml\n"),
+         f"User-agent: *\nAllow: /\nDisallow: /tools/\nDisallow: /console/\n\nSitemap: {SITE}/sitemap.xml\n"),
         encoding="utf-8")
 
     # Netlify and Cloudflare Pages both read _redirects; without it a static
     # host returns its own 404 rather than the one in this repo.
     (ROOT / "_redirects").write_text("/*  /404.html  404\n", encoding="utf-8")
+
+
+# --------------------------------------------------------------- chat knowledge
+# The pages the support assistant may answer from, besides the catalogue itself.
+# Their text is lifted from the generated HTML, so the assistant reads exactly
+# what a visitor would and cannot drift from the site.
+CHAT_PAGES = ["faq.html", "pay.html", "legal/shipping.html", "legal/terms.html",
+              "legal/privacy.html", "compliance.html", "quality.html", "coa.html"]
+
+# Product fields the assistant is given. An allow-list, not a deny-list, so a
+# field added to products.json later stays out until someone decides otherwise.
+# Deliberately absent: `solubility` (one step from reconstitution advice) and
+# `research` (preclinical descriptions, easily restated as a claim about what a
+# compound does). tools/check.py fails the build if either appears.
+CHAT_PRODUCT_FIELDS = ["id", "name", "synonyms", "cas", "formula", "mw", "sequence",
+                       "form", "appearance", "purity", "storage", "assays", "components"]
+CHAT_EXCLUDED_FIELDS = ("solubility", "research")
+
+
+class _MainText(HTMLParser):
+    """Readable text of a page's <main>, with block elements on their own lines.
+    Scripts, styles, SVG, forms and the breadcrumb are skipped: none of it is
+    prose. Buttons are kept, because the FAQ questions are accordion buttons."""
+    BLOCK = {"p", "li", "h1", "h2", "h3", "h4", "tr", "dt", "dd", "summary",
+             "div", "section", "br", "table", "ul", "ol", "details", "figcaption"}
+    SKIP = {"script", "style", "svg", "nav", "form"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.in_main = 0
+        self.skip = 0
+        self.out = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "main":
+            self.in_main += 1
+        elif self.in_main and tag in self.SKIP:
+            self.skip += 1
+        elif self.in_main and tag in self.BLOCK:
+            self.out.append("\n")
+        elif self.in_main and tag in ("td", "th"):
+            self.out.append(" | ")
+
+    def handle_endtag(self, tag):
+        if tag == "main":
+            self.in_main -= 1
+        elif self.in_main and tag in self.SKIP:
+            self.skip = max(0, self.skip - 1)
+        elif self.in_main and tag in self.BLOCK:
+            self.out.append("\n")
+
+    def handle_data(self, data):
+        if self.in_main and not self.skip:
+            self.out.append(data)
+
+    def text(self) -> str:
+        raw = "".join(self.out)
+        lines = (re.sub(r"[ \t\r\f\v]+", " ", ln).strip(" |") for ln in raw.split("\n"))
+        return "\n".join(ln for ln in lines if ln)
+
+
+def page_text(rel_path: str) -> tuple[str, str]:
+    doc = (ROOT / rel_path).read_text(encoding="utf-8")
+    m = re.search(r"<title>(.*?)</title>", doc, re.S)
+    parser = _MainText()
+    parser.feed(doc)
+    # Titles pass through E() twice on the way into <title>, hence two unescapes.
+    title = html.unescape(html.unescape(m.group(1))).split(" — ")[0].strip() if m else rel_path
+    return title, parser.text()
+
+
+def build_chat_knowledge():
+    """netlify/functions/chat-knowledge.json: everything the assistant may say.
+
+    Regenerated on every build, like catalog.json, so prices, pack sizes and
+    restricted flags cannot disagree with the pages."""
+    def product(p):
+        entry = {k: p[k] for k in CHAT_PRODUCT_FIELDS if p.get(k) not in (None, "", [])}
+        prices = p.get("prices") or {}
+        entry["category"] = CAT_LABEL[p["category"]]
+        entry["page"] = f"products/{p['id']}.html"
+        entry["packs"] = [{"size": s, "price": prices.get(s)} for s in p["sizes"]]
+        entry["inStock"] = bool(p.get("available", True))
+        entry["buyableOnline"] = buyable(p)
+        entry["restricted"] = bool(p.get("restricted"))
+        return entry
+
+    notice = re.sub(r"<[^>]+>", "", RESTRICTED_NOTICE_HTML)
+    knowledge = {
+        "brand": BRAND,
+        "demo": DEMO,
+        "site": SITE,
+        "contactEmail": CONTACT_EMAIL,
+        "contactPage": "contact.html",
+        "compliancePage": "compliance.html",
+        "currency": CURRENCY,
+        "volumeTiers": VOLUME_TIERS,
+        "freeShippingOver": FREE_SHIPPING_OVER,
+        "restrictedNotice": f"{RESTRICTED_NOTICE_TITLE}. {notice}",
+        "products": [product(p) for p in PRODUCTS],
+        "pages": [dict(zip(("path", "title", "text"), (rel, *page_text(rel))))
+                  for rel in CHAT_PAGES],
+    }
+    fn = ROOT / "netlify/functions"
+    fn.mkdir(parents=True, exist_ok=True)
+    (fn / "chat-knowledge.json").write_text(
+        json.dumps(knowledge, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 # --------------------------------------------------------------------------- main
@@ -2054,7 +2236,31 @@ def version_assets(pages):
     return digests
 
 
+ADDONS_SERVER: dict = {}
+ADDONS_BROWSER: dict = {}
+
+
+def load_addons():
+    """Validate assets/data/addons.json and resolve it into the two tables.
+    A bad file stops the build: an add-on with no price, an unknown product in
+    a rule, or anything the compliance guard refuses must not reach a cart."""
+    global ADDONS_SERVER, ADDONS_BROWSER
+    if ADDONS_PREVIEW and os.environ.get("NETLIFY"):
+        raise SystemExit("TR_ADDONS_PREVIEW is for local review only and cannot be deployed.")
+    config = ADDONS_CFG.load(ADDONS_FILE)
+    ready = ADDONS_CFG.PAYMENT_INTEGRATION_READY
+    errors = ADDONS_CFG.validate(config, PRODUCTS, CATEGORIES, ready=ready or ADDONS_PREVIEW)
+    if errors:
+        raise SystemExit("addons.json is not usable:\n  " + "\n  ".join(errors))
+    ADDONS_SERVER, ADDONS_BROWSER = ADDONS_CFG.tables(
+        config, PRODUCTS, CURRENCY, ready=ready, preview=ADDONS_PREVIEW)
+    if ADDONS_PREVIEW:
+        print("ADD-ON PREVIEW BUILD: the cart shows enabled add-ons that checkout does not charge. "
+              "Do not deploy; rebuild without TR_ADDONS_PREVIEW.")
+
+
 def main():
+    load_addons()
     for d in ("products", "legal"):
         p = ROOT / d
         if p.exists():
@@ -2084,11 +2290,18 @@ def main():
             print(f"Removed stale page: {stale.name}")
 
     build_meta(pages)
+    build_chat_knowledge()
+    # The operations console: its own shell, never in the sitemap (build_meta
+    # above sees only the storefront's pages) and disallowed in robots.txt.
+    console_pages = console_build.build_console()
     # After build_meta, because it generates assets/js/config.js and a hash of
     # a file that does not exist yet would pin the previous build's config.
-    stamped = version_assets(pages)
+    stamped = version_assets(pages + console_pages)
     print(f"Built {len(pages)} pages:")
     for p in pages:
+        print(f"  {p}")
+    print(f"Built {len(console_pages)} console pages:")
+    for p in console_pages:
         print(f"  {p}")
     print("  sitemap.xml\n  robots.txt")
     print(f"Cache-stamped {len(stamped)} assets")

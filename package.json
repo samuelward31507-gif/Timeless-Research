@@ -1,0 +1,8 @@
+{
+  "name": "timeless-research",
+  "private": true,
+  "description": "Runtime dependencies of the Netlify Functions. The static site itself is built by tools/build.py and has none.",
+  "dependencies": {
+    "@neondatabase/serverless": "1.2.0"
+  }
+}

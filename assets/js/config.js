@@ -4,7 +4,16 @@ window.TR_CONFIG = {
   "contactEmail": "accounts@timelessresearch.com",
   "formProvider": "netlify",
   "formEndpoint": "",
-  "checkoutEndpoint": "/.netlify/functions/create-checkout-session",
+  "checkoutEndpoint": "",
+  "chatEndpoint": "/.netlify/functions/chat",
+  "chatEnabled": false,
+  "addonAvailabilityEndpoint": "/.netlify/functions/addon-availability",
+  "addons": {
+    "show": false,
+    "preview": false,
+    "addons": {},
+    "eligibility": {}
+  },
   "currency": "USD",
   "noCart": [],
   "volumeTiers": [

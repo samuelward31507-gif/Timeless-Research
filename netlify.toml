@@ -5,14 +5,23 @@
   command = "python3 tools/build.py && python3 tools/dist.py"
   publish = "dist"
   # Checkout needs a server, because Stripe sessions are created with the secret
-  # key. This is the only server-side code in the project.
+  # key; so does the support assistant, because it calls the Anthropic API with
+  # one. Those are the only server-side code in the project.
   functions = "netlify/functions"
 
 [functions]
-  # The price table the checkout function charges from. tools/build.py
-  # regenerates it from assets/data/products.json on every deploy, so it cannot
-  # drift from the catalogue.
-  included_files = ["netlify/functions/catalog.json"]
+  # The price table the checkout function charges from, everything the
+  # support assistant may answer from, and the optional add-on table.
+  # tools/build.py regenerates all three from assets/data/ and the site's own
+  # pages on every deploy, so none can drift from its source.
+  included_files = ["netlify/functions/catalog.json", "netlify/functions/chat-knowledge.json",
+                    "netlify/functions/addons.json"]
+
+# New-order notifications to the owner: sends whatever the outbox (migration
+# 0005) has due, every minute. Scheduled functions run on the published
+# production deploy only. It sends nothing unless NOTIFY_ENABLED is set to 1.
+[functions."notify-dispatch"]
+  schedule = "* * * * *"
 
 [build.environment]
   PYTHON_VERSION = "3.11"
@@ -32,8 +41,8 @@
   # Set to "1" once Stripe Tax is configured on the Stripe account.
   TR_STRIPE_TAX = ""
   #
-  # Four secrets are deliberately NOT set here. This file is in the repository,
-  # and a key in version control is a key on the internet. All four go in
+  # Five secrets are deliberately NOT set here. This file is in the repository,
+  # and a key in version control is a key on the internet. All five go in
   # Netlify under Site configuration > Environment variables:
   #
   #   STRIPE_SECRET_KEY          sk_test_... for a demo, sk_live_... to trade.
@@ -48,6 +57,25 @@
   #                              bypasses row level security, which is the whole
   #                              point: the orders table has RLS on with no
   #                              policies, so nothing else can read it at all.
+  #   ANTHROPIC_API_KEY          sk-ant-... for the order and product help
+  #                              assistant. Optional: without it the assistant
+  #                              says it is unavailable and points to the contact
+  #                              page. Put the key in its own Claude Console
+  #                              workspace with a monthly spend limit first.
+  #
+  # New-order notifications (optional; netlify/functions/notify-dispatch.js).
+  # All secrets or personal details, so all in the Netlify UI, never here:
+  #   NOTIFY_ENABLED             Exactly 1 to send. Anything else sends nothing.
+  #   POSTMARK_SERVER_TOKEN      Postmark server API token.
+  #   NOTIFY_EMAIL_FROM          Sender on a domain verified in Postmark.
+  #   NOTIFY_EMAIL_TO            The owner's address.
+  #   POSTMARK_MESSAGE_STREAM    Optional; Postmark's "outbound" if unset.
+  #   TWILIO_ACCOUNT_SID         AC...
+  #   TWILIO_AUTH_TOKEN          The account's auth token.
+  #   TWILIO_FROM                Sending number (+1...), or instead:
+  #   TWILIO_MESSAGING_SERVICE_SID  MG...
+  #   NOTIFY_SMS_TO              The owner's mobile number (+1...).
+  # /.netlify/functions/health reports each as ok, missing or invalid.
   # Identity used in the legal documents. These must be your real trading
   # details. The build renders anything missing as a visible marker in the page
   # and tools/check.py fails while one is present, so filling these in is not
@@ -76,6 +104,19 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Frame-Options = "SAMEORIGIN"
+
+# The operations console (console/, tools/console_build.py): private, never
+# cached, never indexed, and allowed to run only its own files. These pages
+# also match "/*.html" above, which keeps X-Frame-Options: SAMEORIGIN and
+# nosniff on them; frame-ancestors says the same thing to browsers that read
+# the CSP. tools/check.py fails if this block loses any of these.
+[[headers]]
+  for = "/console/*"
+  [headers.values]
+    Cache-Control = "no-store"
+    X-Robots-Tag = "noindex, nofollow"
+    Referrer-Policy = "no-referrer"
+    Content-Security-Policy = "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'self'; base-uri 'none'"
 
 [[headers]]
   for = "/assets/*"

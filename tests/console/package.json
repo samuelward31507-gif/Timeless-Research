@@ -1,0 +1,13 @@
+{
+  "name": "timeless-research-console-tests",
+  "private": true,
+  "description": "Browser tests and an offline development server for the operations console (console/). Test-only: nothing here is deployed. Runs the real admin-* handlers on tests/helpers/admin-fixtures.js; contacts no external service. Build first: python3 tools/build.py.",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  }
+}
