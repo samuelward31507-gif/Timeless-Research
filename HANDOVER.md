@@ -627,6 +627,84 @@ and are before processor fees, a refund removes the whole order, and margin
 covers only orders allocated to lots with a known unit cost. All three improve
 when the payment processor is chosen and integrated.
 
+## 3g. Operations console sign-in (not switched on yet)
+
+The console will be signed into with Supabase Auth: the same Supabase project
+that records orders, no other sign-in provider. What exists so far is the
+server-side check every console endpoint will run,
+`netlify/lib/admin-auth.js` (README, *Operations console: authentication*).
+There is no sign-in page and no console endpoint yet, so nothing here is
+reachable, and nothing has been applied to any Supabase project.
+
+The rules it enforces, in short:
+
+- **Invite-only, owner-only.** Only an active `staff_members` row with the
+  `owner` role gets in. A Supabase user who is not in that table gets nothing.
+- **MFA is mandatory.** A signed-in user who has not passed a second factor is
+  refused on every request, whatever the dashboard allows.
+- **The server decides who is acting.** The staff member recorded against a
+  change comes from the verified sign-in, looked up in `staff_members` on every
+  request. Nothing a browser sends can name someone else. Deactivating a staff
+  member locks them out on their next request.
+- **The service role key never leaves the server**, and browsers still have no
+  access to the database at all: no row level security policies were added.
+
+### Configuring the Supabase project (staging first, then production)
+
+None of this is code; it is set in the Supabase dashboard. Do it on the
+staging project first and run the checks below before touching production.
+
+1. **Authentication > Sign In / Providers:** turn **off** "Allow new users to
+   sign up". Users then exist only when invited.
+2. **Authentication > Multi-Factor:** enable **TOTP** (authenticator app).
+   The console will require it; this setting is what lets a user enrol.
+3. **JWT signing keys** (Project Settings > JWT Keys): the project must sign
+   with an **asymmetric** key (ECC P-256 / ES256, or RSA / RS256) and publish
+   it at `https://<ref>.supabase.co/auth/v1/.well-known/jwks.json`. The library
+   deliberately has no shared-secret (HS256) mode. If the project still signs
+   with the legacy JWT secret, migrate it to asymmetric keys first; do not add
+   an HS256 path.
+4. **Access token expiry:** keep it short (the default one hour, or less).
+   The library refuses any token valid for more than 24 hours. A signed-out
+   token keeps verifying until it expires, so shorter is safer; deactivation in
+   `staff_members` does not wait for expiry.
+5. **URL configuration:** set the site URL and an allow-list of redirect URLs
+   to the console's own address only, once it exists.
+6. **Invite the owner:** Authentication > Users > Invite user. When they have
+   accepted, copy their user id and run once in the SQL editor:
+
+   ```sql
+   select bootstrap_owner('<owner email>', '<auth user id>', '<display name>');
+   ```
+
+   It refuses if an active owner already exists, and it cannot be called
+   through the API.
+7. **Netlify environment:** nothing new. The console uses the same
+   `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` as the order webhook.
+   `SUPABASE_URL` must be the plain `https://<ref>.supabase.co`.
+
+### What has to be checked against the staging project
+
+Everything above is tested offline only (`tests/admin-auth.test.js`, with
+locally generated keys and stubbed Supabase). These have **not** been checked
+against real Supabase, and must be before the console is relied on:
+
+- that the project's tokens are ES256 or RS256 with a `kid` found in its
+  published key set (if staging turns out to require HS256, stop: that is a
+  design change, not a setting);
+- that `iss` is exactly `https://<ref>.supabase.co/auth/v1`, `aud` and `role`
+  are `authenticated`, `sub` is the user id, and `is_anonymous` is false;
+- that a user who has completed TOTP gets `aal: "aal2"`, and one who has only
+  entered a password or followed an email link gets `aal1` and is refused;
+- that the key set endpoint answers without credentials, and the service role
+  can read `staff_members` through PostgREST with 0003 and 0004 applied;
+- that public sign-up is really off, and an invited user who is not in
+  `staff_members` is refused;
+- that `bootstrap_owner` works with a real Auth user id, and the
+  `staff_members.auth_user_id` foreign key to `auth.users` is created (it only
+  can be on Supabase; the offline tests have no `auth` schema);
+- that all of it behaves the same inside Netlify's function runtime.
+
 ---
 
 ## 4. Decisions only you can make
@@ -796,6 +874,10 @@ Stated plainly so you are not surprised, and so a buyer is not misled.
   views and calculations are tested against PostgreSQL 16 (`tests/db`), but
   it has not been applied to the live Supabase project, and revenue figures
   stay incomplete until the payment integration records fees, tax and skus.
+- **Console sign-in has not met real Supabase Auth.** The server-side check
+  (`netlify/lib/admin-auth.js`) is covered offline with tokens the tests sign
+  themselves; no token from the real project has been verified. §3g lists
+  what must be checked on the staging project.
 - **Add-ons have not been through a payment.** The configuration, cart,
   server-side pricing, stock ledger and reports are tested, the SQL against
   Postgres 16, but no payment integration charges for add-ons yet, so none
@@ -810,6 +892,7 @@ python3 tools/build.py      # regenerate every page
 python3 tools/check.py      # links, metadata, labels, unfilled legal details
 node --test tests/chat.test.js   # the support assistant's function, stubbed
 node --test tests/addons.test.js # add-ons, server side
+node --test tests/admin-auth.test.js   # console authentication, offline
 python3 -m unittest discover -s tests -p 'test_*.py'   # add-on configuration
 (cd tests/db && npm ci && npm test)   # database migrations, against PostgreSQL 16
 ```

@@ -88,6 +88,7 @@ netlify/functions/
   addon-availability.js In stock or not, per stock-tracked add-on (read-only)
   addons.json           Add-on prices and eligibility (generated)
 netlify/lib/addons.js   Add-on validation and pricing, payment-provider agnostic
+netlify/lib/admin-auth.js  Operations console: who is calling (token + staff)
 tools/addons.py         Reads, validates and resolves assets/data/addons.json
 supabase/migrations/    0001 orders; 0002 add-ons; 0003 order lifecycle,
                         inventory and lots, financials, customer views
@@ -582,8 +583,31 @@ as a duplicate. Export any view as CSV from the Supabase dashboard.
 keyed by email: first and last order, order count, lifetime revenue, repeat
 flag and repeat rate. No accounts, no profiles, no marketing fields.
 
-**Access.** As before: row level security on with no policies, views and
-functions revoked from browser roles. Only the service role can read or write.
+**Access.** As changed by `0004_console_foundation.sql`:
+
+- **Browser roles** (`anon`, `authenticated`) have no direct database access:
+  row level security is on with no policies, and every table, view and
+  function is revoked from them.
+- **The server (service role)** reads everything. It still writes `orders`
+  and `order_items` directly, because that is how the payment path records a
+  paid order. It cannot insert, update, delete or truncate the console and
+  operations tables:
+  - staff, roles and permissions;
+  - the audit log, order notes and line mappings;
+  - status history and transitions;
+  - stock items, lots, allocations and stock movements;
+  - expenses, expense categories and the expense import table.
+- **Console writes** go only through the protected database functions
+  (`admin_*`, `ship_order`, `receive_lot`, `sync_inventory_items`). Each takes
+  the acting staff member's id, which the server takes from the verified
+  sign-in ([Operations console: authentication](#operations-console-authentication)).
+  The database then checks that this is an active staff member whose role
+  allows the action, records the change against them, and writes the audit
+  entry in the same transaction.
+- **Internal helpers are not callable through the API.** This covers the 0003
+  helpers that take a free-text actor (`set_order_status`,
+  `allocate_order_line`, `record_stock_movement`, `import_expenses`) and
+  `bootstrap_owner`. They remain usable from the Supabase SQL editor.
 
 **Testing.**
 
@@ -594,6 +618,85 @@ cd tests/db && npm ci && npm test     # PostgreSQL 16 in-process; test-only depe
 `tests/db` is the one place with a package: PGlite, pinned, so the migrations
 are tested against a real database without a server. Nothing in it is
 deployed; the site and its functions still have no runtime dependencies.
+
+## Operations console: authentication
+
+`netlify/lib/admin-auth.js` decides who is calling the operations console. It
+is a library, not an endpoint: there are no console endpoints or screens yet,
+and nothing on the public site uses it. Every console endpoint will start with
+
+```js
+const { authenticateStaff, denialResponse } = require('../lib/admin-auth.js');
+const who = await authenticateStaff(event);
+if (!who.ok) return denialResponse(who);
+// who.staff.id is the acting staff member: the p_actor of every database call
+```
+
+**Who gets in.** A Supabase Auth user who has passed a second factor and is an
+active row in `staff_members` with an allowed role. The only allowed role is
+`owner`. Sign-up is invite-only and is set in the Supabase dashboard, not here
+(HANDOVER §3g).
+
+**The actor rule.** The staff member a console action is recorded against is
+`staff_members.id` for the row whose `auth_user_id` is the verified token's
+subject, and nothing else. The library reads the `Authorization: Bearer`
+header and nothing else: an id in the body, the query string, a cookie or any
+other header is never consulted, and a token's other claims cannot name a
+staff member either. The database then checks the same id again
+(`app_require`) before any write.
+
+**What a token must be.**
+
+- Signed with ES256 or RS256 by a key in the project's published key set,
+  `<SUPABASE_URL>/auth/v1/.well-known/jwks.json`, matched by `kid`, with the
+  key's type (EC P-256, or RSA of at least 2048 bits) matching the algorithm.
+  There is no shared-secret (HS256) path at all, so `alg: none` and "the
+  public key used as an HMAC secret" have nothing to work with.
+- `iss` exactly `<SUPABASE_URL>/auth/v1`; `aud` `authenticated`; `role`
+  `authenticated`; `sub` a UUID; not an anonymous user.
+- `exp` present and not passed, `iat` present and not in the future, `nbf` (if
+  present) not in the future, all with 30 seconds of clock tolerance; a token
+  valid for more than 24 hours is refused outright.
+- `aal` `aal2`: MFA is enforced here on every request, whatever the dashboard
+  allows.
+- The header is at most 8 KB; a header with `crit`, or two different
+  Authorization values, is refused.
+
+**Signing keys.** The key set is fetched without credentials, with a 5-second
+timeout, cached for 10 minutes, and refetched early when a token names a `kid`
+it does not hold (a key rotation), at most once a minute so random `kid`s
+cannot make it fetch on demand. A `kid` published twice is ignored. If the key
+set is needed and cannot be fetched, nothing is verified.
+
+**Staff, every request.** The verified subject is looked up in
+`staff_members` with the service role key, on every request, so deactivating
+someone takes effect on their next request rather than when their token
+expires. Unknown, inactive and not-allowed-role users are refused. The service
+role key is read from the environment on the server and is never sent
+anywhere but Supabase's REST API.
+
+**Failure.** Always closed. A missing, malformed, forged or expired token is
+401 `not_authorized`; a valid token without MFA is 403 `mfa_required` (said
+only once everything else about the token has checked out, and before
+anything about staff); a valid token that is not active staff is 403
+`not_authorized`. Missing or unsafe configuration (`SUPABASE_URL` must be
+`https://`), an unreachable key set, a PostgREST error or an unexpected answer
+is 500 `unavailable` — never access. The log records a reason code, and the
+user id for staff-level refusals; never a token or any key.
+
+**Configuration.** None new: `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`,
+the same two the order webhook uses.
+
+**Testing.**
+
+```bash
+node --test tests/admin-auth.test.js   # offline; signs its own tokens
+```
+
+The suite generates its own EC and RSA keys, signs tokens with them, and stubs
+the key set and PostgREST. It proves what the library accepts and refuses. It
+does **not** prove that the real Supabase project issues tokens shaped the way
+the library expects: that needs the staging project (HANDOVER §3g).
 
 ## Assets and tooling
 
@@ -732,7 +835,9 @@ see [Support assistant](#support-assistant).
 Add-ons have two, `node --test tests/addons.test.js` and
 `python3 -m unittest discover -s tests -p 'test_*.py'`; see [Add-ons](#add-ons).
 The migrations have their own, `cd tests/db && npm ci && npm test`; see
-[Operations data](#operations-data).
+[Operations data](#operations-data). The console's authentication has
+`node --test tests/admin-auth.test.js`; see
+[Operations console: authentication](#operations-console-authentication).
 
 Audited with axe-core (WCAG 2.1 A/AA) across fifteen representative pages plus
 the open cart drawer in its error state: **0 violations**.
