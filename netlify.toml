@@ -17,6 +17,12 @@
   included_files = ["netlify/functions/catalog.json", "netlify/functions/chat-knowledge.json",
                     "netlify/functions/addons.json"]
 
+# New-order notifications to the owner: sends whatever the outbox (migration
+# 0005) has due, every minute. Scheduled functions run on the published
+# production deploy only. It sends nothing unless NOTIFY_ENABLED is set to 1.
+[functions."notify-dispatch"]
+  schedule = "* * * * *"
+
 [build.environment]
   PYTHON_VERSION = "3.11"
   # Canonical URLs, Open Graph URLs and the sitemap are built from this.
@@ -56,6 +62,20 @@
   #                              says it is unavailable and points to the contact
   #                              page. Put the key in its own Claude Console
   #                              workspace with a monthly spend limit first.
+  #
+  # New-order notifications (optional; netlify/functions/notify-dispatch.js).
+  # All secrets or personal details, so all in the Netlify UI, never here:
+  #   NOTIFY_ENABLED             Exactly 1 to send. Anything else sends nothing.
+  #   POSTMARK_SERVER_TOKEN      Postmark server API token.
+  #   NOTIFY_EMAIL_FROM          Sender on a domain verified in Postmark.
+  #   NOTIFY_EMAIL_TO            The owner's address.
+  #   POSTMARK_MESSAGE_STREAM    Optional; Postmark's "outbound" if unset.
+  #   TWILIO_ACCOUNT_SID         AC...
+  #   TWILIO_AUTH_TOKEN          The account's auth token.
+  #   TWILIO_FROM                Sending number (+1...), or instead:
+  #   TWILIO_MESSAGING_SERVICE_SID  MG...
+  #   NOTIFY_SMS_TO              The owner's mobile number (+1...).
+  # /.netlify/functions/health reports each as ok, missing or invalid.
   # Identity used in the legal documents. These must be your real trading
   # details. The build renders anything missing as a visible marker in the page
   # and tools/check.py fails while one is present, so filling these in is not

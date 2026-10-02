@@ -18,6 +18,8 @@
  */
 'use strict';
 
+const notify = require('../lib/notify.js');
+
 let CATALOG = null;
 try {
   CATALOG = require('./catalog.json');
@@ -80,6 +82,24 @@ exports.handler = async function () {
     ? { set: true, status: 'ok', note: 'Anthropic API key is set. Make sure its Claude Console workspace has a monthly spend limit.' }
     : { set: true, status: 'wrong-key', note: 'An Anthropic API key starts with sk-ant-. This does not.' });
 
+  // New-order notifications to the owner. Each setting is reported as ok,
+  // missing or invalid (the wrong shape for its kind of value); never the
+  // value. Nothing is sent unless NOTIFY_ENABLED is exactly "1".
+  const n = notify.configState(process.env);
+  const notifications = {
+    working: n.enabled && n.email.ready && n.sms.ready,
+    enabled: n.NOTIFY_ENABLED,
+    email: n.email,
+    sms: n.sms,
+    note: !n.enabled
+      ? (n.NOTIFY_ENABLED === 'missing'
+          ? 'Off. Nothing is sent until NOTIFY_ENABLED is set to 1.'
+          : 'Off. NOTIFY_ENABLED must be exactly 1.')
+      : (n.email.ready && n.sms.ready
+          ? 'On. New paid orders are emailed and texted to the owner.'
+          : 'On, but a channel is not fully configured: its notifications wait until the settings marked missing or invalid are fixed.')
+  };
+
   return {
     statusCode: 200,
     headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
@@ -93,6 +113,7 @@ exports.handler = async function () {
       checkout: { working: canCheckOut, stripe },
       order_records: { working: ordersReady, ...orders },
       support_assistant: { working: anthropic.status === 'ok', key: anthropic },
+      notifications,
       next_step: canCheckOut
         ? (ordersReady ? 'Nothing. Place a test order to confirm.'
                        : 'Optional: set the three order settings to record orders in a database.')

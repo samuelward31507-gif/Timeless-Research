@@ -91,9 +91,12 @@ netlify/lib/addons.js   Add-on validation and pricing, payment-provider agnostic
 netlify/lib/admin-auth.js  Operations console: who is calling (token + staff)
 netlify/lib/admin-api.js   Operations console: rules shared by the read API
 netlify/functions/admin-*.js  Operations console API (GET reads; POST writes on three)
+netlify/lib/notify.js   New-order notifications: messages, Postmark and Twilio
+netlify/functions/notify-dispatch.js  Sends due notifications (scheduled, every minute)
 tools/addons.py         Reads, validates and resolves assets/data/addons.json
 supabase/migrations/    0001 orders; 0002 add-ons; 0003 order lifecycle,
-                        inventory and lots, financials, customer views
+                        inventory and lots, financials, customer views;
+                        0004 console data layer; 0005 notification outbox
 tests/                  Node and Python tests (no dependencies)
 tests/db/               Database tests against PostgreSQL 16 (PGlite, test-only)
 sitemap.xml, robots.txt Generated
@@ -880,6 +883,113 @@ migrations applied, acting as the service role. It checks four things:
 - a staff member deactivated mid-request is refused by the database itself
   (403, nothing written).
 
+## New-order notifications
+
+When a paid order arrives, the owner gets an email (Postmark) and a text
+(Twilio), usually within a minute. Nothing is sent until `NOTIFY_ENABLED` is
+set to exactly `1`; HANDOVER §3h says how to set it up.
+
+**One event per new order, never two.** The payment webhook records an order
+with an upsert on its Stripe session, so a retried delivery updates the same
+row. Migration 0005 adds an `AFTER INSERT` trigger on `orders`, which fires
+for a genuinely new paid order and never for a retry. It writes one `email`
+and one `sms` row, unique per order and channel, into the
+`order_notifications` outbox, in the same transaction as the order. If that
+insert fails, the order insert fails too: the webhook answers 500 and Stripe
+retries, so an order is never recorded with its notification silently lost.
+The payment webhook itself is unchanged.
+
+**Sending.** `notify-dispatch` runs every minute (`netlify.toml`) and takes
+no input:
+
+- **Claiming.** It claims up to five due rows with
+  `claim_order_notifications()`. The rows are leased with
+  `FOR UPDATE SKIP LOCKED`, so overlapping runs never claim the same row.
+- **Building.** It builds each message from the order at that moment and
+  sends it.
+- **Recording.** It records the outcome with
+  `complete_order_notification()`:
+  - **sent:** the provider's message id is kept;
+  - **retry:** after 1, 5, 15, 60 and 360 minutes, then failed;
+  - **failed:** the provider refused the request.
+- **Waiting rules:**
+  - An order is given up to five minutes for its line items, which the
+    webhook writes just after the order. After that the email says the
+    lines were unavailable.
+  - A channel that is not fully configured waits rather than being dropped.
+  - Anything over a day old is marked skipped. Switching notifications on
+    never sends a backlog.
+
+Delivery is at least once. If a run stops after a provider accepted a
+message but before the outcome was recorded, that one message is sent again.
+The notification id is sent to Postmark as metadata, for tracing.
+
+**What each message says.**
+
+- **SMS.** Exactly `New order TR-1A2B3C4D: $123.45 USD, 3 items.`, prefixed
+  `[TEST] ` for a test order. No name, address, email or phone.
+- **Email.** It includes:
+  - the reference, time placed and order id;
+  - the customer's name and the total;
+  - each line with quantity and amount;
+  - the shipping address, and its country and state;
+  - whether research use was confirmed.
+
+  It never includes the customer's email or phone: the claim does not even
+  return them. A test order's subject starts `[TEST]` and its body opens with
+  a "test order, not a real sale, do not ship" line.
+- **Live or test.** An order counts as live only if its Stripe session id
+  starts `cs_live_` and the deploy is not a demo. Anything else, including
+  anything unrecognised, is labelled a test.
+
+**What is stored and logged.** The outbox holds ids, channel, delivery state,
+a short error code and the provider's message id. It holds no message text
+and no customer details. Messages are built from the order at send time.
+
+The dispatcher logs a notification id, channel, outcome and error code. It
+never logs a message, a provider's answer, a name, address, email, phone or
+key. Provider error messages are reduced to their numeric code, because they
+quote recipients.
+
+Browser roles have no access to the outbox. The service role can read it
+and call the two functions, but cannot write it directly.
+
+**Health.** `/.netlify/functions/health` has a `notifications` section. It
+shows whether notifications are switched on, and each Postmark and Twilio
+setting as `ok`, `missing` or `invalid`. It never shows a value.
+
+**Testing.**
+
+```bash
+node --test tests/notify.test.js        # offline; messages, providers, dispatcher, health
+(cd tests/db && npm ci && npm test)     # includes notifications.test.mjs
+```
+
+`tests/notify.test.js` covers the following, with Postmark, Twilio and the
+database stubbed:
+
+- the switch;
+- every setting's checks;
+- the exact SMS sentence;
+- that the email holds what was agreed and nothing more;
+- test labelling;
+- the exact provider requests;
+- how every provider answer is classified;
+- the dispatcher's retries, deferrals and time budget;
+- that logs and health never carry personal details or secrets.
+
+`tests/db/notifications.test.mjs` runs migration 0005 in PostgreSQL 16. It
+checks that:
+
+- a new paid order queues exactly two rows, and replays of the webhook's
+  upsert queue none;
+- existing orders are not backfilled;
+- an outbox failure fails the order;
+- access is as described;
+- leases, the line-item wait, stale skipping and the retry schedule behave
+  as described;
+- the dispatcher works end to end against it.
+
 ## Assets and tooling
 
 Every asset is generated and committed; a build and a deploy never touch the
@@ -1024,6 +1134,8 @@ Its read API has `node --test tests/admin-api.test.js tests/admin-read.test.js`;
 see [Operations console: read API](#operations-console-read-api). Its write
 API has `node --test tests/admin-write.test.js`; see
 [Operations console: write API](#operations-console-write-api).
+New-order notifications have `node --test tests/notify.test.js`; see
+[New-order notifications](#new-order-notifications).
 
 Audited with axe-core (WCAG 2.1 A/AA) across fifteen representative pages plus
 the open cart drawer in its error state: **0 violations**.

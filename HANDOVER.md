@@ -773,6 +773,102 @@ Also to check on the staging project, once 0003 and 0004 are applied:
   `23514`, `23505`, `23503`) in the response body, with the functions' own
   messages, as the offline tests assume.
 
+## 3h. New-order notifications (email and text to the owner)
+
+When a paid order arrives, the owner is emailed (Postmark) and texted
+(Twilio), usually within a minute (README, *New-order notifications*).
+Nothing is sent until you switch it on.
+
+### Setting it up
+
+1. **Apply `supabase/migrations/0005_order_notifications.sql`** after 0001 to
+   0004. It adds the outbox and the trigger that fills it. Orders that already
+   exist are not notified.
+2. **Postmark:** create a server, and verify the sending domain (DNS records
+   Postmark gives you). Note the server API token.
+3. **Twilio:** buy a number, or set up a messaging service. **Texting a US
+   number needs A2P 10DLC registration (or toll-free verification) before
+   carriers deliver it.** Allow for that taking days, and for carriers being
+   cautious about this product category.
+4. **In Netlify, Site configuration > Environment variables** (never in
+   `netlify.toml`: these are keys and personal details):
+
+   | Variable | Value |
+   |---|---|
+   | `POSTMARK_SERVER_TOKEN` | the server token |
+   | `NOTIFY_EMAIL_FROM` | an address on the verified domain |
+   | `NOTIFY_EMAIL_TO` | the owner's address |
+   | `POSTMARK_MESSAGE_STREAM` | optional; Postmark's `outbound` if unset |
+   | `TWILIO_ACCOUNT_SID` | `AC…` |
+   | `TWILIO_AUTH_TOKEN` | the account's auth token |
+   | `TWILIO_FROM` | the sending number (`+1…`) **or** `TWILIO_MESSAGING_SERVICE_SID` (`MG…`), not both |
+   | `NOTIFY_SMS_TO` | the owner's mobile (`+1…`) |
+   | `NOTIFY_ENABLED` | `1`, last, once the rest show `ok` |
+
+5. **Redeploy**, then open `/.netlify/functions/health`. Under
+   `notifications`, every setting should read `ok` and `working` should be
+   `true`.
+6. **Place a test order.** Within a couple of minutes you should get an email
+   whose subject starts `[TEST]` and a text starting `[TEST] New order`. Use
+   Stripe's "Resend" on the webhook delivery: no second email or text should
+   arrive.
+
+The schedule runs on the published production deploy only, not on deploy
+previews. `NOTIFY_ENABLED` is the off switch: remove it or set it to `0` and
+nothing more is sent. Orders keep queuing, and anything over a day old is
+skipped rather than sent when it is switched back on.
+
+### What the messages contain, and what they do not
+
+- **The text is deliberately minimal.**
+  `New order TR-1A2B3C4D: $123.45 USD, 3 items.` No name, address, email or
+  phone.
+- **The email** adds:
+  - the customer's name;
+  - the lines;
+  - the shipping address;
+  - whether research use was confirmed, flagged loudly when it was not.
+
+  It never includes the customer's email or phone.
+- **There is no console link yet;** it comes with the console screens.
+
+**Test orders are always marked `[TEST]`.** An order counts as live only when
+its Stripe session is a live one (`cs_live_…`) and this is not a demo deploy.
+
+### Things to know
+
+- **A notification is not proof of payment.** Check the order in Stripe
+  before shipping anything unusual.
+- **Delivery is at least once.** In the rare case that a send succeeds but
+  recording it fails, the owner gets the same alert twice; nothing is lost.
+- **Delayed payment methods are not covered.** The webhook records an order
+  only when Checkout reports it paid at once (`checkout.session.completed`
+  with `payment_status = paid`). It does not yet handle
+  `checkout.session.async_payment_succeeded`, so an order paid by a delayed
+  method (a bank debit, for example) is neither recorded nor notified. Keep
+  only instant methods enabled in Stripe until that is addressed.
+
+### To check on the staging project
+
+- that 0005 applies on top of 0001-0004;
+- that a Stripe test order queues exactly two outbox rows, and "Resend" adds
+  none;
+- **Postmark's API, as built from the documentation we know:**
+  - the `X-Postmark-Server-Token` header;
+  - the JSON fields `From`, `To`, `Subject`, `TextBody`, `MessageStream`,
+    `Tag` and `Metadata`;
+  - the `MessageID` and `ErrorCode` in the answer;
+  - whether Postmark offers an idempotency key (this pass does not rely on
+    one);
+- **Twilio's API:** the Messages endpoint with Basic auth, the form fields
+  `To`, `From` or `MessagingServiceSid`, and `Body`, and the `sid` and
+  numeric `code` in the answer;
+- **that two overlapping runs never claim the same row.** This relies on
+  PostgreSQL's `FOR UPDATE SKIP LOCKED`; the offline tests use a
+  single-connection database and cannot run two claims at once;
+- that the scheduled function runs every minute on the production deploy,
+  and what calling its URL directly does (it takes no input either way).
+
 ## 4. Decisions only you can make
 
 **The three restricted compounds.** Retatrutide, tirzepatide and oxytocin are
@@ -948,6 +1044,10 @@ Stated plainly so you are not surprised, and so a buyer is not misled.
   covered offline with Supabase stubbed, and every table and column they read
   is checked against the migrations in PostgreSQL 16, but none has run against
   a Supabase project or behind real PostgREST. §3g lists what to check.
+- **No notification has been sent.** Email and text are covered offline,
+  with Postmark and Twilio stubbed. The outbox is checked against the
+  migrations in PostgreSQL 16. §3h lists what to check on staging, including
+  the provider APIs themselves.
 - **The console write API has not changed real data.** All eighteen actions
   are covered offline, including against the migrations in PostgreSQL 16, but
   none has run against a Supabase project or behind real PostgREST.
@@ -968,6 +1068,7 @@ node --test tests/addons.test.js # add-ons, server side
 node --test tests/admin-auth.test.js   # console authentication, offline
 node --test tests/admin-api.test.js tests/admin-read.test.js   # console read API, offline
 node --test tests/admin-write.test.js   # console write API, offline
+node --test tests/notify.test.js        # new-order notifications, offline
 python3 -m unittest discover -s tests -p 'test_*.py'   # add-on configuration
 (cd tests/db && npm ci && npm test)   # database migrations, against PostgreSQL 16
 ```

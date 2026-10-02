@@ -20,7 +20,7 @@ import path from 'node:path';
 const MIGRATIONS = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'supabase', 'migrations');
 
 export const MIGRATION_FILES = ['0001_orders.sql', '0002_addons.sql', '0003_operations_foundation.sql',
-                                '0004_console_foundation.sql'];
+                                '0004_console_foundation.sql', '0005_order_notifications.sql'];
 
 export function migrationSql(name) {
   return readFileSync(path.join(MIGRATIONS, name), 'utf8');
