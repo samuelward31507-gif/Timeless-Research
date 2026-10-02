@@ -872,7 +872,11 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
   transform: translateX(100%); visibility: hidden;
   transition: transform .28s var(--ease), visibility .28s;
 }
-.drawer.is-open { transform: none; visibility: visible; }
+/* Visible at once on opening (it still hides only after sliding out). Animating
+   visibility in as well left the drawer hidden for the first frame, so focus()
+   on opening landed nowhere: focus stayed on the button that opened it, and
+   Escape and Tab then went to the page instead of the drawer. */
+.drawer.is-open { transform: none; visibility: visible; transition: transform .28s var(--ease), visibility 0s; }
 .drawer-head { display: flex; align-items: center; justify-content: space-between; padding: var(--s-5); border-bottom: 1px solid var(--line); }
 .drawer-head h2 { font-size: var(--t-md); font-weight: 600; letter-spacing: 0; }
 .drawer-body { flex: 1; overflow-y: auto; padding: var(--s-5); }
@@ -1029,11 +1033,6 @@ h1, h2, h3, h4 { font-weight: 400; line-height: 1.15; letter-spacing: -.012em; }
 .chat-launcher:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .chat-launcher[hidden] { display: none; }
 
-/* .drawer animates visibility along with the slide, so for the first frame of
-   opening it is still hidden and cannot take focus: focus() lands nowhere and
-   stays on the launcher, and Escape then goes to the page instead of here.
-   Becoming visible at once (and still hiding only after sliding out) fixes it. */
-.chat-drawer.is-open { transition: transform .28s var(--ease), visibility 0s; }
 .chat-head { align-items: flex-start; gap: var(--s-4); }
 .chat-ruo {
   margin-top: var(--s-3); padding: var(--s-2) var(--s-3);
