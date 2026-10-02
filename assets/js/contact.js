@@ -1,7 +1,7 @@
 /* The enquiry form on /contact.html.
 
-   Ordering no longer goes through a form — the catalogue is bought from the
-   page and paid for at a Stripe-hosted checkout — so this handler is back to
+   Ordering does not go through this form — the catalogue is bought from the
+   cart and paid for at the payment provider's checkout — so this handler is back to
    doing one thing: sending an enquiry and never silently losing it.
 
    Submission is chosen by TR_FORM_PROVIDER at build time:

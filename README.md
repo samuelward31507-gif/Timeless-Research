@@ -242,10 +242,10 @@ To go live:
    is an SEO problem rather than a visible one.
 4. Enquiries arrive under **Forms → enquiry**. Turn on the email notification
    there, or nothing will tell you a lead came in.
-5. Optional: set `ANTHROPIC_API_KEY` there too, to switch on the support
-   assistant. Set a monthly spend limit for the key in the Claude Console
-   first (HANDOVER §3d). Until it is set, the assistant tells visitors it is unavailable and
-   points them to the contact page.
+5. Optional: set `ANTHROPIC_API_KEY` there too, and `TR_CHAT=1` in the build
+   environment, to switch on the support assistant. Set a monthly spend limit
+   for the key in the Claude Console first (HANDOVER §3d). Until `TR_CHAT=1`
+   is set, the assistant's button is not shown.
 
 Run it locally exactly as Netlify does with
 `python3 tools/build.py && python3 tools/dist.py`, then serve `dist/`.
@@ -278,6 +278,7 @@ python3 tools/build.py && python3 tools/dist.py
 | `TR_ANALYTICS_HEAD` | *(empty)* | Raw `<head>` markup for an analytics tag |
 | `TR_LEGAL_ENTITY` / `TR_LEGAL_ADDRESS` / `TR_LEGAL_STATE` / `TR_LEGAL_EMAIL` | see *Legal documents* | Parties, controller and governing-law clauses |
 | `TR_DEMO` | *(off)* | `1` marks the build a demonstration: a not-trading bar on every page, `noindex`, and `robots.txt` disallowing all |
+| `TR_CHAT` | *(off)* | `1` shows the support assistant's button (needs `ANTHROPIC_API_KEY` on the deploy) |
 
 Order pricing (`netlify/lib/payment.js`) reads two, set on the deploy rather
 than at build time:

@@ -17,6 +17,8 @@
   var drawer = document.getElementById('chat-drawer');
   var launcher = document.getElementById('chat-open');
   if (!drawer || !launcher) return;
+  // Shown only when the build switches the assistant on (TR_CHAT=1).
+  if (!(window.TR_CONFIG || {}).chatEnabled) return;
 
   var scrim = document.getElementById('chat-scrim');
   var log = document.getElementById('chat-log');

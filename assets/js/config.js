@@ -6,6 +6,7 @@ window.TR_CONFIG = {
   "formEndpoint": "",
   "checkoutEndpoint": "",
   "chatEndpoint": "/.netlify/functions/chat",
+  "chatEnabled": false,
   "addonAvailabilityEndpoint": "/.netlify/functions/addon-availability",
   "addons": {
     "show": false,

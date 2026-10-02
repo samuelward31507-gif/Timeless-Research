@@ -100,6 +100,12 @@ LEGAL_EMAIL = os.environ.get("TR_LEGAL_EMAIL", "") or CONTACT_EMAIL
 # demo competing in search with the eventual live site helps nobody.
 DEMO = os.environ.get("TR_DEMO", "").strip() in ("1", "true", "yes")
 
+# TR_CHAT=1 shows the order and product help assistant. Off by default: it
+# needs ANTHROPIC_API_KEY on the deploy and the live refusal check (HANDOVER
+# §3d) first, and a "Questions?" button that only answers "can't be reached"
+# makes the whole site look broken.
+CHAT = os.environ.get("TR_CHAT", "").strip() in ("1", "true", "yes")
+
 # A demonstration deploy does not live at the canonical domain — that domain is
 # a placeholder in netlify.toml which nobody owns yet. Left alone, every
 # absolute URL the build writes would point at it: the canonical tags, the
@@ -794,7 +800,7 @@ def build_home():
         <h2 class="display h-sec">Priced on the page. <em>Paid by card.</em></h2>
       </div>
       <div class="prose" data-reveal data-reveal-delay="1">
-        <p>Every pack size carries its list price. Add what you need to the cart and pay by card — checkout is hosted by Stripe, which collects your name, email, phone number and shipping address and takes the payment. There is no account to apply for and no quotation to wait on.</p>
+        <p>Every pack size carries its list price. Add what you need to the cart and pay online — checkout is hosted by our payment provider, which collects your name, email, phone number and shipping address and takes the payment. There is no account to apply for and no quotation to wait on.</p>
         <p>Research use is a condition of every sale, not a formality. You confirm it at checkout, it is written into the <a href="legal/terms.html">terms of sale</a>, and an order we have reason to believe is destined for human or veterinary use is cancelled and refunded rather than shipped.</p>
         <p>Some compounds correspond to approved or investigational pharmaceutical substances. Those are flagged as <strong>restricted reference standards</strong> on their specification pages, because what they are is worth stating plainly. The conditions of sale are the same for them as for everything else: supplied for <strong>in vitro</strong> method development, never for administration.</p>
         <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:2rem">
@@ -973,8 +979,8 @@ def build_products():
             price_caption = "per vial, excluding shipping and tax"
             buy_control = (f'<button class="btn btn--primary" data-add="{p["id"]}" '
                            f'data-name="{E(p["name"])}">Add to cart</button>')
-            buy_note = ("Shipping and any tax are added at checkout. Payment is taken by Stripe "
-                        "on their own page; we never see your card details.")
+            buy_note = ("Shipping and any tax are added at checkout. Payment is taken by our payment "
+                        "provider on their own page; we never see your card details.")
         else:
             price_caption = "last list price; not currently supplied"
             buy_control = '<a class="btn btn--ghost" href="../contact.html">Ask about availability</a>'
@@ -1206,9 +1212,9 @@ def build_about():
 # --------------------------------------------------------------------------- faq
 FAQ = [
     ("Can I just add something to the cart and pay?",
-     "Yes, for everything on the catalog. Prices are published against every pack size, the cart totals them, and checkout is hosted by Stripe. There is no account to apply for and nothing to wait on."),
+     "Yes, for everything on the catalog. Prices are published against every pack size, the cart totals them, and checkout is hosted by our payment provider. There is no account to apply for and nothing to wait on."),
     ("What does checkout ask me for?",
-     "Your name, email address, phone number and a shipping address, all collected by Stripe on their own page, plus card details we never see. You also confirm on this site, before checkout opens, that the material is for laboratory research use. That is the whole of it."),
+     "Your name, email address, phone number and a shipping address, all collected by our payment provider on their own page, plus payment details we never see. You also confirm on this site, before checkout opens, that the material is for laboratory research use. That is the whole of it."),
     ("What does the Restricted flag on some compounds mean?",
      "That the compound corresponds to an approved or investigational pharmaceutical substance \u2014 retatrutide, tirzepatide and oxytocin carry it. They are supplied as analytical reference standards for in vitro method development, on exactly the same conditions as everything else on the catalog. The flag is there because a buyer is entitled to know that what they are ordering has a pharmaceutical counterpart, not because the ordering route is different."),
     ("What does \u201cresearch use only\u201d actually mean here?",
@@ -1474,7 +1480,7 @@ def build_legal():
       <p>Every sale is conditional on your agreement to our <a href="../compliance.html">research use policy</a>, which forms part of these terms. Material supplied is for <strong>in vitro</strong> laboratory research by qualified professionals. It is not a drug, dietary supplement, cosmetic, food or medical device, and it is not for human or veterinary use, clinical or diagnostic procedures, or household use. Breach of that policy is a material breach of these terms, entitling us to cancel outstanding orders, terminate your account and decline future business.</p>
 
       <h2>4. Prices and payment</h2>
-      <p>Catalogue prices are in {CURRENCY} and exclude shipping and any sales, use or import taxes and duties; shipping and any tax we are required to collect are added at checkout and shown before you pay. Payment is due in full at checkout and is taken by Stripe on their own hosted page. We do not receive, process or store your card details, and we will never ask for them by telephone or email.</p>
+      <p>Catalogue prices are in {CURRENCY} and exclude shipping and any sales, use or import taxes and duties; shipping and any tax we are required to collect are added at checkout and shown before you pay. Payment is due in full at checkout and is taken by our payment provider on their own hosted page. We do not receive, process or store your card details, and we will never ask for them by telephone or email.</p>
       <p>Prices may change without notice, but the price you are charged is the one shown at checkout. Where a price is obviously wrong, we may cancel the order under section 2 and refund you rather than supply at that price.</p>
       <p>Where we have agreed credit terms with you in writing, payment is due 30 days from the invoice date; overdue amounts accrue interest at 1.5% per month or the maximum rate permitted by applicable law, whichever is lower, and you are responsible for reasonable costs of collection, including attorneys' fees.</p>
 
@@ -1534,7 +1540,7 @@ def build_legal():
       <p>{entity} is a sole proprietorship operating from {address}. We are responsible for the personal information described in this policy. Contact us at <a href="mailto:{email}">{email}</a>.</p>
 
       <h2>2. What we collect</h2>
-      <p><strong>What you give us when you order.</strong> Checkout is hosted by Stripe, who collect your name, email address, telephone number, shipping address and payment details in order to take the payment. Stripe then passes us everything except your card details, which we never receive, hold or have access to. We record that, what you ordered, what you paid, and the research use confirmation you gave before checkout, as our order record of the sale.</p>
+      <p><strong>What you give us when you order.</strong> Checkout is hosted by our payment provider, who collect your name, email address, telephone number, shipping address and payment details in order to take the payment. They then pass us everything except your card details, which we never receive, hold or have access to. We record that, what you ordered, what you paid, and the research use confirmation you gave before checkout, as our order record of the sale.</p>
       <p><strong>What you give us when you write to us.</strong> The enquiry form collects your name, email address, telephone number, the compound your question is about and the message itself.</p>
       <p><strong>What you type into the order and product help assistant.</strong> Your questions, and the assistant's earlier replies in the same conversation, are sent to our AI provider to produce an answer. We do not store the conversation or write its content to our logs; it is held in your browser only until you close the tab.</p>
       <p><strong>What is collected automatically.</strong> Our hosting provider records standard server logs — IP address, browser user-agent, pages requested and timestamps — which are used to keep the site available and to investigate abuse.</p>
@@ -1545,9 +1551,9 @@ def build_legal():
       <p>To take payment for, process and fulfil your order; to reply to your enquiry; to apply the conditions of supply in our <a href="../compliance.html">research use policy</a>; to keep the commercial, tax and lot-traceability records our business needs; and to protect the site against abuse.</p>
 
       <h2>4. Who else sees it</h2>
-      <p><strong>Our payment processor.</strong> Checkout and payment are handled by Stripe, Inc. as an independent controller of the payment data it collects. Their <a href="https://stripe.com/privacy" rel="noopener">privacy policy</a> governs that processing. We receive from Stripe the name, email address, telephone number and shipping address you gave them, and the fact and amount of the payment — never your card number.</p>
+      <p><strong>Our payment processor.</strong> Checkout and payment are handled by our payment provider as an independent controller of the payment data it collects, and its own privacy policy governs that processing. We will name the provider here before we take a payment. We receive from it the name, email address, telephone number and shipping address you gave them, and the fact and amount of the payment — never your card number.</p>
       <p><strong>Our hosting and form provider.</strong> The site is hosted on Netlify, which serves the pages, runs the small functions behind checkout, keeps the server logs described above, and receives enquiries from the contact form on our behalf as a service provider.</p>
-      <p><strong>Our order database.</strong> Once a payment completes, the order is recorded in a database hosted by Supabase, acting as our service provider. It holds what Stripe passed us &mdash; your name, email address, telephone number and shipping address &mdash; together with what you ordered and what you paid. It does not hold, and never receives, your card details. The records are not readable from this website: they are reachable only by our own server-side code holding a key that is never sent to a browser.</p>
+      <p><strong>Our order database.</strong> Once a payment completes, the order is recorded in a database hosted by Neon, acting as our service provider. It holds what our payment provider passed us &mdash; your name, email address, telephone number and shipping address &mdash; together with what you ordered and what you paid. It does not hold, and never receives, your card details. The records are not readable from this website: they are reachable only by our own server-side code holding a key that is never sent to a browser.</p>
       <p><strong>Our AI provider.</strong> The order and product help assistant is powered by Anthropic, PBC, acting as our service provider. When you send a question, our server passes it and the earlier messages of that conversation to Anthropic's API to generate the reply; no name, email address, order or payment detail is attached. Anthropic's <a href="https://www.anthropic.com/legal/privacy" rel="noopener">privacy policy</a> describes how it handles API data. Do not type personal or payment details into the assistant.</p>
       <p><strong>No other third party.</strong> Typefaces, stylesheets, scripts and images are all served from this site itself, so loading a page contacts nobody but our hosting provider. We do not sell personal information, and we do not share it for cross-context behavioural advertising. We disclose it only where the law requires it, where we must to establish or defend a legal claim, or to a carrier where that is necessary to deliver your order.</p>
 
@@ -1780,14 +1786,14 @@ def build_coa():
 
 
 # --------------------------------------------------------------------------- payment
-# Ordering is a card payment on a Stripe-hosted page, so this page explains the
+# Ordering is a payment on the payment provider's own page, so this page explains the
 # sequence and what each step actually collects.
 #
 # Deliberately NOT a redirector. A page that took a session id or a URL in the
 # query string and forwarded the visitor to it would be an open redirect on a
 # domain that takes payments — a ready-made phishing tool aimed at our own
 # customers. The only way to a payment page is the checkout button, which gets
-# its URL from Stripe's API in the response to a request this site made.
+# its URL from the payment provider in the response to a request this site made.
 
 
 def build_pay():
@@ -1798,7 +1804,7 @@ def build_pay():
     <div class="sec-head">
       <span class="eyebrow">Ordering &amp; payment</span>
       <h1 class="display h-sec">Placing <em>an order.</em></h1>
-      <p class="lede">Catalogue prices are the prices you pay. Add pack sizes to the cart, confirm the research use condition, and pay by card on a page hosted by Stripe. There is no account to open and no quotation to wait for.</p>
+      <p class="lede">Catalogue prices are the prices you pay. Add pack sizes to the cart, confirm the research use condition, and pay online on a page hosted by our payment provider. There is no account to open and no quotation to wait for.</p>
     </div>
 
     <ol class="pay-steps">
@@ -1812,11 +1818,11 @@ def build_pay():
       </li>
       <li>
         <h2>Checkout</h2>
-        <p>Checkout is hosted by Stripe on their own page. They collect your name, email address, phone number and shipping address, and take the card payment. Your card details never reach this site: we receive the order and your delivery details, and nothing else.</p>
+        <p>Checkout is hosted by our payment provider on their own page. They collect your name, email address, phone number and shipping address, and take the payment. Your card details never reach this site: we receive the order and your delivery details, and nothing else.</p>
       </li>
       <li>
         <h2>Confirmation</h2>
-        <p>Stripe emails you a receipt immediately, and we follow it with an order confirmation. The contract is formed at that confirmation or at despatch, whichever comes first — see <a href="legal/terms.html">terms of sale</a>, section 2.</p>
+        <p>You receive a payment receipt straight away, and we follow it with an order confirmation. The contract is formed at that confirmation or at despatch, whichever comes first — see <a href="legal/terms.html">terms of sale</a>, section 2.</p>
       </li>
       <li>
         <h2>Release and despatch</h2>
@@ -1828,7 +1834,7 @@ def build_pay():
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
       <div>
         <h3>How to know a payment request is really ours</h3>
-        <p>The only payment page we use is the one the checkout button opens, hosted by Stripe on a <strong>stripe.com</strong> address. Our email reaches you only from <strong>{E(CONTACT_EMAIL)}</strong>. We will never telephone you for card details, never email you a link to a payment page on another domain, and never send instructions that change bank details at short notice. If anything about a payment request looks wrong, stop and contact us on the address above before paying.</p>
+        <p>The only payment page we use is the one the checkout button opens, hosted by our payment provider on its own secure address. Our email reaches you only from <strong>{E(CONTACT_EMAIL)}</strong>. We will never telephone you for card details, never email you a link to a payment page on another domain, and never send instructions that change bank details at short notice. If anything about a payment request looks wrong, stop and contact us on the address above before paying.</p>
       </div>
     </div>
 
@@ -1858,13 +1864,13 @@ def build_pay():
 </section>
 """
     return page("pay.html", f"Ordering &amp; Payment — {BRAND}",
-                "How to order: add pack sizes to the cart, confirm research use, and pay by card on a Stripe-hosted checkout. Shipping and tax are shown before you pay.",
+                "How to order: add pack sizes to the cart, confirm research use, and pay online on a secure hosted checkout. Shipping and tax are shown before you pay.",
                 body, "")
 
 
 # --------------------------------------------------------------------------- order received
-# Stripe's success_url. It confirms nothing it cannot know: the page is reached
-# by a redirect, not by a webhook, so it reports what Stripe has already done
+# The payment provider's return page. It confirms nothing it cannot know: the
+# page is reached by a redirect, so it reports what the provider has already done
 # (taken the payment, emailed a receipt) and does not claim the order has been
 # accepted — under the terms of sale that happens at our confirmation.
 
@@ -1876,7 +1882,7 @@ def build_order_received():
     <div class="sec-head">
       <span class="eyebrow">Order received</span>
       <h1 class="display h-sec">Thank you &mdash; <em>that is paid.</em></h1>
-      <p class="lede">Stripe has taken the payment and emailed you a receipt. Check your spam folder if it has not arrived within a few minutes.</p>
+      <p class="lede">Your payment has been taken and a receipt is on its way by email. Check your spam folder if it has not arrived within a few minutes.</p>
     </div>
 
     <div class="prose">
@@ -1904,7 +1910,7 @@ def build_order_received():
     clear = ('<script>try{localStorage.removeItem("tr_cart_v1");'
              'localStorage.removeItem("tr_rfq_v1");}catch(e){}</script>')
     return page("order-received.html", f"Order received — {BRAND}",
-                "Your payment has been taken by Stripe. What happens next, and how to reach us about an order.",
+                "Your payment has been taken. What happens next, and how to reach us about an order.",
                 body, "", extra_body=clear)
 
 
@@ -2034,6 +2040,7 @@ def build_meta(pages):
              # opening a checkout. A provider's adapter sets its endpoint here.
              "checkoutEndpoint": "",
              "chatEndpoint": "/.netlify/functions/chat",
+             "chatEnabled": CHAT,
              "addonAvailabilityEndpoint": "/.netlify/functions/addon-availability",
              "addons": ADDONS_BROWSER,
              "currency": CURRENCY,

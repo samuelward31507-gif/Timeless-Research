@@ -37,8 +37,8 @@ Two more are optional because they have sensible defaults:
 One more is optional, and also goes in Netlify's environment variables rather
 than `netlify.toml`: `ANTHROPIC_API_KEY` switches on the order and product help
 assistant. **Before you add it, set a monthly spend limit for that key in the
-Claude Console** (see §3d). Without it the assistant tells visitors it is
-unavailable and points them to the contact page.
+Claude Console** (see §3d). The assistant's button appears only once
+`TR_CHAT=1` is also set in the build environment.
 
 These have to be real. An invented address or registration number would make
 the legal documents false, which is worse than not publishing them.
@@ -370,7 +370,9 @@ the research use policy. How it does that is in README, *Support assistant*.
    Environment variables**, then **Deploys → Trigger deploy**.
 3. Open `/.netlify/functions/health`. `support_assistant.working` should be
    `true`.
-4. **Run the live refusal check before you announce it** (below).
+4. **Run the live refusal check** (below), then set `TR_CHAT=1` in the build
+   environment and redeploy. The "Questions?" button appears only with
+   `TR_CHAT=1`; without it the assistant is hidden on every page.
 
 ### Before launch: the live refusal check
 
