@@ -10,7 +10,7 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { freshDb, rows, one, recordPaidOrder, insertOrder, productLine, setStatus, errorOf, asRole, migrationSql } from './harness.mjs';
+import { freshDb, rows, one, recordPaidOrder, insertOrder, productLine, setStatus, errorOf, asRole, reapplyFrom } from './harness.mjs';
 
 async function history(db, orderId) {
   return rows(db, `select from_status, to_status, changed_by, note from public.order_status_history
@@ -45,7 +45,7 @@ test('0003 keeps existing orders exactly as they were, and backfills history onc
     ['legacy-refunded', null, 'refunded', true], ['legacy-shipped', null, 'shipped', true]]);
 
   // Running the migration a second time changes nothing.
-  await db.exec(migrationSql('0003_operations_foundation.sql'));
+  await reapplyFrom(db, '0003_operations_foundation.sql');
   assert.equal((await one(db, 'select count(*)::int n from public.order_status_history')).n, 4);
   assert.equal((await one(db, 'select count(*)::int n from public.order_status_transitions')).n, 16);
   assert.equal((await one(db, 'select count(*)::int n from public.expense_categories')).n, 10);

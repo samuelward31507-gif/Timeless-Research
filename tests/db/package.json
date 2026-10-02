@@ -4,7 +4,7 @@
   "description": "Database tests for supabase/migrations, run against PostgreSQL 16 in-process (PGlite). Test-only: nothing here is deployed, and the site and its functions keep no runtime dependencies.",
   "type": "module",
   "scripts": {
-    "test": "node --test addons.test.mjs operations.test.mjs"
+    "test": "node --test addons.test.mjs operations.test.mjs console.test.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.2.17"

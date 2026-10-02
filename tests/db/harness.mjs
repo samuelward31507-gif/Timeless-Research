@@ -7,6 +7,10 @@
  * tables, views and functions by default and relies on row level security to
  * hide rows. Plain Postgres grants nothing, which would make the access tests
  * pass for the wrong reason, so the same default privileges are set up first.
+ *
+ * service_role is given BYPASSRLS, as on Supabase, so tests acting as the
+ * server's key exercise its real privileges: past row level security, and
+ * stopped only by grants.
  */
 import { PGlite } from '@electric-sql/pglite';
 import { readFileSync } from 'node:fs';
@@ -15,10 +19,18 @@ import path from 'node:path';
 
 const MIGRATIONS = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'supabase', 'migrations');
 
-export const MIGRATION_FILES = ['0001_orders.sql', '0002_addons.sql', '0003_operations_foundation.sql'];
+export const MIGRATION_FILES = ['0001_orders.sql', '0002_addons.sql', '0003_operations_foundation.sql',
+                                '0004_console_foundation.sql'];
 
 export function migrationSql(name) {
   return readFileSync(path.join(MIGRATIONS, name), 'utf8');
+}
+
+/* Re-applies every migration from `name` onward, in order: what running the
+   migrations again on a live database does. Re-running one old migration on
+   its own would put back definitions a later one replaced. */
+export async function reapplyFrom(db, name) {
+  for (const f of MIGRATION_FILES.slice(MIGRATION_FILES.indexOf(name))) await db.exec(migrationSql(f));
 }
 
 /* A fresh database with migrations applied up to and including `upTo`
@@ -32,6 +44,7 @@ export async function freshDb({ upTo = MIGRATION_FILES[MIGRATION_FILES.length - 
     alter default privileges in schema public grant all on tables    to anon, authenticated, service_role;
     alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
     alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+    alter role service_role with bypassrls;
   `);
   for (const name of MIGRATION_FILES) {
     await db.exec(migrationSql(name));

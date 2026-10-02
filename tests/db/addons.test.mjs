@@ -4,7 +4,7 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { freshDb, rows, one, insertOrder, errorOf, asRole, migrationSql } from './harness.mjs';
+import { freshDb, rows, one, insertOrder, errorOf, asRole, reapplyFrom } from './harness.mjs';
 
 async function items(db, orderId, list) {
   for (const r of list) {
@@ -32,7 +32,7 @@ async function setup() {
 
 test('0002 applies twice', async () => {
   const db = await freshDb();
-  await db.exec(migrationSql('0002_addons.sql'));
+  await reapplyFrom(db, '0002_addons.sql');
   assert.ok(true);
 });
 
