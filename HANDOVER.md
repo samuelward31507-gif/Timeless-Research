@@ -773,13 +773,30 @@ Also to check on the staging project, once 0003 and 0004 are applied:
   `23514`, `23505`, `23503`) in the response body, with the functions' own
   messages, as the offline tests assume.
 
-### The console's pages (foundation only)
+### The console: one business overview
 
-`/console/` exists but has no screens yet and no sign-in: it says so, and
-makes no requests. It is private (never indexed, never cached, a strict
-Content-Security-Policy) and nothing on the public site links to it. README,
-*Operations console: the UI foundation*, says what is there and how to work
-on it offline.
+`/console/` is a single screen for the owner: sales, orders, customers and
+stock at a glance, the orders in each stage, what needs attention, recent
+orders and recent activity (README, *Operations console: the business
+overview*). It is read-only and private (never indexed, never cached, a strict
+Content-Security-Policy), and nothing on the public site links to it.
+
+**It cannot be used on the live site yet.** No sign-in provider is chosen, so
+the screen says *Sign-in is not set up yet* and makes no requests. Until then
+it runs offline only, on the test server (README).
+
+Known limits, from the API as it is:
+
+- sales are gross (including shipping, before fees and tax), shown without a
+  currency symbol because the dashboard API does not return the currency;
+- "today" is midnight in the database's time zone;
+- recent activity lists changes made in the console, not new orders or
+  notifications;
+- notification health is not shown: the dispatcher reads the outbox on Neon
+  while orders are recorded on Supabase (§3h, §3i). It is added once both
+  use the same database;
+- nothing on the screen changes an order: order actions and fulfilment are a
+  later phase.
 
 ## 3h. New-order notifications (email and text to the owner)
 
@@ -1151,7 +1168,7 @@ node --test tests/notify.test.js        # new-order notifications, offline
 python3 -m unittest discover -s tests -p 'test_*.py'   # add-on configuration
 npm ci                                # the functions' one dependency (the Neon driver)
 (cd tests/db && npm ci && npm test)   # database migrations and db.js, against PostgreSQL 16
-(cd tests/console && npm ci && npm test)  # console UI foundation in Chromium, offline (build first)
+(cd tests/console && npm ci && npm test)  # the console in Chromium, offline (build first)
 ```
 
 `check.py` exits non-zero on failure, so it can gate a deploy. It verifies that

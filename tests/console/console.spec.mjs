@@ -1,8 +1,9 @@
 /*
  * The operations console foundation, in a real browser (Chromium), offline.
  * server.mjs serves the built pages and runs the real admin-* handlers on
- * tests/helpers/admin-fixtures.js. No business screen exists yet; these test
- * the shell, the auth seam, the request layer and the shared UI pieces.
+ * tests/helpers/admin-fixtures.js. These test the shell, the auth seam, the
+ * request layer and the shared UI pieces; the screens have their own specs
+ * (command.spec.mjs and the others), sharing helpers.mjs.
  */
 import { test, expect } from '@playwright/test';
 
@@ -85,19 +86,17 @@ test('the CSP refuses inline script and inline style', async ({ page }) => {
 
 /* --------------------------------------------------------------- shell */
 
-test('shell: one h1, landmarks, overview current, every screen listed as not built yet', async ({ page }) => {
+test('shell: one h1, landmarks, and the business overview as the one current screen', async ({ page }) => {
   await open(page);
   expect(await page.locator('h1').count()).toBe(1);
   await expect(page.locator('main#main')).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Console' })).toBeVisible();
-  await expect(page.locator('a[aria-current="page"]')).toHaveText('Overview');
-  const pending = page.locator('.console-nav-link.is-pending');
-  await expect(pending).toHaveCount(10);
-  for (const p of await pending.all()) {
-    await expect(p).toHaveAttribute('aria-disabled', 'true');
-    await expect(p).toContainText('Not built yet');
-  }
-  expect(await page.locator('.console-nav-link.is-pending a, .console-nav-link.is-pending[href]').count()).toBe(0);
+  // One screen: the navigation holds the overview and nothing else, built.
+  const links = page.locator('#console-nav .console-nav-link');
+  await expect(links).toHaveCount(1);
+  await expect(page.locator('a[aria-current="page"]')).toHaveText('Business overview');
+  await expect(page.locator('a[aria-current="page"]')).toHaveAttribute('href', 'index.html');
+  expect(await page.locator('.is-pending, [aria-disabled="true"]').count()).toBe(0);
 });
 
 test('keyboard: the skip link is first and moves focus to the content', async ({ page }) => {
@@ -138,8 +137,9 @@ test('wide screens: the navigation is always shown and there is no Menu button',
 
 test('no provider (as shipped): the overview says sign-in is not set up and nothing is requested', async ({ page, request }) => {
   await open(page);
-  await expect(page.locator('#console-status')).toHaveAttribute('data-state', 'empty');
-  await expect(page.locator('#console-status')).toContainText('Sign-in is not set up yet');
+  await expect(page.locator('#cc-notice')).toHaveAttribute('data-state', 'empty');
+  await expect(page.locator('#cc-notice')).toContainText('Sign-in is not set up yet');
+  await expect(page.locator('#cc-workspace')).toBeHidden();
   expect(await page.evaluate(() => window.TRConsole.auth.hasProvider())).toBe(false);
   expect(await page.evaluate(() => window.TRConsole.auth.getAccessToken())).toBeNull();
   const r = await call(page, 'admin-dashboard');
@@ -154,24 +154,29 @@ test('with a provider: the token travels only in the Authorization header, and i
   const sent = [];
   page.on('request', (r) => { if (r.url().includes('/.netlify/functions/')) sent.push(r); });
   await open(page);
-  await expect(page.locator('#console-status')).toContainText('A session is available');
+  await expect(page.locator('#cc-workspace')).toBeVisible();
   await expect(page.locator('#console-session')).toHaveText('Session available');
 
   const r = await call(page, 'admin-dashboard');
   expect(r.ok).toBe(true);
   expect(r.data.orders.status_counts).toHaveLength(8);
 
-  // The dev provider signs a fresh token for every call, so check the one that was sent.
-  expect(sent).toHaveLength(1);
-  const h = await sent[0].allHeaders();
-  expect(h.authorization).toMatch(/^Bearer [\w-]+\.[\w-]+\.[\w-]+$/);
-  const token = h.authorization.slice('Bearer '.length);
-  expect(h.cookie).toBeUndefined();
-  expect(sent[0].url()).not.toContain(token);
+  // The overview's own reads plus this call. The dev provider signs a fresh
+  // token for every call, so check each one that was sent.
+  expect(sent).toHaveLength(7);
   const stored = await page.evaluate(() => JSON.stringify([Object.entries(localStorage), Object.entries(sessionStorage), document.cookie]));
-  expect(stored).not.toContain(token);
+  for (const req of sent) {
+    const h = await req.allHeaders();
+    expect(h.authorization).toMatch(/^Bearer [\w-]+\.[\w-]+\.[\w-]+$/);
+    const token = h.authorization.slice('Bearer '.length);
+    expect(h.cookie).toBeUndefined();
+    expect(req.url()).not.toContain(token);
+    expect(stored).not.toContain(token);
+  }
   const calls = await (await request.get('/__test/calls')).json();
-  expect(calls).toEqual([{ endpoint: 'admin-dashboard', method: 'GET', search: '', authorization: 'Bearer', cookie: false }]);
+  expect(calls).toHaveLength(7);
+  for (const c of calls) expect(c).toMatchObject({ method: 'GET', authorization: 'Bearer', cookie: false });
+  expect(calls[calls.length - 1]).toEqual({ endpoint: 'admin-dashboard', method: 'GET', search: '', authorization: 'Bearer', cookie: false });
 
   // The provider is set once; a second cannot replace it.
   const second = await page.evaluate(() => {
@@ -183,7 +188,7 @@ test('with a provider: the token travels only in the Authorization header, and i
 test('a provider value that is not a bearer token means no session, and nothing is sent', async ({ page, request }) => {
   await setState(request, { devSession: true, tokenMode: 'garbage' });
   await open(page);
-  await expect(page.locator('#console-status')).toContainText('Not signed in');
+  await expect(page.locator('#cc-notice')).toContainText('Not signed in');
   expect(await page.evaluate(() => window.TRConsole.auth.getAccessToken())).toBeNull();
   expect((await call(page, 'admin-orders')).kind).toBe('signin');
   expect(await (await request.get('/__test/calls')).json()).toEqual([]);

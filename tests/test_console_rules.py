@@ -26,7 +26,7 @@ class ConsoleRules(unittest.TestCase):
         self.assertEqual(console_rules.check(PAGE, built()), [])
 
     def test_a_fresh_build_passes_too(self):
-        self.assertEqual(console_rules.check(PAGE, console_build.overview()), [])
+        self.assertEqual(console_rules.check(PAGE, console_build.command()), [])
 
     def assertRefused(self, txt, words):
         found = console_rules.check(PAGE, txt)
@@ -52,12 +52,33 @@ class ConsoleRules(unittest.TestCase):
 
 
 class ConsoleBuild(unittest.TestCase):
-    def test_every_documented_area_is_listed_and_none_is_built_yet(self):
-        self.assertEqual([a["key"] for a in console_build.AREAS],
-                         ["dashboard", "orders", "fulfilment", "inventory", "lots", "expenses", "import",
-                          "financials", "customers", "audit"])
-        self.assertTrue(all(a["page"] is None for a in console_build.AREAS))
-        self.assertEqual(built().count('aria-disabled="true"'), 10)
+    def test_the_navigation_is_one_screen(self):
+        self.assertEqual([n["key"] for n in console_build.NAV], ["overview"])
+        page = built()
+        self.assertEqual(len(re.findall(r'class="console-nav-link"', page)), 1)
+        self.assertIn('href="index.html" aria-current="page">Business overview</a>', page)
+        self.assertNotIn('aria-disabled="true"', page)
+
+    def test_every_built_page_passes_and_loads_its_scripts_after_the_core(self):
+        for rel in console_build.all_pages():
+            txt = (ROOT / rel).read_text(encoding="utf-8")
+            self.assertEqual(console_rules.check(rel, txt), [], rel)
+            names = re.findall(r'assets/js/console/([a-z]+)\.js', txt)
+            self.assertEqual(names[:4], ["auth", "api", "ui", "shell"], rel)
+            self.assertTrue(len(names) > 4, f"{rel} loads no page script")
+
+    def test_the_build_is_the_committed_pages(self):
+        for rel, text in console_build.all_pages().items():
+            # The committed copy is stamped with asset hashes; compare without them.
+            committed = re.sub(r"\?v=[0-9a-f]+", "", (ROOT / rel).read_text(encoding="utf-8"))
+            self.assertEqual(committed, text, rel)
+
+    def test_check_lists_every_console_file_as_generated(self):
+        check = (ROOT / "tools/check.py").read_text(encoding="utf-8")
+        for rel in console_build.all_pages():
+            self.assertIn(f'"{rel}"', check)
+        for f in sorted((ROOT / "assets/js/console").glob("*.js")):
+            self.assertIn(f'"assets/js/console/{f.name}"', check)
 
     def test_the_console_is_not_in_the_sitemap_and_is_disallowed_on_a_trading_build(self):
         self.assertNotIn("/console/", (ROOT / "sitemap.xml").read_text(encoding="utf-8"))
@@ -83,6 +104,15 @@ class ConsoleBuild(unittest.TestCase):
                         ".insertAdjacentHTML(", "document.write", "SUPABASE", "DATABASE_URL", "service_role",
                         "eval(", "new Function"):
                 self.assertNotIn(bad, js, f"{f.name} mentions {bad}")
+
+    def test_screens_log_nothing_and_never_name_the_payment_provider(self):
+        for f in sorted((ROOT / "assets/js/console").glob("*.js")):
+            if f.name in ("auth.js", "api.js", "ui.js", "shell.js"):
+                continue
+            js = f.read_text(encoding="utf-8")
+            self.assertNotIn("console.", js, f"{f.name} logs")
+            self.assertNotIn("fetch(", js, f"{f.name} fetches outside requestAdmin")
+            self.assertNotRegex(js, r"(?i)stripe", f"{f.name} names the payment provider")
 
 
 if __name__ == "__main__":
