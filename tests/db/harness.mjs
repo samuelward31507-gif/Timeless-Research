@@ -101,7 +101,7 @@ export async function one(db, sql, params) {
   return (await rows(db, sql, params))[0];
 }
 
-/* The exact write netlify/functions/stripe-webhook.js makes on every delivery
+/* The write the original payment webhook (since removed) made on every delivery
    of a payment confirmation: a PostgREST upsert on stripe_session_id with
    Prefer: resolution=merge-duplicates, which PostgREST turns into
    INSERT ... ON CONFLICT (stripe_session_id) DO UPDATE SET <every column sent>

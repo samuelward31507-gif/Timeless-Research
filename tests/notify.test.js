@@ -487,7 +487,8 @@ test('health reports each notification setting as ok, missing or invalid, never 
     assert.ok(b.notifications.note);
     for (const v of Object.values(ENV)) if (v.length > 2) assert.equal(res.body.includes(v), false, v);
     assert.equal(res.body.includes('zzz'), false);
-    assert.ok(b.checkout && b.order_records, 'the existing sections are still there');
+    assert.ok(b.payments && b.database, 'the other sections are still there');
+    assert.equal(b.payments.working, false, 'no payment provider is connected');
   }
   setEnv({ TWILIO_AUTH_TOKEN: 'zzz' });
   const b = JSON.parse((await health.handler({})).body);

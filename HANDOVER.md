@@ -20,24 +20,15 @@ cannot go live half-configured. Set them in `[build.environment]` in
 |---|---|---|
 | `TR_LEGAL_ADDRESS` | Your business address | Terms §1, privacy policy §1 |
 | `TR_LEGAL_STATE` | The US state whose law governs your sales | Terms §16 |
-| `TR_SITE` | Your live domain | Canonical tags, Open Graph, sitemap, checkout return URLs |
+| `TR_SITE` | Your live domain | Canonical tags, Open Graph, sitemap |
 | `TR_CONTACT_EMAIL` | Where enquiries should reach you | Contact page, form fallback |
 
-One more is required before anyone can pay you, and is **not** set in
-`netlify.toml` because that file is in the repository and a live key in version
-control is a live key on the internet:
-
-| Variable | What it is | Where to set it |
-|---|---|---|
-| `STRIPE_SECRET_KEY` | Your Stripe secret key | Netlify → Site configuration → Environment variables |
-
-Without it the checkout button tells the customer that checkout is
-temporarily unavailable and logs the reason to the function log, rather than
-failing silently. Three more tune checkout and have working defaults:
-`TR_SHIP_STANDARD_CENTS` and `TR_SHIP_EXPRESS_CENTS` (the two shipping rates
-offered, **placeholders — set them to what your courier actually costs**),
-`TR_SHIP_COUNTRIES` (comma-separated ISO codes; empty uses the list in the
-function) and `TR_STRIPE_TAX` (`1` once Stripe Tax is configured).
+**No payment provider is connected yet** (§3c), so nobody can pay online: the
+cart's Checkout button says so and asks the customer to email the order. Two
+settings price orders and have working defaults: `TR_SHIP_STANDARD_CENTS` and
+`TR_SHIP_EXPRESS_CENTS` (the two shipping rates, **placeholders — set them to
+what your courier actually costs**). A provider's own keys are added when one
+is chosen, in Netlify's environment variables, never in `netlify.toml`.
 
 Two more are optional because they have sensible defaults:
 `TR_LEGAL_ENTITY` (defaults to "Timeless Research") and `TR_LEGAL_EMAIL`
@@ -65,16 +56,12 @@ The site is configured for Netlify and needs no build server of your own.
 3. Set the variables in section 1 and push.
 4. **Forms → enquiry** → turn on the notification email. Without this,
    enquiries collect silently in the Netlify dashboard and nobody is told.
-5. **Environment variables → `STRIPE_SECRET_KEY`** → paste your Stripe secret
-   key, then redeploy. Test it with a Stripe test key first (see §3c).
 
 Moving to another host instead: set `TR_FORM_PROVIDER=endpoint` and
 `TR_FORM_ENDPOINT` to a handler of your own, and serve the `dist/` directory
-produced by `python3 tools/build.py && python3 tools/dist.py`. **Checkout will
-not come with you.** `netlify/functions/create-checkout-session.js` is written
-against Netlify Functions; the logic is 200 lines of plain Node with no
-dependencies, so it ports to any serverless runtime, but it is a port, not a
-copy.
+produced by `python3 tools/build.py && python3 tools/dist.py`. The functions
+in `netlify/functions/` are written against Netlify Functions and would have
+to be ported.
 
 ---
 
@@ -92,42 +79,19 @@ Free, and nothing here touches a live key or a real domain.
 
 1. **Netlify → Add new site → Import an existing project**, pick this
    repository. Leave every build field alone; `netlify.toml` has them.
-2. **Stripe → Developers → API keys → reveal the *test* secret key**
-   (`sk_test_...`). It sits behind the Test mode toggle, so no Stripe account
-   review is needed to get one.
-3. **Site configuration → Environment variables → add `STRIPE_SECRET_KEY`**
-   with that test key. Then **Deploys → Trigger deploy**, because a variable
-   added after the first build does not apply until the next one.
-
-   **To check you got it right, open `/.netlify/functions/health` on the
-   deploy.** It says in plain words whether the key is set, whether it is the
-   right kind of key, whether a stray space got pasted with it, and what to do
-   next. It never shows the key itself. Setting a variable is the one step in
-   this that otherwise gives no feedback at all until a purchase fails.
-4. That is it. The deploy gets a `something.netlify.app` address and the site
-   figures out it lives there: canonical tags, the sitemap, the link-preview
-   image and Stripe's return URL all follow the real address rather than the
-   placeholder domain in `netlify.toml`. Sending the link by text gives a
-   proper preview card.
-5. **Try it before you show anyone.** Add something to the cart, tick the
-   research-use box, pay with `4242 4242 4242 4242`, any future expiry, any
-   CVC. You should land back on the order page with the cart emptied, and see
-   the payment in your Stripe dashboard under Test mode.
+2. That is it. The deploy gets a `something.netlify.app` address and the site
+   figures out it lives there: canonical tags, the sitemap and the
+   link-preview image all follow the real address rather than the placeholder
+   domain in `netlify.toml`. Sending the link by text gives a proper preview
+   card. `/.netlify/functions/health` says in plain words which settings are
+   in place, never their values.
+3. **Try it before you show anyone.** Add something to the cart and press
+   Checkout: the cart says online payment is not available yet, because no
+   payment provider is connected (§3c).
 
 `TR_LEGAL_ADDRESS` and `TR_LEGAL_STATE` can stay empty for a demo — the pages
 show a visible fill-in marker instead of a blank, and the demo bar already says
 the site is not trading.
-
-Checkout still works on a demo build, against Stripe's **test** mode, so the
-thing the site is a demonstration *of* can actually be demonstrated. The cart
-says so and gives the test card to use. This needs a test key
-(`sk_test_...`) in `STRIPE_SECRET_KEY`.
-
-⚠️ The checkout function **refuses to run a demo build against a live key**, and
-logs why. A site that tells every visitor it is not trading must not be able to
-take real money from one of them. The four combinations are covered by a test:
-demo+live is refused before Stripe is contacted at all; demo+test, live+live and
-live+test all proceed.
 
 This matters for a live demo. A peptide storefront that looks open for business
 will be found by people trying to place real orders, and a demo left in the
@@ -191,7 +155,7 @@ expects a seller to be able to substantiate.
 List prices live in `assets/data/products.json`, one per pack size, under
 `prices`, with `currency` at the top of the file. Change a number there and
 rebuild — the catalogue card, the product page, the pack-size dropdown, the
-cart and the checkout function all read from that one place.
+cart and the server's pricing all read from that one place.
 
 `tools/check.py` fails if a listed pack size has no price, so a size cannot be
 offered without one. It also checks that the price rendered on each product page
@@ -202,7 +166,7 @@ nobody notices until a search engine acts on it.
 ## 3b-i. Volume pricing and free shipping
 
 Both live in `assets/data/products.json`, next to `currency`, and both flow from
-there into the cart, the product pages and the checkout function on every build:
+there into the cart, the product pages and the server's pricing on every build:
 
 ```json
 "volumeTiers": [ { "minQty": 10, "percent": 10 }, { "minQty": 25, "percent": 15 } ],
@@ -250,7 +214,7 @@ notice disappears once at least one certificate is published.
 that product in `products.json`. The catalogue card gains an Unavailable badge
 and loses its add control, the product page swaps the cart button for a contact
 link and disables the pack-size selector, the structured data reports
-`OutOfStock`, and the checkout function refuses the id even if someone still
+`OutOfStock`, and the server's pricing refuses the id even if someone still
 has it in a cart from before. Remove the line to put it back.
 
 Prices are shown excluding shipping and tax, and the cart's subtotal says so.
@@ -259,8 +223,8 @@ Stripe Tax, is calculated there — so the cart subtotal and the amount charged
 differ by exactly those two things and nothing else.
 
 **The price the customer is charged is never the one their browser holds.** The
-cart posts ids, pack sizes and quantities; the checkout function prices them
-from `netlify/functions/catalog.json`, which `tools/build.py` regenerates from
+cart posts ids, pack sizes and quantities; the server prices them
+(`priceCart()` in `netlify/lib/payment.js`) from `netlify/functions/catalog.json`, which `tools/build.py` regenerates from
 `products.json` on every deploy. `tools/check.py` fails the build if those two
 files disagree on any price, any currency, or on which compounds are buyable.
 
@@ -268,8 +232,9 @@ files disagree on any price, any currency, or on which compounds are buyable.
 
 ## 3c. Taking payment
 
-The catalogue is bought from the page and paid for by card at a Stripe-hosted
-checkout. `pay.html` explains the sequence to the buyer, and the terms of sale
+**No payment provider is connected yet.** The catalogue is chosen on the page
+and the cart's Checkout button says online payment is not available, asking
+the customer to email the order. `pay.html` explains the sequence to the buyer, and the terms of sale
 §2 describe it as it actually works: the order is the customer's offer, and the
 contract forms when you confirm or despatch. That wording is what lets you
 cancel and refund an order you do not want to fill, which is the only
@@ -285,57 +250,41 @@ change how the compound is bought.
 **If you need to pull one SKU out of the cart**, that is a separate flag:
 `"cart": false` on the product in `products.json`. It keeps the compound listed
 and priced but replaces its add control with an Enquire button that lands on the
-contact form with the compound preselected, and the checkout function refuses
-the id outright. Nothing carries it today. Reach for it if a payment processor
+contact form with the compound preselected, and the server's pricing
+(`netlify/lib/payment.js`) refuses the id outright. Nothing carries it today. Reach for it if a payment processor
 objects to a specific compound, or if you decide you want an order in front of a
 person before it ships — it is one line and a rebuild, and `tools/check.py`
 fails if any page still offers to cart something marked that way.
 
-### How the checkout works
+### The payment boundary
+
+Everything after a payment is already built and does not depend on who takes
+the money (README, *Payment boundary*):
 
 ```
-browser                     Netlify Function                Stripe
-  cart (ids, sizes, qty) ──▶ price from catalog.json ──────▶ create session
-  redirect to Stripe   ◀──── session url ◀──────────────────
-  pay on stripe.com ─────────────────────────────────────▶
-  /order-received.html ◀──── success_url
+cart → provider adapter → recordPaymentEvent()  netlify/lib/payment.js
+                        → recordPaidOrder()      netlify/lib/orders.js
+                        → order + lines + owner email/SMS, one transaction on Neon
 ```
 
-The whole checkout backend is `netlify/functions/create-checkout-session.js`, about 200
-lines of plain Node with no npm dependency. It refuses anything that is not a
-POST, an unconfirmed research-use flag, an unknown id or pack size, a restricted
-compound, a non-integer or out-of-range quantity, duplicate cart lines, more
-than 20 lines, or a body over 20 KB. It never passes a Stripe error message
-back to the customer — those go to the function log, because they name account
-problems the customer cannot act on.
+`priceCart()` prices the cart from `netlify/functions/catalog.json` and refuses
+anything it should not sell (unconfirmed research use, unknown id or pack size,
+a compound marked `"cart": false`, a bad quantity, duplicate lines, more than
+20 lines). Connecting a provider means writing its adapter: start a payment for
+a priced cart, verify the provider's "paid" event, and call
+`recordPaymentEvent()`. Nothing else changes.
 
 ### Recording orders
 
-Payment works without this; **order records do not.** Until the webhook is
-wired, a completed order exists only in the Stripe dashboard — no order history,
-no customer list, nothing to build a status page or a review request on, and
-nothing you own if you ever change processor.
+Orders are recorded on the Neon database (§3i) through `DATABASE_URL`, as the
+runtime role `peptide_app`, by `recordPaidOrder()` and nothing else. A payment
+reported twice is recorded once; a new paid order queues the owner's email and
+text in the same transaction (§3h).
 
-1. **Create the database.** Apply `supabase/migrations/0001_orders.sql` to a
-   Supabase project — SQL editor, CLI, or the MCP tools. It is written to be
-   safe to run twice.
-2. **Set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`** in Netlify. The
-   *service role* key, not the anon key. It is the only key that can read these
-   tables, and it must never appear anywhere a browser can reach.
-3. **Stripe → Developers → Webhooks → Add endpoint**, pointed at
-   `https://your-site/.netlify/functions/stripe-webhook`, subscribed to
-   **`checkout.session.completed`**.
-4. **Copy the signing secret** Stripe shows you (`whsec_...`) into
-   `STRIPE_WEBHOOK_SECRET`, and redeploy.
-5. **Test it.** Place a test order. Stripe's webhook page shows the delivery and
-   the response; the `orders` table should gain one row and `order_items` the
-   lines. Use Stripe's "Resend" button — the row must update, not duplicate.
-
-⚠️ **The signing secret is not optional.** That URL is public and it writes to
-your database. Without the secret the function refuses every request, which is
-the safe failure; with the wrong one, the same. What it never does is accept an
-unsigned request, because anyone who found the URL could then post invented
-orders — fake addresses to ship to, fake revenue in your records.
+**To exercise the flow before a provider exists,** run
+`tools/simulate_paid_order.mjs` against a development or staging Neon branch
+(README, *Payment boundary*). It is development only, refuses to run in
+production, and every order it makes is marked `[TEST]`.
 
 **Row level security is on with no policies**, deliberately. These rows are
 names, emails, phone numbers and home addresses of people buying research
@@ -345,18 +294,6 @@ through a function that checks who is asking first. Do not add a policy that
 grants `anon` read access to make something work.
 
 ---
-
-### Test it before you take a real order
-
-1. Put a **test** key (`sk_test_…`) in `STRIPE_SECRET_KEY` and deploy.
-2. Buy something with Stripe's test card `4242 4242 4242 4242`, any future
-   expiry, any CVC.
-3. Check: the amount matches the catalogue plus the shipping rate you chose;
-   Stripe collected a name, email, phone number and shipping address; you got
-   the order in the Stripe dashboard; `/order-received.html` loaded and the
-   cart emptied.
-4. Then swap in the live key. **Do not skip step 3** — the shipping rates in
-   `netlify.toml` are placeholders, and a live key will happily charge them.
 
 ### Before you build on this: Stripe may not accept you
 
@@ -552,11 +489,9 @@ The integration has to: accept the add-on ids the cart sends per line; call
 `addon_stock_levels`; charge each returned line as its own line item; keep the
 free-shipping calculation on products only; on confirmed payment, write the
 rows from `orderItemRows()` and call `record_addon_sales(order_id)`. Then set
-`PAYMENT_INTEGRATION_READY = True` in the same change. Today that means the
-checkout function (`netlify/functions/create-checkout-session.js`), the
-order-recording webhook (`netlify/functions/stripe-webhook.js`) and the
-checkout handler in `assets/js/site.js`, or whatever replaces them if the
-site moves to another processor.
+`PAYMENT_INTEGRATION_READY = True` in the same change. That means the payment
+provider's adapter, `netlify/lib/payment.js` and the checkout handler in
+`assets/js/site.js`, once a provider is connected.
 
 ## 3f. Operations data (orders, stock, lots, expenses)
 
@@ -680,7 +615,7 @@ staging project first and run the checks below before touching production.
    It refuses if an active owner already exists, and it cannot be called
    through the API.
 7. **Netlify environment:** nothing new. The console uses the same
-   `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` as the order webhook.
+   `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`.
    `SUPABASE_URL` must be the plain `https://<ref>.supabase.co`.
 
 ### What has to be checked against the staging project
@@ -720,7 +655,7 @@ console: read API*). Each:
 - reads only named columns, with the service role key, on the server.
 
 They change nothing. Nothing new needs configuring: they use the same two
-Supabase settings as the order webhook.
+Supabase settings as the read API.
 
 Also to check on the staging project, once 0003 and 0004 are applied there:
 
@@ -730,12 +665,11 @@ Also to check on the staging project, once 0003 and 0004 are applied there:
 - that `POST /rest/v1/rpc/staff_can` answers `true` or `false` for the
   service role;
 - **which kind of service key the project has.** The API, the sign-in check
-  and the order webhook all send it as both `apikey` and
+  both send it as both `apikey` and
   `Authorization: Bearer`. That is right for the legacy JWT-format
   `service_role` key. Supabase's newer `sb_secret_…` keys may not be accepted
   in the `Authorization` header. If staging only issues the newer kind,
-  report it before changing anything: the fix touches the payment webhook
-  too;
+  report it before changing anything;
 - **what the browser roles may do on the 0001-0003 tables.** Those tables
   rely on row level security with no policies: a browser role sees no rows
   and can write none, and the offline tests prove that. But if the project
@@ -817,10 +751,11 @@ Nothing is sent until you switch it on.
 5. **Redeploy**, then open `/.netlify/functions/health`. Under
    `notifications`, every setting should read `ok` and `working` should be
    `true`.
-6. **Place a test order.** Within a couple of minutes you should get an email
-   whose subject starts `[TEST]` and a text starting `[TEST] New order`. Use
-   Stripe's "Resend" on the webhook delivery: no second email or text should
-   arrive.
+6. **Make a test order** with `tools/simulate_paid_order.mjs` against the
+   same database (README, *Payment boundary*). Within a couple of minutes you
+   should get an email whose subject starts `[TEST]` and a text starting
+   `[TEST] New order`. Run it again with `--reference` set to the same
+   reference: no second email or text should arrive.
 
 The schedule runs on the published production deploy only, not on deploy
 previews. `NOTIFY_ENABLED` is the off switch: remove it or set it to `0` and
@@ -850,18 +785,12 @@ its Stripe session is a live one (`cs_live_…`) and this is not a demo deploy.
   before shipping anything unusual.
 - **Delivery is at least once.** In the rare case that a send succeeds but
   recording it fails, the owner gets the same alert twice; nothing is lost.
-- **Delayed payment methods are not covered.** The webhook records an order
-  only when Checkout reports it paid at once (`checkout.session.completed`
-  with `payment_status = paid`). It does not yet handle
-  `checkout.session.async_payment_succeeded`, so an order paid by a delayed
-  method (a bank debit, for example) is neither recorded nor notified. Keep
-  only instant methods enabled in Stripe until that is addressed.
 
 ### To check on the staging project
 
 - that 0005 applies on top of 0001-0004;
-- that a Stripe test order queues exactly two outbox rows, and "Resend" adds
-  none;
+- that a simulated test order (`tools/simulate_paid_order.mjs`) queues exactly
+  two outbox rows, and replaying its reference adds none;
 - **Postmark's API, as built from the documentation we know:**
   - the `X-Postmark-Server-Token` header;
   - the JSON fields `From`, `To`, `Subject`, `TextBody`, `MessageStream`,
@@ -878,11 +807,13 @@ its Stripe session is a live one (`cs_live_…`) and this is not a demo deploy.
 - that the scheduled function runs every minute on the production deploy,
   and what calling its URL directly does (it takes no input either way).
 
-## 3i. Neon staging database (schema only; the site does not use it yet)
+## 3i. Neon database
 
 The schema also lives on the Neon project `peptide`, branch `peptide-staging`
-(PostgreSQL 18). Nothing in the site or its functions connects to it yet:
-they still use Supabase.
+(PostgreSQL 18). Paid orders are recorded here (`recordPaidOrder()`), and the
+notification dispatcher and the add-on stock check read it, through
+`DATABASE_URL`. The operations console's API still reads Supabase. A
+production branch has not been set up.
 
 **Roles.** Neon has no `service_role` and grants nothing by default, so
 `db/neon/00_roles.sql` sets up the roles first:
@@ -936,10 +867,10 @@ address, and the lines `addons.orderItemRows()` builds) and calls
 `recordPaidOrder()`. The order, its lines and its add-on stock movements are
 written in one transaction, and the database queues the owner's two
 notifications in the same one. A redelivered event changes nothing, not even
-the status of an order that has shipped since. Nothing calls it yet: the
-Stripe webhook still writes to Supabase its own way, and moving it over is
-part of the payment integration, which is on hold. `tests/db/orders.test.mjs`
-covers it.
+the status of an order that has shipped since. It is reached through the
+payment boundary (`netlify/lib/payment.js`), the only way an order is
+created; no payment provider is connected yet. `tests/db/orders.test.mjs` and
+`tests/db/payment.test.mjs` cover it.
 
 Before it can be used on staging:
 
@@ -1099,12 +1030,10 @@ Stated plainly so you are not surprised, and so a buyer is not misled.
   cart drawer with its error state showing, and that catches perhaps a third of
   real accessibility problems. Nobody has driven the site with VoiceOver or
   NVDA, or completed an order flow using only a keyboard.
-- **No real Stripe call.** The checkout function is covered by 64 unit tests and
-  the browser flow by 39 more, but Stripe itself is stubbed in both: what is
-  proven is what the function refuses, and the exact parameters it sends. No
-  payment has been taken, no session has been created against Stripe's real API,
-  and no order has arrived in a Stripe dashboard. The test in §3c is not
-  optional, and the shipping rates it makes you check are placeholders.
+- **No payment provider.** None is connected, so no payment has ever been
+  taken. The pricing and the payment boundary are covered offline
+  (`tests/payment.test.js`) and against PostgreSQL (`tests/db/payment.test.mjs`);
+  the shipping rates they use are placeholders.
 - **No real-device testing.** Layouts were verified by emulating widths from
   360 px up, not on physical hardware.
 - **The assistant has not met the real model.** Its function is covered by a

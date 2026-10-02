@@ -278,16 +278,12 @@ def head(title, desc, depth, canonical, extra=""):
 {gate()}"""
 
 
-# The cart's footnote changes with the build, because on a demonstration copy
-# the sentence "card payment is taken by Stripe" would be a lie by omission: no
-# money moves, and a prospective operator clicking through deserves to be told
-# what will actually happen and how to try it.
+# The cart's footnote says what checkout will actually do. No payment provider
+# is connected (netlify/lib/payment.js is the boundary one plugs into), so it
+# says payment is not available rather than describing a checkout that does
+# not exist.
 CART_NOTE = (
-    "<strong>Demonstration.</strong> Checkout runs in Stripe&rsquo;s test mode &mdash; "
-    "no money moves. Pay with card <span class=\"mono\">4242&nbsp;4242&nbsp;4242&nbsp;4242</span>, "
-    "any future expiry, any CVC."
-) if DEMO else (
-    "Card payment is taken by Stripe on their own page. Shipping and any tax are added there."
+    "Online payment is not available yet. Email us your cart and we will take the order by hand."
 )
 
 
@@ -2034,7 +2030,9 @@ def build_meta(pages):
         "window.TR_CONFIG = " + json.dumps(
             {"contactEmail": CONTACT_EMAIL, "formProvider": FORM_PROVIDER,
              "formEndpoint": FORM_ENDPOINT,
-             "checkoutEndpoint": "/.netlify/functions/create-checkout-session",
+             # No payment provider is connected: the cart says so instead of
+             # opening a checkout. A provider's adapter sets its endpoint here.
+             "checkoutEndpoint": "",
              "chatEndpoint": "/.netlify/functions/chat",
              "addonAvailabilityEndpoint": "/.netlify/functions/addon-availability",
              "addons": ADDONS_BROWSER,
@@ -2045,11 +2043,12 @@ def build_meta(pages):
              "demo": DEMO}, indent=2
         ) + ";\n", encoding="utf-8")
 
-    # The checkout function must not take a price from the browser, so it needs
-    # its own copy of the price table. Generating it here keeps products.json the
-    # single source of truth: the function cannot drift from the catalogue
-    # because it is rebuilt from it on every deploy. Only what pricing an order
-    # needs is written out — no prose, no assay panels.
+    # The server must not take a price from the browser, so the functions need
+    # their own copy of the price table (priced by netlify/lib/payment.js).
+    # Generating it here keeps products.json the single source of truth: it
+    # cannot drift from the catalogue because it is rebuilt from it on every
+    # deploy. Only what pricing an order needs is written out — no prose, no
+    # assay panels.
     catalog = {
         "currency": CURRENCY,
         "demo": DEMO,

@@ -6,9 +6,11 @@ laboratory research use only.
 No framework, no build toolchain, no runtime dependencies. Pages are generated
 from a single Python script so that shared chrome and compliance language can
 never drift between pages. The server-side code is a handful of Netlify
-Functions, there because a static page cannot hold a secret key: one creates
-Stripe Checkout sessions, and one answers the order and product help
-assistant (see [Support assistant](#support-assistant)).
+Functions, there because a static page cannot hold a secret key: one answers
+the order and product help assistant (see
+[Support assistant](#support-assistant)), one sends new-order notifications,
+and the rest serve the operations console. **No payment provider is connected
+yet** (see [Payment boundary](#payment-boundary)).
 
 **Taking this site over? Start with [HANDOVER.md](HANDOVER.md)** — it lists
 everything an operator has to supply, deploy and decide, in order. This file
@@ -22,14 +24,9 @@ Free, and nothing it touches is live. Netlify reads `netlify.toml`, so every
 build setting comes across — including `TR_DEMO = "1"`, which puts a
 not-trading bar on every page and keeps the deploy out of search results.
 
-Checkout works on the demo, against Stripe's **test** mode, so the thing the
-site is a demonstration *of* can actually be shown. Add
-`STRIPE_SECRET_KEY` (an `sk_test_...` key) under **Site configuration →
-Environment variables**, redeploy, and pay with `4242 4242 4242 4242`.
-
-The function refuses to run a demo build against a live key, so this cannot
-quietly start taking real money. Full steps, including the redeploy people
-miss: [HANDOVER.md §2b](HANDOVER.md).
+No payment provider is connected, so the cart's Checkout button says online
+payment is not available yet and asks the customer to email the order instead.
+Nothing on the site can take money. Full steps: [HANDOVER.md §2b](HANDOVER.md).
 
 ---
 
@@ -59,7 +56,7 @@ products/<id>.html      27 generated specification pages
 specimen-coa.html       Worked example of a certificate of analysis
 coa.html                Certificate index; links a PDF where one exists
 pay.html                How ordering and payment work
-order-received.html     Stripe success_url; confirms and empties the cart
+order-received.html     Payment success page; confirms and empties the cart
 legal/                  terms.html, privacy.html, shipping.html
 assets/
   css/main.css          Design tokens + all component styles
@@ -81,8 +78,7 @@ tools/make_vial.py      Rebuilds the vial asset from the photograph
 tools/make_logo.py      Rebuilds the flame mark and favicon
 tools/check.py          Structural / link / a11y-hygiene checks
 netlify/functions/
-  create-checkout-session.js  Creates the Stripe session
-  catalog.json          Price table it charges from (generated)
+  catalog.json          Price table orders are priced from (generated)
   chat.js               Support assistant: screens, calls the Anthropic API
   chat-knowledge.json   Everything the assistant may answer from (generated)
   addon-availability.js In stock or not, per stock-tracked add-on (read-only)
@@ -93,9 +89,14 @@ netlify/lib/admin-api.js   Operations console: rules shared by the read API
 netlify/functions/admin-*.js  Operations console API (GET reads; POST writes on three)
 netlify/lib/notify.js   New-order notifications: messages, Postmark and Twilio
 netlify/lib/db.js       The database (Neon), server side: queries, transactions,
-                        types and errors. Not used by any function yet
+                        types and errors
+netlify/lib/payment.js  The payment boundary: prices a cart, builds the
+                        normalized paid order, takes payment outcomes
 netlify/lib/orders.js   Order intake: records a paid order, whoever took the
-                        payment (one transaction on Neon). Not wired yet
+                        payment (one transaction on Neon); the only code
+                        that creates orders
+tools/simulate_paid_order.mjs  Development only: simulates a payment outcome
+                        to exercise the order flow (never deployed)
 netlify/functions/notify-dispatch.js  Sends due notifications (scheduled, every minute)
 tools/addons.py         Reads, validates and resolves assets/data/addons.json
 supabase/migrations/    0001 orders; 0002 add-ons; 0003 order lifecycle,
@@ -241,10 +242,7 @@ To go live:
    is an SEO problem rather than a visible one.
 4. Enquiries arrive under **Forms → enquiry**. Turn on the email notification
    there, or nothing will tell you a lead came in.
-5. Set `STRIPE_SECRET_KEY` under **Site configuration → Environment variables**
-   — *not* in `netlify.toml`, which is in the repository. Until it is set, the
-   checkout button reports that checkout is unavailable.
-6. Optional: set `ANTHROPIC_API_KEY` there too, to switch on the support
+5. Optional: set `ANTHROPIC_API_KEY` there too, to switch on the support
    assistant. Set a monthly spend limit for the key in the Claude Console
    first (HANDOVER §3d). Until it is set, the assistant tells visitors it is unavailable and
    points them to the contact page.
@@ -279,17 +277,15 @@ python3 tools/build.py && python3 tools/dist.py
 | `TR_FORM_ENDPOINT` | *(empty)* | Target when `TR_FORM_PROVIDER=endpoint` |
 | `TR_ANALYTICS_HEAD` | *(empty)* | Raw `<head>` markup for an analytics tag |
 | `TR_LEGAL_ENTITY` / `TR_LEGAL_ADDRESS` / `TR_LEGAL_STATE` / `TR_LEGAL_EMAIL` | see *Legal documents* | Parties, controller and governing-law clauses |
-| `TR_DEMO` | *(off)* | `1` marks the build a demonstration: a not-trading bar on every page, `noindex`, `robots.txt` disallowing all, and a checkout that runs against Stripe's test mode and says so |
+| `TR_DEMO` | *(off)* | `1` marks the build a demonstration: a not-trading bar on every page, `noindex`, and `robots.txt` disallowing all |
 
-The checkout function reads its own, set on the deploy rather than at build time:
+Order pricing (`netlify/lib/payment.js`) reads two, set on the deploy rather
+than at build time:
 
 | Variable | Default | Effect |
 |---|---|---|
-| `STRIPE_SECRET_KEY` | *(none)* | Required. Never put it in `netlify.toml` |
-| `TR_SHIP_STANDARD_CENTS` | `1500` | Standard shipping rate offered at checkout |
-| `TR_SHIP_EXPRESS_CENTS` | `3500` | Express shipping rate offered at checkout |
-| `TR_SHIP_COUNTRIES` | *(empty)* | Comma-separated ISO codes; empty uses the list in the function |
-| `TR_STRIPE_TAX` | *(off)* | `1` enables Stripe Tax on the session |
+| `TR_SHIP_STANDARD_CENTS` | `1500` | Standard shipping rate, in cents |
+| `TR_SHIP_EXPRESS_CENTS` | `3500` | Express shipping rate, in cents |
 
 The support assistant reads one, also set on the deploy:
 
@@ -348,12 +344,12 @@ would undermine everything the rest of the site is built on.
 
 **Volume pricing** is `volumeTiers` in `products.json`, applied per cart line
 and computed three times from that one source: the product page states the
-breaks, the cart shows the discount and the saving, and the checkout function
-recalculates it for the charge. Only the third is authoritative — a discount in
-the request is ignored. `freeShippingOver` zeroes the standard shipping rate
+breaks, the cart shows the discount and the saving, and the server
+(`priceCart` in `netlify/lib/payment.js`) recalculates it for the charge. Only
+the third is authoritative — a discount in the request is ignored. `freeShippingOver` zeroes the standard shipping rate
 once the goods subtotal clears it, measured after discount. `check.py` refuses
 impossible or non-monotonic tiers, and a browser test asserts the cart's
-subtotal equals what the function independently arrives at for the same cart.
+subtotal equals what the server independently arrives at for the same cart.
 
 **Two product flags, deliberately separate.** `"restricted": true` marks a
 compound that corresponds to an approved or investigational pharmaceutical
@@ -362,7 +358,7 @@ the specification page saying what the material is and is not; it says nothing
 about how the compound is bought, and `check.py` fails the build if a flagged
 compound has no such notice. `"cart": false` is the other one: it keeps a
 compound listed and priced but replaces its add control with an Enquire link and
-has the checkout function refuse the id. Nothing carries it today; it is the
+has the server's pricing refuse the id. Nothing carries it today; it is the
 lever for pulling one SKU off card payment without delisting it. `check.py`
 fails if a page still offers to cart something marked that way.
 
@@ -769,8 +765,7 @@ anything about staff); a valid token that is not active staff is 403
 is 500 `unavailable` — never access. The log records a reason code, and the
 user id for staff-level refusals; never a token or any key.
 
-**Configuration.** None new: `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`,
-the same two the order webhook uses.
+**Configuration.** `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`.
 
 **Testing.**
 
@@ -932,7 +927,8 @@ carrying any field besides `action` is refused. If the catalogue is missing,
 empty or malformed, the sync stops with 500 rather than deactivate stock.
 
 **Cancelled and refunded are records.** Setting either status, from the
-console or anywhere else, moves no money; refunds are made in Stripe.
+console or anywhere else, moves no money; refunds are made with the payment
+provider.
 
 **Testing.**
 
@@ -956,21 +952,78 @@ migrations applied, acting as the service role. It checks four things:
 - a staff member deactivated mid-request is refused by the database itself
   (403, nothing written).
 
+## Payment boundary
+
+No payment provider is connected. The cart's Checkout button says online
+payment is not available yet and asks the customer to email the order
+(`checkoutEndpoint` is empty in `assets/js/config.js`). Everything after the
+payment is provider-neutral, so a provider plugs in at one edge:
+
+```
+cart → provider adapter → recordPaymentEvent({ status, order })   netlify/lib/payment.js
+                        → recordPaidOrder(order)                  netlify/lib/orders.js
+                        → order + lines + owner email/SMS queued  one transaction on Neon
+                        → notify-dispatch → Postmark / Twilio
+```
+
+`netlify/lib/payment.js`:
+
+- `priceCart(catalog, cart, { shipping })`: the only server-side pricing. The
+  cart is what the browser sends (`{ items: [{ id, size, qty }],
+  researchUseConfirmed: true }`); prices, volume tiers and shipping come from
+  `netlify/functions/catalog.json` and the deploy's shipping rates.
+- `paidOrderFromCart(priced, payment)`: the normalized paid order
+  `recordPaidOrder()` takes, from a priced cart and what the provider confirms
+  (`reference`, `amountPaid`, customer, shipping address). Lines name their
+  product and pack size.
+- `recordPaymentEvent({ status, order })`: `paid` records the order (once,
+  however often it is reported) and queues the owner's notifications; `failed`
+  and `cancelled` record nothing; anything else is refused.
+
+A provider's adapter only has to start a payment for a priced cart and, when
+the provider confirms it, call `recordPaymentEvent`. The orders table still
+names the payment reference `stripe_session_id`; it holds whatever reference
+the provider gives.
+
+**Simulating a payment (development only).** `tools/simulate_paid_order.mjs`
+plays the provider, so the flow can be exercised without one:
+
+```bash
+python3 tools/build.py
+TR_SIMULATE_PAYMENTS=1 DATABASE_URL=<a development or staging Neon branch> \
+  node tools/simulate_paid_order.mjs --cart '{"items":[{"id":"bpc-157","size":"10 mg","qty":2}]}'
+```
+
+It prints the order and the two notifications it queued. `--event failed` or
+`--event cancelled` records nothing; `--reference <ref>` replays a payment.
+Every order it makes is a test order: reference `test_sim_…`, customer
+"TEST ORDER (simulated)", and the owner's email and text say `[TEST]`. It
+refuses to run without `TR_SIMULATE_PAYMENTS=1`, inside a Netlify build or
+function, or with `NODE_ENV=production`. It lives in `tools/`, which is never
+deployed, and nothing under `netlify/` imports it.
+
+Tests: `node --test tests/payment.test.js` (pricing, the normalized order,
+payment outcomes, the simulator's guards, and that orders are created and
+priced in one place only) and `tests/db/payment.test.mjs` (the simulator
+through `recordPaidOrder()` against PostgreSQL: one order, one email and one
+SMS queued, repeats and failures, and the dispatcher sending both marked
+`[TEST]`).
+
 ## New-order notifications
 
 When a paid order arrives, the owner gets an email (Postmark) and a text
 (Twilio), usually within a minute. Nothing is sent until `NOTIFY_ENABLED` is
 set to exactly `1`; HANDOVER §3h says how to set it up.
 
-**One event per new order, never two.** The payment webhook records an order
-with an upsert on its Stripe session, so a retried delivery updates the same
-row. Migration 0005 adds an `AFTER INSERT` trigger on `orders`, which fires
-for a genuinely new paid order and never for a retry. It writes one `email`
+**One event per new order, never two.** A paid order is recorded by
+`recordPaidOrder()` (`netlify/lib/orders.js`), reached through the payment
+boundary (`recordPaymentEvent()`), and a payment reported twice is recorded
+once. Migration 0005 adds an `AFTER INSERT` trigger on `orders`, which fires
+for a genuinely new paid order and never for a repeat. It writes one `email`
 and one `sms` row, unique per order and channel, into the
 `order_notifications` outbox, in the same transaction as the order. If that
-insert fails, the order insert fails too: the webhook answers 500 and Stripe
-retries, so an order is never recorded with its notification silently lost.
-The payment webhook itself is unchanged.
+insert fails, the order insert fails too, so an order is never recorded with
+its notification silently lost.
 
 **Sending.** `notify-dispatch` runs every minute (`netlify.toml`) and takes
 no input:
@@ -986,9 +1039,9 @@ no input:
   - **retry:** after 1, 5, 15, 60 and 360 minutes, then failed;
   - **failed:** the provider refused the request.
 - **Waiting rules:**
-  - An order is given up to five minutes for its line items, which the
-    webhook writes just after the order. After that the email says the
-    lines were unavailable.
+  - An order is given up to five minutes for its line items, in case they
+    are recorded just after the order. After that the email says the lines
+    were unavailable. (`recordPaidOrder()` writes both together.)
   - A channel that is not fully configured waits rather than being dropped.
   - Anything over a day old is marked skipped. Switching notifications on
     never sends a backlog.
@@ -1011,9 +1064,10 @@ The notification id is sent to Postmark as metadata, for tracing.
   It never includes the customer's email or phone: the claim does not even
   return them. A test order's subject starts `[TEST]` and its body opens with
   a "test order, not a real sale, do not ship" line.
-- **Live or test.** An order counts as live only if its Stripe session id
-  starts `cs_live_` and the deploy is not a demo. Anything else, including
-  anything unrecognised, is labelled a test.
+- **Live or test.** An order counts as live only if its payment reference
+  starts `cs_live_` (a Stripe live session id; this rule is replaced when a
+  provider is chosen) and the deploy is not a demo. Anything else, including
+  anything unrecognised and every simulated payment, is labelled a test.
 
 **What is stored and logged.** The outbox holds ids, channel, delivery state,
 a short error code and the provider's message id. It holds no message text
@@ -1059,8 +1113,8 @@ database stubbed:
 `tests/db/notifications.test.mjs` runs migration 0005 in PostgreSQL 16. It
 checks that:
 
-- a new paid order queues exactly two rows, and replays of the webhook's
-  upsert queue none;
+- a new paid order queues exactly two rows, and a repeated upsert of the same
+  order queues none;
 - existing orders are not backfilled;
 - an outbox failure fails the order;
 - access is as described;
@@ -1229,19 +1283,12 @@ Browser tests (Playwright, Chromium) cover the entry affirmation (what it
 blocks, what it remembers, and all three fail-open paths), volume pricing and
 free shipping end to end, catalog filtering,
 CAS search, sorting, out-of-stock state, pack-size to price and label sync, cart
-persistence, the `"cart": false` refusal, the checkout consent gate, the
-redirect to Stripe, what the browser actually posts, cart clearing after
-payment, checkout failure handling, demo mode, form validation and submission,
+persistence, the `"cart": false` refusal, the checkout consent gate, demo
+mode, form validation and submission,
 the accordion and mobile nav.
 
-The checkout function has its own suite: the amount charged comes from the
-server-side table and not from the request, every volume tier is checked at its
-own boundary, a discount sent by the browser is ignored, free shipping is
-measured on what is actually charged, every pack size of the multi-size
-compound prices independently, and every refusal path — a compound marked
-non-buyable, unknown id or size, bad quantity, duplicate lines, missing consent,
-oversized body, wrong method, missing key, Stripe errors — is asserted. Stripe
-itself is stubbed; see HANDOVER §3c for the live test that is still owed.
+The payment boundary has its own suites (see
+[Payment boundary](#payment-boundary)).
 
 ---
 

@@ -23,7 +23,7 @@
  * and the signature checked when it comes back; an unsigned assistant turn is
  * refused.
  *
- * No npm dependency, for the same reason as create-checkout-session.js: the
+ * No npm dependency, for the same reason as the other functions: the
  * Messages API is one JSON POST and the runtime has fetch.
  *
  * Nothing a visitor types is logged. The function log gets the outcome, the

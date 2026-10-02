@@ -107,8 +107,8 @@
   }
 
   /* The best quantity break a line qualifies for, or null. Mirrored exactly in
-     netlify/functions/create-checkout-session.js, which is the one that counts
-     — this copy only decides what the drawer says. If the two ever disagree the
+     netlify/lib/payment.js (priceCart), which is the one that counts — this
+     copy only decides what the drawer says. If the two ever disagree the
      customer sees one number and is charged another, so both read their tiers
      from the same place: products.json, via the build. */
   function tierFor(qty) {
@@ -314,8 +314,7 @@
     lastFocus = document.activeElement;
     /* The toast sits bottom-centre and the drawer is full-width on a phone, so
        an "added to cart" message raised a moment earlier lands on top of the
-       drawer's own footnote — on a demo build that is the line carrying the
-       test card number. The open cart is a better confirmation than the toast
+       drawer's own footnote, which says how to order. The open cart is a better confirmation than the toast
        was, so retire it rather than stack the two. */
     dismissToast();
     render();
@@ -424,8 +423,8 @@
 
   /* ---------------------------------------------------------------- checkout */
   /* The cart holds prices so it can show a subtotal, but only ids, pack sizes
-     and quantities are sent: the amount charged is priced by the function from
-     its own copy of the catalogue. A price posted from a browser is a number
+     and quantities are sent: the amount charged is priced on the server
+     (netlify/lib/payment.js) from its own copy of the catalogue. A price posted from a browser is a number
      the customer chose. */
   var checkoutBtn = document.getElementById('cart-checkout');
   var consent = document.getElementById('cart-confirm');
@@ -443,6 +442,12 @@
     checkoutBtn.addEventListener('click', function () {
       var list = read();
       if (!list.length) { showCartError('Your cart is empty.'); return; }
+      // No payment provider is connected yet, so there is no checkout to open.
+      if (!CFG.checkoutEndpoint) {
+        showCartError('Online payment is not available yet, so nothing can be paid for here and nothing has been charged. ' +
+          'Email ' + (CFG.contactEmail || 'us') + ' with your cart and we will take the order by hand.');
+        return;
+      }
       if (consent && !consent.checked) {
         showCartError('Please confirm the research use condition before checking out.');
         consent.focus();
@@ -453,7 +458,7 @@
       var label = checkoutBtn.textContent;
       checkoutBtn.textContent = 'Opening checkout\u2026';
 
-      fetch(CFG.checkoutEndpoint || '/.netlify/functions/create-checkout-session', {
+      fetch(CFG.checkoutEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -274,13 +274,10 @@ for _p in _products:
         fail(f"products/{_p['id']}.html is flagged restricted but carries no notice explaining it")
 
 # --------------------------------------------------- checkout price table
-# The function charges from netlify/functions/catalog.json, which build.py
-# regenerates from products.json. If the two disagree, the page shows one price
-# and the card is charged another.
-_fn = ROOT / "netlify/functions/create-checkout-session.js"
+# Orders are priced (netlify/lib/payment.js) from netlify/functions/catalog.json,
+# which build.py regenerates from products.json. If the two disagree, the page
+# shows one price and the order is charged another.
 _cat = ROOT / "netlify/functions/catalog.json"
-if not _fn.exists():
-    fail("missing netlify/functions/create-checkout-session.js")
 if not _cat.exists():
     fail("missing netlify/functions/catalog.json (run tools/build.py)")
 else:

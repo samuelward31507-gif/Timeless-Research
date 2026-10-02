@@ -1,12 +1,11 @@
 /*
  * Order intake: records a paid order, whoever took the payment.
  *
- * Payment is an abstraction here. A payment integration (the Stripe webhook
- * today, or any other provider later) verifies its own event, turns it into
- * the plain object below, and calls recordPaidOrder(). Nothing in this file
- * knows which provider took the money, and no provider code depends on it
- * yet: the Stripe webhook still records orders its own way until it is moved
- * over.
+ * Payment is an abstraction here. A payment provider's adapter verifies its
+ * own event and reports it through netlify/lib/payment.js
+ * (recordPaymentEvent), which turns a paid one into the plain object below and
+ * calls recordPaidOrder(). Nothing in this file knows which provider took the
+ * money. This is the only code that creates orders.
  *
  *   recordPaidOrder({
  *     reference,            the provider's unique id for this payment (a

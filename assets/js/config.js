@@ -4,7 +4,7 @@ window.TR_CONFIG = {
   "contactEmail": "accounts@timelessresearch.com",
   "formProvider": "netlify",
   "formEndpoint": "",
-  "checkoutEndpoint": "/.netlify/functions/create-checkout-session",
+  "checkoutEndpoint": "",
   "chatEndpoint": "/.netlify/functions/chat",
   "addonAvailabilityEndpoint": "/.netlify/functions/addon-availability",
   "addons": {
